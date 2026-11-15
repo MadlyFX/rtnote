@@ -23,6 +23,8 @@ const signingIdentity = (identity) => {
 // electron-builder skips Contents/PlugIns, and it notarizes before afterSign.
 // This replaces mac.sign so the share extension is Developer ID signed, timestamped,
 // and hardened before notarization. The outer app is sealed again afterwards.
+// RTNote builds without a certificate use the ad-hoc identity "-": no timestamp
+// and no hardened runtime, which ad-hoc signatures cannot carry.
 module.exports = async function signMacApp(opts) {
   await signApp(opts);
   const appexPath = join(opts.app, "Contents", "PlugIns", "EdgeEverShare.appex");
@@ -31,15 +33,15 @@ module.exports = async function signMacApp(opts) {
   }
   const identity = signingIdentity(opts.identity);
   if (!identity) {
-    throw new Error("macOS share extension cannot be signed without a Developer ID identity");
+    throw new Error("macOS share extension cannot be signed without an identity (use \"-\" for ad-hoc)");
   }
+  const adHoc = identity === "-";
   const entitlements = join(__dirname, "..", "share-extension", "EdgeEverShare.entitlements");
-  const shared = ["--force", "--sign", identity, "--timestamp"];
+  const shared = adHoc ? ["--force", "--sign", identity] : ["--force", "--sign", identity, "--timestamp"];
   if (opts.keychain) shared.push("--keychain", opts.keychain);
   codesign([
     ...shared,
-    "--options",
-    "runtime",
+    ...(adHoc ? [] : ["--options", "runtime"]),
     "--generate-entitlement-der",
     "--entitlements",
     entitlements,
@@ -47,7 +49,7 @@ module.exports = async function signMacApp(opts) {
   ]);
   codesign([
     ...shared,
-    "--preserve-metadata=entitlements,requirements,flags,runtime",
+    adHoc ? "--preserve-metadata=entitlements,requirements,flags" : "--preserve-metadata=entitlements,requirements,flags,runtime",
     opts.app,
   ]);
 };

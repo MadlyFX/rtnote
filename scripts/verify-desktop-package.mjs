@@ -90,9 +90,8 @@ for (const sidecarPath of files.filter((path) => /[\\/]resources[\\/]sidecar[\\/
 if (requestedPlatform === "darwin") {
   assert.ok(["arm64", "x64"].includes(requestedArch), `Unsupported macOS architecture: ${requestedArch}`);
   assert.ok(existsSync(join(outputDirectory, `RTNote-${version}-mac-${requestedArch}.dmg`)), `macOS package must contain the current ${requestedArch} DMG`);
-  assert.ok(existsSync(join(outputDirectory, `RTNote-${version}-mac-${requestedArch}.dmg.blockmap`)), `macOS package must contain the current ${requestedArch} DMG blockmap`);
   assert.ok(existsSync(join(outputDirectory, `RTNote-${version}-mac-${requestedArch}.zip`)), `macOS package must contain the current ${requestedArch} update ZIP`);
-  assert.ok(existsSync(join(outputDirectory, `RTNote-${version}-mac-${requestedArch}.zip.blockmap`)), `macOS package must contain the current ${requestedArch} ZIP blockmap`);
+  // Blockmaps exist only for automatic updates; manual-update builds may omit them.
   const unpackedDirectory = requestedArch === "x64" ? "mac" : `mac-${requestedArch}`;
   const unpackedApp = join(outputDirectory, unpackedDirectory, "RTNote.app");
   assert.ok(existsSync(unpackedApp), "macOS package must contain the unpacked app bundle");

@@ -1,5 +1,11 @@
 extends: ./electron-builder.yml
-# Fork artifacts are installed manually. No official update feed is bundled.
+# RTNote builds are installed manually. No update feed is bundled.
 publish: null
 extraMetadata:
   edgeeverUpdatePolicy: manual
+mac:
+  # No Apple Developer certificate yet: sign ad-hoc so Apple Silicon can launch
+  # the app. Ad-hoc signatures cannot use hardened runtime with Electron's
+  # pre-signed frameworks, and the app is not notarized.
+  identity: "-"
+  hardenedRuntime: false

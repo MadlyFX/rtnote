@@ -71,12 +71,21 @@ else
 fi
 
 cd "$ANDROID_DIR"
+# CI runners have 7 GB shared by Metro, the Gradle and Kotlin daemons, lint and R8
+# workers, so CI lowers these through the EDGE_EVER_ANDROID_* variables.
+GRADLE_JVMARGS="${EDGE_EVER_ANDROID_GRADLE_JVMARGS:--Xmx6g -XX:MaxMetaspaceSize=1g}"
 COMMON_ARGS=(
   --build-cache
   --parallel
   --daemon
-  -Dorg.gradle.jvmargs=-Xmx6g\ -XX:MaxMetaspaceSize=1g\ -Dfile.encoding=UTF-8
+  "-Dorg.gradle.jvmargs=$GRADLE_JVMARGS -Dfile.encoding=UTF-8"
 )
+if [[ -n "${EDGE_EVER_ANDROID_GRADLE_MAX_WORKERS:-}" ]]; then
+  COMMON_ARGS+=("--max-workers=$EDGE_EVER_ANDROID_GRADLE_MAX_WORKERS")
+fi
+if [[ -n "${EDGE_EVER_ANDROID_KOTLIN_DAEMON_JVMARGS:-}" ]]; then
+  COMMON_ARGS+=("-Pkotlin.daemon.jvmargs=$EDGE_EVER_ANDROID_KOTLIN_DAEMON_JVMARGS")
+fi
 
 : "${ANDROID_KEYSTORE_FILE:?请设置 ANDROID_KEYSTORE_FILE（本地上传密钥路径）}"
 : "${ANDROID_KEYSTORE_PASSWORD:?请设置 ANDROID_KEYSTORE_PASSWORD}"

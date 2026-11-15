@@ -3,8 +3,9 @@ import { existsSync, readdirSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-export const EDGE_EVER_ANDROID_SIGNER_SHA256 =
-  "22bf52a9501c89020f5acc966960152c826bfa64f31e578e858d088f8cd75d87";
+// SHA-256 of the RTNote release signing certificate (alias "rtnote").
+export const RTNOTE_ANDROID_SIGNER_SHA256 =
+  "3e8032295733924bd2506eca2f2117f367e644ed0e26e805b9ab9f3cc0667039";
 
 const normalizeFingerprint = (value) =>
   value.toLowerCase().replace(/[^0-9a-f]/g, "");
@@ -13,7 +14,7 @@ export const parseAllowedAndroidSignerDigests = (value = "") => {
   const configured = value.split(",").map(normalizeFingerprint).filter(Boolean);
   const digests = configured.length > 0
     ? configured
-    : [EDGE_EVER_ANDROID_SIGNER_SHA256];
+    : [RTNOTE_ANDROID_SIGNER_SHA256];
   if (digests.some((digest) => digest.length !== 64)) {
     throw new Error("Every allowed Android signer must be a SHA-256 fingerprint.");
   }

@@ -1,6 +1,6 @@
 {
   "name": "@edgeever/desktop",
-  "version": "2.22.0",
+  "version": "2.23.0",
   "desktopName": "RTNote",
   "private": true,
   "description": "Native RTNote desktop client",

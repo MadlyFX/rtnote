@@ -53,7 +53,7 @@ const normalizeVersion = (value: string) => {
   return normalized && valid(normalized) ? normalized : null;
 };
 
-const ANDROID_ASSET_PATTERN = /^edgeever-android-v(\d+\.\d+\.\d+)-arm64-v8a\.apk$/;
+const ANDROID_ASSET_PATTERN = /^rtnote-android-v(\d+\.\d+\.\d+)-arm64-v8a\.apk$/;
 
 const findAndroidReleaseAsset = (assets: unknown): MobileRelease | null => {
   if (!Array.isArray(assets)) return null;

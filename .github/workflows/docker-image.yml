@@ -1,0 +1,137 @@
+name: Docker image
+
+# Builds the self-hosted container and checks that it starts and serves the
+# shared API. The Release workflow calls this with a release tag to publish a
+# multi-platform image to ghcr.io/madlyfx/rtnote.
+on:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      release_tag:
+        description: Release tag (vX.Y.Z) to publish; empty to build and test only
+        type: string
+        default: ''
+  pull_request:
+    branches: [main]
+    paths:
+      - 'Dockerfile'
+      - '.dockerignore'
+      - 'compose.yaml'
+      - 'apps/api/**'
+      - 'apps/web/**'
+      - 'packages/**'
+      - 'migrations/**'
+      - 'scripts/self-hosted-*.mjs'
+      - 'package.json'
+      - 'bun.lock'
+      - '.github/workflows/docker-image.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  container-test:
+    name: Build and verify container
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Build image
+        run: |
+          docker build \
+            --build-arg EDGE_EVER_BUILD_ID="${GITHUB_SHA}" \
+            --build-arg EDGE_EVER_BUILD_CREATED_AT="2026-01-02T03:04:05Z" \
+            --build-arg EDGE_EVER_BUILD_TRIGGER=main_push \
+            --build-arg EDGE_EVER_BUILD_METHOD=github_actions \
+            --tag rtnote:ci .
+      - name: Start container
+        run: |
+          docker run --detach --name rtnote-ci \
+            --env EDGE_EVER_AUTH_PASSWORD=container-ci-password \
+            --env EDGE_EVER_DEPLOYMENT_TRIGGER=manual \
+            --env EDGE_EVER_DEPLOYMENT_METHOD=docker \
+            --publish 127.0.0.1:8787:8787 \
+            rtnote:ci
+      - name: Verify shared API and persistent storage
+        run: |
+          for attempt in $(seq 1 60); do
+            if health="$(curl --fail --silent --show-error http://127.0.0.1:8787/api/health)"; then
+              break
+            fi
+            sleep 1
+          done
+          echo "${health}" | jq -e '.ok == true and .runtime == "self-hosted-bun" and .authMode == "required"'
+          echo "${health}" | jq -e '.buildProvenance == {"trigger": "main_push", "method": "github_actions"}'
+          curl --fail --silent --show-error http://127.0.0.1:8787/ | grep -F '<!doctype html>'
+          docker exec rtnote-ci test -f /data/edgeever.sqlite
+          docker exec rtnote-ci test -d /data/resources
+      - name: Stop container gracefully
+        run: |
+          docker stop --timeout 30 rtnote-ci
+          docker logs rtnote-ci | grep -F '[self-hosted] shutdown complete'
+      - name: Show container logs on failure
+        if: failure()
+        run: docker logs rtnote-ci || true
+
+  publish:
+    if: github.repository == 'MadlyFX/rtnote' && inputs.release_tag != ''
+    needs: container-test
+    name: Publish multi-platform image
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      packages: write
+    env:
+      IMAGE: ghcr.io/madlyfx/rtnote
+      RELEASE_TAG: ${{ inputs.release_tag }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Resolve image tags
+        id: image
+        run: |
+          if [[ ! "${RELEASE_TAG}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "release_tag must match vX.Y.Z" >&2
+            exit 1
+          fi
+          version="${RELEASE_TAG#v}"
+          {
+            echo "created_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "version=${version}"
+            echo "tags<<EOF"
+            echo "${IMAGE}:${RELEASE_TAG}"
+            echo "${IMAGE}:${version}"
+            echo "${IMAGE}:latest"
+            echo "EOF"
+          } >> "${GITHUB_OUTPUT}"
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and publish image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          build-args: |
+            EDGE_EVER_BUILD_ID=${{ github.sha }}
+            EDGE_EVER_BUILD_CREATED_AT=${{ steps.image.outputs.created_at }}
+            EDGE_EVER_BUILD_TRIGGER=github_release
+            EDGE_EVER_BUILD_METHOD=github_actions
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.image.outputs.tags }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ steps.image.outputs.created_at }}
+            org.opencontainers.image.version=${{ steps.image.outputs.version }}
+            org.opencontainers.image.licenses=AGPL-3.0-only
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
