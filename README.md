@@ -44,7 +44,7 @@ RTNote differs from EdgeEver in a few deliberate ways:
 | Web clipper | `apps/extension` | Manifest V3 |
 | API and MCP | `apps/api` | Hono on Cloudflare Workers or Bun |
 
-GitHub Actions builds Windows, Linux and macOS installers, a signed Android APK and both web clipper packages. Pushing a version tag publishes them all to a GitHub Release. See [Builds and releases](docs/builds.md) for install notes; desktop and clipper builds are not code-signed yet.
+GitHub Actions builds Windows, Linux and macOS installers and both web clipper packages (the Android APK build is paused for now). Pushing a version tag publishes them all to a GitHub Release. See [Builds and releases](docs/builds.md) for install notes; desktop and clipper builds are not code-signed yet.
 
 ## Deployment
 
