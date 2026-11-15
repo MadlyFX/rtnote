@@ -51,6 +51,7 @@ import {
 import { CODE_BLOCK_LANGUAGES, getCodeBlockLanguageValue } from "@/lib/code-block";
 import { EditorTableMenu } from "@/components/EditorTableMenu";
 import { EditorColorMenu } from "@/components/EditorColorMenu";
+import { EditorAlignMenu, EditorFontMenu } from "@/components/EditorTextFormatMenus";
 import { wrapIndentedParagraphInList } from "@/lib/editor-shortcuts";
 import {
   MARKDOWN_THEME_PREFERENCES,
@@ -505,7 +506,9 @@ export const EditorToolbar = ({
           >
             <Strikethrough className="h-4 w-4" />
           </EditorToolbarButton>
+          <EditorFontMenu editor={editor} readOnly={readOnly} />
           <EditorColorMenu editor={editor} readOnly={readOnly} />
+          <EditorAlignMenu editor={editor} readOnly={readOnly} />
           <EditorToolbarButton
             title={t("editorToolbar.inlineCode")}
             active={isActive("code")}

@@ -1,32 +1,44 @@
 import { NodeSelection, Plugin, PluginKey, type EditorState } from "@tiptap/pm/state";
 import { closeHistory } from "@tiptap/pm/history";
 import type { EditorView } from "@tiptap/pm/view";
-import { IMAGE_GALLERY_NODE_TYPE } from "@edgeever/shared";
+import { IMAGE_FIGURE_NODE_TYPE, IMAGE_GALLERY_NODE_TYPE } from "@edgeever/shared";
 import { imageSelectionKey } from "./image-selection";
 
 export const imageDragKey = new PluginKey<number | null>("imageDrag");
 
-/** Move the original node, preserving resource references and every attribute. */
+/**
+ * Move the original node, preserving resource references and every attribute.
+ * A captioned image moves together with its caption.
+ */
 export function moveImage(state: EditorState, from: number, target: number) {
   if (from < 0 || from >= state.doc.content.size) return null;
   const image = state.doc.nodeAt(from);
   if (image?.type.name !== "image" || target < 0 || target > state.doc.content.size) return null;
-  if (target >= from && target <= from + image.nodeSize) return null;
 
   const $from = state.doc.resolve(from);
+  const captioned = $from.parent.type.name === IMAGE_FIGURE_NODE_TYPE;
+  const moving = captioned ? $from.parent : image;
+  const movingFrom = captioned ? $from.before() : from;
+  if (target >= movingFrom && target <= movingFrom + moving.nodeSize) return null;
+
   const tr = closeHistory(state.tr);
   // Deleting a gallery's last child alone would cause schema filling to create
   // an empty image. Remove its container in the same transaction instead.
-  if ($from.parent.type.name === IMAGE_GALLERY_NODE_TYPE && $from.parent.childCount === 1) {
+  if (!captioned && $from.parent.type.name === IMAGE_GALLERY_NODE_TYPE && $from.parent.childCount === 1) {
     tr.delete($from.before(), $from.after());
   } else {
-    tr.delete(from, from + image.nodeSize);
+    tr.delete(movingFrom, movingFrom + moving.nodeSize);
   }
-  const position = tr.mapping.map(target);
-  const $target = tr.doc.resolve(position);
-  if (!$target.parent.canReplaceWith($target.index(), $target.index(), image.type)) return null;
-  tr.insert(position, image);
-  tr.setSelection(NodeSelection.create(tr.doc, position));
+  let position = tr.mapping.map(target);
+  let $target = tr.doc.resolve(position);
+  // Never drop into another captioned image; land beside it instead.
+  if ($target.parent.type.name === IMAGE_FIGURE_NODE_TYPE) {
+    position = $target.index() === 0 ? $target.before() : $target.after();
+    $target = tr.doc.resolve(position);
+  }
+  if (!$target.parent.canReplaceWith($target.index(), $target.index(), moving.type)) return null;
+  tr.insert(position, moving);
+  tr.setSelection(NodeSelection.create(tr.doc, captioned ? position + 1 : position));
   return tr.setMeta(imageSelectionKey, null).setMeta(imageDragKey, null).scrollIntoView();
 }
 

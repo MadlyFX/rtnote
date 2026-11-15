@@ -58,6 +58,7 @@ import {
   type DiagramDocument,
 } from "@edgeever/shared";
 import { createEdgeEverMathematics } from "@edgeever/shared/mathematics";
+import { createMobileFormatPanel, getMobileCaptionPlaceholder, type MobileFormatPanel } from "@edgeever/shared/mobile-format-panel";
 import {
   NEW_IMAGE_WIDTH_PERCENT,
   IMAGE_WIDTH_PRESETS,
@@ -674,6 +675,8 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
   const [aiPanel, setAiPanel] = useState<MobileAiPanelState | null>(null);
   const [aiSelectionTrigger, setAiSelectionTrigger] = useState<MobileAiSelectionTriggerPosition | null>(null);
   const [aiSelectionHint, setAiSelectionHint] = useState(false);
+  const [formatPanelOpen, setFormatPanelOpen] = useState(false);
+  const formatPanelRef = useRef<MobileFormatPanel | null>(null);
   const aiSelectionHintTimerRef = useRef<number | null>(null);
   const [aiUndoFingerprint, setAiUndoFingerprint] = useState<string | null>(null);
   const aiUndoTimerRef = useRef<number | null>(null);
@@ -777,6 +780,7 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
         file: false,
         pluginEmbed: false,
         table: { table: { renderWrapper: true } },
+        imageCaption: { placeholder: getMobileCaptionPlaceholder(props.locale) },
       }),
       EdgeEverLink.configure({ openOnClick: false }),
       NativeAttachmentMetadata,
@@ -1657,6 +1661,25 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
     });
   }, [editor, isViewer, visualDiagram]);
 
+  // The Format sheet (font, size, alignment, captions, table cells) is shared
+  // with iOS. It lives outside React because both editors build it from DOM.
+  useEffect(() => {
+    if (!editor || editor.isDestroyed || isViewer) return;
+    const panel = createMobileFormatPanel({
+      editor,
+      locale: props.locale,
+      theme: props.theme === "dark" ? "dark" : "light",
+      onOpenChange: setFormatPanelOpen,
+    });
+    document.body.appendChild(panel.element);
+    formatPanelRef.current = panel;
+    return () => {
+      panel.destroy();
+      if (formatPanelRef.current === panel) formatPanelRef.current = null;
+      setFormatPanelOpen(false);
+    };
+  }, [editor, isViewer, props.locale, props.theme]);
+
   const toolbarState = useEditorState({
     editor,
     selector: ({ editor: activeEditor }) =>
@@ -1726,6 +1749,7 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
     decreaseListIndent: <ListIndentDecreaseIcon />,
     blockquote: <QuoteIcon />,
     horizontalRule: <MinusIcon />,
+    format: <FormatIcon />,
   };
   const activeListItemType = editor?.isActive("taskItem") ? "taskItem" : "listItem";
   const toolbarHandlers: Record<MobileEditorToolbarActionId, () => void> = {
@@ -1739,6 +1763,7 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
     decreaseListIndent: () => editor?.chain().focus().liftListItem(activeListItemType).run(),
     blockquote: () => editor?.chain().focus().toggleBlockquote().run(),
     horizontalRule: () => editor?.chain().focus().setHorizontalRule().run(),
+    format: () => formatPanelRef.current?.toggle(),
   };
 
   return (
@@ -1749,7 +1774,7 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
           {MOBILE_EDITOR_TOOLBAR_ACTIONS.map((action) => (
               <ToolbarButton
                 key={action.id}
-                active={action.activeFlag > 0 && Boolean(toolbarState & action.activeFlag)}
+                active={action.id === "format" ? formatPanelOpen : action.activeFlag > 0 && Boolean(toolbarState & action.activeFlag)}
                 disabled={(action.id === "undo" && ((historyState ?? 0) & 1) === 0)
                   || (action.id === "redo" && ((historyState ?? 0) & 2) === 0)
                   || (action.id === "increaseListIndent"
@@ -2247,6 +2272,14 @@ const QuoteIcon = () => (
 const MinusIcon = () => (
   <EditorIcon size={18} strokeWidth={2.4}>
     <path d="M5 12h14" />
+  </EditorIcon>
+);
+
+const FormatIcon = () => (
+  <EditorIcon size={18} strokeWidth={2.2}>
+    <path d="M4 7V4h16v3" />
+    <path d="M9 20h6" />
+    <path d="M12 4v16" />
   </EditorIcon>
 );
 
@@ -3268,6 +3301,12 @@ const getEditorStyles = (theme: "light" | "dark", options?: { viewer?: boolean }
   .edgeever-editor-content ul[data-type="taskList"] li[data-checked="true"] > div > p { color: #94a3b8; text-decoration: line-through; }
   .edgeever-editor-content ul[data-type="taskList"] ul[data-type="taskList"] { margin: 4px 0 0; padding-left: 24px; }
   .edgeever-editor-content blockquote { margin-left: 0; margin-right: 0; max-width: 100%; padding: 6px 12px; border-left: 3px solid ${theme === "dark" ? "#475569" : "#cbd5e1"}; border-radius: 1px 4px 4px 1px; background: ${theme === "dark" ? "rgba(255, 255, 255, 0.05)" : "#f3f5f7"}; color: ${theme === "dark" ? "#f8fafc" : "#3d4450"}; }
+  .edgeever-editor-content figure[data-type="image-figure"] { margin: 1em 0; padding: 0; }
+  .edgeever-editor-content figure[data-type="image-figure"] > figcaption { position: relative; margin: 0.45em 0 0; font-size: 0.875em; line-height: 1.45; color: ${theme === "dark" ? "#9ca3af" : "#6b7280"}; text-align: left; }
+  .edgeever-editor-content figure[data-type="image-figure"][data-image-align="center"] > figcaption { text-align: center; }
+  .edgeever-editor-content figure[data-type="image-figure"][data-image-align="right"] > figcaption { text-align: right; }
+  .edgeever-editor-content figcaption.is-caption-empty::before { content: attr(data-caption-placeholder); position: absolute; inset: 0; color: ${theme === "dark" ? "#64748b" : "#9ca3af"}; pointer-events: none; text-align: inherit; }
+  .edgeever-editor-content[contenteditable="false"] figcaption.is-caption-empty { display: none; }
   .edgeever-editor-content pre { max-width: 100%; overflow-x: auto; border-radius: 8px; border: 1px solid ${theme === "dark" ? "#334155" : "#e2e8f0"}; padding: 12px 90px 12px 14px; background: ${theme === "dark" ? "#1e293b" : "#f8fafc"}; color: ${theme === "dark" ? "#e2e8f0" : "#0f172a"}; font-size: 0.88rem; box-shadow: 0 1px 2px ${theme === "dark" ? "rgba(0, 0, 0, 0.2)" : "rgba(15, 23, 42, 0.03)"}; }
   .edgeever-editor-content code { border-radius: 4px; padding: 2px 5px; border: 1px solid ${theme === "dark" ? "rgba(255, 255, 255, 0.12)" : "#e1e5ea"}; background: ${theme === "dark" ? "rgba(255, 255, 255, 0.06)" : "#f3f5f7"}; color: ${theme === "dark" ? "#f8fafc" : "#3d4450"}; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.88em; font-weight: 400; }
   .edgeever-editor-content pre code { padding: 0; border: 0; background: transparent; font-size: inherit; font-weight: normal; color: inherit; }

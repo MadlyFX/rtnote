@@ -133,3 +133,36 @@ test('shared actions can omit focus while toolbar actions retain the default foc
     editor.destroy();
   }
 });
+
+test('a header column does not protect body rows from deletion', () => {
+  const { editor } = makeEditor();
+  editor.commands.setContent({ type: 'doc', content: [{ type: 'table', content: [
+    { type: 'tableRow', content: [cell('tableHeader', 'H1'), cell('tableHeader', 'H2')] },
+    { type: 'tableRow', content: [cell('tableHeader', 'Side'), cell('tableCell', 'Body')] },
+    { type: 'tableRow', content: [cell('tableHeader', 'Side 2'), cell('tableCell', 'Body 2')] },
+  ] }] });
+  const bodies = [];
+  editor.state.doc.descendants((node, pos) => { if (node.type.spec.tableRole === 'cell') bodies.push(pos); });
+  editor.commands.setTextSelection(bodies[0] + 2);
+  assert.equal(action(editor).disabled, false);
+  action(editor).run();
+  assert.equal(editor.state.doc.firstChild.childCount, 2);
+  assert.equal(editor.state.doc.firstChild.lastChild.textContent, 'Side 2Body 2');
+  editor.destroy();
+});
+
+test('merge and split are only enabled when they apply', () => {
+  const { editor, positions } = makeEditor();
+  editor.commands.setTextSelection(positions[2] + 2);
+  assert.equal(action(editor, 'editorToolbar.mergeTableCells').disabled, true);
+  assert.equal(action(editor, 'editorToolbar.splitTableCell').disabled, true);
+  selectCells(editor, positions, 2, 3);
+  assert.equal(action(editor, 'editorToolbar.mergeTableCells').disabled, false);
+  action(editor, 'editorToolbar.mergeTableCells').run();
+  assert.equal(editor.state.doc.firstChild.child(1).childCount, 1);
+  assert.equal(editor.state.doc.firstChild.child(1).firstChild.attrs.colspan, 2);
+  assert.equal(action(editor, 'editorToolbar.splitTableCell').disabled, false);
+  action(editor, 'editorToolbar.splitTableCell').run();
+  assert.equal(editor.state.doc.firstChild.child(1).childCount, 2);
+  editor.destroy();
+});

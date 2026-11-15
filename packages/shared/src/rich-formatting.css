@@ -1,0 +1,47 @@
+/* Captioned images. The caption follows the image's alignment. */
+figure[data-type="image-figure"] {
+  margin: 1em 0;
+  padding: 0;
+}
+figure[data-type="image-figure"] > figure,
+figure[data-type="image-figure"] > img {
+  margin-bottom: 0;
+}
+figure[data-type="image-figure"] > figcaption {
+  position: relative;
+  margin: 0.45em 0 0;
+  font-size: 0.875em;
+  line-height: 1.45;
+  color: #6b7280;
+  text-align: left;
+}
+figure[data-type="image-figure"][data-image-align="center"] > figcaption { text-align: center; }
+figure[data-type="image-figure"][data-image-align="right"] > figcaption { text-align: right; }
+:is(:root.dark, :root[data-theme="dark"]) figure[data-type="image-figure"] > figcaption { color: #9ca3af; }
+
+/* Placeholder while editing an empty caption, positioned where the caret is. */
+figcaption.is-caption-empty::before {
+  content: attr(data-caption-placeholder);
+  position: absolute;
+  inset: 0;
+  color: #9ca3af;
+  pointer-events: none;
+  text-align: inherit;
+}
+
+/* Empty captions are only shown while editing. */
+.ProseMirror[contenteditable="false"] figcaption.is-caption-empty,
+figure[data-type="image-figure"] > figcaption:empty {
+  display: none;
+}
+
+/* Table cell borders from the palette adapt in dark mode, like text colours. */
+:is(:root.dark, :root[data-theme="dark"]) [data-ee-border-color="gray"] { border-color: #b8b7b3 !important; }
+:is(:root.dark, :root[data-theme="dark"]) [data-ee-border-color="brown"] { border-color: #c99b82 !important; }
+:is(:root.dark, :root[data-theme="dark"]) [data-ee-border-color="orange"] { border-color: #e6a064 !important; }
+:is(:root.dark, :root[data-theme="dark"]) [data-ee-border-color="yellow"] { border-color: #dfc36a !important; }
+:is(:root.dark, :root[data-theme="dark"]) [data-ee-border-color="green"] { border-color: #8dc5a5 !important; }
+:is(:root.dark, :root[data-theme="dark"]) [data-ee-border-color="blue"] { border-color: #82bce0 !important; }
+:is(:root.dark, :root[data-theme="dark"]) [data-ee-border-color="purple"] { border-color: #bd9cdb !important; }
+:is(:root.dark, :root[data-theme="dark"]) [data-ee-border-color="pink"] { border-color: #e29cbe !important; }
+:is(:root.dark, :root[data-theme="dark"]) [data-ee-border-color="red"] { border-color: #ec9691 !important; }

@@ -31,6 +31,8 @@ export const NATIVE_EDITOR_NODE_TYPES = new Set<string>([
   "hardBreak",
   "horizontalRule",
   "image",
+  "imageFigure",
+  "imageCaption",
   "details",
   "detailsSummary",
   "detailsContent",
@@ -65,7 +67,7 @@ const MARKDOWN_EDITOR_NODE_TYPES = new Set<string>([
   PLUGIN_EMBED_NODE_TYPE,
 ]);
 
-const INLINE_PARENT_TYPES = new Set<string>(["paragraph", "heading"]);
+const INLINE_PARENT_TYPES = new Set<string>(["paragraph", "heading", "imageCaption"]);
 
 const isTextNode = (node: TiptapNode | TiptapTextNode): node is TiptapTextNode =>
   node.type === "text" && "text" in node;

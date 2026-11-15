@@ -25,7 +25,7 @@ RTNote differs from EdgeEver in a few deliberate ways:
 ## Features
 
 - Three-pane workspace with nested notebooks, tags, drag-and-drop sorting and fast full-text search
-- TipTap/ProseMirror editor with tables, task lists, maths, code blocks, Mermaid diagrams, image galleries, text colour and highlight
+- TipTap/ProseMirror editor with fonts, text sizes, alignment and line spacing, text colour and highlight, tables with merged and coloured cells, captioned images, image galleries, task lists, maths, code blocks and Mermaid diagrams
 - Offline-first sync across web (PWA), desktop, Android and iOS, with revision history
 - Public sharing of single notes or whole notebooks as static sites, with optional passwords and expiry
 - Attachments up to 1 GiB with client-side image compression

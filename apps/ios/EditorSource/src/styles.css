@@ -1,4 +1,5 @@
 @import "../../../../packages/shared/src/text-colors.css";
+@import "../../../../packages/shared/src/rich-formatting.css";
 
 :root {
   color-scheme: light dark;

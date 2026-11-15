@@ -78,6 +78,17 @@ Add a rule in your client's custom instructions, `AGENTS.md` or `CLAUDE.md`. For
 
 Notes are rich text: `contentJson` (a TipTap document) is the source of truth and `contentMarkdown` is a copy the server generates from it. To write formatting such as colours, fonts, alignment, image sizes and captions, pass `contentJson` to `create_memo` or `update_memo` (read the current document with `get_memo` and `format: "all"`). `contentMarkdown` still works: in `update_memo` it is merged into the rich text block by block, so paragraphs you did not change keep their formatting.
 
+Markdown has no syntax for some formatting, so the generated `contentMarkdown` uses HTML that RTNote reads back and other Markdown renderers still display:
+
+| Formatting | In `contentMarkdown` |
+| --- | --- |
+| Text colour, highlight, font, size | `<span style="color: #c94343; font-family: Georgia, serif; font-size: 18px">text</span>` |
+| Paragraph or heading alignment, line spacing | `<div align="center" style="line-height: 1.5">`, a blank line, the block, a blank line, `</div>` |
+| Image caption | `<figure>`, the `<img>`, then `<figcaption>Caption</figcaption>`, then `</figure>` |
+| Merged cells, cell colours and borders, block content in cells, a header column | An HTML `<table>` whose cells hold Markdown between blank lines; other tables stay GFM tables |
+
+Keep these forms intact when you edit Markdown, or send `contentJson` instead.
+
 When reading a prose memo with `get_memo` or listing full bodies with `list_memos` and `includeContent: true`, the response includes `contentMarkdown` as the only full body, alongside memo metadata. If an existing integration reads `contentJson` or `contentText`, pass `format: "all"` to retain the previous response.
 
 Keyword searches with `search_memos` also return a `snippet` of up to 200 characters when the query or its terms can be located in the body. The original `excerpt` is retained. Results without a located body match, including title-only or tag-only matches, use the existing summary. Read the memo when the answer depends on context outside the snippet.

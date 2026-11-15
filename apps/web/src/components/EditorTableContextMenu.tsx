@@ -207,7 +207,7 @@ export const EditorTableContextMenu = ({ editor, readOnly, children }: {
         <ContextMenuSeparator />
         {getEditorTableActions(editor, readOnly).map((action) => (
           <Fragment key={action.key}>
-            {action.destructive ? <ContextMenuSeparator /> : null}
+            {action.destructive || action.separated ? <ContextMenuSeparator /> : null}
             <ContextMenuItem disabled={action.disabled || busy} className={action.destructive ? "text-rose-700 focus:text-rose-800" : undefined} onSelect={() => { void runTableAction(action); changeMenuOpen(false); }}>
               {t(action.key)}
             </ContextMenuItem>

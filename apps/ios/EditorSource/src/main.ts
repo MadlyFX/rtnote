@@ -49,6 +49,7 @@ import {
   planNativeNoteImageRender,
 } from "@edgeever/shared/note-image-card";
 import { createEdgeEverMathematics } from "@edgeever/shared/mathematics";
+import { createMobileFormatPanel, getMobileCaptionPlaceholder, type MobileFormatPanel } from "@edgeever/shared/mobile-format-panel";
 import { createIosImageGallery } from "./document-nodes";
 import { createImageInsertTransaction, groupUploadedImages, NATIVE_IMAGE_GALLERY_CSS } from "@edgeever/shared/native-image-gallery";
 import { installPhoneImageFillStyle, NEW_IMAGE_WIDTH_PERCENT } from "@edgeever/shared/image-display";
@@ -193,6 +194,9 @@ type ImageExportRequest = {
 };
 let mode: "viewer" | "editor" = "viewer";
 let locale: MobileEditorLocale = "en-US";
+// Declared before the editor exists: its toolbar refresh reads the panel state.
+let formatPanel: MobileFormatPanel | null = null;
+let formatPanelLocale: MobileEditorLocale | null = null;
 let currentPlaceholder = "开始输入…";
 let suppressChange = false;
 const resourceResolvers = new Map<string, (dataUrl: string | null) => void>();
@@ -778,6 +782,7 @@ function buildExtensions(placeholder: string) {
       file: false,
       pluginEmbed: false,
       table: { table: { resizable: false } },
+      imageCaption: { placeholder: () => getMobileCaptionPlaceholder(locale) },
       markdown: true,
     }),
     NativeAttachmentMetadata,
@@ -1147,10 +1152,30 @@ function getEditorSearchMatches(ed: Editor, query: string): EditorSearchMatch[] 
 
 const activeListItemType = () => editor.isActive("taskItem") ? "taskItem" : "listItem";
 
+// The Format sheet (font, size, alignment, captions, table cells) is shared
+// with Android. It is rebuilt when the locale changes.
+function toggleFormatPanel() {
+  if (!formatPanel || formatPanelLocale !== locale) {
+    formatPanel?.destroy();
+    formatPanelLocale = locale;
+    formatPanel = createMobileFormatPanel({
+      editor,
+      locale,
+      onOpenChange: () => refreshToolbarState(),
+    });
+    document.body.appendChild(formatPanel.element);
+  }
+  formatPanel.setTheme(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
+  formatPanel.toggle();
+}
+
 function setToolbarVisible(visible: boolean) {
   toolbarEl.classList.toggle("editor-mode", visible);
   toolbarEl.innerHTML = "";
-  if (!visible) return;
+  if (!visible) {
+    formatPanel?.close();
+    return;
+  }
   const actions: Array<{ id: string; label: string; run: () => void }> = [
     { id: "undo", label: "↩", run: () => editor.chain().focus().undo().run() },
     { id: "redo", label: "↪", run: () => editor.chain().focus().redo().run() },
@@ -1190,6 +1215,7 @@ function setToolbarVisible(visible: boolean) {
       label: "—",
       run: () => editor.chain().focus().setHorizontalRule().run(),
     },
+    { id: "format", label: "Aa", run: toggleFormatPanel },
   ];
   for (const action of actions) {
     const btn = document.createElement("button");
@@ -1207,11 +1233,12 @@ function setToolbarVisible(visible: boolean) {
       outdent: { "zh-CN": "减少列表缩进", "en-US": "Decrease list indent", ja: "リストのインデントを減らす", pl: "Zmniejsz wcięcie listy", ru: "Уменьшить отступ списка" },
       quote: { "zh-CN": "引用", "en-US": "Block quote", ja: "引用", pl: "Cytat", ru: "Цитата" },
       hr: { "zh-CN": "分隔线", "en-US": "Horizontal rule", ja: "区切り線", pl: "Linia pozioma", ru: "Горизонтальная линия" },
+      format: { "zh-CN": "格式", "zh-TW": "格式", "en-US": "Format", ja: "書式", pl: "Formatowanie", ru: "Формат", es: "Formato", de: "Format", fr: "Mise en forme" },
     };
     btn.setAttribute("aria-label", labels[action.id]?.[locale] ?? action.id);
     btn.addEventListener("click", () => {
       action.run();
-      if (action.id !== "image") emitChange(editor);
+      if (action.id !== "image" && action.id !== "format") emitChange(editor);
       refreshToolbarState();
     });
     toolbarEl.appendChild(btn);
@@ -1221,6 +1248,7 @@ function setToolbarVisible(visible: boolean) {
 
 function refreshToolbarState() {
   const active: Record<string, boolean> = {
+    format: formatPanel?.isOpen() ?? false,
     bold: editor.isActive("bold"),
     bullet: editor.isActive("bulletList"),
     task: editor.isActive("taskList"),

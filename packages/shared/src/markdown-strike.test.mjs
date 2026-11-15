@@ -14,6 +14,19 @@ const strikeTexts = (doc) => {
   return texts;
 };
 
+// Editor JSON lists every schema attribute, including the default-null block
+// formatting ones that parsed Markdown leaves out.
+const withoutDefaultBlockFormatting = (node) => {
+  if (!node || typeof node !== "object") return node;
+  const { attrs, content, ...rest } = node;
+  const kept = attrs && Object.fromEntries(Object.entries(attrs).filter(([key, value]) => !((key === "textAlign" || key === "lineHeight") && value === null)));
+  return {
+    ...rest,
+    ...(kept && Object.keys(kept).length ? { attrs: kept } : {}),
+    ...(content ? { content: content.map(withoutDefaultBlockFormatting) } : {}),
+  };
+};
+
 describe("double-tilde strikethrough (#698)", () => {
   test.each(["成本 1~2~3 元", "10~20, 30~40", "第一期~第十六期", "~25s and ~30s", "~deleted~", "🙂 1~2~3 中文"])("keeps prose literal: %s", (source) => {
     const doc = markdownToDoc(source);
@@ -64,7 +77,7 @@ describe("double-tilde strikethrough (#698)", () => {
       for (const source of ["1~2~3", "~~a~b~~", "~a~~b~~c~"]) {
         editor.commands.setContent(source, { contentType: "markdown" });
         const expected = markdownToDoc(source);
-        expect(editor.getJSON()).toEqual(expected);
+        expect(withoutDefaultBlockFormatting(editor.getJSON())).toEqual(expected);
         expect(first.parse(source)).toEqual(expected);
         expect(second.parse(source)).toEqual(expected);
         expect(markdownToDoc(editor.getMarkdown())).toEqual(expected);

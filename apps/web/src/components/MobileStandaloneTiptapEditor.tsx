@@ -1,3 +1,4 @@
+import { createMobileFormatPanel, getMobileCaptionPlaceholder, type MobileFormatPanel } from "@edgeever/shared/mobile-format-panel";
 import "katex/dist/katex.min.css";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -90,6 +91,8 @@ export const MobileStandaloneTiptapEditor = ({
   const locale = normalizeLocale(i18n.resolvedLanguage ?? i18n.language) ?? defaultLocale;
   const localeRef = useRef(locale);
   localeRef.current = locale;
+  const [formatPanelOpen, setFormatPanelOpen] = useState(false);
+  const formatPanelRef = useRef<MobileFormatPanel | null>(null);
   const draftKey = getMobileEditorDraftKey(memoId);
   const [memo, setMemo] = useState<MemoDetail | null>(null);
   const memoRef = useRef<MemoDetail | null>(null);
@@ -216,6 +219,7 @@ export const MobileStandaloneTiptapEditor = ({
         pdf: PdfAttachment,
         file: FileAttachment,
         table: { table: { renderWrapper: true, resizable: true } },
+        imageCaption: { placeholder: () => getMobileCaptionPlaceholder(localeRef.current) },
       }),
       EdgeEverLink,
       inlineFieldExtension,
@@ -954,6 +958,24 @@ export const MobileStandaloneTiptapEditor = ({
   const canWrapIndentedParagraph = Boolean(editor && wrapIndentedParagraphInList(editor.state, undefined));
 
   const fallbackMarkdown = memo ? docToMarkdown(contentJsonRef.current) : "";
+  // Format sheet shared with the Android and iOS editors.
+  useEffect(() => {
+    if (!editor || editor.isDestroyed) return;
+    const panel = createMobileFormatPanel({
+      editor,
+      locale,
+      theme: document.documentElement.classList.contains("dark") ? "dark" : "light",
+      onOpenChange: setFormatPanelOpen,
+    });
+    document.body.appendChild(panel.element);
+    formatPanelRef.current = panel;
+    return () => {
+      panel.destroy();
+      if (formatPanelRef.current === panel) formatPanelRef.current = null;
+      setFormatPanelOpen(false);
+    };
+  }, [editor, locale]);
+
   const runEditorCommand = (command: () => boolean) => {
     if (editorActionDisabled || !editor) {
       return;
@@ -1022,6 +1044,8 @@ export const MobileStandaloneTiptapEditor = ({
           onDecreaseListIndent={() => runEditorCommand(() => editor?.chain().focus().liftListItem(activeListItemType).run() ?? false)}
           onToggleBlockquote={() => runEditorCommand(() => editor?.chain().focus().toggleBlockquote().run() ?? false)}
           onSetHorizontalRule={() => runEditorCommand(() => editor?.chain().focus().setHorizontalRule().run() ?? false)}
+          formatActive={formatPanelOpen}
+          onToggleFormat={() => { if (!editorActionDisabled) formatPanelRef.current?.toggle(); }}
         />
         <input
           ref={imageInputRef}

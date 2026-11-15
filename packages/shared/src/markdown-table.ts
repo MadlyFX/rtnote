@@ -1,8 +1,10 @@
+import type { Node, NodeConfig } from "@tiptap/core";
 import type { JSONContent, MarkdownLexerConfiguration, MarkdownParseHelpers, MarkdownRendererHelpers, MarkdownToken, RenderContext } from "@tiptap/core";
 import type { Plugin } from "@tiptap/pm/state";
 import { columnResizing, columnResizingPluginKey } from "@tiptap/pm/tables";
 import { TableKit } from "@tiptap/extension-table";
 import { tableRowResizing } from "./table-row-resize";
+import { renderHtmlTableMarkdown, renderTableCellStyle, tableCellStyleAttributes, tableNeedsHtml } from "./rich-table-markdown";
 
 // GFM cells use <br> for line breaks, including our own table serializer.
 // Recognize only this attribute-free token inside cells; arbitrary HTML and
@@ -51,6 +53,20 @@ export const EdgeEverTableKit = TableKit.extend({
             // Not gated on editor.isEditable: the editor is created read-only and
             // made editable after hydration. The plugin itself checks view.editable.
             return [tableRowResizing()];
+          },
+        });
+      }
+      if (extension.name === "tableCell" || extension.name === "tableHeader") {
+        type CellRenderProps = { node: { attrs: Record<string, unknown> }; HTMLAttributes: Record<string, unknown> };
+        const config = extension.config as unknown as { renderHTML: (this: unknown, props: CellRenderProps) => unknown };
+        const renderHTML = config.renderHTML;
+        // Cell colour and border sit beside TipTap's colspan, rowspan and colwidth.
+        return (extension as Node).extend({
+          addAttributes() {
+            return { ...this.parent?.(), ...tableCellStyleAttributes() };
+          },
+          renderHTML(props) {
+            return renderHTML.call(this, { ...props, HTMLAttributes: renderTableCellStyle(props.node.attrs, props.HTMLAttributes) }) as ReturnType<NonNullable<NodeConfig["renderHTML"]>>;
           },
         });
       }
@@ -107,6 +123,7 @@ export const EdgeEverTableKit = TableKit.extend({
           return node;
         },
         renderMarkdown(node: JSONContent, helpers: MarkdownRendererHelpers, context: RenderContext) {
+          if (tableNeedsHtml(node)) return renderHtmlTableMarkdown(node, helpers);
           const markdown = renderMarkdown.call(this as never, node, helpers, context);
           const rows: Array<number | null> = [];
           const cols: Array<number | null> = [];

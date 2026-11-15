@@ -491,3 +491,22 @@
 .edgeever-print-content :is(th, td) p {
   text-align: inherit;
 }
+
+/* Captioned images keep the caption on the same page as the image. */
+.edgeever-print-content figure[data-type="image-figure"] {
+  margin: 1em 0;
+  padding: 0;
+  break-inside: avoid;
+}
+
+.edgeever-print-content figure[data-type="image-figure"] > figcaption {
+  margin-top: 0.4em;
+  color: #525252;
+  font-size: 0.875em;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.edgeever-print-content figure[data-type="image-figure"][data-image-align="center"] > figcaption { text-align: center; }
+.edgeever-print-content figure[data-type="image-figure"][data-image-align="right"] > figcaption { text-align: right; }
+.edgeever-print-content figure[data-type="image-figure"] > figcaption:empty { display: none; }

@@ -1,10 +1,13 @@
 import type { AnyExtension } from "@tiptap/core";
 import { EdgeEverImage as Image, ImageAlignmentAttributes } from "./image-alignment";
 import { ImageLinkAttributes } from "./image-link";
+import { createImageFigureExtensions, type ImageCaptionOptions } from "./image-figure";
 import { TaskList } from "@tiptap/extension-list";
 import { EdgeEverTableKit as TableKit } from "./markdown-table";
+import { HtmlTableMarkdown } from "./rich-table-markdown";
 import { Markdown } from "@tiptap/markdown";
-import StarterKit from "@tiptap/starter-kit";
+import { RTNoteStarterKit as StarterKit, AlignedBlockMarkdown } from "./block-formatting-markdown";
+import { BlockFormatting } from "./text-formatting";
 import { createEdgeEverDetailsExtensions } from "./details";
 import { FileAttachment } from "./file-attachment";
 import { ImageGallery } from "./image-gallery";
@@ -27,6 +30,12 @@ export type CreateEdgeEverDocumentExtensionsOptions = {
   file?: AnyExtension | false;
   pluginEmbed?: AnyExtension | false;
   table?: Parameters<typeof TableKit.configure>[0];
+  /**
+   * Caption options; pass a localized placeholder in editors. Captions are on
+   * even with `image: false`, because editors that pass false register their
+   * own image node.
+   */
+  imageCaption?: Partial<ImageCaptionOptions> | false;
   markdown?: boolean;
 };
 
@@ -49,10 +58,14 @@ export const createEdgeEverDocumentExtensions = (
   ...(options.markdown ? [EdgeEverLink] : []),
   EmptyExternalLink,
   ...createTextColorExtensions(),
+  BlockFormatting,
+  AlignedBlockMarkdown,
   TaskList,
   createEdgeEverTaskItem(),
   options.table === undefined ? TableKit : TableKit.configure(options.table),
+  HtmlTableMarkdown,
   ...withOptional(options.image, Image),
+  ...(options.imageCaption === false ? [] : createImageFigureExtensions(options.imageCaption)),
   ImageAlignmentAttributes,
   ImageLinkAttributes,
   ...withOptional(options.gallery, ImageGallery),

@@ -1,5 +1,6 @@
 import { mergeAttributes } from "@tiptap/core";
 import { TextStyle, Color, BackgroundColor } from "@tiptap/extension-text-style";
+import { NoteFontFamily, NoteFontSize, normalizeFontFamily, normalizeFontSize, readTextStyleDeclarations } from "./text-formatting";
 
 export const TEXT_COLORS = [
   { name: "gray", text: "#787774", background: "#f1f1ef", darkText: "#b8b7b3", darkBackground: "#373735" },
@@ -14,7 +15,8 @@ export const TEXT_COLORS = [
 ] as const;
 
 // Markdown is also parsed in Workers, where there is no DOM. Keep the portable
-// syntax deliberately small: two CSS color properties, each a hex value.
+// syntax deliberately small: hex colours plus the font family and size values
+// that text-formatting.ts accepts.
 export const normalizeTextColor = (value: unknown): string | null => {
   if (typeof value !== "string") return null;
   const color = value.trim().toLowerCase();
@@ -27,8 +29,9 @@ export const normalizeTextColor = (value: unknown): string | null => {
 
 const readColors = (attributes: string) => {
   const style = /(?:^|\s)style\s*=\s*(?:"([^"]*)"|'([^']*)')/i.exec(attributes);
-  const values: Record<string, string> = {};
-  for (const declaration of (style?.[1] ?? style?.[2] ?? "").split(";")) {
+  const source = style?.[1] ?? style?.[2] ?? "";
+  const values: Record<string, string> = { ...readTextStyleDeclarations(source) };
+  for (const declaration of source.split(";")) {
     const [property, value] = declaration.split(":");
     const color = normalizeTextColor(value);
     if (color && property.trim().toLowerCase() === "color") values.color = color;
@@ -49,7 +52,14 @@ export const EdgeEverTextStyle = TextStyle.extend({
   renderMarkdown(node, helpers) {
     const color = normalizeTextColor(node.attrs?.color);
     const background = normalizeTextColor(node.attrs?.backgroundColor);
-    const style = [color && `color: ${color}`, background && `background-color: ${background}`].filter(Boolean).join("; ");
+    const family = normalizeFontFamily(node.attrs?.fontFamily);
+    const size = normalizeFontSize(node.attrs?.fontSize);
+    const style = [
+      color && `color: ${color}`,
+      background && `background-color: ${background}`,
+      family && `font-family: ${family}`,
+      size && `font-size: ${size}`,
+    ].filter(Boolean).join("; ");
     const content = helpers.renderChildren(node.content ?? []);
     return style ? `<span style="${style}">${content}</span>` : content;
   },
@@ -93,4 +103,4 @@ export const EdgeEverTextStyle = TextStyle.extend({
   },
 });
 
-export const createTextColorExtensions = () => [EdgeEverTextStyle, Color, BackgroundColor];
+export const createTextColorExtensions = () => [EdgeEverTextStyle, Color, BackgroundColor, NoteFontFamily, NoteFontSize];

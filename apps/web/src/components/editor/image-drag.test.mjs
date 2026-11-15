@@ -4,7 +4,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import { EditorState } from "@tiptap/pm/state";
 import { history, undo, redo } from "@tiptap/pm/history";
-import { ImageGallery, createImageGalleryCleanupPlugin } from "@edgeever/shared";
+import { ImageCaption, ImageFigure, ImageGallery, createImageGalleryCleanupPlugin } from "@edgeever/shared";
 import { createImageDragPlugin, imageDragKey, moveImage } from "./image-drag";
 
 const schema = getSchema([StarterKit, Image.extend({ addAttributes() {
@@ -132,4 +132,41 @@ describe("dragging out of a two-image gallery (#728)", () => {
       expect(next.doc.eq(after)).toBe(true);
     });
   }
+});
+
+describe("captioned image dragging", () => {
+  const figureSchema = getSchema([StarterKit, Image.extend({ addAttributes() {
+    return { ...this.parent(), width: { default: null }, alignment: { default: null } };
+  } }), ImageGallery, ImageFigure, ImageCaption]);
+  const captioned = (src, caption) => figureSchema.nodes.imageFigure.create(null, [
+    figureSchema.nodes.image.create({ src }),
+    figureSchema.nodes.imageCaption.create(null, figureSchema.text(caption)),
+  ]);
+  const text = (value) => figureSchema.nodes.paragraph.create(null, figureSchema.text(value));
+  const plain = (src) => figureSchema.nodes.image.create({ src });
+  const figureState = (...nodes) => EditorState.create({ doc: figureSchema.nodes.doc.create(null, nodes), plugins: [history(), createImageDragPlugin()] });
+
+  test("moves the caption together with its image", () => {
+    const before = figureState(text("a"), captioned("/resources/one", "Caption"), text("b"));
+    const imagePos = before.doc.child(0).nodeSize + 1;
+    const tr = moveImage(before, imagePos, before.doc.content.size);
+    expect(tr).not.toBeNull();
+    const after = before.applyTransaction(tr).state;
+    after.doc.check();
+    expect(after.doc.lastChild).toBe(before.doc.child(1));
+    expect(after.selection.node.type.name).toBe("image");
+  });
+
+  test("an image dropped onto a captioned image lands beside it, never inside", () => {
+    const before = figureState(plain("/resources/loose"), captioned("/resources/one", "Caption"));
+    const figurePos = before.doc.child(0).nodeSize;
+    // Between the image and its caption: the image lands after the figure.
+    const tr = moveImage(before, 0, figurePos + 1 + before.doc.child(1).firstChild.nodeSize);
+    expect(tr).not.toBeNull();
+    const after = before.applyTransaction(tr).state;
+    after.doc.check();
+    expect(after.doc.child(0).type.name).toBe("imageFigure");
+    expect(after.doc.child(0).childCount).toBe(2);
+    expect(after.doc.child(1).attrs.src).toBe("/resources/loose");
+  });
 });

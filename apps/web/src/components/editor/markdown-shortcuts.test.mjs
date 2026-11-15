@@ -3,6 +3,7 @@ import { Editor } from "@tiptap/core";
 import { createEdgeEverDocumentExtensions, docToMarkdown } from "@edgeever/shared";
 import { createEdgeEverMathematics } from "@edgeever/shared/mathematics";
 import { ensureTestWindowDom } from "../../lib/restore-test-global.mjs";
+import { compactEditorJson } from "../../lib/editor-json-test-helpers.mjs";
 
 const createEditor = (content = { type: "doc", content: [{ type: "paragraph" }] }) => {
   ensureTestWindowDom();
@@ -15,7 +16,7 @@ const createEditor = (content = { type: "doc", content: [{ type: "paragraph" }] 
   editor.view.updateState(editor.state.reconfigure({
     plugins: editor.extensionManager.plugins,
   }));
-  return editor;
+  return compactEditorJson(editor);
 };
 
 const typeText = (editor, text) => {

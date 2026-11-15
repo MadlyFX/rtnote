@@ -40,6 +40,8 @@ const tableTaskListDocument = {
   }],
 };
 
+const legacyFlattenedTableSource = "| 事项 |\n| --- |\n| - [ ] 待办 |";
+
 describe("Markdown editor mode content preservation", () => {
   test("shows literal brackets and ampersands when they remain plain text", () => {
     const content = markdownToDoc("Alpha [ ] & Bravo");
@@ -118,15 +120,24 @@ describe("Markdown editor mode content preservation", () => {
     expect(result.contentJson.content[0].content[1].content[0].content[0].content[0].attrs.checked).toBe(true);
   });
 
-  test("flags table shape changes rather than silently discarding a rich cell", () => {
+  test("rich table cells now round-trip through Markdown as an HTML table", () => {
     const snapshot = createMarkdownModeSnapshot("memo-1", tableTaskListDocument);
+
+    expect(snapshot.markdownSource).toContain("<table>");
+    expect(snapshot.hasRichOnlyTableCells).toBe(false);
+    expect(analyzeMarkdownModeContent(snapshot, "memo-1", `${snapshot.markdownSource}\n\nAfter`).hasUnsafeRichTableEdit).toBe(false);
+  });
+
+  test("flags table shape changes rather than silently discarding a rich cell", () => {
+    // Markdown written before HTML tables flattened rich cells into GFM rows.
+    const snapshot = createMarkdownModeSnapshot("memo-1", tableTaskListDocument, legacyFlattenedTableSource);
     const changedSource = snapshot.markdownSource.replace("| - [ ] 待办 |", "");
 
     expect(analyzeMarkdownModeContent(snapshot, "memo-1", changedSource).hasUnsafeRichTableEdit).toBe(true);
   });
 
   test("never reuses a snapshot belonging to another memo", () => {
-    const snapshot = createMarkdownModeSnapshot("memo-1", tableTaskListDocument);
+    const snapshot = createMarkdownModeSnapshot("memo-1", tableTaskListDocument, legacyFlattenedTableSource);
     const resolved = resolveMarkdownModeContent(snapshot, "memo-2", snapshot.markdownSource);
 
     expect(isMarkdownSourceUnchanged(snapshot, "memo-2", snapshot.markdownSource)).toBe(false);

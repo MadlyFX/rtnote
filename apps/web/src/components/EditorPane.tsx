@@ -1306,6 +1306,7 @@ const RichEditorPane = ({
         file: FileAttachment,
         pluginEmbed: pluginEmbedExtension,
         table: { table: { renderWrapper: true, resizable: true } },
+        imageCaption: { placeholder: t("editor.imageCaptionPlaceholder") },
       }),
       EdgeEverLink.configure({ openOnClick: false }),
       inlineFieldExtension,
