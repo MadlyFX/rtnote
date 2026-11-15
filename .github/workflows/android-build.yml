@@ -87,6 +87,8 @@ jobs:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
           EDGE_EVER_ANDROID_APK_ARCHS: arm64-v8a
+          # Metro's release bundle exceeds Node's default ~2 GB heap.
+          NODE_OPTIONS: --max-old-space-size=6144
         run: bun run build:android:apk
       - name: Remove signing keystore
         if: always()
