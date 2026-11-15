@@ -66,7 +66,7 @@ export const hasImgBedBridge = () => Boolean(window.edgeeverDesktop?.uploadImgBe
 
 const hasBridge = (provider: ExternalImageHost) => provider === "imgbed" ? hasImgBedBridge() : hasPicGoBridge();
 
-// The configured external host that will receive new images, or null for EdgeEver storage.
+// The configured external host that will receive new images, or null for RTNote storage.
 export const activeExternalImageHost = (): ExternalImageHost | null => {
   const { provider } = readPicGoPreference();
   return provider !== "edgeever" && hasBridge(provider) ? provider : null;

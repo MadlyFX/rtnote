@@ -73,7 +73,7 @@ const fetchWithDiagnostics: typeof fetch = async (url, init) => {
 const request = async <T>(context: Context, path: string): Promise<T> => {
   const response = await fetchWithDiagnostics(`${context.baseUrl}${path}`, { signal, headers: { Authorization: `Bearer ${context.token}`, "Accept-Language": context.locale ?? "en-US" }, credentials: "omit" });
   if (!response.ok) {
-    if (response.status === 404 && path === "/api/v1/backups/state") fail("backup_server_upgrade_required", "Update the EdgeEver server to enable consistent backups.", response.status);
+    if (response.status === 404 && path === "/api/v1/backups/state") fail("backup_server_upgrade_required", "Update the RTNote server to enable consistent backups.", response.status);
     const body = await response.json().catch(() => null) as { error?: { code?: string; message?: string } } | null;
     fail(body?.error?.code ?? "backup_request_failed", body?.error?.message ?? `Backup request failed (${response.status}).`, response.status);
   }

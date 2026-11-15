@@ -113,6 +113,10 @@ export const WELCOME_MEMO_ID = "memo_welcome";
  * hash, and revision 0 written by the `system` actor. Any edit, including a
  * title-only one, changes the title, the revision, or the actor, so together
  * they identify a welcome note nobody has touched.
+ *
+ * The migrations predate the RTNote name and are immutable, so the seeded
+ * title still says EdgeEver. First sign-in replaces it with the localized
+ * RTNote welcome note.
  */
 export const WELCOME_MEMO_SEED_TITLE = "欢迎来到 EdgeEver";
 export const WELCOME_MEMO_SEED_CONTENT_HASH = "4edcf7092f86c561210d4eb788e96f28ec5c045f93952c82f5f57e1902f548bd";
@@ -126,69 +130,76 @@ export type WelcomeMemoTranslation = {
 
 export const WELCOME_MEMO_TRANSLATIONS: Record<SupportedLocale, WelcomeMemoTranslation> = {
   "zh-CN": {
-    title: "欢迎来到 EdgeEver",
+    title: "欢迎来到 RTNote",
     paragraphs: [
-      "这是第一条 EdgeEver 笔记，三栏、边缘、Agent-ready。",
+      "这是第一条 RTNote 笔记，三栏、边缘、Agent-ready。",
       "接下来可以创建笔记本、写笔记、搜索内容，并把多条笔记合并成一条新的长期笔记。",
     ],
   },
   "zh-TW": {
-    title: "歡迎來到 EdgeEver",
+    title: "歡迎來到 RTNote",
     paragraphs: [
-      "這是第一篇 EdgeEver 筆記，三欄、邊緣運算、Agent-ready。",
+      "這是第一篇 RTNote 筆記，三欄、邊緣運算、Agent-ready。",
       "接下來可以建立筆記本、撰寫筆記、搜尋內容，並將多篇筆記合併為一篇新的長期筆記。",
     ],
   },
   "en-US": {
-    title: "Welcome to EdgeEver",
+    title: "Welcome to RTNote",
     paragraphs: [
-      "This is your first EdgeEver note: three panes, running on the edge, ready for AI agents.",
+      "This is your first RTNote note: three panes, running on the edge, ready for AI agents.",
       "Next, create notebooks, write notes, search your content, and merge several notes into a new long-term note.",
     ],
   },
   ja: {
-    title: "EdgeEver へようこそ",
+    title: "RTNote へようこそ",
     paragraphs: [
-      "これは EdgeEver の最初のノートです。3 ペイン構成でエッジ上で動作し、AI エージェントとも連携できます。",
+      "これは RTNote の最初のノートです。3 ペイン構成でエッジ上で動作し、AI エージェントとも連携できます。",
       "ノートブックを作成してノートを書き、内容を検索し、複数のノートを 1 つの新しい長期ノートにまとめてみましょう。",
     ],
   },
   pl: {
-    title: "Witaj w EdgeEver",
+    title: "Witaj w RTNote",
     paragraphs: [
-      "To Twoja pierwsza notatka w EdgeEver: trzy panele, działanie na brzegu sieci i gotowość do pracy z agentami AI.",
+      "To Twoja pierwsza notatka w RTNote: trzy panele, działanie na brzegu sieci i gotowość do pracy z agentami AI.",
       "Teraz możesz tworzyć notatniki, pisać notatki, przeszukiwać treści i scalać kilka notatek w jedną nową, trwałą notatkę.",
     ],
   },
   ru: {
-    title: "Добро пожаловать в EdgeEver",
+    title: "Добро пожаловать в RTNote",
     paragraphs: [
-      "Это первая заметка в EdgeEver: три панели, работа на краю сети и готовность к агентам ИИ.",
+      "Это первая заметка в RTNote: три панели, работа на краю сети и готовность к агентам ИИ.",
       "Дальше можно создавать блокноты, писать заметки, искать по содержимому и объединять несколько заметок в одну новую долгосрочную.",
     ],
   },
   es: {
-    title: "Bienvenido a EdgeEver",
+    title: "Bienvenido a RTNote",
     paragraphs: [
-      "Esta es su primera nota en EdgeEver: tres paneles, en el edge y lista para agentes de IA.",
+      "Esta es su primera nota en RTNote: tres paneles, en el edge y lista para agentes de IA.",
       "A continuación, cree libretas, escriba notas, busque contenido y fusione varias notas en una nueva nota a largo plazo.",
     ],
   },
   de: {
-    title: "Willkommen bei EdgeEver",
+    title: "Willkommen bei RTNote",
     paragraphs: [
-      "Dies ist Ihre erste EdgeEver-Notiz: drei Bereiche, auf dem Edge ausgeführt und bereit für KI-Agenten.",
+      "Dies ist Ihre erste RTNote-Notiz: drei Bereiche, auf dem Edge ausgeführt und bereit für KI-Agenten.",
       "Erstellen Sie als Nächstes Notizbücher, schreiben Sie Notizen, durchsuchen Sie Inhalte und führen Sie mehrere Notizen zu einer neuen Notiz zusammen.",
     ],
   },
   fr: {
-    title: "Bienvenue sur EdgeEver",
+    title: "Bienvenue sur RTNote",
     paragraphs: [
-      "Voici votre première note EdgeEver : trois panneaux, déployée sur l'Edge et prête pour les agents IA.",
+      "Voici votre première note RTNote : trois panneaux, déployée sur l'Edge et prête pour les agents IA.",
       "Vous pouvez maintenant créer des carnets, rédiger des notes, effectuer des recherches et fusionner plusieurs notes en une nouvelle note durable.",
     ],
   },
 };
+
+/**
+ * Welcome titles written before the RTNote name, so untouched welcome notes
+ * from older seeds are still recognized.
+ */
+export const LEGACY_WELCOME_MEMO_TITLES: readonly string[] = Object.values(WELCOME_MEMO_TRANSLATIONS)
+  .map(({ title }) => title.replace("RTNote", "EdgeEver"));
 
 export type WelcomeMemoContent = {
   title: string;

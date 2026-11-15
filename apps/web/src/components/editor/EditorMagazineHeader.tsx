@@ -254,7 +254,7 @@ export const EditorMagazineHeader = ({
               letterSpacing: "0.5px",
             }}
           >
-            {notebookName?.trim() || "EdgeEver 专栏"}
+            {notebookName?.trim() || "RTNote 专栏"}
           </span>
           <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
             {sections.length > 0 ? (

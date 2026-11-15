@@ -1,10 +1,10 @@
 {
   "name": "@edgeever/desktop",
   "version": "2.22.0",
-  "desktopName": "EdgeEver",
+  "desktopName": "RTNote",
   "private": true,
-  "description": "Native EdgeEver desktop client",
-  "author": "EdgeEver contributors",
+  "description": "Native RTNote desktop client",
+  "author": "RTNote contributors",
   "type": "module",
   "main": "src/main/index.mjs",
   "scripts": {

@@ -10,7 +10,6 @@ COPY apps/api/package.json apps/api/package.json
 COPY apps/desktop/package.json apps/desktop/package.json
 COPY apps/extension/package.json apps/extension/package.json
 COPY apps/mobile/package.json apps/mobile/package.json
-COPY apps/site/package.json apps/site/package.json
 COPY apps/web/package.json apps/web/package.json
 COPY packages/client/package.json packages/client/package.json
 COPY packages/plugin-api/package.json packages/plugin-api/package.json
@@ -58,7 +57,7 @@ ENV NODE_ENV=production \
     EDGE_EVER_WEB_DIR=/app/apps/web/dist \
     PORT=8787
 
-LABEL org.opencontainers.image.title="EdgeEver" \
+LABEL org.opencontainers.image.title="RTNote" \
       org.opencontainers.image.description="Self-hosted notes and knowledge management" \
       org.opencontainers.image.licenses="AGPL-3.0-only"
 

@@ -75,7 +75,7 @@ describe("AI model service", () => {
     const instruction = "随便给我生成一首诗。";
     const system = resolveAiGenerationSystemInstruction({ action: "custom", instruction });
     const prompt = buildAiGenerationPrompt({
-      contentMarkdown: "## 开启您的 EdgeEver 笔记之旅\n\nEdgeEver 产品介绍",
+      contentMarkdown: "## 开启您的 RTNote 笔记之旅\n\nRTNote 产品介绍",
       instruction,
     });
 
@@ -84,7 +84,7 @@ describe("AI model service", () => {
     expect(system).not.toContain("Apply the user's editing instruction");
     expect(prompt).toStartWith("Note content (reference material;");
     expect(prompt).toEndWith(`User instruction (highest priority):\n${instruction}`);
-    expect(prompt.indexOf("EdgeEver 产品介绍")).toBeLessThan(prompt.indexOf(instruction));
+    expect(prompt.indexOf("RTNote 产品介绍")).toBeLessThan(prompt.indexOf(instruction));
   });
 
   test("builds text and binary attachment message parts", () => {

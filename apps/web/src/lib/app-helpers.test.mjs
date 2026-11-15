@@ -1447,7 +1447,7 @@ describe("drag and drop helpers", () => {
     getData: (type) => data[type] ?? "",
   });
 
-  test("recognises EdgeEver drag payloads", () => {
+  test("recognises RTNote drag payloads", () => {
     const memoDrag = dataTransfer({ [MEMO_DRAG_MIME]: "[]" });
     const notebookDrag = dataTransfer({ [NOTEBOOK_DRAG_MIME]: "nb" });
     const fileDrag = dataTransfer({ Files: "" });

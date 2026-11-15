@@ -178,5 +178,5 @@ export const customEditorThemeFileName = (name: string) => {
     .replace(/\s+/g, " ")
     .replace(/[. ]+$/g, "")
     .slice(0, 80) || "custom-theme";
-  return `EdgeEver-${safeName}.json`;
+  return `RTNote-${safeName}.json`;
 };

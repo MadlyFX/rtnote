@@ -15,11 +15,11 @@ import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const REPO_ROOT = resolve(fileURLToPath(new URL("..", import.meta.url)));
-export const OFFICIAL_REPOSITORY = "tianma-if/edgeever";
+export const OFFICIAL_REPOSITORY = "MadlyFX/rtnote";
 export const CHROME_PUBLISHER_ID = "8c414fb4-4243-4b51-9e6b-fe05e49307e3";
 export const CHROME_EXTENSION_ID = "gjadpfmanienmlofajibkfkkpfdkclgo";
 export const FIREFOX_ADDON_SLUG = "edgeever-web-clipper";
-export const FIREFOX_ADDON_ID = "web-clipper@edgeever.org";
+export const FIREFOX_ADDON_ID = "{40d5f11e-a0f6-4b9c-80f5-856a3efd8905}";
 export const FIREFOX_LICENSE_SLUG = "AGPL-3.0-only";
 const CHROME_SCOPE = "https://www.googleapis.com/auth/chromewebstore";
 const SOURCE_SKIP_DIRECTORIES = new Set([
@@ -269,7 +269,7 @@ export const resolveReleaseNotes = ({ notes, notesFile, version }) => {
       return limitNotes(fromFile);
     }
   }
-  return `EdgeEver Web Clipper ${version}.`;
+  return `RTNote Web Clipper ${version}.`;
 };
 
 const limitNotes = (notes) => {
@@ -289,7 +289,7 @@ export const buildApprovalNotes = ({ version, reviewInstanceUrl, reviewApiToken 
     "bun run lint:extension:firefox",
     "bun run package:extension:firefox",
     "See SOURCE_BUILD.md.",
-    "The extension reads a page only after a clip action and sends it to the EdgeEver instance configured in the extension settings.",
+    "The extension reads a page only after a clip action and sends it to the RTNote instance configured in the extension settings.",
     "Review steps are in apps/extension/FIREFOX_STORE_LISTING.md.",
   ];
   if (reviewInstanceUrl && reviewApiToken) {

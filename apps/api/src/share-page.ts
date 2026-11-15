@@ -77,7 +77,7 @@ const prefersMarkdown = (accept: string | null, markdownPath: boolean) => {
 
 const describeNote = (markdown: string) => {
   const normalized = markdown.replace(/\s+/g, " ").trim();
-  if (!normalized) return "Read a shared note on EdgeEver.";
+  if (!normalized) return "Read a shared note on RTNote.";
   return normalized.length > 160 ? `${normalized.slice(0, 160)}…` : normalized;
 };
 
@@ -175,19 +175,19 @@ export const renderPublicMemoSharePage = async (
       ? "This shared link has expired."
       : locked
         ? "This shared note requires a password."
-        : "Read a shared note on EdgeEver.";
+        : "Read a shared note on RTNote.";
   const updatedTime = readable && row && row.show_updated_at !== 0
     ? `<p lang="en" style="font-size:.75rem;color:#64748b">Updated <time datetime="${escapeHtml(row.updated_at)}">${escapeHtml(new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" }).format(new Date(row.updated_at)))} UTC</time></p>`
     : "";
   const branding = readable && row && row.show_branding !== 0
-    ? `<footer lang="en" style="margin-top:2rem;font-size:.75rem;text-align:center;color:#64748b"><a href="https://edgeever.org/" style="color:inherit">Published with EdgeEver</a></footer>`
+    ? `<footer lang="en" style="margin-top:2rem;font-size:.75rem;text-align:center;color:#64748b"><a href="https://github.com/MadlyFX/rtnote" style="color:inherit">Published with RTNote</a></footer>`
     : "";
   // The page inherits the app shell's language, which says nothing about the note.
   // The note's own title and body are marked as unknown; text generated here is English.
   const article = readable
     ? `<article id="edgeever-shared-note" style="max-width:44rem;margin:1.5rem auto;padding:0 1rem"><h1 lang="${noteTitle ? "" : "en"}">${escapeHtml(title)}</h1>${updatedTime}<pre lang="" style="white-space:pre-wrap;font:inherit">${escapeHtml(body)}</pre>${branding}</article>`
     : "";
-  const metadata = `<title>${escapeHtml(`${title} · EdgeEver`)}</title>
+  const metadata = `<title>${escapeHtml(`${title} · RTNote`)}</title>
 <meta name="description" content="${escapeHtml(description)}">
 <meta name="robots" content="${PUBLIC_PAGE_ROBOTS}">
 <link rel="canonical" href="${escapeHtml(canonical)}">

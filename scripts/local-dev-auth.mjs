@@ -33,7 +33,7 @@ export const createLocalDevelopmentSession = async (database) => {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       `sess_${crypto.randomUUID()}`, user.id, createHash("sha256").update(token).digest("hex"),
-      `local-dev_${crypto.randomUUID()}`, "EdgeEver Local Dev", "Local development",
+      `local-dev_${crypto.randomUUID()}`, "RTNote Local Dev", "Local development",
       new Date(Date.now() + maxAge * 1000).toISOString(), now, now,
     );
     return { token, maxAge, username: user.username };

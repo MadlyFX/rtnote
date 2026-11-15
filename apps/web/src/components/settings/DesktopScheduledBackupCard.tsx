@@ -17,7 +17,7 @@ import { SETTINGS_CARD_DESCRIPTION_CLASSNAME, SETTINGS_CARD_HEADER_CLASSNAME, SE
 const defaultBackupName = () => {
   const date = new Date();
   const two = (value: number) => String(value).padStart(2, "0");
-  return `EdgeEver-${date.getFullYear()}-${two(date.getMonth() + 1)}-${two(date.getDate())}_${two(date.getHours())}${two(date.getMinutes())}${two(date.getSeconds())}`;
+  return `RTNote-${date.getFullYear()}-${two(date.getMonth() + 1)}-${two(date.getDate())}_${two(date.getHours())}${two(date.getMinutes())}${two(date.getSeconds())}`;
 };
 
 export const DesktopScheduledBackupCard = () => {

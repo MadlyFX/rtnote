@@ -24,7 +24,7 @@ const preparedTurn = {
   baseUrl: "https://openrouter.ai/api/v1",
   apiKey: "or-key",
   modelId: "openai/gpt-4o-mini",
-  instructions: "You are EdgeEver.",
+  instructions: "You are RTNote.",
   messages: [{ role: "user", content: "hi" }],
   tools: [],
   maxSteps: 8,

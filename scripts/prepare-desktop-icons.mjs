@@ -17,8 +17,8 @@ import sharp from "sharp";
 import { assertMacIcnsComplete } from "./desktop-icns.mjs";
 
 const projectRoot = resolve(fileURLToPath(new URL(".", import.meta.url)), "..");
-const sourcePng = join(projectRoot, "apps/web/public/pwa-512x512.png");
-const brandMarkPath = join(projectRoot, "assets/brand/edgeever-mark.svg");
+const sourcePng = join(projectRoot, "assets/brand/rtnote-icon.svg");
+const brandMarkPath = join(projectRoot, "assets/brand/rtnote-mark.svg");
 const assetsDir = join(projectRoot, "apps/desktop/assets");
 
 /** iconutil expects these exact basenames inside a .iconset directory. */
@@ -60,19 +60,59 @@ const writeResizedPng = async (sourceBuffer, size, destination) => {
     .toFile(destination);
 };
 
+const renderPngBuffer = (sourceBuffer, size) =>
+  sharp(sourceBuffer, { density: 384 })
+    .resize(size, size, {
+      fit: "contain",
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+      kernel: sharp.kernel.lanczos3,
+    })
+    .png({ compressionLevel: 9 })
+    .toBuffer();
+
+/** ICNS element types that hold PNG data, with the pixel size each one expects. */
+export const ICNS_PNG_SLOTS = Object.freeze([
+  ["icp4", 16],
+  ["icp5", 32],
+  ["ic07", 128],
+  ["ic08", 256],
+  ["ic09", 512],
+  ["ic10", 1024],
+  ["ic11", 32],
+  ["ic12", 64],
+  ["ic13", 256],
+  ["ic14", 512],
+]);
+
+/** Packs `[type, pngBuffer]` pairs into an ICNS container. */
+export const buildIcnsFromPngs = (slots) => {
+  const elements = slots.map(([type, png]) => {
+    const header = Buffer.alloc(8);
+    header.write(type, 0, 4, "ascii");
+    header.writeUInt32BE(png.length + 8, 4);
+    return Buffer.concat([header, png]);
+  });
+  const body = Buffer.concat(elements);
+  const header = Buffer.alloc(8);
+  header.write("icns", 0, 4, "ascii");
+  header.writeUInt32BE(body.length + 8, 4);
+  return Buffer.concat([header, body]);
+};
+
 const TRAY_TEMPLATE_ALPHA_THRESHOLD = 80;
-const TRAY_MARK_CENTER = { x: 627, y: 580 };
-// 22pt matches other macOS menu-bar extras. A round stroke adds ink so the
-// open cat face keeps up with filled marks like Notion and WeChat.
-export const TRAY_MARK_SCALE = 1.1;
-export const TRAY_MARK_STROKE_WIDTH = 36;
+const TRAY_MARK_CENTER = { x: 512, y: 512 };
+// 22pt matches other macOS menu-bar extras. The note page is already a solid
+// shape, so it is scaled up to fill the slot and needs no extra stroke; a
+// stroke would close the text-line cutouts at this size.
+export const TRAY_MARK_SCALE = 1.6;
+export const TRAY_MARK_STROKE_WIDTH = 0;
 export const TRAY_TEMPLATE_SIZE = 22;
 export const TRAY_TEMPLATE_SIZE_2X = 44;
 
 export const buildMacTrayTemplateSvg = (markSvg) => {
   const pathMatch = markSvg.match(/<path\b[^>]*\sd="([^"]+)"/);
   if (!pathMatch) throw new Error("Brand mark is missing a path");
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="EdgeEver">
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="RTNote">
   <g transform="translate(512 512) scale(${TRAY_MARK_SCALE}) translate(-${TRAY_MARK_CENTER.x} -${TRAY_MARK_CENTER.y})">
     <path fill="#000000" stroke="#000000" stroke-width="${TRAY_MARK_STROKE_WIDTH}" stroke-linejoin="round" paint-order="stroke fill" fill-rule="evenodd" d="${pathMatch[1]}" />
   </g>
@@ -132,12 +172,19 @@ export const prepareDesktopIcons = async ({
   await writeResizedPng(sourceBuffer, 1024, join(assetsDirectory, "icon.png"));
 
   if (!requireIconutil) {
-    console.log("[prepare-desktop-icons] skipped iconutil on non-macOS; master PNG written.");
-    return { icnsPath: join(assetsDirectory, "icon.icns"), pngPath: join(assetsDirectory, "icon.png") };
+    // iconutil only exists on macOS. Everywhere else, pack the same PNG sizes
+    // into an ICNS directly so the committed icon matches the brand source.
+    const icnsPath = join(assetsDirectory, "icon.icns");
+    const slots = await Promise.all(ICNS_PNG_SLOTS.map(async ([type, size]) => [type, await renderPngBuffer(sourceBuffer, size)]));
+    const icnsData = buildIcnsFromPngs(slots);
+    assertMacIcnsComplete(icnsData, icnsPath);
+    await writeFile(icnsPath, icnsData);
+    console.log(`[prepare-desktop-icons] wrote ${icnsPath} (${icnsData.length} bytes) without iconutil; master PNG written.`);
+    return { icnsPath, pngPath: join(assetsDirectory, "icon.png") };
   }
 
-  const workRoot = await mkdtemp(join(tmpdir(), "edgeever-desktop-icon-"));
-  const iconsetDir = join(workRoot, "EdgeEver.iconset");
+  const workRoot = await mkdtemp(join(tmpdir(), "rtnote-desktop-icon-"));
+  const iconsetDir = join(workRoot, "RTNote.iconset");
   await mkdir(iconsetDir, { recursive: true });
 
   try {

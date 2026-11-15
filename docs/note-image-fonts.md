@@ -1,6 +1,5 @@
 # Optional share-image fonts
 
-[简体中文](note-image-fonts.zh-CN.md)
 
 Body settings, poster design and share images use the same directory of 23 named fonts, including all five fonts in Qiaomu’s designer starter pack. They load remote, version-pinned resources on demand; no additional font binaries are included in Web, desktop, Android or iOS packages. The picker, loader and license notices add a small amount of application code.
 

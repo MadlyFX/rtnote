@@ -54,7 +54,7 @@ export const noteImportEnUS = {
   },
   "errors": {
     "preflightErrors": "Fix the preflight errors before importing.",
-    "unsupportedImportServer": "Update the EdgeEver server to use native import.",
+    "unsupportedImportServer": "Update the RTNote server to use native import.",
     "missingParent": "The destination notebook is no longer available.",
     "destinationChanged": "A retry must use the original destination.",
     "uncertainNotebook": "Notebook creation is unconfirmed. Check the destination before starting another import.",
@@ -129,7 +129,7 @@ export const noteImportZhCN = {
   },
   "errors": {
     "preflightErrors": "请先修正预检错误。",
-    "unsupportedImportServer": "请升级 EdgeEver 服务端后使用原生导入。",
+    "unsupportedImportServer": "请升级 RTNote 服务端后使用原生导入。",
     "missingParent": "目标笔记本已不可用。",
     "destinationChanged": "重试必须使用原来的导入位置。",
     "uncertainNotebook": "笔记本创建结果待确认，请先检查目标目录，不要重复导入。",
@@ -279,7 +279,7 @@ export const noteImportPl = {
   },
   "errors": {
     "preflightErrors": "Najpierw popraw błędy skanowania.",
-    "unsupportedImportServer": "Zaktualizuj serwer EdgeEver, aby użyć importu.",
+    "unsupportedImportServer": "Zaktualizuj serwer RTNote, aby użyć importu.",
     "missingParent": "Notes docelowy nie jest już dostępny.",
     "destinationChanged": "Ponowienie musi używać pierwotnego miejsca docelowego.",
     "uncertainNotebook": "Wynik tworzenia notesu jest nieznany. Sprawdź miejsce docelowe przed kolejnym importem.",
@@ -354,7 +354,7 @@ export const noteImportRu = {
   },
   "errors": {
     "preflightErrors": "Сначала исправьте ошибки проверки.",
-    "unsupportedImportServer": "Обновите сервер EdgeEver для использования импорта.",
+    "unsupportedImportServer": "Обновите сервер RTNote для использования импорта.",
     "missingParent": "Целевой блокнот больше недоступен.",
     "destinationChanged": "При повторе используйте исходное назначение.",
     "uncertainNotebook": "Создание блокнота не подтверждено. Проверьте назначение перед новым импортом.",
@@ -430,7 +430,7 @@ export const noteImportZhTW = {
   },
   "errors": {
     "preflightErrors": "請先修正預檢錯誤。",
-    "unsupportedImportServer": "請升級 EdgeEver 服務端後使用原生匯入。",
+    "unsupportedImportServer": "請升級 RTNote 服務端後使用原生匯入。",
     "missingParent": "目標筆記本已不可用。",
     "destinationChanged": "重試必須使用原來的匯入位置。",
     "uncertainNotebook": "筆記本建立結果待確認，請先檢查目標目錄，不要重複匯入。",
@@ -505,7 +505,7 @@ export const noteImportEs = {
   },
   "errors": {
     "preflightErrors": "Corrige los errores de comprobación previa antes de importar.",
-    "unsupportedImportServer": "Actualiza el servidor EdgeEver para usar la importación nativa.",
+    "unsupportedImportServer": "Actualiza el servidor RTNote para usar la importación nativa.",
     "missingParent": "La libreta de destino ya no está disponible.",
     "destinationChanged": "Al reintentar se debe usar el destino original.",
     "uncertainNotebook": "La creación de la libreta no está confirmada. Comprueba el destino antes de iniciar otra importación.",
@@ -580,7 +580,7 @@ export const noteImportDe = {
   },
   "errors": {
     "preflightErrors": "Behebe die Vorprüfungsfehler vor dem Importieren.",
-    "unsupportedImportServer": "Aktualisiere den EdgeEver-Server, um den nativen Import zu nutzen.",
+    "unsupportedImportServer": "Aktualisiere den RTNote-Server, um den nativen Import zu nutzen.",
     "missingParent": "Das Ziel-Notizbuch ist nicht mehr verfügbar.",
     "destinationChanged": "Ein Wiederholungsversuch muss das ursprüngliche Ziel verwenden.",
     "uncertainNotebook": "Die Notizbuch-Erstellung ist unbestätigt. Prüfe das Ziel, bevor du einen weiteren Import startest.",
@@ -655,7 +655,7 @@ export const noteImportFr = {
   },
   "errors": {
     "preflightErrors": "Corrigez les erreurs préalables avant de lancer l'importation.",
-    "unsupportedImportServer": "Mettez à jour le serveur EdgeEver pour utiliser l'importation native.",
+    "unsupportedImportServer": "Mettez à jour le serveur RTNote pour utiliser l'importation native.",
     "missingParent": "Le carnet de notes de destination n'est plus disponible.",
     "destinationChanged": "Une nouvelle tentative doit utiliser la destination d'origine.",
     "uncertainNotebook": "La création du carnet n'est pas confirmée. Vérifiez la destination avant de relancer un import.",

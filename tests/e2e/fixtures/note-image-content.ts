@@ -4,7 +4,7 @@ export const landscape = svg(1600, 320, 'Landscape / full frame');
 export const portrait = svg(320, 1200, 'Portrait');
 export const longCode = `const endpoint = "https://example.com/${'very-long-path-'.repeat(24)}";\n\tconst result = { message: "保留缩进与全部代码内容", ready: true };\nconsole.log(result); // END_CODE`;
 const headings = ['项目', '说明', '负责人', '进度', '更新时间', '备注'];
-const values = ['图文导出', '完整保留每个字段，不挤成逐字竖排', 'EdgeEver', '验证中', '2026-10-18', 'END_TABLE'];
+const values = ['图文导出', '完整保留每个字段，不挤成逐字竖排', 'RTNote', '验证中', '2026-10-18', 'END_TABLE'];
 const escape = (text: string) => text.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 export const complexBodyHtml = `<h2>图文与画廊</h2><figure><img src="${landscape}" style="width:1600px;height:100px;object-fit:cover"><figcaption>横图上下色条均应完整可见</figcaption></figure>
 <div data-edgeever-image-gallery="true"><div class="edgeever-image-node" style="height:120px;overflow:hidden"><img src="${portrait}" style="height:100%;object-fit:cover"></div><div class="edgeever-image-node"><img src="${landscape}"></div></div>

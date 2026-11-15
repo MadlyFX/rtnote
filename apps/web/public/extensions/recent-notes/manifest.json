@@ -12,7 +12,7 @@
       "description": "演示笔记查询、编辑器选区、命令、通知和自定义面板。"
     }
   },
-  "author": "EdgeEver",
+  "author": "RTNote",
   "entry": "./main.js",
   "platforms": ["web", "desktop"],
   "permissions": ["notes:read", "editor:read", "editor:write", "ui:commands", "ui:notices", "ui:panels"]

@@ -827,7 +827,7 @@ struct WorkspaceView: View {
                 sharedImages.forEach(env.shareHandoff.removeImage)
                 shareImportAlert = ShareImportAlert(
                     title: env.preferences.t("无法保存图片", en: "Unable to save images", pl: "Nie można zapisać obrazów"),
-                    message: env.preferences.t("请先在 EdgeEver 中创建一个笔记本。", en: "Create a notebook in EdgeEver first.", pl: "Najpierw utwórz notatnik w EdgeEver.")
+                    message: env.preferences.t("请先在 RTNote 中创建一个笔记本。", en: "Create a notebook in RTNote first.", pl: "Najpierw utwórz notatnik w RTNote.")
                 )
                 return
             }
@@ -853,7 +853,7 @@ struct WorkspaceView: View {
         guard !store.notebooks.isEmpty else {
             shareImportAlert = ShareImportAlert(
                 title: env.preferences.t("无法保存剪藏", en: "Unable to save clip", pl: "Nie można zapisać wycinka"),
-                message: env.preferences.t("请先在 EdgeEver 中创建一个笔记本。", en: "Create a notebook in EdgeEver first.", pl: "Najpierw utwórz notatnik w EdgeEver.")
+                message: env.preferences.t("请先在 RTNote 中创建一个笔记本。", en: "Create a notebook in RTNote first.", pl: "Najpierw utwórz notatnik w RTNote.")
             )
             return
         }

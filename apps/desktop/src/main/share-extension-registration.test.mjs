@@ -1,12 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import { enableMacShareExtension, macShareExtensionPath } from "./share-extension-registration.mjs";
 
-const executable = "/Applications/EdgeEver.app/Contents/MacOS/EdgeEver";
+const executable = "/Applications/RTNote.app/Contents/MacOS/RTNote";
 
 describe("macOS share extension registration", () => {
   test("points at the PlugIns copy next to the packaged executable", () => {
     expect(macShareExtensionPath(executable)).toBe(
-      "/Applications/EdgeEver.app/Contents/PlugIns/EdgeEverShare.appex",
+      "/Applications/RTNote.app/Contents/PlugIns/EdgeEverShare.appex",
     );
   });
 
@@ -24,8 +24,8 @@ describe("macOS share extension registration", () => {
     });
     expect(result).toEqual({ enabled: true });
     expect(calls).toEqual([
-      ["-a", "/Applications/EdgeEver.app/Contents/PlugIns/EdgeEverShare.appex"],
-      ["-e", "use", "-i", "org.edgeever.desktop.share"],
+      ["-a", "/Applications/RTNote.app/Contents/PlugIns/EdgeEverShare.appex"],
+      ["-e", "use", "-i", "com.madlyfx.rtnote.share"],
     ]);
   });
 

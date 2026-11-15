@@ -8,7 +8,7 @@ import { createWindowsUpdateMetadata } from "./create-windows-update-metadata.mj
 import { signWindowsUpdateManifest } from "./sign-windows-update-manifest.mjs";
 import { instrumentNativeUpdateMain } from "./native-update-instrumentation.mjs";
 
-if (process.env.GITHUB_ACTIONS !== "true" || process.env.GITHUB_REPOSITORY !== "tianma-if/edgeever") {
+if (process.env.GITHUB_ACTIONS !== "true" || process.env.GITHUB_REPOSITORY !== "MadlyFX/rtnote") {
   throw new Error("Instrumented update builds run only on the official repository's disposable CI runners");
 }
 const root = process.cwd();
@@ -49,7 +49,7 @@ try {
     const config = {
       extends: "./electron-builder.yml", appId: "org.edgeever.update-verifier",
       // The product resolves its background Helper from the executable name.
-      productName: process.platform === "darwin" ? MAC_UPDATE_FIXTURE_NAME : "EdgeEver Update Verification",
+      productName: process.platform === "darwin" ? MAC_UPDATE_FIXTURE_NAME : "RTNote Update Verification",
       executableName: MAC_UPDATE_FIXTURE_NAME,
       directories: { output: directory },
       mac: { notarize: false },
@@ -65,7 +65,7 @@ try {
     const payload = process.platform === "darwin"
       ? join(macAppBundle(join(directory, process.arch === "arm64" ? "mac-arm64" : "mac")), "Contents/Resources/app.asar")
       : process.platform === "win32" ? join(directory, "win-unpacked/resources/app.asar")
-      : join(directory, `EdgeEver-${version}-linux-x64.AppImage`);
+      : join(directory, `RTNote-${version}-linux-x64.AppImage`);
     writeFileSync(join(directory, "payload.sha256"), createHash("sha256").update(readFileSync(payload)).digest("hex"));
     if (process.platform === "win32") {
       await createWindowsUpdateMetadata({ directory, version });

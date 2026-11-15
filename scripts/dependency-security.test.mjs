@@ -9,7 +9,6 @@ const rootRequire = createRequire(new URL("../package.json", import.meta.url));
 const mobileRequire = createRequire(new URL("../apps/mobile/package.json", import.meta.url));
 const extensionRequire = createRequire(new URL("../apps/extension/package.json", import.meta.url));
 const webRequire = createRequire(new URL("../apps/web/package.json", import.meta.url));
-const siteRequire = createRequire(new URL("../apps/site/package.json", import.meta.url));
 
 function consumerRequire(start, ...packages) {
   return packages.reduce((require, name) => createRequire(require.resolve(name)), start);
@@ -64,17 +63,6 @@ describe("dependency security at the actual consumer", () => {
     expect(postcssRequire("nanoid").customAlphabet("abc")(0)).toBe("");
   });
 
-  test("Iconify's SVGO strips executable namespace-prefixed and obfuscated links", () => {
-    const iconifyRequire = consumerRequire(siteRequire, "astro-icon/package.json", "@iconify/tools/package.json");
-    const { optimize } = iconifyRequire("svgo");
-    const svg = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:s="http://www.w3.org/2000/svg"><s:script>alert(1)</s:script><s:a href="java&#9;script:alert(1)"><circle r="2"/></s:a><circle r="3" onload="alert(1)"/></svg>';
-    const output = optimize(svg, { plugins: ["removeScriptElement"] }).data;
-    expect(output).not.toContain("script");
-    expect(output).not.toContain("onload");
-    expect(output).toContain('r="2"');
-    expect(output).toContain('r="3"');
-  });
-
   test("native plist consumers preserve values and reject injected entity names", () => {
     const expoRequire = consumerRequire(mobileRequire, "expo/package.json", "@expo/config-plugins");
     const builderRequire = consumerRequire(desktopRequire, "electron-builder", "app-builder-lib");
@@ -85,7 +73,7 @@ describe("dependency security at the actual consumer", () => {
       [consumerRequire(builderRequire, "@electron/osx-sign"), "plist"],
       [consumerRequire(builderRequire, "@electron/universal"), "plist"],
     ];
-    const fixture = { CFBundleIdentifier: "com.edgeever.app", label: "中文 & <EdgeEver>", enabled: true, count: 42, values: ["a", "b"] };
+    const fixture = { CFBundleIdentifier: "com.edgeever.app", label: "中文 & <RTNote>", enabled: true, count: 42, values: ["a", "b"] };
     for (const [require, name] of consumers) {
       const plistModule = require(name);
       const plist = plistModule.default ?? plistModule;

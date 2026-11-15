@@ -193,7 +193,7 @@ describe("TOTP routes", () => {
     const setup = await request("/api/v1/auth/totp/setup", {
       token, method: "POST", body: { password: "owner-password" },
     });
-    expect(setup.body.otpauthUri).toStartWith("otpauth://totp/EdgeEver:owner?");
+    expect(setup.body.otpauthUri).toStartWith("otpauth://totp/RTNote:owner?");
     expect(setup.body.setupId).toStartWith("setup_");
     expect((await request("/api/v1/auth/totp", { token })).body.enabled).toBe(false);
     // Nothing to confirm yet; and a confirm must always name the batch it saw.

@@ -395,8 +395,8 @@ const desktopRuntimeSystemInfo = () => ({
   appVersion: app.getVersion(),
   autoUpdateSupported: desktopPackageMetadata.edgeeverUpdatePolicy !== "manual",
   updateDownloadUrl: desktopPackageMetadata.edgeeverUpdatePolicy === "manual"
-    ? "https://github.com/MadlyFX/edgeever/actions/workflows/fork-desktop-build.yml"
-    : "https://github.com/tianma-if/edgeever/releases/latest",
+    ? "https://github.com/MadlyFX/rtnote/actions/workflows/windows-build.yml"
+    : "https://github.com/MadlyFX/rtnote/releases/latest",
   platform: process.platform,
   architecture: process.arch,
   deviceModel: desktopDeviceModel(),
@@ -599,7 +599,7 @@ const ejectMountedMacInstallers = async () => {
         "-",
         infoPlist,
       ]);
-      if (stdout.trim() !== "org.edgeever.desktop") continue;
+      if (stdout.trim() !== "com.madlyfx.rtnote") continue;
       let ejectError;
       for (let attempt = 1; attempt <= 3; attempt += 1) {
         try {
@@ -917,7 +917,7 @@ const flushPendingWeChatImports = () => {
 };
 
 const handleProtocolUrl = (target) => {
-  if (typeof target !== "string" || !target.startsWith("edgeever://")) return;
+  if (typeof target !== "string" || !target.startsWith("rtnote://")) return;
   try {
     const url = new URL(target);
     if (url.hostname === "wechat-import" || url.hostname === "share-import") {
@@ -944,7 +944,7 @@ const importSharedCommandLineFiles = (commandLine) => {
 };
 
 const handleOpenTarget = (commandLine) => {
-  const target = commandLine.find((value) => value.startsWith("edgeever://"));
+  const target = commandLine.find((value) => value.startsWith("rtnote://"));
   if (target) handleProtocolUrl(target);
   if (importSharedCommandLineFiles(commandLine)) return;
   const associatedFile = commandLine.find((value) => !value.startsWith("-") && isSupportedAssociatedFile(value));
@@ -1024,7 +1024,7 @@ const createTray = () => {
   const icon = existsSync(iconPath) ? nativeImage.createFromPath(iconPath) : nativeImage.createEmpty();
   if (process.platform === "darwin") icon.setTemplateImage(true);
   tray = new Tray(icon);
-  tray.setToolTip("EdgeEver");
+  tray.setToolTip("RTNote");
   tray.setContextMenu(buildTrayContextMenu());
   tray.on("double-click", () => showWindow(mainWindow));
 };
@@ -1312,7 +1312,7 @@ const startSidecar = async (accountId = null) => {
   await waitForChildProcessSpawn(spawnedProcess);
   spawnedSuccessfully = true;
   if (spawnedProcess.exitCode !== null || sidecarProcess !== spawnedProcess) {
-    throw new Error(`EdgeEver sidecar exited during startup (${spawnedProcess.exitCode ?? "unknown"})`);
+    throw new Error(`RTNote sidecar exited during startup (${spawnedProcess.exitCode ?? "unknown"})`);
   }
   sidecar = new SidecarRpcClient(spawnedProcess);
   return sidecar;
@@ -1339,7 +1339,7 @@ const scheduleSidecarRestart = () => {
     sidecarRestartInFlight = true;
     try {
       const restarted = await startSidecar(activeAccountId);
-      if (!restarted) throw new Error("EdgeEver sidecar is unavailable");
+      if (!restarted) throw new Error("RTNote sidecar is unavailable");
       await restarted.waitUntilReady();
       void writeDiagnostic("sidecar.restarted", { attempt: sidecarRestartAttempts, delayMs });
     } catch (error) {
@@ -1640,7 +1640,7 @@ const startApplication = async () => {
   }
   await loadConfiguredApiBaseUrl();
   await loadDesktopSessionToken();
-  app.setAsDefaultProtocolClient("edgeever");
+  app.setAsDefaultProtocolClient("rtnote");
   recoveredAfterAbnormalExit = existsSync(crashMarkerPath());
   void writeDiagnostic(recoveredAfterAbnormalExit ? "session.recovered-after-abnormal-exit" : "session.started");
   void inspectWindowsTaskbarShortcuts({
@@ -1656,7 +1656,7 @@ const startApplication = async () => {
   registerResourceProtocol();
   await preparePackagedRendererOrigin();
   const initialSidecar = await startSidecar();
-  if (!initialSidecar) throw new Error("EdgeEver sidecar is unavailable");
+  if (!initialSidecar) throw new Error("RTNote sidecar is unavailable");
   await initialSidecar.waitUntilReady();
   void writeDiagnostic("sidecar.ready", { scope: sidecarScopeKey });
   createTray();
@@ -1707,7 +1707,7 @@ const startApplication = async () => {
     return event.sender.printToPDF(PRINT_PDF_OPTIONS);
   });
   ipcMain.handle("desktop:sidecar-request", async (_event, method, params) => {
-    if (!sidecar) throw new Error("EdgeEver sidecar is unavailable");
+    if (!sidecar) throw new Error("RTNote sidecar is unavailable");
     const result = await sidecar.request(method, params);
     if (method === "resource.delete" && isSafeResourceId(params?.resourceId)) {
       const directory = resourceCacheDirectory();
@@ -1719,14 +1719,14 @@ const startApplication = async () => {
     return result;
   });
   backupManager = new BackupManager({
-    userData: app.getPath("userData"), defaultDirectory: join(app.getPath("documents"), "EdgeEver Backups"), secureStorage: safeStorage,
+    userData: app.getPath("userData"), defaultDirectory: join(app.getPath("documents"), "RTNote Backups"), secureStorage: safeStorage,
     offsite: new OffsiteBackup({ userData: app.getPath("userData"), secureStorage: safeStorage }),
     workerFactory: createBackupWorkerFactory({ utilityProcess, session: session.defaultSession }),
     version: { edgeeverVersion: app.getVersion(), buildId: app.getVersion() },
     onChange: (status) => { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send("desktop:backup-status", status); },
     onDiagnostic: (event, details) => writeDiagnostic(event, details),
     onSuccess: () => {
-      if (Notification.isSupported()) new Notification({ title: "EdgeEver", body: desktopDialogCopy(app.getLocale()).backupComplete }).show();
+      if (Notification.isSupported()) new Notification({ title: "RTNote", body: desktopDialogCopy(app.getLocale()).backupComplete }).show();
     },
   });
   registerBackupIpc({ ipcMain, manager: backupManager, getWindow: () => mainWindow, dialog, shell });
@@ -1778,7 +1778,7 @@ const startApplication = async () => {
     if (backupManager.context?.baseUrl !== configuredApiBaseUrl || backupManager.context?.accountId !== normalizedAccountId) await backupManager.setContext(null);
     await stopSidecar();
     const nextSidecar = await startSidecar(normalizedAccountId);
-    if (!nextSidecar) throw new Error("EdgeEver sidecar is unavailable");
+    if (!nextSidecar) throw new Error("RTNote sidecar is unavailable");
     await nextSidecar.waitUntilReady();
     await refreshBackupContext(); void backupManager.tick();
     attachmentSessionActive = Boolean(normalizedAccountId);
@@ -2117,7 +2117,7 @@ const startApplication = async () => {
       if (sidecar) {
         await stopSidecar();
         const nextSidecar = await startSidecar(activeAccountId);
-        if (!nextSidecar) throw new Error("EdgeEver sidecar is unavailable after changing instance");
+        if (!nextSidecar) throw new Error("RTNote sidecar is unavailable after changing instance");
         await nextSidecar.waitUntilReady();
       }
       await refreshBackupContext(); void backupManager.tick();

@@ -1,6 +1,5 @@
 # Keyboard shortcuts to focus the note title and body
 
-[简体中文](2026-11-02-focus-title-body-shortcuts.zh-CN.md)
 
 Related Issue: #759
 

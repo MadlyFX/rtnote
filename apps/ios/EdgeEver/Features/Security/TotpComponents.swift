@@ -530,10 +530,10 @@ struct TotpRecoveryCodesView: View {
 
     private var shareText: String {
         let header = env.preferences.t(
-            "EdgeEver 二次验证恢复码（每个只能使用一次）",
-            en: "EdgeEver two-factor recovery codes (each works once)",
-            ja: "EdgeEver 二段階認証リカバリーコード（各コード 1 回のみ）",
-            pl: "Kody odzyskiwania EdgeEver (każdy działa jednokrotnie)"
+            "RTNote 二次验证恢复码（每个只能使用一次）",
+            en: "RTNote two-factor recovery codes (each works once)",
+            ja: "RTNote 二段階認証リカバリーコード（各コード 1 回のみ）",
+            pl: "Kody odzyskiwania RTNote (każdy działa jednokrotnie)"
         )
         return header + "\n\n" + joined
     }

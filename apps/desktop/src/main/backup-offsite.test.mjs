@@ -38,15 +38,15 @@ const setup = async ({ secure = true } = {}) => {
   const offsite = new OffsiteBackup({ userData, secureStorage: secureStorage(secure), clientFactory: server.factory, onChange: (status) => changes.push(status), now: () => clock, stallTimeoutMs: 50 });
   await offsite.setScope("scope-a", SET);
   const archive = async (name, body = "archive") => { await writeFile(join(backups, SET, name), body); return { name, directory: backups, size: Buffer.byteLength(body), completedAt: new Date(clock).toISOString() }; };
-  const enable = () => offsite.save({ enabled: true, url: "https://dav.example.com/remote.php/dav/files/me/", username: "me", folder: "/EdgeEver/backups" }, "app-password");
+  const enable = () => offsite.save({ enabled: true, url: "https://dav.example.com/remote.php/dav/files/me/", username: "me", folder: "/RTNote/backups" }, "app-password");
   const settle = async () => { for (let i = 0; i < 50 && (offsite.upload || offsite.queued); i += 1) await new Promise((r) => setTimeout(r, 5)); };
   return { root, userData, backups, offsite, server, changes, archive, enable, settle, advance: (ms) => { clock += ms; }, cleanup: () => rm(root, { recursive: true, force: true }) };
 };
 
 describe("off-site settings", () => {
   test("requires https except on a local network and rejects unsafe folders", () => {
-    expect(normalizeOffsiteConfig(undefined)).toEqual({ enabled: false, url: "", username: "", folder: "/EdgeEver/backups" });
-    expect(normalizeOffsiteConfig({ enabled: true, url: " https://dav.example.com/dav/ ", username: " me ", folder: "Backups//EdgeEver/" })).toEqual({ enabled: true, url: "https://dav.example.com/dav", username: "me", folder: "/Backups/EdgeEver" });
+    expect(normalizeOffsiteConfig(undefined)).toEqual({ enabled: false, url: "", username: "", folder: "/RTNote/backups" });
+    expect(normalizeOffsiteConfig({ enabled: true, url: " https://dav.example.com/dav/ ", username: " me ", folder: "Backups//RTNote/" })).toEqual({ enabled: true, url: "https://dav.example.com/dav", username: "me", folder: "/Backups/RTNote" });
     for (const url of ["http://nas.local:5005", "http://192.168.1.10/dav", "http://nas/dav", "http://[fd00::1]/dav", "http://localhost:8080"]) {
       expect(normalizeOffsiteConfig({ enabled: true, url, username: "u", folder: "/" }).url).toBe(new URL(url).href.replace(/\/+$/, ""));
     }
@@ -120,10 +120,10 @@ describe("off-site upload", () => {
     try {
       await f.enable();
       f.offsite.enqueue(await f.archive("one.zip", "hello archive"), 3); await f.settle();
-      const final = `/EdgeEver/backups/${SET}/one.zip`;
+      const final = `/RTNote/backups/${SET}/one.zip`;
       expect(f.server.files.get(final)?.toString()).toBe("hello archive");
       const put = f.server.calls.find(([name]) => name === "putFileContents");
-      expect(put[1]).toMatch(new RegExp(`^/EdgeEver/backups/${SET}/one\\.zip\\.[a-f0-9-]+\\.part$`));
+      expect(put[1]).toMatch(new RegExp(`^/RTNote/backups/${SET}/one\\.zip\\.[a-f0-9-]+\\.part$`));
       // Streams are sent with an explicit length; some servers reject chunked uploads.
       expect(f.server.calls.find(([name]) => name === "putFileContents:options")[2].headers).toEqual({ "Content-Length": "13" });
       expect([...f.server.files.keys()].some((path) => path.endsWith(".part"))).toBe(false);
@@ -196,10 +196,10 @@ describe("off-site upload", () => {
     const f = await setup();
     try {
       await f.enable();
-      f.server.files.set(`/EdgeEver/backups/${SET}/manual.zip`, Buffer.from("keep"));
+      f.server.files.set(`/RTNote/backups/${SET}/manual.zip`, Buffer.from("keep"));
       for (const name of ["a.zip", "b.zip", "c.zip"]) { f.offsite.enqueue(await f.archive(name), 2); await f.settle(); f.advance(1000); }
       const remaining = [...f.server.files.keys()].sort();
-      expect(remaining).toEqual([`/EdgeEver/backups/${SET}/b.zip`, `/EdgeEver/backups/${SET}/c.zip`, `/EdgeEver/backups/${SET}/manual.zip`]);
+      expect(remaining).toEqual([`/RTNote/backups/${SET}/b.zip`, `/RTNote/backups/${SET}/c.zip`, `/RTNote/backups/${SET}/manual.zip`]);
       // A failed upload never deletes the older copies.
       f.server.hooks.putFileContents = async () => { throw f.server.fail(500); };
       f.offsite.enqueue(await f.archive("d.zip"), 1); await f.settle();
@@ -208,7 +208,7 @@ describe("off-site upload", () => {
       delete f.server.hooks.putFileContents;
       await f.offsite.save({ ...f.offsite.status().config, folder: "/Elsewhere" });
       f.offsite.enqueue(await f.archive("e.zip"), 1); await f.settle();
-      expect(f.server.files.has(`/EdgeEver/backups/${SET}/c.zip`)).toBe(true);
+      expect(f.server.files.has(`/RTNote/backups/${SET}/c.zip`)).toBe(true);
       expect(f.server.files.has(`/Elsewhere/${SET}/e.zip`)).toBe(true);
     } finally { await f.cleanup(); }
   });
@@ -249,7 +249,7 @@ describe("off-site upload", () => {
   test("test connection uses the entered password without saving it", async () => {
     const f = await setup();
     try {
-      await expect(f.offsite.test({ url: "https://dav.example.com/dav", username: "me", folder: "/EdgeEver/backups" }, "typed")).resolves.toEqual({ ok: true });
+      await expect(f.offsite.test({ url: "https://dav.example.com/dav", username: "me", folder: "/RTNote/backups" }, "typed")).resolves.toEqual({ ok: true });
       expect(f.server.calls[0]).toEqual(["connect", "https://dav.example.com/dav", "me", "typed"]);
       expect(f.offsite.status().passwordSet).toBe(false);
       f.server.hooks.createDirectory = async () => { throw f.server.fail(401); };
@@ -261,9 +261,9 @@ describe("off-site upload", () => {
     const f = await setup();
     try {
       await f.enable();
-      const part = `/EdgeEver/backups/${SET}/one.zip.abc.part`;
+      const part = `/RTNote/backups/${SET}/one.zip.abc.part`;
       f.server.files.set(part, Buffer.from("partial"));
-      f.offsite.record.activePart = { path: part, target: JSON.stringify(["https://dav.example.com/remote.php/dav/files/me", "me", "/EdgeEver/backups"]) };
+      f.offsite.record.activePart = { path: part, target: JSON.stringify(["https://dav.example.com/remote.php/dav/files/me", "me", "/RTNote/backups"]) };
       await f.offsite.persist();
       await f.offsite.setScope("scope-a", SET);
       for (let i = 0; i < 50 && f.server.files.has(part); i += 1) await new Promise((r) => setTimeout(r, 5));
@@ -279,7 +279,7 @@ describe("review regressions", () => {
       // Account A saves its password; account B saves a different one.
       await f.enable();
       await f.offsite.setScope("scope-b", SET);
-      await f.offsite.save({ enabled: true, url: "https://dav.example.com/remote.php/dav/files/me/", username: "me", folder: "/EdgeEver/backups" }, "password-of-b");
+      await f.offsite.save({ enabled: true, url: "https://dav.example.com/remote.php/dav/files/me/", username: "me", folder: "/RTNote/backups" }, "password-of-b");
       await f.offsite.setScope("scope-a", SET);
       // Hold decryption so the account can switch while the test reads A's password.
       let release; const storage = f.offsite.secureStorage; const decrypt = storage.decryptStringAsync;

@@ -141,7 +141,7 @@ describe("cross-platform Wrangler runner", () => {
     expect(findD1DatabaseIdByName(databases, "edgeever")).toBe(
       "22222222-2222-2222-2222-222222222222",
     );
-    expect(findD1DatabaseIdByName(databases, "EdgeEver")).toBeUndefined();
+    expect(findD1DatabaseIdByName(databases, "RTNote")).toBeUndefined();
     expect(findD1DatabaseIdByName("[]", "edgeever")).toBeUndefined();
   });
 

@@ -698,9 +698,9 @@ struct MemoEditView: View {
     private func showCameraSettingsAlert() {
         cameraAccessCanOpenSettings = true
         cameraAccessMessage = env.preferences.t(
-            "请前往系统设置，允许 EdgeEver 使用相机后再试。",
-            en: "Open system settings and allow EdgeEver to use the camera, then try again.",
-            pl: "Otwórz ustawienia systemu i zezwól EdgeEver na używanie aparatu, a następnie spróbuj ponownie."
+            "请前往系统设置，允许 RTNote 使用相机后再试。",
+            en: "Open system settings and allow RTNote to use the camera, then try again.",
+            pl: "Otwórz ustawienia systemu i zezwól RTNote na używanie aparatu, a następnie spróbuj ponownie."
         )
         showCameraAccessAlert = true
     }

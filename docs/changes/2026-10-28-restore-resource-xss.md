@@ -1,6 +1,5 @@
 # Issue 701: restore resource XSS protection
 
-[简体中文](2026-10-28-restore-resource-xss.zh-CN.md)
 
 ## Problem and outcome
 

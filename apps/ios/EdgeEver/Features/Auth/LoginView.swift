@@ -33,7 +33,7 @@ struct LoginView: View {
             AppTheme.background
                 .ignoresSafeArea()
 
-            Link(destination: URL(string: "https://github.com/tianma-if/edgeever")!) {
+            Link(destination: URL(string: "https://github.com/MadlyFX/rtnote")!) {
                 Image(systemName: "arrow.up.right.square")
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundStyle(AppTheme.slate)
@@ -62,7 +62,7 @@ struct LoginView: View {
                                 .foregroundStyle(AppTheme.slate)
                         }
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("EdgeEver")
+                            Text("RTNote")
                                 .font(.system(size: 22, weight: .heavy))
                                 .foregroundStyle(AppTheme.title)
                             Text(env.preferences.t("连接你的自托管笔记空间", en: "Connect your self-hosted notes", ja: "セルフホストのノート空間に接続", pl: "Połącz się ze swoimi samodzielnie hostowanymi notatkami"))

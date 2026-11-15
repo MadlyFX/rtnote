@@ -354,7 +354,7 @@ const doctor = async () => {
   } catch {}
 
   console.log([
-    "EdgeEver local development doctor",
+    "RTNote local development doctor",
     `- Wrangler: ${wranglerVersion ? `v${wranglerVersion}` : "missing (run bun install)"}`,
     `- Web: ${LOCAL_DEV_WEB_URL}`,
     `- API: ${LOCAL_DEV_API_URL} (${health})`,

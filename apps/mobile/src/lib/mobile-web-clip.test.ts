@@ -106,9 +106,9 @@ describe("mobile web clip", () => {
       },
     });
     expect(draft.contentMarkdown).toContain("https://mp.weixin.qq.com/s/offline");
-    expect(draft.contentMarkdown).toContain("来源：");
-    expect(draft.contentMarkdown).toContain("剪藏时间：");
-    expect(draft.contentMarkdown).toContain("正文暂时无法抓取");
+    expect(draft.contentMarkdown).toContain("Source:");
+    expect(draft.contentMarkdown).toContain("Captured at:");
+    expect(draft.contentMarkdown).toContain("Could not extract the page text");
   });
 
   test("writes English source labels into a new clip", () => {

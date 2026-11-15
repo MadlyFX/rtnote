@@ -259,8 +259,8 @@ mod tests {
     #[test]
     fn string_param_rejects_missing_or_non_string_values() {
         assert_eq!(
-            string_param(&json!({ "name": "EdgeEver" }), "name").unwrap(),
-            "EdgeEver"
+            string_param(&json!({ "name": "RTNote" }), "name").unwrap(),
+            "RTNote"
         );
         assert!(string_param(&json!({}), "name").is_err());
         assert!(string_param(&json!({ "name": 42 }), "name").is_err());

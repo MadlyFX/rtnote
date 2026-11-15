@@ -90,7 +90,7 @@ export const getTokenScopeLabel = (scope: string, t: TFunction) => t(`mcp.scopes
 
 export const EDGE_EVER_SERVER_URL_PLACEHOLDER = "https://your-edgeever-server";
 
-// MCP clients connect to the EdgeEver server, not to the page that shows the
+// MCP clients connect to the RTNote server, not to the page that shows the
 // settings. In the browser that is the page origin; the desktop renderer runs
 // on its own app origin (`edgeever-app://app`), so it uses the configured
 // instance URL and shows a placeholder until one is set.
@@ -112,7 +112,7 @@ export const buildMcpRemoteConfig = (token: string) =>
   JSON.stringify(
     {
       mcpServers: {
-        edgeever: {
+        rtnote: {
           url: getMcpRemoteServerUrl(),
           headers: {
             Authorization: `Bearer ${token}`,

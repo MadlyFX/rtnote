@@ -202,5 +202,5 @@ if (window.opener && token) {
     getMessageTargetOrigin(window.location.origin)
   );
 } else {
-  setText(status, "EdgeEver");
+  setText(status, "RTNote");
 }

@@ -7,7 +7,7 @@ const jsonResponse = (body, init = {}) => new Response(JSON.stringify(body), {
   ...init,
 });
 
-describe("EdgeEver client HTTP contract", () => {
+describe("RTNote client HTTP contract", () => {
   test("sends optional export cursors without changing legacy offset requests", async () => {
     const calls = [];
     const client = createEdgeEverClient({ baseUrl: "https://notes.example", fetch: async input => { calls.push(new URL(input)); return jsonResponse({}); } });
@@ -516,7 +516,7 @@ describe("EdgeEver client HTTP contract", () => {
     }
   });
 
-  test("distinguishes EdgeEver API errors from edge security responses", async () => {
+  test("distinguishes RTNote API errors from edge security responses", async () => {
     const client = createEdgeEverClient({
       fetch: async () => jsonResponse(
         { error: { code: "forbidden", message: "Forbidden", details: { reason: "policy" } } },
@@ -724,7 +724,7 @@ const jsonEndpointCases = [
 const resolveMethod = (client, name) =>
   name.split(".").reduce((target, key) => target[key], client);
 
-describe("EdgeEver client endpoint contract", () => {
+describe("RTNote client endpoint contract", () => {
   test.each(jsonEndpointCases)("%s sends the documented request", async (name, args, method, path, body) => {
     const responseBody = { value: name };
     const { client, calls } = createRecordingClient(() => jsonResponse(responseBody));
@@ -861,7 +861,7 @@ describe("EdgeEver client endpoint contract", () => {
   });
 });
 
-describe("EdgeEver client form uploads", () => {
+describe("RTNote client form uploads", () => {
   test("uploads public form files as multipart without a JSON content type", async () => {
     const { client, calls } = createRecordingClient(() => jsonResponse({ resource: { id: "r1" } }));
 
@@ -911,7 +911,7 @@ describe("EdgeEver client form uploads", () => {
   });
 });
 
-describe("EdgeEver client binary and plugin endpoints", () => {
+describe("RTNote client binary and plugin endpoints", () => {
   test("reads the community registry bytes and signature, or null when absent", async () => {
     let status = 200;
     const { client, calls } = createRecordingClient(() => new Response(
@@ -1031,7 +1031,7 @@ describe("EdgeEver client binary and plugin endpoints", () => {
   });
 });
 
-describe("EdgeEver client direct AI preparation", () => {
+describe("RTNote client direct AI preparation", () => {
   const preparedText = {
     provider: "openai-compatible",
     baseUrl: "https://models.example/v1",
@@ -1170,7 +1170,7 @@ describe("EdgeEver client direct AI preparation", () => {
   });
 });
 
-describe("EdgeEver client JSON resource restore", () => {
+describe("RTNote client JSON resource restore", () => {
   test("aborts the restore upload when reading the source fails", async () => {
     const { client, calls } = createRecordingClient((call) => (call.path.endsWith("/uploads")
       ? jsonResponse({ upload: { id: "up 1", partSize: 1024, partCount: 1 } })
@@ -1190,7 +1190,7 @@ describe("EdgeEver client JSON resource restore", () => {
   });
 });
 
-describe("EdgeEver client direct AI runs", () => {
+describe("RTNote client direct AI runs", () => {
   const companionTurn = {
     turn: {
       id: "11111111-1111-1111-1111-111111111111",
@@ -1213,7 +1213,7 @@ describe("EdgeEver client direct AI runs", () => {
     baseUrl: "https://models.example/v1",
     apiKey: "model-key",
     modelId: "m",
-    instructions: "You are EdgeEver.",
+    instructions: "You are RTNote.",
     messages: [{ role: "user", content: "hi" }],
     tools: [],
     maxSteps: 2,

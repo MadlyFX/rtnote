@@ -1,6 +1,5 @@
 # Model-level output budgets
 
-[简体中文](2026-11-03-ai-model-output-budgets.zh-CN.md)
 
 Related Issue: #652
 

@@ -602,15 +602,15 @@
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					06BD8BFE81996E1AAAACD634 = {
-						DevelopmentTeam = 9KA3NM38B6;
+						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
 					};
 					7B4AF236874DD8459683F02B = {
-						DevelopmentTeam = 9KA3NM38B6;
+						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
 					};
 					E55B18ED6114D23320B85FA0 = {
-						DevelopmentTeam = 9KA3NM38B6;
+						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -779,11 +779,11 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 9KA3NM38B6;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ShareExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "org.edgeever.mobile.expo-sharing-extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.madlyfx.rtnote.expo-sharing-extension";
 				PRODUCT_NAME = ShareExtension;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -828,7 +828,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 49;
-				DEVELOPMENT_TEAM = 9KA3NM38B6;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -859,7 +859,7 @@
 				CODE_SIGN_ENTITLEMENTS = EdgeEver/Resources/EdgeEver.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 9KA3NM38B6;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_TESTABILITY = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = EdgeEver/Resources/Info.plist;
@@ -867,7 +867,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.edgeever.mobile;
+				PRODUCT_BUNDLE_IDENTIFIER = com.madlyfx.rtnote;
 				PRODUCT_NAME = EdgeEver;
 				SDKROOT = iphoneos;
 				SWIFT_STRICT_CONCURRENCY = complete;
@@ -912,7 +912,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 49;
-				DEVELOPMENT_TEAM = 9KA3NM38B6;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -947,11 +947,11 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 9KA3NM38B6;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ShareExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "org.edgeever.mobile.expo-sharing-extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.madlyfx.rtnote.expo-sharing-extension";
 				PRODUCT_NAME = ShareExtension;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -969,7 +969,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.edgeever.mobile.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.madlyfx.rtnote.tests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/EdgeEver.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/EdgeEver";
@@ -986,7 +986,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.edgeever.mobile.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.madlyfx.rtnote.tests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/EdgeEver.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/EdgeEver";
@@ -1001,7 +1001,7 @@
 				CODE_SIGN_ENTITLEMENTS = EdgeEver/Resources/EdgeEver.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 9KA3NM38B6;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_TESTABILITY = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = EdgeEver/Resources/Info.plist;
@@ -1009,7 +1009,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.edgeever.mobile;
+				PRODUCT_BUNDLE_IDENTIFIER = com.madlyfx.rtnote;
 				PRODUCT_NAME = EdgeEver;
 				SDKROOT = iphoneos;
 				SWIFT_STRICT_CONCURRENCY = complete;

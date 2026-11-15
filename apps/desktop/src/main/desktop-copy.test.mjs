@@ -64,7 +64,7 @@ describe("resolveDesktopLocale", () => {
 
 describe("formatDesktopCopy", () => {
   test("replaces known placeholders and leaves unknown ones", () => {
-    expect(formatDesktopCopy("EdgeEver v{version}", { version: "1.2.3" })).toBe("EdgeEver v1.2.3");
+    expect(formatDesktopCopy("RTNote v{version}", { version: "1.2.3" })).toBe("RTNote v1.2.3");
     expect(formatDesktopCopy("{stamp} {missing}", { stamp: 7 })).toBe("7 {missing}");
     expect(formatDesktopCopy("no placeholders", {})).toBe("no placeholders");
   });

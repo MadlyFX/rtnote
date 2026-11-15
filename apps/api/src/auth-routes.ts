@@ -360,7 +360,7 @@ export const registerAuthRoutes = (
       return context.json({
         error: {
           code: "mfa_required",
-          message: "This account uses two-factor authentication. Update EdgeEver to sign in.",
+          message: "This account uses two-factor authentication. Update RTNote to sign in.",
           details: {
             challengeToken: challenge.token,
             expiresAt: challenge.expiresAt,

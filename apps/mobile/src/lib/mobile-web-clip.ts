@@ -203,7 +203,7 @@ export const buildMobileWebClipDraft = async (
 ): Promise<MobileWebClipDraft> => {
   const fetcher = options.fetcher ?? fetch;
   const capturedAt = options.capturedAt ?? new Date();
-  const locale = options.locale ?? "zh-CN";
+  const locale = options.locale ?? "en-US";
   let html = "";
   let finalUrl = sourceUrl;
 
@@ -246,7 +246,7 @@ export const buildMobileWebClipDraftFromRenderedPage = (
   } = {},
 ): MobileWebClipDraft => {
   const capturedAt = options.capturedAt ?? new Date();
-  const locale = options.locale ?? "zh-CN";
+  const locale = options.locale ?? "en-US";
   const copy = webClipCopy[locale];
   const title = normalizeInlineText(page.title ?? "") || hostnameTitle(sourceUrl, locale);
   const body = htmlToMarkdown(page.contentHtml, page.finalUrl || sourceUrl, copy.imageAlt);
@@ -367,7 +367,7 @@ const buildFallbackDraft = (
   };
 };
 
-const hostnameTitle = (value: string, locale: MobileWebClipLocale = "zh-CN") => {
+const hostnameTitle = (value: string, locale: MobileWebClipLocale = "en-US") => {
   try {
     return new URL(value).hostname;
   } catch {

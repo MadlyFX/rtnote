@@ -14,7 +14,7 @@ const CONFIG_PATH = process.env.EDGEEVER_CONFIG || join(homedir(), ".edgeever", 
 const DEFAULT_URL = "http://127.0.0.1:8787";
 const options = parseOptions(process.argv.slice(2));
 
-const usage = `Import Evernote ENEX files into EdgeEver through MCP.
+const usage = `Import Evernote ENEX files into RTNote through MCP.
 
 Usage:
   EDGEEVER_URL=https://your.edgeever.host EDGEEVER_TOKEN=... \\
@@ -25,7 +25,7 @@ Usage:
 Options:
   --input <path>       ENEX file or a directory containing one ENEX file per notebook.
   --profile <name>    Read URL and token from ~/.edgeever/config.json.
-  --dry-run           Parse and print the plan without writing to EdgeEver.
+  --dry-run           Parse and print the plan without writing to RTNote.
   --yes               Import all notebooks without interactive confirmations.
   --include <names>   Comma-separated notebook/stack names to import (only these).
   --exclude <names>   Comma-separated notebook/stack names to exclude.
@@ -218,7 +218,7 @@ async function main() {
     }
 
     if (!assumeYes && index < notebooksInfo.length - 1) {
-      const answer = await readline.question("Review the result in EdgeEver. Continue with the next notebook? Type yes, or anything else to stop: ");
+      const answer = await readline.question("Review the result in RTNote. Continue with the next notebook? Type yes, or anything else to stop: ");
 
       if (answer.trim().toLowerCase() !== "yes") {
         console.log("Stopped by user confirmation.");

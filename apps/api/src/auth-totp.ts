@@ -15,7 +15,7 @@ import { sha256 } from "./hash-utils";
 import { decryptSecret, encryptSecret } from "./secret-encryption";
 import type { DatabaseAdapter, PreparedStatementAdapter } from "./storage-contract";
 
-export const TOTP_ISSUER = "EdgeEver";
+export const TOTP_ISSUER = "RTNote";
 export const TOTP_PERIOD_SECONDS = 30;
 /** Accept the previous and next 30-second step to absorb clock drift. */
 export const TOTP_WINDOW = 1;

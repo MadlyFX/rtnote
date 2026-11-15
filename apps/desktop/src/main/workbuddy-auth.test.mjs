@@ -82,7 +82,7 @@ for (const mode of ["legacy", "partial", "native-failure"]) test(`credential lau
     const result = spawnSync("node", ["--require", preload, fileURLToPath(new URL("./workbuddy-launch.cjs", import.meta.url)), cli, "--acp"], { encoding: "utf8", timeout: 5_000 });
     expect(result.status).toBe(mode === "legacy" ? 0 : 1);
     expect(result.stdout.trim()).toBe(mode === "legacy" ? "legacy-cli-started" : "");
-    expect(result.stderr).toBe(mode === "legacy" ? "" : "[EdgeEver] WorkBuddy credential bootstrap unavailable\n");
+    expect(result.stderr).toBe(mode === "legacy" ? "" : "[RTNote] WorkBuddy credential bootstrap unavailable\n");
   } finally { await rm(directory, { recursive: true, force: true }); }
 });
 

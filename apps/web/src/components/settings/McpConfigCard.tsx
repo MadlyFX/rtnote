@@ -37,7 +37,7 @@ const McpExampleDialog = () => {
   const remoteExample = JSON.stringify(
     {
       mcpServers: {
-        edgeever: {
+        rtnote: {
           url: serverUrl,
           headers: {
             Authorization: t("mcp.bearerPlaceholder"),

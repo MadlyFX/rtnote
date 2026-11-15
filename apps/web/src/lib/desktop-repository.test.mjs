@@ -372,7 +372,7 @@ describe("desktop repository bridge", () => {
   test("rejects every request when the desktop bridge is unavailable", async () => {
     window.edgeeverDesktop.isAvailable = false;
     try {
-      await expect(createDesktopRepository().listNotebooks()).rejects.toThrow("EdgeEver desktop bridge is unavailable");
+      await expect(createDesktopRepository().listNotebooks()).rejects.toThrow("RTNote desktop bridge is unavailable");
     } finally {
       window.edgeeverDesktop.isAvailable = true;
     }

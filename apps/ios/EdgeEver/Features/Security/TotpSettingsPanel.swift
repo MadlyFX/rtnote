@@ -490,10 +490,10 @@ extension PreferencesStore {
 
     var totpDeleteOldEntry: String {
         t(
-            "请先在旧验证器中删除 EdgeEver 条目（如果还能打开），避免混淆。",
-            en: "If you can still open the old authenticator, delete its EdgeEver entry to avoid confusion.",
-            ja: "古い認証アプリをまだ開ける場合は、混乱を避けるため EdgeEver の項目を削除してください。",
-            pl: "Jeśli nadal możesz otworzyć starą aplikację, usuń z niej wpis EdgeEver, aby uniknąć pomyłek."
+            "请先在旧验证器中删除 RTNote 条目（如果还能打开），避免混淆。",
+            en: "If you can still open the old authenticator, delete its RTNote entry to avoid confusion.",
+            ja: "古い認証アプリをまだ開ける場合は、混乱を避けるため RTNote の項目を削除してください。",
+            pl: "Jeśli nadal możesz otworzyć starą aplikację, usuń z niej wpis RTNote, aby uniknąć pomyłek."
         )
     }
 }

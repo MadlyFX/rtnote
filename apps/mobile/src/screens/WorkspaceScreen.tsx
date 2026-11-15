@@ -628,7 +628,7 @@ export const WorkspaceScreen = ({
       if (notebooks.length === 0) {
         if (notebooksQuery.isSuccess) {
           processedShareUrlRef.current = shareKey;
-          Alert.alert("无法保存图片", "请先在 EdgeEver 中创建一个笔记本。");
+          Alert.alert("无法保存图片", "请先在 RTNote 中创建一个笔记本。");
           onIncomingShareHandledRef.current?.();
         }
         return;
@@ -671,7 +671,7 @@ export const WorkspaceScreen = ({
     if (notebooks.length === 0) {
       if (notebooksQuery.isSuccess) {
         processedShareUrlRef.current = sourceUrl;
-        Alert.alert("无法保存剪藏", "请先在 EdgeEver 中创建一个笔记本。");
+        Alert.alert("无法保存剪藏", "请先在 RTNote 中创建一个笔记本。");
         onIncomingShareHandledRef.current?.();
       }
       return;

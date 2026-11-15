@@ -129,7 +129,7 @@ export const posterObject = async (
       ...options,
       width: element.width,
       fontSize: element.fontSize,
-      fontFamily: `${element.fontFamily}, "EdgeEver Offline Sans", sans-serif`,
+      fontFamily: `${element.fontFamily}, "RTNote Offline Sans", sans-serif`,
       fontWeight: element.fontWeight,
       fontStyle: element.fontStyle ?? "normal",
       underline: element.underline ?? false,

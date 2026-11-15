@@ -255,7 +255,7 @@ struct MemoDetailView: View {
                         Toggle(env.preferences.t("笔记本", en: "Notebook", pl: "Notatnik"), isOn: $preferences.noteImageShare.showNotebook)
                         Toggle(env.preferences.t("标签", en: "Tags", pl: "Tagi"), isOn: $preferences.noteImageShare.showTags)
                         Toggle(env.preferences.t("更新时间", en: "Updated time", pl: "Czas aktualizacji"), isOn: $preferences.noteImageShare.showUpdatedAt)
-                        Toggle(env.preferences.t("EdgeEver 品牌标识", en: "EdgeEver branding", pl: "Oznaczenie EdgeEver"), isOn: $preferences.noteImageShare.showBranding)
+                        Toggle(env.preferences.t("RTNote 品牌标识", en: "RTNote branding", pl: "Oznaczenie RTNote"), isOn: $preferences.noteImageShare.showBranding)
                     }
                     Section(env.preferences.t("图片格式", en: "Image format", pl: "Format obrazu")) {
                         Picker(env.preferences.t("图片格式", en: "Image format", pl: "Format obrazu"), selection: $preferences.noteImageShare.format) {

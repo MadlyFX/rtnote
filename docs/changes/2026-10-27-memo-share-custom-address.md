@@ -1,6 +1,5 @@
 # Custom address for single-note share links
 
-[简体中文](2026-10-27-memo-share-custom-address.zh-CN.md)
 
 ## Problem and outcome
 

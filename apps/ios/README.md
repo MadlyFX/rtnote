@@ -68,7 +68,7 @@ Live API tests login to `http://127.0.0.1:8787` using `EDGE_EVER_AUTH_PASSWORD` 
 With local `bun run dev` running:
 
 ```sh
-xcrun simctl launch booted org.edgeever.mobile \
+xcrun simctl launch booted com.madlyfx.rtnote \
   -EdgeEverAutoLoginURL "http://127.0.0.1:8787" \
   -EdgeEverAutoLoginUser admin \
   -EdgeEverAutoLoginPassword "$EDGE_EVER_AUTH_PASSWORD"

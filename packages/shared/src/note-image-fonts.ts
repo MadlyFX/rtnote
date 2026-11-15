@@ -78,6 +78,6 @@ export const prepareNoteImageAssets = async ({ theme, fontStyle = "auto", text, 
     ? `.edgeever-image-wrapper{--ee-paper:url("${await getAsset("paper.png")}")}`
     : "";
   } catch { /* The template's solid background remains readable if a texture is unavailable. */ }
-  const fallbackStyle = fontFallback ? `.edgeever-image-wrapper,.edgeever-image-wrapper *{font-family:"EdgeEver Offline Sans",system-ui,sans-serif!important}.edgeever-image-wrapper pre,.edgeever-image-wrapper code{font-family:"Geist Mono Variable",monospace!important}` : "";
+  const fallbackStyle = fontFallback ? `.edgeever-image-wrapper,.edgeever-image-wrapper *{font-family:"RTNote Offline Sans",system-ui,sans-serif!important}.edgeever-image-wrapper pre,.edgeever-image-wrapper code{font-family:"Geist Mono Variable",monospace!important}` : "";
   return { fontCss, css: `${fontCss}\n${textureCss}\n${fallbackStyle}`, fontFallback, fontsReady: fontFallback ? fontsReady : undefined };
 };

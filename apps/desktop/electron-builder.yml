@@ -1,21 +1,21 @@
-appId: org.edgeever.desktop
-productName: EdgeEver
-executableName: EdgeEver
+appId: com.madlyfx.rtnote
+productName: RTNote
+executableName: RTNote
 publish:
   provider: github
-  owner: tianma-if
-  repo: edgeever
+  owner: MadlyFX
+  repo: rtnote
   releaseType: release
 protocols:
-  - name: EdgeEver Deep Link
+  - name: RTNote Deep Link
     schemes:
-      - edgeever
+      - rtnote
 fileAssociations:
   - ext:
       - md
       - markdown
     name: Markdown document
-    description: Open a Markdown document in EdgeEver
+    description: Open a Markdown document in RTNote
     role: Editor
 asar: true
 beforePack: ./scripts/prepare-backup-worker.cjs
@@ -78,13 +78,13 @@ mac:
     - from: share-extension/dist/EdgeEverShare.appex
       to: PlugIns/EdgeEverShare.appex
   extendInfo:
-    NSScreenCaptureUsageDescription: "EdgeEver captures a screenshot and saves it as a note."
+    NSScreenCaptureUsageDescription: "RTNote captures a screenshot and saves it as a note."
   target:
     - target: dmg
     - target: zip
-  artifactName: EdgeEver-${version}-mac-${arch}.${ext}
+  artifactName: RTNote-${version}-mac-${arch}.${ext}
 dmg:
-  title: "EdgeEver: double-click to install"
+  title: "RTNote: double-click to install"
   backgroundColor: '#f5f7f6'
   iconSize: 112
   window:
@@ -93,7 +93,7 @@ dmg:
 win:
   target:
     - nsis
-  artifactName: EdgeEver-${version}-windows-${arch}.${ext}
+  artifactName: RTNote-${version}-windows-${arch}.${ext}
 nsis:
   oneClick: true
   perMachine: false
@@ -103,4 +103,4 @@ linux:
   syncDesktopName: true
   target:
     - AppImage
-  artifactName: EdgeEver-${version}-linux-x64.${ext}
+  artifactName: RTNote-${version}-linux-x64.${ext}

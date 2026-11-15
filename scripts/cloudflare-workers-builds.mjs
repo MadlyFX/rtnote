@@ -65,7 +65,6 @@ const gitRepository = () => {
 const cfToken = value("EDGE_EVER_BUILDS_API_TOKEN") || value("CLOUDFLARE_API_TOKEN");
 const accountId = value("CLOUDFLARE_ACCOUNT_ID");
 const workerName = instanceValue("WORKER_NAME");
-const pagesProjectName = value("EDGE_EVER_PAGES_PROJECT_NAME");
 
 const request = async (method, path, body) => {
   if (dryRun) return undefined;
@@ -131,7 +130,7 @@ const triggerPayload = (workerTag, repoConnectionUuid, buildTokenUuid) => ({
   external_script_id: workerTag,
   repo_connection_uuid: repoConnectionUuid,
   build_token_uuid: buildTokenUuid,
-  trigger_name: "Deploy EdgeEver production",
+  trigger_name: "Deploy RTNote production",
   build_command: "bun install --frozen-lockfile && EDGE_EVER_DEPLOYMENT_TRIGGER=main_push EDGE_EVER_DEPLOYMENT_METHOD=cloudflare_workers_builds bun run build:cloudflare",
   deploy_command: "bun run deploy:cloudflare-builds",
   root_directory: "/",
@@ -139,8 +138,6 @@ const triggerPayload = (workerTag, repoConnectionUuid, buildTokenUuid) => ({
   branch_excludes: [],
   path_includes: ["*"],
   path_excludes: [
-    "marketing/video/*",
-    "apps/site/*",
     "apps/mobile/*",
     "apps/extension/*",
     "docs/*",
@@ -149,31 +146,6 @@ const triggerPayload = (workerTag, repoConnectionUuid, buildTokenUuid) => ({
   ],
   build_caching_enabled: true,
 });
-
-const configurePagesWatchPaths = async () => {
-  if (!pagesProjectName) return;
-
-  try {
-    await request("PATCH", `/accounts/${accountId}/pages/projects/${encodeURIComponent(pagesProjectName)}`, {
-      source: {
-        config: {
-          // `*` spans nested directories in Cloudflare Pages. Root lockfiles and
-          // package metadata are shared build inputs, so they intentionally trigger
-          // both projects when changed.
-          path_includes: ["apps/site/*", "bun.lock", "package.json"],
-          path_excludes: [],
-        },
-      },
-    });
-    console.log(`[ok] configured Pages watch paths for ${pagesProjectName}`);
-  } catch (error) {
-    if (error instanceof Error && error.message.includes("Direct Uploads project")) {
-      console.log(`[skip] ${pagesProjectName} is a Direct Upload Pages project; its deploy workflow already controls path filtering.`);
-      return;
-    }
-    throw error;
-  }
-};
 
 const selectBuildToken = async (buildTokens, existingTrigger) => {
   const tokens = Array.isArray(buildTokens)
@@ -287,7 +259,6 @@ const setup = async () => {
 
   await request("PATCH", `/accounts/${accountId}/builds/triggers/${triggerUuid}/environment_variables`, variables);
   console.log(`[ok] ${existing ? "updated" : "created"} production trigger`);
-  await configurePagesWatchPaths();
   if (!existing) {
     const build = await request("POST", `/accounts/${accountId}/builds/triggers/${triggerUuid}/builds`, { branch: "main" });
     console.log(`[ok] started first build${build?.build_uuid ? `: ${build.build_uuid}` : ""}`);

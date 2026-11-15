@@ -1,8 +1,7 @@
 # Browser platform clips
 
-[简体中文](browser-clipper-platforms.zh-CN.md)
 
-Related to [Issue #493](https://github.com/tianma-if/edgeever/issues/493) and the [implementation plan](browser-clipper-platform-expansion-plan.md). Platform adapters were merged through #505, #521 and #578; cross-browser and signed-in live acceptance continues in the [Issue #588 acceptance matrix](browser-clipper-acceptance-588.md). The records below retain their original code, environment and acceptance boundaries.
+Related to [Issue #493](https://github.com/MadlyFX/rtnote/issues/493) and the [implementation plan](browser-clipper-platform-expansion-plan.md). Platform adapters were merged through #505, #521 and #578; cross-browser and signed-in live acceptance continues in the [Issue #588 acceptance matrix](browser-clipper-acceptance-588.md). The records below retain their original code, environment and acceptance boundaries.
 
 The 2026-10-18 follow-up covers the specified current Jike Web feed, signed-in LinkedIn company feed, Bluesky quoted feed and complete Substack article in Edge/Firefox. See the matrix above for repairs and remaining browser-environment limits.
 
@@ -14,7 +13,7 @@ The 2026-10-18 overall review fixes Jike button-media loss, Jike/Medium restored
 
 ## 2026-10-18 audit against the original #493 requirements
 
-The [original issue and maintainer closure](https://github.com/tianma-if/edgeever/issues/493#issuecomment-6208560808) are fetched again and compared with current code, fixtures, regressions and live records. GitHub confirms #505, #521 and #578 are MERGED. All 15 groups/17 platforms have implementations. The issue closes development delivery; store publication, every browser/layout and full signed-in BOSS acceptance remain separate. “Live” below only means the recorded samples.
+The [original issue and maintainer closure](https://github.com/MadlyFX/rtnote/issues/493#issuecomment-6208560808) are fetched again and compared with current code, fixtures, regressions and live records. GitHub confirms #505, #521 and #578 are MERGED. All 15 groups/17 platforms have implementations. The issue closes development delivery; store publication, every browser/layout and full signed-in BOSS acceptance remain separate. “Live” below only means the recorded samples.
 
 | Original requirement | Implementation/evidence | Result/boundary |
 | --- | --- | --- |
@@ -199,7 +198,7 @@ Additional-review validation: **3,078 unit tests and 17 integration tests passed
 
 ## Phase 2: BOSS Zhipin, Xueqiu and Xiaoyuzhou (2026-10-12)
 
-The baseline is official `3855efb3`; P1 merged through [PR #521](https://github.com/tianma-if/edgeever/pull/521). P2 is implemented in contribution workspace `edgeever-clipper-p2`, branch `feat/clipper-phase2`, preserving unrelated work in the original workspace.
+The baseline is official `3855efb3`; P1 merged through [PR #521](https://github.com/MadlyFX/rtnote/pull/521). P2 is implemented in contribution workspace `edgeever-clipper-p2`, branch `feat/clipper-phase2`, preserving unrelated work in the original workspace.
 
 | Platform | Current behavior | Explicit limits |
 | --- | --- | --- |
@@ -272,7 +271,7 @@ Medium continues to use the generic page-clip entry point, with added story-bloc
 
 ## Usage
 
-Configure the extension's EdgeEver instance and API token, open a detail page, and save from the toolbar or its platform command in the page-background context menu.
+Configure the extension's RTNote instance and API token, open a detail page, and save from the toolbar or its platform command in the page-background context menu.
 
 | Platform | Detail page | Saved content |
 | --- | --- | --- |
@@ -296,7 +295,7 @@ The body is saved first, followed by the existing image-copy workflow: up to 30 
 - Download, upload, rewrite or budget failures preserve the note and report “Text saved. Some images still use external links.” Images beyond the 30-image limit count as uncopied.
 - If the user edits the note during copying, their version is retained. The clip does not overwrite it or create another note.
 
-Image archival means that EdgeEver instance resources can serve the images, not a new promise of complete offline client access.
+Image archival means that RTNote instance resources can serve the images, not a new promise of complete offline client access.
 
 ## Verification record
 
@@ -341,7 +340,7 @@ Live sampling used a signed-out Ego Chromium browser reporting Chrome/152.0.0.0 
 | [Xiaoyuzhou episode 25](https://www.xiaoyuzhoufm.com/episode/62ad4ae5f9b62781ea058a02) | Preserves timestamps and the final music credit. Full notes are already loaded before expansion, so no extra click is needed. |
 | [Xiaoyuzhou episode 161](https://www.xiaoyuzhoufm.com/episode/6a8ef24e1352af56ff3c83f3) | After navigating from episode 25 via its podcast page, bootstrap `__NEXT_DATA__` still has the old ID. Validating the DOM against the current route's loaded episode data yields the new ID, title and body without old content. |
 
-The complete live-site save workflow with the extension loaded in each of Chrome, Edge and Firefox is **still pending**. Firefox Android is also unverified, so this batch must not be marked fully accepted yet. A 2026-10-09 check confirmed that the initial HN implementation was merged through [PR #505](https://github.com/tianma-if/edgeever/pull/505). This PR includes the HN time fix, preload fix and V2EX/Xiaoyuzhou implementations.
+The complete live-site save workflow with the extension loaded in each of Chrome, Edge and Firefox is **still pending**. Firefox Android is also unverified, so this batch must not be marked fully accepted yet. A 2026-10-09 check confirmed that the initial HN implementation was merged through [PR #505](https://github.com/MadlyFX/rtnote/pull/505). This PR includes the HN time fix, preload fix and V2EX/Xiaoyuzhou implementations.
 
 
 ## Local review on 2026-10-11

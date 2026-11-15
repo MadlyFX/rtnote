@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { describeDesktopBackupError } from "@/lib/desktop-backup";
 import { formatBytes } from "@/lib/format-bytes";
 
-const DEFAULT_FOLDER = "/EdgeEver/backups";
+const DEFAULT_FOLDER = "/RTNote/backups";
 const emptyConfig: DesktopOffsiteConfig = { enabled: false, url: "", username: "", folder: DEFAULT_FOLDER };
 
 /** Status lines for the WebDAV copy, shown inside the backup status box. */

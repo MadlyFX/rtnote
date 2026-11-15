@@ -8,7 +8,7 @@ describe("shared Markdown conversion", () => {
 * **公司中文全称**：郑州市冰硅网络科技有限公司
 * **公司英文名称**：Example Co., Ltd.
 ## 2. 联系方式 (Domain & Contact)
-* **项目官方网站**：[EdgeEver](https://www.edgeever.org)
+* **项目官方网站**：[RTNote](https://www.edgeever.org)
 > [!WARNING]
 > 请勿绑定其他账号。`);
 
@@ -32,7 +32,7 @@ describe("shared Markdown conversion", () => {
     const linkText = secondList.content?.[0]?.content?.[0]?.content?.[2];
     expect(linkText).toMatchObject({
       type: "text",
-      text: "EdgeEver",
+      text: "RTNote",
       marks: [{ type: "link", attrs: { href: "https://www.edgeever.org" } }],
     });
   });

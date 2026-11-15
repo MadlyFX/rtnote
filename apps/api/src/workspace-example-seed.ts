@@ -5,6 +5,7 @@ import {
   normalizeTags,
 } from "@edgeever/shared";
 import {
+  LEGACY_WELCOME_MEMO_TITLES,
   WELCOME_MEMO_REPAIRED_CONTENT_HASH,
   WELCOME_MEMO_SEED_CONTENT_HASH,
   WELCOME_MEMO_TRANSLATIONS,
@@ -60,10 +61,11 @@ const knownWelcomeContentHashes = async () => {
   return hashes;
 };
 
-const knownWelcomeTitles = new Set(
-  (Object.keys(WELCOME_MEMO_TRANSLATIONS) as SupportedLocale[])
+const knownWelcomeTitles = new Set([
+  ...(Object.keys(WELCOME_MEMO_TRANSLATIONS) as SupportedLocale[])
     .map((locale) => WELCOME_MEMO_TRANSLATIONS[locale].title),
-);
+  ...LEGACY_WELCOME_MEMO_TITLES,
+]);
 
 type WelcomeRow = {
   id: string;

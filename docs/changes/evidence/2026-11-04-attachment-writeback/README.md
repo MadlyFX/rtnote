@@ -1,6 +1,6 @@
 # Desktop attachment writeback acceptance
 
-[简体中文](README.zh-CN.md) · [Change scope](../../2026-11-04-attachment-writeback.md)
+[Change scope](../../2026-11-04-attachment-writeback.md)
 
 ## Verified paths
 

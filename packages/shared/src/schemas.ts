@@ -418,7 +418,7 @@ export const AiModelCapabilitiesReportSchema = z.object({
   source: z.enum(AI_MODEL_CAPABILITY_SOURCES),
 }).strict();
 
-/** An omitted field keeps its current value; `null` restores the EdgeEver default. */
+/** An omitted field keeps its current value; `null` restores the RTNote default. */
 export const AiModelConfigUpdateSchema = z.object(aiModelOutputBudgetShape)
   .strict()
   .refine((value) => Object.values(value).some((field) => field !== undefined), {

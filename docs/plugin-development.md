@@ -1,8 +1,7 @@
-# EdgeEver Plugin Development Guide
+# RTNote Plugin Development Guide
 
-[简体中文](plugin-development.zh-CN.md)
 
-EdgeEver provides client plugin and no-code theme extension capabilities. Users can install extensions from the official marketplace, public GitHub repositories, or manifest URLs. Installed extensions sync across Web and desktop platforms with the current workspace and run while EdgeEver is open; Android and iOS native apps do not run plugins.
+RTNote provides client plugin and no-code theme extension capabilities. Users can install extensions from the official marketplace, public GitHub repositories, or manifest URLs. Installed extensions sync across Web and desktop platforms with the current workspace and run while RTNote is open; Android and iOS native apps do not run plugins.
 
 > [!NOTE]
 > **Security Model**: Client plugins use a trusted-code model (similar to Obsidian). Enabling a plugin grants it trust to run within the client JavaScript environment and invoke plugin APIs. Capability declarations (`permissions`) in the manifest disclose the functional scope to users and do not enforce a hard sandbox. The same applies to `networkHosts`: it describes intended destinations rather than restricting plugin code. Desktop plugins can also reach login credentials, local data and Agent capabilities through the client bridge. Theme packages are purely declarative JSON and execute no JavaScript.
@@ -103,7 +102,7 @@ export default {
       id: "hello-world",
       title: "Say Hello",
       run() {
-        context.ui.showNotice("Hello from EdgeEver Plugin!");
+        context.ui.showNotice("Hello from RTNote Plugin!");
       }
     });
 
@@ -160,7 +159,7 @@ The plugin context object (`context`) exposes these capability interfaces:
 | **`context.storage`** | `storage` | `get()`, `set()`, `remove()` | Device-local lightweight key-value storage (per workspace & plugin) |
 | **`context.secrets`** | `secrets` | `get()`, `set()`, `remove()` | Device-local encrypted secret storage (API keys, tokens) |
 | **`context.network`** | `network`<br>`network:public` | `fetch(url, options)` | Network requests (standard requests or public anonymous read-only) |
-| **`context.schedules`** | `schedules` | `upsert()`, `list()`, `remove()` | Desktop-only persistent scheduled tasks running while EdgeEver is open |
+| **`context.schedules`** | `schedules` | `upsert()`, `list()`, `remove()` | Desktop-only persistent scheduled tasks running while RTNote is open |
 | **`context.events`** | *(None)* | `on(event, handler)` | Subscribe to workspace note, tag, template, and sync completion events |
 | **`context.ai`** | `ai:generate` | `status()`, `generate()`, `transcribeResource()`, `transcribeMedia()` | Invoke workspace-configured AI models for text generation & media transcription |
 
@@ -492,7 +491,7 @@ await context.ui.panels.open("task-dashboard", { state: { initialTab: "all" } })
 
 ### 8. Settings
 
-Declare settings fields in `manifest.json`; EdgeEver renders the settings UI automatically:
+Declare settings fields in `manifest.json`; RTNote renders the settings UI automatically:
 
 ```json
 {
@@ -578,7 +577,7 @@ const xml = await publicRes.text();
 
 ### 11. Schedules (Desktop Only)
 
-Desktop plugins can persist scheduled execution of registered commands while EdgeEver is running:
+Desktop plugins can persist scheduled execution of registered commands while RTNote is running:
 
 ```ts
 // Register command
@@ -711,7 +710,7 @@ If using `@edgeever/plugin-api`, inline it into `main.js` during build.
 
 ### Local Testing
 
-While developing EdgeEver, install local extension manifests in the Plugin Marketplace:
+While developing RTNote, install local extension manifests in the Plugin Marketplace:
 - `/extensions/recent-notes/manifest.json` (Official example plugin)
 - `/extensions/nord-emerald/manifest.json` (Official example theme)
 

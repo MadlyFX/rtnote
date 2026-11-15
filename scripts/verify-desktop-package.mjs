@@ -89,14 +89,14 @@ for (const sidecarPath of files.filter((path) => /[\\/]resources[\\/]sidecar[\\/
 
 if (requestedPlatform === "darwin") {
   assert.ok(["arm64", "x64"].includes(requestedArch), `Unsupported macOS architecture: ${requestedArch}`);
-  assert.ok(existsSync(join(outputDirectory, `EdgeEver-${version}-mac-${requestedArch}.dmg`)), `macOS package must contain the current ${requestedArch} DMG`);
-  assert.ok(existsSync(join(outputDirectory, `EdgeEver-${version}-mac-${requestedArch}.dmg.blockmap`)), `macOS package must contain the current ${requestedArch} DMG blockmap`);
-  assert.ok(existsSync(join(outputDirectory, `EdgeEver-${version}-mac-${requestedArch}.zip`)), `macOS package must contain the current ${requestedArch} update ZIP`);
-  assert.ok(existsSync(join(outputDirectory, `EdgeEver-${version}-mac-${requestedArch}.zip.blockmap`)), `macOS package must contain the current ${requestedArch} ZIP blockmap`);
+  assert.ok(existsSync(join(outputDirectory, `RTNote-${version}-mac-${requestedArch}.dmg`)), `macOS package must contain the current ${requestedArch} DMG`);
+  assert.ok(existsSync(join(outputDirectory, `RTNote-${version}-mac-${requestedArch}.dmg.blockmap`)), `macOS package must contain the current ${requestedArch} DMG blockmap`);
+  assert.ok(existsSync(join(outputDirectory, `RTNote-${version}-mac-${requestedArch}.zip`)), `macOS package must contain the current ${requestedArch} update ZIP`);
+  assert.ok(existsSync(join(outputDirectory, `RTNote-${version}-mac-${requestedArch}.zip.blockmap`)), `macOS package must contain the current ${requestedArch} ZIP blockmap`);
   const unpackedDirectory = requestedArch === "x64" ? "mac" : `mac-${requestedArch}`;
-  const unpackedApp = join(outputDirectory, unpackedDirectory, "EdgeEver.app");
+  const unpackedApp = join(outputDirectory, unpackedDirectory, "RTNote.app");
   assert.ok(existsSync(unpackedApp), "macOS package must contain the unpacked app bundle");
-  const executable = join(unpackedApp, "Contents", "MacOS", "EdgeEver");
+  const executable = join(unpackedApp, "Contents", "MacOS", "RTNote");
   const appResources = join(unpackedApp, "Contents", "Resources");
   const sidecar = join(appResources, "sidecar", "edgeever-sidecar");
   assert.ok(existsSync(sidecar), `macOS app bundle is missing the sidecar: ${sidecar}`);
@@ -127,9 +127,9 @@ if (requestedPlatform === "darwin") {
   rmSync(unpackedApp, { recursive: true, force: true });
 } else if (requestedPlatform === "win32") {
   assert.equal(requestedArch, "x64", `Windows release package must target x64, received: ${requestedArch}`);
-  const installer = join(outputDirectory, `EdgeEver-${version}-windows-x64.exe`);
+  const installer = join(outputDirectory, `RTNote-${version}-windows-x64.exe`);
   const unpackedDirectory = join(outputDirectory, "win-unpacked");
-  const executable = join(unpackedDirectory, "EdgeEver.exe");
+  const executable = join(unpackedDirectory, "RTNote.exe");
   const resources = join(unpackedDirectory, "resources");
   const sidecar = join(resources, "sidecar", "edgeever-sidecar.exe");
   assert.ok(existsSync(installer), `Windows package must contain the current x64 NSIS installer: ${installer}`);
@@ -152,16 +152,16 @@ if (requestedPlatform === "darwin") {
   assert.ok(!asarFiles.has("/src/preload/index.mjs"), "Windows app bundle must not contain the unsupported ESM preload");
 } else if (requestedPlatform === "linux") {
   assert.equal(requestedArch, "x64", `Linux Preview package must target x64, received: ${requestedArch}`);
-  const appImage = join(outputDirectory, `EdgeEver-${version}-linux-x64.AppImage`);
+  const appImage = join(outputDirectory, `RTNote-${version}-linux-x64.AppImage`);
   const unpackedDirectory = join(outputDirectory, "linux-unpacked");
-  const executable = ["EdgeEver", "edgeever"]
+  const executable = ["RTNote", "edgeever"]
     .map((name) => join(unpackedDirectory, name))
     .find(existsSync);
   const resources = join(unpackedDirectory, "resources");
   const sidecar = join(resources, "sidecar", "edgeever-sidecar");
   assert.ok(existsSync(appImage), `Linux package must contain the current x64 AppImage: ${appImage}`);
   assert.ok(statSync(appImage).mode & 0o111, "Linux AppImage must be executable");
-  assert.ok(executable, "Linux package must contain the unpacked EdgeEver executable");
+  assert.ok(executable, "Linux package must contain the unpacked RTNote executable");
   assert.ok(existsSync(sidecar), `Linux app bundle is missing the sidecar: ${sidecar}`);
   assert.ok(statSync(sidecar).mode & 0o111, "Linux sidecar must be executable");
   assert.ok(existsSync(join(resources, "web", "index.html")), "Linux app bundle is missing the Web renderer");

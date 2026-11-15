@@ -35,7 +35,7 @@ const shell = `<!doctype html>
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content="old description" />
-    <title>EdgeEver</title>
+    <title>RTNote</title>
   </head>
   <body>
     <div id="root"></div>
@@ -88,7 +88,7 @@ describe("public memo share pages", () => {
     expect(response.headers.get("link")).toBe(`<https://note.example/share/${token}.md>; rel="alternate"; type="text/markdown"`);
     expect(response.headers.get("etag")).toBeNull();
     const html = await response.text();
-    expect(html).toContain(`<title>A $&amp; $&#39; $$ &lt;script&gt; · EdgeEver</title>`);
+    expect(html).toContain(`<title>A $&amp; $&#39; $$ &lt;script&gt; · RTNote</title>`);
     expect(html).toContain(`<meta name="robots" content="${PUBLIC_PAGE_ROBOTS}">`);
     expect(html).toContain(`rel="canonical" href="https://note.example/share/${token}"`);
     expect(html).toContain(`rel="alternate" type="text/markdown" href="https://note.example/share/${token}.md"`);
@@ -119,10 +119,10 @@ describe("public memo share pages", () => {
           .run(Number(showUpdatedAt), Number(showBranding), token);
         const html = await (await render(sqlite, `/share/${token}`)).text();
         expect(html.includes("<time ")).toBe(showUpdatedAt);
-        expect(html.includes("Published with EdgeEver</a>")).toBe(showBranding);
+        expect(html.includes("Published with RTNote</a>")).toBe(showBranding);
         if (showBranding) {
           expect(html).toContain('<footer lang="en" style="');
-          expect(html).toContain('href="https://edgeever.org/"');
+          expect(html).toContain('href="https://github.com/MadlyFX/rtnote"');
           expect(html.indexOf("<footer ")).toBeGreaterThan(html.indexOf("</pre>"));
         }
         expect(html).not.toContain("Read-only share");
@@ -216,7 +216,7 @@ describe("public memo share pages", () => {
     sqlite.query("UPDATE memo_contents SET content_markdown = ? WHERE memo_id = 'memo_source'").run("Body text\n");
     const html = await (await render(sqlite, `/share/${token}`)).text();
     expect(html).not.toContain("无标题笔记");
-    expect(html).toContain("<title>Shared note · EdgeEver</title>");
+    expect(html).toContain("<title>Shared note · RTNote</title>");
     expect(html).toContain('<h1 lang="en">Shared note</h1>');
     expect(html).toContain('<meta property="og:title" content="Shared note">');
     expect(html).toContain('<meta name="twitter:title" content="Shared note">');

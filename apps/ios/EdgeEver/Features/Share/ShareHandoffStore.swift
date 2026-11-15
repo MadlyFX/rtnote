@@ -3,7 +3,7 @@ import Foundation
 /// Reads share payloads written by Share Extension via App Group.
 @MainActor
 final class ShareHandoffStore {
-    static let appGroupId = "group.org.edgeever.mobile"
+    static let appGroupId = "group.com.madlyfx.rtnote"
     static let payloadKey = "edgeever.share.payload"
     static let imageDirectoryName = "incoming-share-images"
 

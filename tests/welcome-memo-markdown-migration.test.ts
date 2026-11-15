@@ -35,7 +35,8 @@ const memo = (db: Database) => db.query("SELECT * FROM memos WHERE id = 'memo_we
 const changes = (db: Database) => db.query("SELECT * FROM mobile_sync_changes ORDER BY id").all();
 const assertRepaired = (db: Database) => {
   const row = content(db);
-  expect(row.content_markdown).toBe(buildWelcomeMemoContent("zh-CN").contentMarkdown);
+  // Migration 0071 predates the RTNote name, so its repaired seed still says EdgeEver.
+  expect(row.content_markdown).toBe(buildWelcomeMemoContent("zh-CN").contentMarkdown.replaceAll("RTNote", "EdgeEver"));
   expect(row.content_markdown).not.toContain("\\n");
   expect(row.content_markdown.split("\n\n")).toHaveLength(3);
   expect(row.content_hash).toBe(createHash("sha256").update(row.content_markdown + row.content_json).digest("hex"));
@@ -106,7 +107,7 @@ describe("welcome Markdown repair", () => {
     await ensureUserWorkspace(db, "owner", "owner", "en-US");
     expect(content(sqlite).content_markdown).toBe(buildWelcomeMemoContent("en-US").contentMarkdown);
     expect(content(sqlite).revision).toBe(applyRepair ? 2 : 1);
-    expect(memo(sqlite)).toMatchObject({ title: "Welcome to EdgeEver" });
+    expect(memo(sqlite)).toMatchObject({ title: "Welcome to RTNote" });
     const before = { memo: memo(sqlite), content: content(sqlite), changes: changes(sqlite) };
     sqlite.exec(repair);
     expect({ memo: memo(sqlite), content: content(sqlite), changes: changes(sqlite) }).toEqual(before);

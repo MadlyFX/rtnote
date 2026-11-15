@@ -48,7 +48,7 @@ beforeAll(async () => {
 });
 
 const MARKDOWN = `
-> **EdgeEver** 把笔记留在你自己的账号里。
+> **RTNote** 把笔记留在你自己的账号里。
 
 正文里的行内代码是 \`#memo=<笔记ID>\`，起步价（$10+/月）。
 

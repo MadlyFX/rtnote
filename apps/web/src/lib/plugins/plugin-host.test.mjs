@@ -303,7 +303,7 @@ describe("EdgeEverPluginHost", () => {
       id: manifest.id,
       name: manifest.name,
       description: "Verified test plugin",
-      author: "EdgeEver",
+      author: "RTNote",
       category: "Testing",
       repositoryUrl: "https://github.com/edgeever/marketplace-test",
       distribution: { type: "manifest", manifestUrl: "https://plugins.example/manifest.json" },

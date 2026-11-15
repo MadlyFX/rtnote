@@ -124,7 +124,7 @@ export class BackupManager {
     finally { if (this.startupController === controller) this.startupController = null; }
   }
 
-  assertReady() { if (this.transitioning) throw backupError("backup_account_changed", "The backup account is changing. Wait until it is ready."); if (this.initializationError) throw this.initializationError; if (this.closed || !this.context || !this.record) throw backupError("backup_login_required", "Sign in to an EdgeEver instance first."); }
+  assertReady() { if (this.transitioning) throw backupError("backup_account_changed", "The backup account is changing. Wait until it is ready."); if (this.initializationError) throw this.initializationError; if (this.closed || !this.context || !this.record) throw backupError("backup_login_required", "Sign in to an RTNote instance first."); }
   assertScope(expected) { if (expected !== undefined && expected !== this.record?.backupSetId) throw backupError("backup_account_changed", "The backup account changed. Review the current target."); }
   async approveDirectory(path) {
     const generation = this.generation;

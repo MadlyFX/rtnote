@@ -1,12 +1,11 @@
-# Using EdgeEver with MCP clients and AI agents
+# Using RTNote with MCP clients and AI agents
 
-[简体中文](mcp-guide.zh-CN.md)
 
 ## 1. Connect a client
 
 Open **Profile** → **API / MCP**, create a separate token for each client, then select **Copy MCP config**. Choose **Read-only** for search and summaries or **Full access** if the client needs to create or edit notes. If a token leaks, delete it here and create a replacement.
 
-Remote clients connect over Streamable HTTP. Use your instance URL followed by `/mcp`, such as `https://notes.example.com/mcp`, and send `Authorization: Bearer <token>`. Check that the copied URL points to your EdgeEver instance.
+Remote clients connect over Streamable HTTP. Use your instance URL followed by `/mcp`, such as `https://notes.example.com/mcp`, and send `Authorization: Bearer <token>`. Check that the copied URL points to your RTNote instance.
 
 ### Cursor and other clients that use `mcpServers`
 
@@ -15,7 +14,7 @@ Paste the JSON from **Copy MCP config** into your client's MCP settings. The exa
 ```json
 {
   "mcpServers": {
-    "edgeever": {
+    "rtnote": {
       "url": "https://notes.example.com/mcp",
       "headers": { "Authorization": "Bearer <token>" }
     }
@@ -43,12 +42,12 @@ Use `servers` and `type: "http"` in `.vscode/mcp.json` or your user-level `mcp.j
     {
       "type": "promptString",
       "id": "edgeever-token",
-      "description": "EdgeEver API token",
+      "description": "RTNote API token",
       "password": true
     }
   ],
   "servers": {
-    "edgeever": {
+    "rtnote": {
       "type": "http",
       "url": "https://notes.example.com/mcp",
       "headers": { "Authorization": "Bearer ${input:edgeever-token}" }

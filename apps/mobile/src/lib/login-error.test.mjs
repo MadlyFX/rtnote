@@ -24,7 +24,7 @@ describe("mobile login error messages", () => {
       .toContain("ユーザー名またはパスワードが正しくありません。");
   });
 
-  test("distinguishes credentials, edge security blocks, and EdgeEver 403 responses", () => {
+  test("distinguishes credentials, edge security blocks, and RTNote 403 responses", () => {
     expect(formatMobileLoginError(new ApiRequestError("Unauthorized", 401), "zh-CN"))
       .toContain("用户名或密码不正确");
 

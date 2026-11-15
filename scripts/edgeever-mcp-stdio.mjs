@@ -9,13 +9,13 @@ const CONFIG_PATH = process.env.EDGEEVER_CONFIG || join(homedir(), ".edgeever", 
 const DEFAULT_URL = "http://127.0.0.1:8787";
 const options = parseOptions(process.argv.slice(2));
 
-const usage = `EdgeEver MCP stdio adapter
+const usage = `RTNote MCP stdio adapter
 
 Usage:
   EDGEEVER_URL=https://your.edgeever.host EDGEEVER_TOKEN=... bun scripts/edgeever-mcp-stdio.mjs
   bun scripts/edgeever-mcp-stdio.mjs --profile prod
 
-The adapter bridges local stdio MCP clients to the remote EdgeEver /mcp endpoint.
+The adapter bridges local stdio MCP clients to the remote RTNote /mcp endpoint.
 `;
 
 if (options.help || options.h) {

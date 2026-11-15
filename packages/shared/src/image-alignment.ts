@@ -80,7 +80,7 @@ const supportedImageSource = (source: string) => {
 };
 const LINKED_IMAGE_HTML = /<a\b((?:[^"'>]|"[^"]*"|'[^']*')*)>\s*(<img\b(?:[^"'>]|"[^"]*"|'[^']*')*\/?>)\s*<\/a>[ \t]*(?:\n|$)/i;
 
-/** HTML keeps the alignment useful in exports outside EdgeEver, too. */
+/** HTML keeps the alignment useful in exports outside RTNote, too. */
 export const alignedImageToHtml = (node: JSONContent): string => {
   const attrs = node.attrs ?? {};
   const alignment = parseImageAlignment(attrs.alignment) ?? "left";

@@ -1,4 +1,4 @@
-const DESKTOP_ASSET_PATTERN = /^EdgeEver-(\d+\.\d+\.\d+)-mac-(arm64|x64)\.dmg$/;
+const DESKTOP_ASSET_PATTERN = /^RTNote-(\d+\.\d+\.\d+)-mac-(arm64|x64)\.dmg$/;
 
 export const findDesktopReleaseVersion = (assetNames: string[]) => {
   const versions = new Map<string, string>();

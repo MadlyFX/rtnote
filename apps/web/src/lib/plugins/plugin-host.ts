@@ -1498,7 +1498,7 @@ export class EdgeEverPluginHost {
       schedules: {
         upsert: async (input) => {
           assertPermission(manifest, "schedules");
-          if (!this.scheduleAdapter) throw new Error("Plugin schedules are only available in the EdgeEver desktop app.");
+          if (!this.scheduleAdapter) throw new Error("Plugin schedules are only available in the RTNote desktop app.");
           if (!/^[a-z0-9][a-z0-9._-]*$/i.test(input.key) || input.key.length > 120) {
             throw new Error("Plugin schedule key is invalid.");
           }
@@ -1509,12 +1509,12 @@ export class EdgeEverPluginHost {
         },
         list: async () => {
           assertPermission(manifest, "schedules");
-          if (!this.scheduleAdapter) throw new Error("Plugin schedules are only available in the EdgeEver desktop app.");
+          if (!this.scheduleAdapter) throw new Error("Plugin schedules are only available in the RTNote desktop app.");
           return this.scheduleAdapter.list(manifest.id);
         },
         remove: async (key) => {
           assertPermission(manifest, "schedules");
-          if (!this.scheduleAdapter) throw new Error("Plugin schedules are only available in the EdgeEver desktop app.");
+          if (!this.scheduleAdapter) throw new Error("Plugin schedules are only available in the RTNote desktop app.");
           if (!/^[a-z0-9][a-z0-9._-]*$/i.test(key) || key.length > 120) {
             throw new Error("Plugin schedule key is invalid.");
           }

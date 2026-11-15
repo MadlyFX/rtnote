@@ -304,9 +304,7 @@ export const PluginManagerCard = ({
 }) => {
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
-  const developerDocsUrl = prefersChineseContent(i18n.resolvedLanguage)
-    ? "https://github.com/tianma-if/edgeever/blob/main/docs/plugin-development.zh-CN.md"
-    : "https://github.com/tianma-if/edgeever/blob/main/docs/plugin-development.md";
+  const developerDocsUrl = "https://github.com/MadlyFX/rtnote/blob/main/docs/plugin-development.md";
   const communityReadmeUrl = prefersChineseContent(i18n.resolvedLanguage)
     ? `${COMMUNITY_PLUGINS_REPOSITORY_URL}/blob/main/README.zh-CN.md`
     : COMMUNITY_PLUGINS_README_URL;

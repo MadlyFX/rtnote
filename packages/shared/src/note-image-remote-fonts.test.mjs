@@ -144,7 +144,7 @@ test('offline first use exports readable defaults, preserves the choice, and kee
     await withNetwork(url => url === urls['offline-sans.woff2'] ? { status: 0, data: sans } : url === urls['geist/GeistMono.ttf'] ? { status: 0, data: mono } : undefined, async requests => {
       const result = await prepareNoteImageAssets({ theme: 'memo', fontStyle: 'youshe', text: '离线笔记 Offline', urls });
       expect(result.fontFallback).toBe(true);
-      expect(result.fontCss).toContain('EdgeEver Offline Sans');
+      expect(result.fontCss).toContain('RTNote Offline Sans');
       expect(result.fontCss).toContain('data:font/woff2;base64,');
       expect(installed).toContain('Geist Mono Variable');
       expect(requests.every(url => url.startsWith('file:'))).toBe(true);
@@ -181,7 +181,7 @@ test('a timed-out template exposes its original download and restores the origin
     const pending = new Promise(resolve => { finish = resolve; });
     const BaseFace = globalThis.FontFace;
     globalThis.FontFace = class extends BaseFace {
-      async load() { if (this.family === 'EdgeEver Share Anton') await pending; return this; }
+      async load() { if (this.family === 'RTNote Share Anton') await pending; return this; }
     };
     await withNetwork(url => url.endsWith('/anton.woff2') ? { data: anton } : undefined, async () => {
       const options = { theme: 'memo', fontStyle: 'anton', text: 'Recover template', urls: {} };
@@ -194,7 +194,7 @@ test('a timed-out template exposes its original download and restores the origin
       const restored = await prepareNoteImageAssets(options);
       expect(restored.fontFallback).toBe(false);
       expect(restored.fontsReady).toBeUndefined();
-      expect(restored.fontCss).toContain('font-family:"EdgeEver Share Anton"');
+      expect(restored.fontCss).toContain('font-family:"RTNote Share Anton"');
       expect(restored.css).not.toContain('sans-serif!important');
     });
   });

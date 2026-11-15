@@ -1,6 +1,5 @@
 # Third-party import acceptance conclusions
 
-[简体中文](README.zh-CN.md)
 
 ## Actual imports from three sources
 

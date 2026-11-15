@@ -1,6 +1,5 @@
 # Desktop scheduled backups: optional WebDAV off-site copy
 
-[简体中文](2026-11-02-desktop-webdav-offsite.zh-CN.md)
 
 Related Issue: #723 (P2 of the backup plan; continues #61 and #650)
 

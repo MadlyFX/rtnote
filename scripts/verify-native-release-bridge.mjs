@@ -16,7 +16,7 @@ for (const path of [evidence, installed, profile]) mkdirSync(path, { recursive: 
 // Acknowledge only the isolated installation's first-run confirmation.
 writeFileSync(join(profile, "installation-confirmed"), new Date().toISOString());
 const candidateName = readdirSync(candidate).find((name) => process.platform === "darwin" ? name.endsWith(".zip") : name.endsWith(".exe"));
-const version = /EdgeEver-(\d+\.\d+\.\d+)-/.exec(candidateName)?.[1];
+const version = /RTNote-(\d+\.\d+\.\d+)-/.exec(candidateName)?.[1];
 if (!version) throw new Error("Candidate installer version missing");
 const digest = (path) => createHash("sha256").update(readFileSync(path)).digest("hex");
 const wait = (ms) => new Promise((yes) => setTimeout(yes, ms));
@@ -32,8 +32,8 @@ if (process.platform === "darwin") {
     const result = spawnSync("ditto", ["-x", "-k", archive, destination], { encoding: "utf8" });
     if (result.status !== 0) throw new Error(result.stderr);
   }
-  executable = join(installed, "EdgeEver.app/Contents/MacOS/EdgeEver");
-  expectedAsar = join(root, "expected/EdgeEver.app/Contents/Resources/app.asar");
+  executable = join(installed, "RTNote.app/Contents/MacOS/RTNote");
+  expectedAsar = join(root, "expected/RTNote.app/Contents/Resources/app.asar");
   const path = join(candidate, candidateName);
   const checksum = createHash("sha512").update(readFileSync(path)).digest("base64");
   writeFileSync(join(candidate, "latest-mac.yml"), `version: ${version}\nfiles:\n  - url: ${candidateName}\n    sha512: ${checksum}\n    size: ${statSync(path).size}\npath: ${candidateName}\nsha512: ${checksum}\n`);
@@ -45,8 +45,8 @@ if (process.platform === "darwin") {
     env: { ...process.env, EDGE_EVER_DISABLE_AUTO_UPDATE: "1" },
   });
   if (result.status !== 0) throw new Error(`Old release NSIS installation failed: ${result.status}`);
-  executable = join(installed, "EdgeEver.exe");
-  spawnSync("powershell", ["-NoProfile", "-Command", `Get-CimInstance Win32_Process -Filter "Name='EdgeEver.exe'" | Where-Object { $_.ExecutablePath -eq $env:BRIDGE_INSTALLED_EXE } | ForEach-Object { taskkill /PID $_.ProcessId /T /F | Out-Null }`], {
+  executable = join(installed, "RTNote.exe");
+  spawnSync("powershell", ["-NoProfile", "-Command", `Get-CimInstance Win32_Process -Filter "Name='RTNote.exe'" | Where-Object { $_.ExecutablePath -eq $env:BRIDGE_INSTALLED_EXE } | ForEach-Object { taskkill /PID $_.ProcessId /T /F | Out-Null }`], {
     stdio: "ignore", env: { ...process.env, BRIDGE_INSTALLED_EXE: executable }, timeout: 30_000,
   });
   console.log("Published Windows predecessor installed");
@@ -126,7 +126,7 @@ const launch = async (update) => {
       const fetch = net.fetch.bind(net);
       net.fetch = (url, options) => {
         const value = String(url);
-        const prefix = 'https://github.com/tianma-if/edgeever/releases/download/v${version}/';
+        const prefix = 'https://github.com/MadlyFX/rtnote/releases/download/v${version}/';
         return fetch(value.startsWith(prefix) ? ${JSON.stringify(feed)} + value.slice(prefix.length) : url, options);
       };
       const install = autoUpdater.quitAndInstall.bind(autoUpdater);

@@ -1,6 +1,5 @@
 # Automatic output budgets for text generation (#652 PR A)
 
-[简体中文](2026-11-04-ai-auto-output-budget.zh-CN.md)
 
 Related Issue: #652
 

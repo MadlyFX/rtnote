@@ -101,7 +101,7 @@ describe("MCP HTTP routes", () => {
       id: 1,
       result: {
         protocolVersion: "2025-06-18",
-        serverInfo: { name: "edgeever" },
+        serverInfo: { name: "rtnote" },
         capabilities: { tools: { listChanged: false } },
       },
     });
@@ -125,7 +125,7 @@ describe("MCP HTTP routes", () => {
         ttlMs: 3_600_000,
         cacheScope: "public",
         _meta: {
-          "io.modelcontextprotocol/serverInfo": { name: "edgeever" },
+          "io.modelcontextprotocol/serverInfo": { name: "rtnote" },
         },
       },
     });
@@ -140,7 +140,7 @@ describe("MCP HTTP routes", () => {
       resultType: "complete",
       ttlMs: 3_600_000,
       cacheScope: "public",
-      _meta: { "io.modelcontextprotocol/serverInfo": { name: "edgeever" } },
+      _meta: { "io.modelcontextprotocol/serverInfo": { name: "rtnote" } },
     });
     expect(body.result.tools).toEqual(expect.arrayContaining([expect.objectContaining({ name: "get_current_user" })]));
     expect(body.result.tools).toEqual(expect.arrayContaining([
@@ -234,7 +234,7 @@ describe("MCP HTTP routes", () => {
     );
 
     expect(response.status).toBe(401);
-    expect(response.headers.get("WWW-Authenticate")).toBe('Bearer realm="EdgeEver MCP"');
+    expect(response.headers.get("WWW-Authenticate")).toBe('Bearer realm="RTNote MCP"');
     expect(await response.json()).toMatchObject({
       error: { code: -32001, message: expect.stringContaining("Authorization: Bearer <token>") },
     });
@@ -247,7 +247,7 @@ describe("MCP HTTP routes", () => {
     );
 
     expect(response.status).toBe(401);
-    expect(response.headers.get("WWW-Authenticate")).toBe('Bearer realm="EdgeEver MCP", error="invalid_token"');
+    expect(response.headers.get("WWW-Authenticate")).toBe('Bearer realm="RTNote MCP", error="invalid_token"');
     expect(await response.json()).toMatchObject({
       error: { code: -32001, message: expect.stringContaining("Invalid or revoked API token") },
     });
@@ -294,7 +294,7 @@ describe("MCP HTTP routes", () => {
         resultType: "complete",
         structuredContent: { name: "get_current_user" },
         isError: false,
-        _meta: { "io.modelcontextprotocol/serverInfo": { name: "edgeever" } },
+        _meta: { "io.modelcontextprotocol/serverInfo": { name: "rtnote" } },
       },
     });
   });

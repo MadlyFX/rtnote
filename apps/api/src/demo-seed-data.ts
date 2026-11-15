@@ -237,7 +237,7 @@ export const DEMO_MIND_MAP_DIAGRAM_EN: DiagramDocument = {
 
 export const DEMO_INFOGRAPHIC_SYNTAX_ZH = `infographic sequence-timeline-rounded-rect-node
 data
-  title EdgeEver 演进里程碑
+  title RTNote 演进里程碑
   sequences
     - label v1.0 架构奠基
       desc 经典三栏美学、Serverless D1 存储与双向同步游标
@@ -252,7 +252,7 @@ data
 
 export const DEMO_INFOGRAPHIC_SYNTAX_EN = `infographic sequence-timeline-rounded-rect-node
 data
-  title EdgeEver Evolution Milestones
+  title RTNote Evolution Milestones
   sequences
     - label v1.0 Foundation
       desc Classic three-pane layout, Serverless D1 storage & sync cursors
@@ -969,19 +969,19 @@ export const DEMO_SEED_MEMOS_ZH = [
   {
     id: "memo_demo_overview",
     notebookId: "nb_demo_features",
-    title: "欢迎使用 EdgeEver：为极客与创作者打造的现代开源知识库",
+    title: "欢迎使用 RTNote：为极客与创作者打造的现代开源知识库",
     tags: ["overview", "guide", "features", "ai-agent"],
     isPinned: true,
     markdown:
-      `> **EdgeEver** 是一款兼具**经典三栏美学**与 **AI 原生动力**的开源 Serverless / 容器化个人知识库。它既找回了极客们钟爱的经典印象笔记式双视图与树状目录，又以零服务器成本、完全数据自主、全端原生覆盖与深度 MCP 智能体协同，重新定义了下一代个人第二大脑。
+      `> **RTNote** 是一款兼具**经典三栏美学**与 **AI 原生动力**的开源 Serverless / 容器化个人知识库。它既找回了极客们钟爱的经典印象笔记式双视图与树状目录，又以零服务器成本、完全数据自主、全端原生覆盖与深度 MCP 智能体协同，重新定义了下一代个人第二大脑。
 
 ---
 
-## 1. 为什么选择 EdgeEver？
+## 1. 为什么选择 RTNote？
 
 *提示：在编辑器模式下，你可以直接点击任意表格单元格进行行内编辑，或右键快捷插入/删除行列。*
 
-| 核心维度 | 传统商业云笔记 (如 Evernote) | 本地离线知识库 (如 Obsidian) | EdgeEver 极客知识库 |
+| 核心维度 | 传统商业云笔记 (如 Evernote) | 本地离线知识库 (如 Obsidian) | RTNote 极客知识库 |
 | :--- | :--- | :--- | :--- |
 | **源代码** | 闭源 | 核心闭源，文件开放 | **整栈开源 (AGPL-3.0)** |
 | **云端托管成本** | 商业订阅高昂（$10+/月） | 官方云同步收费（$5+/月） | **100% 永久免费 (Cloudflare 免费额度 / Docker 自建)** |
@@ -996,7 +996,7 @@ export const DEMO_SEED_MEMOS_ZH = [
 
 ## 2. 全景架构与生态联动
 
-通过下面的 Mermaid 架构图，你可以清晰了解 EdgeEver 如何将多端客户端、零成本云基础设施与 AI Agent 紧密串联：
+通过下面的 Mermaid 架构图，你可以清晰了解 RTNote 如何将多端客户端、零成本云基础设施与 AI Agent 紧密串联：
 
 \`\`\`mermaid
 flowchart LR
@@ -1005,7 +1005,7 @@ flowchart LR
         Agents["外部 AI 智能体<br/>Claude Code · Cursor · Antigravity"]
     end
 
-    subgraph Platform["EdgeEver 平台核心 (Cloudflare Workers / Docker)"]
+    subgraph Platform["RTNote 平台核心 (Cloudflare Workers / Docker)"]
         API["统一 REST API 入口<br/>认证鉴权 · 限流 · 增量同步游标"]
         MCP["原生 MCP 服务端点 (/mcp)<br/>上下文感知 · 工具读写协议"]
     end
@@ -1026,7 +1026,7 @@ flowchart LR
 
 ## 3. 极致创作体验与排版美学
 
-EdgeEver 将高效与优雅融入每一处交互细节，助你专注于思考与表达：
+RTNote 将高效与优雅融入每一处交互细节，助你专注于思考与表达：
 
 ### 双视图编辑器与沉浸模式
 - **自由切换视图**：点击右上角 \`</>\` 按钮或使用快捷键，可在**所见即所得富文本**与 **Markdown 源码**间无缝切换，实时双向保真。
@@ -1047,7 +1047,7 @@ EdgeEver 将高效与优雅融入每一处交互细节，助你专注于思考�
 
 ## 4. 丰富表达力：图表、AI 信息图与多维表格
 
-EdgeEver 打破了传统笔记单一文本的局限，提供多种原生可视化与结构化数据载体：
+RTNote 打破了传统笔记单一文本的局限，提供多种原生可视化与结构化数据载体：
 
 ### 原生图表体系
 - **系统架构图 (Architecture)**：针对分布式系统与微服务设计，支持分层边界、图标元数据与自动拓扑排版；
@@ -1079,7 +1079,7 @@ EdgeEver 打破了传统笔记单一文本的局限，提供多种原生可视�
 在编辑器中输入 \`@\` 或插入 \`#memo=<笔记ID>\` 链接，即可建立笔记间的双向关联，点击即可在工作区内快速打开关联笔记，构建结构化网状知识库。
 
 ### KaTeX 专业数学公式渲染
-EdgeEver 原生支持 LaTeX 数学表达式，无论是行内微积分还是多行物理方程，均可毫秒级高保真渲染：
+RTNote 原生支持 LaTeX 数学表达式，无论是行内微积分还是多行物理方程，均可毫秒级高保真渲染：
 
 - **行内公式**：例如质能方程 $E = mc^2$，以及正态分布概率密度函数 $f(x) = \\frac{1}{\\sigma \\sqrt{2\\pi}} e^{-\\frac{(x-\\mu)^2}{2\\sigma^2}}$。
 - **多行独立公式块**：
@@ -1088,7 +1088,7 @@ $$
 $$
 
 ### 交互式待办清单 (Task Lists)
-- [x] 体验 EdgeEver 双视图与大纲导航
+- [x] 体验 RTNote 双视图与大纲导航
 - [x] 探索 8 款编辑器主题与 8 套社交海报卡片
 - [x] 浏览最新【AI 信息图】演进里程碑与【多维结构化表格】交付追踪
 - [ ] 尝试使用斜杠指令 \`/\` 插入当前日期与结构化表格
@@ -1099,14 +1099,14 @@ $$
 
 ## 6. AI 原生协同与 MCP 智能体生态
 
-EdgeEver 走在 AI 时代前沿，将大语言模型与智能体深度融入知识管理生命周期：
+RTNote 走在 AI 时代前沿，将大语言模型与智能体深度融入知识管理生命周期：
 
 \`\`\`mermaid
 sequenceDiagram
     autonumber
     participant User as 创作者 / 知识工作者
-    participant Client as EdgeEver 多端应用
-    participant MCP as EdgeEver MCP 服务端点
+    participant Client as RTNote 多端应用
+    participant MCP as RTNote MCP 服务端点
     participant Agent as AI Agent (Claude / Cursor / Antigravity)
     participant Database as Notion / 飞书多维表格
 
@@ -1127,7 +1127,7 @@ sequenceDiagram
 - **BYOK 隐私直连 (Bring Your Own Key)**：支持直连 OpenAI、Anthropic Claude、Google Gemini、DeepSeek 及各类 OpenAI 兼容的中继 API，数据完全由端侧直发，不经过任何第三方中转。
 
 ### 2. 开放 MCP 协议 (Model Context Protocol)
-在**设置 → MCP 设置**中生成专属令牌，即可将 EdgeEver 接入 Claude Code、Cursor、Antigravity、OpenClaw 等主流 AI 编码助手与智能体平台：
+在**设置 → MCP 设置**中生成专属令牌，即可将 RTNote 接入 Claude Code、Cursor、Antigravity、OpenClaw 等主流 AI 编码助手与智能体平台：
 - **无缝读写**：支持标准 MCP 端点 \`/mcp\`（兼容最新的无状态 \`2026-07-28\` 协议与经典握手协议）；
 - **自动化流转**：AI Agent 可自动读取笔记、智能归档、批量打标，甚至与 Notion、飞书多维表格建立跨平台自动化同步。
 
@@ -1143,7 +1143,7 @@ sequenceDiagram
   - **Windows 桌面端**：已正式推出 x64 Preview 版本，支持开机启动、全局快捷键与系统右键上下文菜单将文件一键发送至笔记。
 - **浏览器网页剪藏 (Web Clipper)**：已在 Chrome、Edge 和 Firefox 官方扩展商店发布，支持页面纯净剪藏、右键菜单一键剪藏选中文字/高画质图片、以及一键提取 X (Twitter) 完整推文。
 - **微信生态与外部导入**：
-  - **微信文章一键剪藏**：在移动端系统分享菜单中，直接将微信文章分享到 EdgeEver，自动提取图文排版并转换为可编辑笔记；
+  - **微信文章一键剪藏**：在移动端系统分享菜单中，直接将微信文章分享到 RTNote，自动提取图文排版并转换为可编辑笔记；
   - **微信聊天转发导入**：桌面端支持将微信合并转发的聊天记录一键导入为格式工整的结构化笔记；
   - **一键排版复制**：点击顶部微信图标，即可将笔记转换为内联排版富文本，直接粘贴至微信公众号后台，排版完美保真。
 - **离线草稿与弹性同步**：地铁、飞行模式等无网络环境下自由编辑，重新联网后自动入队完成增量同步与冲突协调。
@@ -1155,7 +1155,7 @@ sequenceDiagram
 ### 智能本地图片压缩
 在笔记中粘贴或拖入高分辨率图片时，前端会在本地自动将其转码压缩为 WebP 格式，在保证视觉无损的前提下**减少 50% - 90% 的体积**，大幅降低云端存储占用并提升跨端加载速度。
 
-![EdgeEver 官方 Logo](/api/v1/resources/res_demo_logo/blob)
+![RTNote 官方 Logo](/api/v1/resources/res_demo_logo/blob)
 
 ### 多类型附件自由挂载
 支持在笔记中嵌入 Word 文档、PDF 文档、CSV 表格、压缩包及多媒体资源，点击即可在线预览或下载：
@@ -1192,7 +1192,7 @@ sequenceDiagram
   {
     id: "memo_demo_poster",
     notebookId: "nb_demo_features",
-    title: "视觉排版：EdgeEver 极客第二大脑设计海报",
+    title: "视觉排版：RTNote 极客第二大脑设计海报",
     tags: ["poster", "design", "visual-layout", "branding"],
     isPinned: false,
     markdown: serializePosterDocument(DEMO_POSTER_DOCUMENT_ZH),
@@ -1200,7 +1200,7 @@ sequenceDiagram
   {
     id: "memo_demo_infographic",
     notebookId: "nb_demo_features",
-    title: "演进里程碑：EdgeEver 全平台架构与版本演进史",
+    title: "演进里程碑：RTNote 全平台架构与版本演进史",
     tags: ["infographic", "milestone", "timeline", "ai-agent"],
     isPinned: false,
     markdown: serializeInfographicDocument(DEMO_INFOGRAPHIC_DOCUMENT_ZH),
@@ -1208,7 +1208,7 @@ sequenceDiagram
   {
     id: "memo_demo_table",
     notebookId: "nb_demo_features",
-    title: "交付追踪：EdgeEver 核心产品特性规划与进度表",
+    title: "交付追踪：RTNote 核心产品特性规划与进度表",
     tags: ["table", "roadmap", "project-management", "tracking"],
     isPinned: false,
     markdown: serializeTableDocument(DEMO_TABLE_DOCUMENT_ZH),
@@ -1216,7 +1216,7 @@ sequenceDiagram
   {
     id: "memo_demo_architecture",
     notebookId: "nb_demo_features",
-    title: "系统架构：EdgeEver 可移植全栈与 AI 协同",
+    title: "系统架构：RTNote 可移植全栈与 AI 协同",
     tags: ["architecture", "diagram", "portable-runtime", "cloud-native", "mcp"],
     isPinned: false,
     markdown: serializeDiagramDocument(DEMO_ARCHITECTURE_DIAGRAM_ZH),
@@ -1244,89 +1244,89 @@ export const DEMO_SEED_REVISIONS = [
     id: "rev_demo_revision_1",
     memoId: "memo_demo_overview",
     revision: 1,
-    title: "欢迎使用 EdgeEver：为极客与创作者打造的现代开源知识库",
+    title: "欢迎使用 RTNote：为极客与创作者打造的现代开源知识库",
     markdown:
-      "## 欢迎使用 EdgeEver（初版草稿）\n\n- 印象笔记经典三栏与自建 Serverless\n- 可视化表格与 Markdown 源码双向切换\n- 原生 MCP 与 AI 智能体协同",
+      "## 欢迎使用 RTNote（初版草稿）\n\n- 印象笔记经典三栏与自建 Serverless\n- 可视化表格与 Markdown 源码双向切换\n- 原生 MCP 与 AI 智能体协同",
   },
   {
     id: "rev_demo_revision_1_en",
     memoId: "memo_demo_overview_en",
     revision: 1,
-    title: "Welcome to EdgeEver: Modern Open-Source Knowledge Base for Geeks & Creators",
+    title: "Welcome to RTNote: Modern Open-Source Knowledge Base for Geeks & Creators",
     markdown:
-      "## Welcome to EdgeEver (Initial Draft)\n\n- Classic Evernote 3-pane layout & Serverless self-hosted\n- Visual table editing & Markdown source toggle\n- Native MCP & AI agent synergy",
+      "## Welcome to RTNote (Initial Draft)\n\n- Classic Evernote 3-pane layout & Serverless self-hosted\n- Visual table editing & Markdown source toggle\n- Native MCP & AI agent synergy",
   },
   {
     id: "rev_demo_poster_1",
     memoId: "memo_demo_poster",
     revision: 1,
-    title: "视觉排版：EdgeEver 极客第二大脑设计海报",
+    title: "视觉排版：RTNote 极客第二大脑设计海报",
     markdown: serializePosterDocument(DEMO_POSTER_DOCUMENT_ZH),
   },
   {
     id: "rev_demo_poster_1_en",
     memoId: "memo_demo_poster_en",
     revision: 1,
-    title: "Visual Design: EdgeEver Geek Second Brain Poster Note",
+    title: "Visual Design: RTNote Geek Second Brain Poster Note",
     markdown: serializePosterDocument(DEMO_POSTER_DOCUMENT_EN),
   },
   {
     id: "rev_demo_infographic_1",
     memoId: "memo_demo_infographic",
     revision: 1,
-    title: "演进里程碑：EdgeEver 全平台架构与版本演进史",
+    title: "演进里程碑：RTNote 全平台架构与版本演进史",
     markdown: serializeInfographicDocument(DEMO_INFOGRAPHIC_DOCUMENT_ZH),
   },
   {
     id: "rev_demo_infographic_1_en",
     memoId: "memo_demo_infographic_en",
     revision: 1,
-    title: "Evolution Milestones: EdgeEver Architecture & Release History",
+    title: "Evolution Milestones: RTNote Architecture & Release History",
     markdown: serializeInfographicDocument(DEMO_INFOGRAPHIC_DOCUMENT_EN),
   },
   {
     id: "rev_demo_table_1",
     memoId: "memo_demo_table",
     revision: 1,
-    title: "交付追踪：EdgeEver 核心产品特性规划与进度表",
+    title: "交付追踪：RTNote 核心产品特性规划与进度表",
     markdown: serializeTableDocument(DEMO_TABLE_DOCUMENT_ZH),
   },
   {
     id: "rev_demo_table_1_en",
     memoId: "memo_demo_table_en",
     revision: 1,
-    title: "Delivery Tracking: EdgeEver Product Roadmap & Release Status",
+    title: "Delivery Tracking: RTNote Product Roadmap & Release Status",
     markdown: serializeTableDocument(DEMO_TABLE_DOCUMENT_EN),
   },
   {
     id: "rev_demo_architecture_1",
     memoId: "memo_demo_architecture",
     revision: 1,
-    title: "系统架构：EdgeEver 可移植全栈与 AI 协同",
+    title: "系统架构：RTNote 可移植全栈与 AI 协同",
     markdown: serializeDiagramDocument(DEMO_ARCHITECTURE_DIAGRAM_ZH),
   },
   {
     id: "rev_demo_architecture_1_en",
     memoId: "memo_demo_architecture_en",
     revision: 1,
-    title: "System Architecture: EdgeEver Portable Full Stack & AI Collaboration",
+    title: "System Architecture: RTNote Portable Full Stack & AI Collaboration",
     markdown: serializeDiagramDocument(DEMO_ARCHITECTURE_DIAGRAM_EN),
   },
 ];
 
 export const DEMO_MEMO_ENGLISH = {
   memo_demo_overview: {
-    title: "Welcome to EdgeEver: Modern Open-Source Knowledge Base for Geeks & Creators",
+    title: "Welcome to RTNote: Modern Open-Source Knowledge Base for Geeks & Creators",
     markdown:
-      `> **EdgeEver** is an open-source, AI-native, and portable serverless/containerized personal knowledge base that revives the beloved **Evernote-style three-pane layout**. Designed for geeks and content creators, it combines 100% free serverless hosting, absolute data ownership, native cross-platform clients, and seamless AI Agent (MCP) synergy to redefine your digital second brain.
+      `> **RTNote** is an open-source, AI-native, and portable serverless/containerized personal knowledge base that revives the beloved **Evernote-style three-pane layout**. Designed for geeks and content creators, it combines 100% free serverless hosting, absolute data ownership, native cross-platform clients, and seamless AI Agent (MCP) synergy to redefine your digital second brain.
 
 ---
 
-## 1. Why Choose EdgeEver?
+## 1. Why Choose RTNote?
 
 *Tip: In editor mode, click any table cell to edit text directly, or right-click to insert/delete rows and columns.*
 
-| Dimension | Traditional Cloud Notes (e.g. Evernote) | Local Offline Notes (e.g. Obsidian) | EdgeEver Geek Knowledge Base |
+| Dimension | Traditional Cloud Notes (e.g. Evernote) | Local Offline Notes (e.g. Obsidian) | RTNote Geek Knowledge Base |
 | :--- | :--- | :--- | :--- |
 | **Source Code** | Closed source | Closed-source core, open files | **Full-stack open source (AGPL-3.0)** |
 | **Hosting Cost** | Costly commercial subscriptions ($10+/mo) | Official cloud sync subscription ($5+/mo) | **100% Free Forever (Cloudflare Free Tier / Docker Self-Hosted)** |
@@ -1341,7 +1341,7 @@ export const DEMO_MEMO_ENGLISH = {
 
 ## 2. Architectural Overview & Ecosystem
 
-The Mermaid diagram below demonstrates how EdgeEver connects cross-platform clients, zero-cost cloud infrastructure, and AI Agents into a cohesive workflow:
+The Mermaid diagram below demonstrates how RTNote connects cross-platform clients, zero-cost cloud infrastructure, and AI Agents into a cohesive workflow:
 
 \`\`\`mermaid
 flowchart LR
@@ -1350,7 +1350,7 @@ flowchart LR
         Agents["External AI Agents<br/>Claude Code · Cursor · Antigravity"]
     end
 
-    subgraph Platform["EdgeEver Platform Core (Cloudflare Workers / Docker)"]
+    subgraph Platform["RTNote Platform Core (Cloudflare Workers / Docker)"]
         API["Unified REST API Entry<br/>Auth · Rate Limiting · Sync Cursor"]
         MCP["Native MCP Endpoint (/mcp)<br/>Context Retrieval · Read/Write Tools"]
     end
@@ -1371,7 +1371,7 @@ flowchart LR
 
 ## 3. Immersive Writing & Typography Aesthetics
 
-EdgeEver is engineered to provide a distraction-free, elegant writing experience:
+RTNote is engineered to provide a distraction-free, elegant writing experience:
 
 ### Dual-View Editor & Focus Modes
 - **Seamless Dual-View**: Click the \`</>\` button in the top-right corner (or use shortcuts) to instantly toggle between **WYSIWYG Rich Text** and **Markdown Source Code** with 100% fidelity.
@@ -1392,7 +1392,7 @@ Click **"Share as Card"** in the top-right menu to turn any note into an eye-cat
 
 ## 4. Visual Richness: Diagrams, AI Infographics & Structured Tables
 
-EdgeEver transcends traditional plain text notes with native visual and structured data canvases:
+RTNote transcends traditional plain text notes with native visual and structured data canvases:
 
 ### Native Diagram Suite
 - **System Architecture (Architecture)**: Designed for microservices and cloud topologies with boundaries, icons, and automated layout;
@@ -1433,7 +1433,7 @@ $$
 $$
 
 ### Interactive Task Lists
-- [x] Explore EdgeEver's dual-view editing and outline navigation
+- [x] Explore RTNote's dual-view editing and outline navigation
 - [x] Experiment with 8 editor themes and 8 social poster card styles
 - [x] View the new 【AI Infographic】 evolution milestones and 【Structured Table】 delivery tracker
 - [ ] Try typing \`/\` on an empty line to insert current timestamp and tables
@@ -1444,14 +1444,14 @@ $$
 
 ## 6. Native AI Agent Synergy & MCP Protocol
 
-EdgeEver is architected for the agentic AI era, weaving LLMs directly into the knowledge management lifecycle:
+RTNote is architected for the agentic AI era, weaving LLMs directly into the knowledge management lifecycle:
 
 \`\`\`mermaid
 sequenceDiagram
     autonumber
     participant User as Creator / Knowledge Worker
-    participant Client as EdgeEver Clients
-    participant MCP as EdgeEver MCP Endpoint
+    participant Client as RTNote Clients
+    participant MCP as RTNote MCP Endpoint
     participant Agent as AI Agent (Claude / Cursor / Antigravity)
     participant Database as Notion / Feishu Bitable
 
@@ -1472,7 +1472,7 @@ Press the **\`Space\` bar** in an empty block, type **\`/ai\`**, use the **\`/\`
 - **BYOK Direct Key (Bring Your Own Key)**: Direct client-side connection with OpenAI, Anthropic Claude, Google Gemini, DeepSeek, and OpenAI-compatible relays with zero third-party data transit.
 
 ### 2. Model Context Protocol (MCP) Integration
-Generate an API token in **Settings → MCP Settings** to connect EdgeEver directly with Claude Code, Cursor, Antigravity, OpenClaw, and other agent platforms:
+Generate an API token in **Settings → MCP Settings** to connect RTNote directly with Claude Code, Cursor, Antigravity, OpenClaw, and other agent platforms:
 - **Direct Reading & Writing**: Connect via the \`/mcp\` endpoint (supports stateless \`2026-07-28\` protocol and handshake-based 2025 specs);
 - **Automated Workflows**: Let AI Agents read, organize, summarize, tag, and synchronize notes with Notion databases and Feishu Bitable.
 
@@ -1488,7 +1488,7 @@ Generate an API token in **Settings → MCP Settings** to connect EdgeEver direc
   - **Windows Desktop App**: Official x64 Preview released, featuring auto-launch, global hotkeys, and Windows Explorer context menu integration to send files to notes with one click.
 - **Browser Web Clipper**: Available on Chrome, Edge, and Firefox extension stores to extract clean, ad-free Markdown articles, selected text, high-res images, and full X (Twitter) posts directly from context menus.
 - **WeChat Ecosystem & External Imports**:
-  - **Mobile Article Clipper**: Share any WeChat article to EdgeEver on your phone to automatically extract and format it as an editable note;
+  - **Mobile Article Clipper**: Share any WeChat article to RTNote on your phone to automatically extract and format it as an editable note;
   - **WeChat Chat Forward Import**: Import forwarded chat records on the desktop client into cleanly formatted notes;
   - **One-Click Publishing Export**: Click the WeChat icon in the toolbar to copy formatted rich text ready for publishing.
 - **Offline Drafts & Sync Queue**: Keep writing seamlessly without network connectivity; changes are queued locally and automatically synced once reconnected.
@@ -1498,9 +1498,9 @@ Generate an API token in **Settings → MCP Settings** to connect EdgeEver direc
 ## 8. Rich Media, Lossless Portability & Zero-Cost Hosting
 
 ### Smart Client-Side Image Compression
-When pasting or dragging images into notes, EdgeEver compresses them to WebP locally in your browser before upload, **reducing file size by 50% - 90%** while preserving visual fidelity.
+When pasting or dragging images into notes, RTNote compresses them to WebP locally in your browser before upload, **reducing file size by 50% - 90%** while preserving visual fidelity.
 
-![EdgeEver Official Logo](/api/v1/resources/res_demo_logo/blob)
+![RTNote Official Logo](/api/v1/resources/res_demo_logo/blob)
 
 ### Universal File Attachments
 Embed Word documents, PDFs, spreadsheets, archives, and multimedia files directly in notes for preview or download:
@@ -1535,19 +1535,19 @@ Export your entire library at any time from **Profile → Import and export**. T
 `,
   },
   memo_demo_poster: {
-    title: "Visual Design: EdgeEver Geek Second Brain Poster Note",
+    title: "Visual Design: RTNote Geek Second Brain Poster Note",
     markdown: serializePosterDocument(DEMO_POSTER_DOCUMENT_EN),
   },
   memo_demo_infographic: {
-    title: "Evolution Milestones: EdgeEver Architecture & Release History",
+    title: "Evolution Milestones: RTNote Architecture & Release History",
     markdown: serializeInfographicDocument(DEMO_INFOGRAPHIC_DOCUMENT_EN),
   },
   memo_demo_table: {
-    title: "Delivery Tracking: EdgeEver Product Roadmap & Release Status",
+    title: "Delivery Tracking: RTNote Product Roadmap & Release Status",
     markdown: serializeTableDocument(DEMO_TABLE_DOCUMENT_EN),
   },
   memo_demo_architecture: {
-    title: "System Architecture: EdgeEver Portable Full Stack & AI Collaboration",
+    title: "System Architecture: RTNote Portable Full Stack & AI Collaboration",
     markdown: serializeDiagramDocument(DEMO_ARCHITECTURE_DIAGRAM_EN),
   },
   memo_demo_flowchart: {
@@ -1586,12 +1586,12 @@ export const DEMO_SEED_RESOURCES = [
   {
     id: "res_demo_logo",
     memoId: "memo_demo_overview",
-    filename: "edgeever-icon.svg",
+    filename: "rtnote-icon.svg",
     mimeType: "image/svg+xml",
     width: 1024,
     height: 1024,
     svg:
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc"><title id="title">EdgeEver</title><desc id="desc">An open cat face in near-black on the EdgeEver green rounded tile.</desc><rect x="100" y="100" width="824" height="824" rx="188" fill="#16a06e" /><g transform="translate(100 100) scale(0.74234234) translate(-72 -72)"><path fill="#07130b" fill-rule="evenodd" d="M253.5 707.5Q249 678 249.5 655Q250 632 253.5 611.5Q257 591 264.5 568.5Q272 546 281 530Q290 514 287 485Q284 456 283.5 417Q283 378 285 351.5Q287 325 292 299Q297 273 304.5 254.5Q312 236 318.5 227.5Q325 219 336 213Q347 207 358.5 207.5Q370 208 383 213.5Q396 219 407 226.5Q418 234 428 242.5Q438 251 455 268.5Q472 286 485.5 303.5Q499 321 510.5 339Q522 357 528 368.5Q534 380 534 385.5Q534 391 532.5 394.5Q531 398 527.5 401Q524 404 518 405Q512 406 507 404Q502 402 499.5 399.5Q497 397 491.5 386Q486 375 474 357Q462 339 450.5 324.5Q439 310 426 296.5Q413 283 400.5 272.5Q388 262 377 255.5Q366 249 361 248Q356 247 352.5 249.5Q349 252 344.5 261Q340 270 337 280Q334 290 329 325.5Q324 361 323.5 400Q323 439 327 479.5Q331 520 321 538Q311 556 306 568.5Q301 581 297 596Q293 611 291 624.5Q289 638 289 661Q289 684 292 702Q295 720 301 739.5Q307 759 315.5 776.5Q324 794 335 810Q346 826 358 838.5Q370 851 386.5 863.5Q403 876 419.5 884.5Q436 893 456 899.5Q476 906 501 909.5Q526 913 529.5 916Q533 919 534.5 922Q536 925 536 931.5Q536 938 532.5 943Q529 948 524 950Q519 952 505.5 951Q492 950 473 946Q454 942 426 931Q398 920 385.5 912.5Q373 905 359.5 894.5Q346 884 333.5 871.5Q321 859 313 849Q305 839 291 815Q277 791 267.5 764Q258 737 253.5 707.5ZM719 941.5Q716 936 717 929Q718 922 721 918.5Q724 915 727 913.5Q730 912 749 910Q768 908 785 903.5Q802 899 823 889.5Q844 880 860.5 868.5Q877 857 887.5 847Q898 837 911 820Q924 803 932 788.5Q940 774 947.5 753.5Q955 733 959.5 708Q964 683 964 660.5Q964 638 960.5 617.5Q957 597 952.5 582.5Q948 568 943.5 558Q939 548 931 535Q923 522 927 479Q931 436 930.5 400Q930 364 925.5 329Q921 294 917 280Q913 266 909 258.5Q905 251 902 249Q899 247 893 248.5Q887 250 867.5 264Q848 278 835.5 290.5Q823 303 810.5 318Q798 333 783.5 354Q769 375 762 387.5Q755 400 751 402.5Q747 405 742 405.5Q737 406 732 404Q727 402 723.5 397Q720 392 720.5 385Q721 378 736.5 353Q752 328 768 307.5Q784 287 803.5 267Q823 247 834 238Q845 229 858.5 221Q872 213 881 210Q890 207 899.5 207Q909 207 918.5 212Q928 217 935.5 226.5Q943 236 949.5 252Q956 268 960 286Q964 304 967.5 344.5Q971 385 970.5 418Q970 451 967 482.5Q964 514 972 528Q980 542 986 558Q992 574 996 591Q1000 608 1002 624.5Q1004 641 1003.5 667Q1003 693 998 719.5Q993 746 985 768Q977 790 964.5 812Q952 834 940 849Q928 864 915.5 876Q903 888 892.5 896Q882 904 858 917Q834 930 820 935Q806 940 789.5 944Q773 948 753 950Q733 952 727.5 949.5Q722 947 719 941.5ZM378.5 728Q373 718 373 714.5Q373 711 375.5 708Q378 705 387 699Q396 693 405 689Q414 685 426 682.5Q438 680 447.5 680Q457 680 467.5 682Q478 684 490 690Q502 696 512.5 706.5Q523 717 530.5 733Q538 749 539.5 762Q541 775 537 778Q533 781 515.5 784Q498 787 481 786.5Q464 786 451 783Q438 780 428.5 775.5Q419 771 412 766Q405 761 394.5 749.5Q384 738 378.5 728ZM713.5 778Q710 775 710.5 767Q711 759 714 749Q717 739 723.5 727.5Q730 716 740.5 706Q751 696 762 690.5Q773 685 785.5 682.5Q798 680 813 681Q828 682 843.5 688Q859 694 869.5 702.5Q880 711 880 714.5Q880 718 871.5 732Q863 746 853 755.5Q843 765 830.5 772Q818 779 804 782.5Q790 786 772.5 786.5Q755 787 736 784Q717 781 713.5 778ZM406 710Q395 716 398 722.5Q401 729 410 738.5Q419 748 427 753Q435 758 441 760Q447 762 444.5 749.5Q442 737 442.5 726.5Q443 716 445 707.5Q447 699 432 701.5Q417 704 406 710ZM819.5 701Q806 699 808 708.5Q810 718 810 730.5Q810 743 808 750.5Q806 758 806 760Q806 762 807 762Q808 762 815 759Q822 756 830.5 750Q839 744 846 736Q853 728 855.5 722Q858 716 845.5 709.5Q833 703 819.5 701ZM471 759.5Q469 763 469 765Q469 767 472 767.5Q475 768 488.5 768Q502 768 512 766Q522 764 519.5 754Q517 744 511 734Q505 724 498.5 718Q492 712 484.5 708Q477 704 475.5 704Q474 704 475 723Q476 742 474.5 749Q473 756 471 759.5ZM733 750.5Q730 759 730 761.5Q730 764 737 765.5Q744 767 763.5 767Q783 767 779.5 752Q776 737 776 730.5Q776 724 778 714Q780 704 770.5 708Q761 712 753 719.5Q745 727 740.5 734.5Q736 742 733 750.5ZM592.5 848.5Q588 841 588 836.5Q588 832 590 829Q592 826 599.5 822.5Q607 819 613.5 818Q620 817 626.5 817Q633 817 642.5 819Q652 821 655 822.5Q658 824 661.5 828.5Q665 833 664.5 838Q664 843 659.5 850Q655 857 645 867Q635 877 631.5 878.5Q628 880 625 879.5Q622 879 617.5 876Q613 873 605 864.5Q597 856 592.5 848.5Z" />\n  </g>\n</svg>',
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc"><title id="title">RTNote</title><desc id="desc">A near-black note page with a heading and two text lines on the RTNote green rounded tile.</desc><rect x="100" y="100" width="824" height="824" rx="188" fill="#16a06e" /><path fill="#07130b" fill-rule="evenodd" d="M340 236H588L724 372V748Q724 788 684 788H340Q300 788 300 748V276Q300 236 340 236ZM412 344H560A40 40 0 0 1 560 424H412A40 40 0 0 1 412 344ZM400 496H624A28 28 0 0 1 624 552H400A28 28 0 0 1 400 496ZM400 624H532A28 28 0 0 1 532 680H400A28 28 0 0 1 400 624Z" />\n</svg>',
   },
   {
     id: "res_demo_cat_image",

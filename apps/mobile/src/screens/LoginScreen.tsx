@@ -24,7 +24,7 @@ import { classifyMfaLoginError, isCompleteTotpCode, isPlausibleRecoveryCode } fr
 import { resolveMobileThemeStyles, useMobileTheme, type MobileResolvedTheme } from "../lib/mobile-theme";
 import { useSession } from "../lib/session";
 
-const GITHUB_REPOSITORY_URL = "https://github.com/tianma-if/edgeever";
+const GITHUB_REPOSITORY_URL = "https://github.com/MadlyFX/rtnote";
 
 export const LoginScreen = () => {
   const { resolvedTheme } = useMobileTheme();
@@ -133,7 +133,7 @@ export const LoginScreen = () => {
                 <LockKeyhole color={styles.logoIcon.color} size={22} />
               </View>
               <View style={styles.headerText}>
-                <Text style={styles.title}>EdgeEver</Text>
+                <Text style={styles.title}>RTNote</Text>
                 <Text style={styles.subtitle}>连接你的自托管笔记空间</Text>
               </View>
             </View>

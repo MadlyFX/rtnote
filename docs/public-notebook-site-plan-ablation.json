@@ -499,7 +499,7 @@
     "Concurrent writer contention"
   ],
   "externalReferences": [
-    "https://github.com/tianma-if/edgeever/issues/591",
+    "https://github.com/MadlyFX/rtnote/issues/591",
     "https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics",
     "https://developers.google.com/search/docs/crawling-indexing/sitemaps/overview",
     "https://ogp.me/"

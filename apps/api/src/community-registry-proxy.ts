@@ -82,10 +82,10 @@ export const fetchCommunityRegistryRelease = async ({
     signal: AbortSignal.timeout(timeoutMs),
   };
   const [registryResponse, signatureResponse] = await Promise.all([
-    request(url.href, { ...init, headers: { Accept: "application/json", "User-Agent": "EdgeEver" } }),
+    request(url.href, { ...init, headers: { Accept: "application/json", "User-Agent": "RTNote" } }),
     request(signatureUrl.href, {
       ...init,
-      headers: { Accept: "text/plain, application/octet-stream", "User-Agent": "EdgeEver" },
+      headers: { Accept: "text/plain, application/octet-stream", "User-Agent": "RTNote" },
     }),
   ]);
   const registryBytes = await readBoundedBody(registryResponse, COMMUNITY_REGISTRY_MAX_BYTES, "Community registry");

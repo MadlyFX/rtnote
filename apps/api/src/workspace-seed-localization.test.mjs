@@ -108,15 +108,15 @@ describe("fresh installation", () => {
       "personal-life": "Życie prywatne",
     });
     const note = welcome(sqlite);
-    expect(note.title).toBe("Witaj w EdgeEver");
-    expect(note.search_title).toBe("Witaj w EdgeEver");
+    expect(note.title).toBe("Witaj w RTNote");
+    expect(note.search_title).toBe("Witaj w RTNote");
     expect(note.excerpt).toStartWith("To Twoja pierwsza notatka");
-    expect(note.content_markdown).toStartWith("## Witaj w EdgeEver\n\nTo Twoja pierwsza notatka");
+    expect(note.content_markdown).toStartWith("## Witaj w RTNote\n\nTo Twoja pierwsza notatka");
     expect(note.search_text).toBe(note.content_text);
     expect(JSON.parse(note.content_json).content[0]).toEqual({
       type: "heading",
       attrs: { level: 2 },
-      content: [{ type: "text", text: "Witaj w EdgeEver" }],
+      content: [{ type: "text", text: "Witaj w RTNote" }],
     });
     expect(note.content_hash).not.toBe(WELCOME_MEMO_SEED_CONTENT_HASH);
     expect(note.revision).toBe(2);
@@ -136,7 +136,7 @@ describe("fresh installation", () => {
     await ensureUserWorkspace(db, "usr_owner", "admin", "ja");
 
     expect(afterFirst.notebooks.inbox).toBe("Inbox");
-    expect(afterFirst.note.title).toBe("Welcome to EdgeEver");
+    expect(afterFirst.note.title).toBe("Welcome to RTNote");
     expect({ notebooks: notebookNames(sqlite), note: welcome(sqlite) }).toEqual(afterFirst);
   });
 
@@ -158,7 +158,7 @@ describe("fresh installation", () => {
     await ensureUserWorkspace(db, "usr_owner", "admin", "ja");
 
     expect(notebookNames(sqlite).inbox).toBe("受信トレイ");
-    expect(welcome(sqlite).title).toBe("EdgeEver へようこそ");
+    expect(welcome(sqlite).title).toBe("RTNote へようこそ");
     expect(templateNames(sqlite, DEFAULT_WORKSPACE_ID)).toContain("ひらめきメモ");
     expect(pendingWorkspaces(sqlite)).toEqual([]);
   });
@@ -258,17 +258,17 @@ describe("fresh installation", () => {
     await ensureUserWorkspace(db, "usr_owner", "admin", "it-IT,it;q=0.9");
 
     expect(notebookNames(sqlite).inbox).toBe("Inbox");
-    expect(welcome(sqlite).title).toBe("Welcome to EdgeEver");
+    expect(welcome(sqlite).title).toBe("Welcome to RTNote");
   });
 
-  test("keeps the Chinese seed when the client sends no language", async () => {
+  test("uses English when the client sends no language", async () => {
     const { sqlite, db } = freshInstallation();
     addUser(sqlite, "usr_owner", "admin");
 
     await ensureUserWorkspace(db, "usr_owner", "admin", undefined);
 
-    expect(notebookNames(sqlite)).toEqual(CHINESE_NOTEBOOKS);
-    expect(welcome(sqlite).title).toBe("欢迎来到 EdgeEver");
+    expect(notebookNames(sqlite).inbox).toBe("Inbox");
+    expect(welcome(sqlite).title).toBe("Welcome to RTNote");
     expect(pendingWorkspaces(sqlite)).toEqual([]);
   });
 });

@@ -168,7 +168,7 @@ export const createWorkerS3BlobStore = (config: WorkerS3Config): BlobStoreAdapte
 export const testWorkerS3Connection = async (config: WorkerS3Config) => {
   const store = createWorkerS3BlobStore(config);
   const objectKey = `.edgeever-connection-test/${crypto.randomUUID()}.txt`;
-  const expected = `EdgeEver object storage test ${new Date().toISOString()}`;
+  const expected = `RTNote object storage test ${new Date().toISOString()}`;
   await store.put(objectKey, new TextEncoder().encode(expected), {
     httpMetadata: { contentType: "text/plain; charset=utf-8" },
   });

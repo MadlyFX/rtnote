@@ -1,6 +1,5 @@
 # Language of the shared note in the first HTML response
 
-[简体中文](2026-11-06-share-page-lang.zh-CN.md)
 
 Related Issue: #814
 

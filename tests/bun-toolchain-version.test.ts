@@ -27,6 +27,5 @@ describe("Bun toolchain version", () => {
 
   test("container entrypoints stay on the repository version", () => {
     expect(readRepositoryFile("Dockerfile")).toContain(`FROM oven/bun:${bunVersion}-alpine AS runtime`);
-    expect(readRepositoryFile("scripts/publish-tcr-image.sh")).toContain(`oven/bun:${bunVersion}-alpine`);
   });
 });

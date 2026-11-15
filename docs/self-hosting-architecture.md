@@ -34,7 +34,7 @@ The supported container deployment is a single application container with one
 persistent `/data` mount:
 
 ```text
-EdgeEver container
+RTNote container
 ├── SQLite database          -> /data/edgeever.sqlite
 ├── credential secrets       -> /data/edgeever-secrets.json
 └── attachment store         -> /data/resources
@@ -79,7 +79,7 @@ ambiguous.
   readiness and attachment-store readiness.
 
 Operational instructions, including secrets, HTTPS, backups, upgrades, and NAS
-permissions, live in [Deploy EdgeEver with Docker](deploy-docker.md).
+permissions, live in [Deploy RTNote with Docker](deploy-docker.md).
 
 The Docker image and local development use the same Bun runtime:
 

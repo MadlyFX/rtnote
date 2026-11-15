@@ -144,7 +144,7 @@ test("the quick selector hides absent connectors while keeping detected agents a
   expect(desktopAcpSelectorVisible(custom, "  ")).toBe(false);
 });
 
-test("note access failures distinguish network, EdgeEver sign-in, and account changes", () => {
+test("note access failures distinguish network, RTNote sign-in, and account changes", () => {
   expect(desktopAcpNoteAccessErrorKey("note_access_network")).toBe("aiAssistant.sidebar.noteAccessNetwork");
   expect(desktopAcpNoteAccessErrorKey("note_access_login_required")).toBe("aiAssistant.sidebar.noteAccessLoginRequired");
   expect(desktopAcpNoteAccessErrorKey("note_access_changed")).toBe("aiAssistant.sidebar.noteAccessChanged");

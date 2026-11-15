@@ -10,7 +10,7 @@ enum AppDatabase {
             in: .userDomainMask,
             appropriateFor: nil,
             create: true
-        ).appendingPathComponent("EdgeEver", isDirectory: true)
+        ).appendingPathComponent("RTNote", isDirectory: true)
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         let path = dir.appendingPathComponent(fileName).path
         var config = Configuration()

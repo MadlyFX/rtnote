@@ -79,7 +79,8 @@ describe("native third-party import through the real API", () => {
       expect(queries.filter(sql => /COUNT\(m\.id\) AS memo_count/.test(sql))).toHaveLength(1);
       await session.close();
     }
-  });
+    // Imports 320 notes through the real API; shared CI runners can exceed the 5 s default.
+  }, 30_000);
 
   test("creating child folders does not recount their populated parent", async () => {
     const { client, env, db } = await target();

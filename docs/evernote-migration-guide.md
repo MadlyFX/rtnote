@@ -1,75 +1,75 @@
-# 印象笔记（Evernote）迁入指引
+# Evernote Migration Guide
 
-[简体中文](evernote-migration-guide.md) | [English](evernote-migration-guide.en-US.md)
+[简体中文](note-migration-guide.md) | [English](note-migration-guide.en-US.md)
 
-> 💡 **提示**：第三方笔记迁入教程现已全面升级并合并至统一指引：
-> 👉 **[第三方笔记平滑迁入 EdgeEver 完整指南](note-migration-guide.md)**（全面覆盖原生一键导入与 AI Agent / MCP 迁入）。
+> 💡 **Notice**: All third-party note migration guides have been merged and updated into a unified guide:
+> 👉 **[Migrate from Third-Party Notes to RTNote: The Complete Guide](note-migration-guide.en-US.md)** (covering native GUI one-click import and AI Agent / MCP migration).
 
-EdgeEver 内置了开箱即用的原生第三方导入功能。在 Web 网页端或 Electron 桌面端中，**无需安装任何额外依赖、无需运行命令行、也无需配置 MCP 授权**，即可直接在图形界面中拖拽或选取印象笔记 / Evernote 导出的文件，将笔记完整搬迁至 EdgeEver。
-
----
-
-### 原生导入支持特性
-
-- **数据完整保留**：完整保留笔记标题、正文富文本、表格、待办清单、颜色样式与引用。
-- **时间与元数据还原**：精确保留原始笔记的创建时间（Created）与更新时间（Updated），标签信息自动无损迁移。
-- **笔记本目录层级**：支持单个或多个 `.enex`、包含多个 ENEX 文件的文件夹目录，以及包含这些内容的 `.zip` 压缩包，自动按结构还原笔记本与笔记归属。
-- **媒体与资源附件**：笔记内嵌的图片、音频、PDF 以及其他各类附件文件，均会在客户端本地安全解码并流式上传至 EdgeEver 资源库，正文图片排版完美还原。
-- **客户端本地预检**：导入前由浏览器 / 桌面端本地解析，清晰统计笔记数、附件数与潜在警告，绝不向服务端上传未经确认的整包数据。
+RTNote provides native, out-of-the-box support for importing third-party notes. In either the Web app or the Electron desktop client, **no extra dependencies, command-line operations, or MCP configurations are required**. You can directly drag or select files exported from Evernote to migrate your notes into RTNote seamlessly.
 
 ---
 
-### 迁移步骤（推荐：原生一键导入）
+### Native Import Features
 
-#### 步骤 1：从印象笔记 / Evernote 导出笔记
-
-1. 打开印象笔记或 Evernote 桌面客户端。
-2. 在左侧笔记本列表中，右键点击需要导出的笔记本，选择 **导出笔记本...**（或选中多篇笔记右键选择 **导出笔记...**）。
-3. 导出格式务必选择 **ENEX 格式（.enex）**：
-   - 勾选包含标签、创建时间、修改时间等所有元数据选项。
-   - > ⚠️ **注意**：部分 Mac 客户端会默认导出为 `.notes` 格式，请务必在导出对话框中切换为 `.enex` 格式。
-4. **批量导出建议**：若有多个笔记本需要迁移，可分别导出为多个 `.enex` 文件，并将它们整理在同一个文件夹中，或者打包为一个 `.zip` 压缩包。
-
-#### 步骤 2：在 EdgeEver 中打开导入入口
-
-1. 打开 EdgeEver 网页端或桌面端并登录。
-2. 点击左侧导航栏底部的 **设置（Settings）** 图标。
-3. 在设置页面的 **导入与导出** 区域中，找到 **从其他应用导入** 卡片，点击 **开始导入**。
-
-#### 步骤 3：选择来源并添加文件
-
-1. 在弹出的导入对话框中，来源应用点击选中 **Evernote / 印象笔记**。
-2. 添加你的导出文件，支持以下两种便捷方式：
-   - **直接拖拽**：将单个/多个 `.enex` 文件、文件夹或 `.zip` 压缩包拖入弹窗中心的虚线区域。
-   - **浏览选择**：点击 **选择文件** 选取一个或多个 `.enex` / `.zip`，或点击 **选择文件夹** 选取包含多个 ENEX 的目录。
-
-#### 步骤 4：本地安全预检与选择目标
-
-1. 文件选择后，系统会在本地后台快速扫描并进行安全预检。
-2. 预检完成后，界面将清晰呈现数据概览：
-   - 即将新建的 **笔记本数量**、**笔记篇数** 与 **附件数量**。
-   - 识别到的笔记本目录树预览。
-   - 若存在不符合项（如超大单文件附件或不规范格式），会列出具体提示，方便提前知晓。
-3. 在「导入位置」下拉菜单中，选择将数据 **创建为顶层笔记本**（默认），或导入至已有的某个父笔记本下。
-
-#### 步骤 5：确认导入并流式写入
-
-1. 确认预检信息无误后，点击右下角的 **确认导入**。
-2. EdgeEver 将在本地对数据进行分块流式解析，逐篇创建笔记并安全上传附件：
-   - 导入过程中可实时查看当前进度、当前处理的文件以及完成情况。
-   - 桌面端导入时会自动安全挂起后台同步，写入完毕后自动恢复同步并刷新工作区，避免数据竞争。
-
-#### 步骤 6：核验导入结果
-
-1. 导入完成后，弹窗将显示导入结果清单。
-2. 你可以点击结果列表中任意笔记右侧的 **打开笔记**，快速抽查并验证正文排版、图片资源及创建时间是否完整一致。
-3. 若由于网络瞬时波动导致个别附件上传未完成，直接点击 **重试未完成步骤** 即可增量重试，不会重复创建已成功导入的笔记。
+- **Lossless Content Preservation**: Full support for titles, rich-text styling, tables, task lists, colors, and blockquotes.
+- **Timestamp & Metadata Restoration**: Accurately preserves original creation (`Created`) and update (`Updated`) timestamps, with note tags fully migrated.
+- **Notebook Hierarchy**: Supports single or multiple `.enex` files, folders containing multiple ENEX files, or `.zip` archives, restoring the notebook structure as intended.
+- **Media & Resource Attachments**: Embedded images, audio clips, PDFs, and other attachments are safely decoded locally in the client and streamed to the RTNote resource store.
+- **Client-Side Preflight Inspection**: Parses files locally in your browser or desktop environment before import. Inspect counts of notebooks, notes, attachments, and potential warnings without uploading unverified raw archives to the server.
 
 ---
 
-### 高级备用方案：大库自动化脚本与 MCP
+### Migration Steps (Recommended: Native One-Click Import)
 
-如果你拥有数万篇笔记的超大海量知识库，或者希望在服务器/无图形界面环境中直接对接印象笔记官方服务导出备份，也可以使用命令行与 MCP 方案：
+#### Step 1: Export Notes from Evernote
 
-1. **自动化拉取备份**：使用开源工具 `pipx install evernote-backup`，运行 `evernote-backup init --backend china` 并 `sync`，即可直接将印象笔记数据导出到本地目录。
-2. **MCP / 脚本导入**：可参考仓库内的开源导入脚本 [`scripts/import-evernote-enex-via-mcp.mjs`](https://github.com/tianma-if/edgeever/blob/main/scripts/import-evernote-enex-via-mcp.mjs)，搭配 EdgeEver 的 Remote MCP 服务实现后台大库流式导入。
+1. Open the Evernote desktop client.
+2. In the left notebook sidebar, right-click the notebook you wish to export and choose **Export Notebook...** (or select multiple notes, right-click, and choose **Export Notes...**).
+3. Ensure the export format is set to **ENEX format (.enex)**:
+   - Check all metadata options, including tags, created date, and updated date.
+   - > ⚠️ **Notice**: Certain Mac clients default to `.notes` format; make sure to select `.enex` in the export dialog.
+4. **Batch Export Tip**: If you have multiple notebooks, export each one as an individual `.enex` file and place them in a single folder, or bundle them into a `.zip` archive.
+
+#### Step 2: Open the Import Dialog in RTNote
+
+1. Open RTNote in your web browser or desktop client and sign in.
+2. Click the **Settings** gear icon at the bottom of the left sidebar.
+3. In the **Import and export** section, locate the **Import from other apps** card and click **Start import**.
+
+#### Step 3: Choose Source and Add Files
+
+1. In the import dialog, select **Evernote / 印象笔记** under Source app.
+2. Add your exported files using either convenient option:
+   - **Drag and Drop**: Drag one or more `.enex` files, a folder, or a `.zip` archive directly into the dashed dropzone area.
+   - **Browse**: Click **Choose files** to pick `.enex` or `.zip` files, or click **Choose folder** to select a directory containing ENEX files.
+
+#### Step 4: Local Preflight & Target Selection
+
+1. Once selected, RTNote will quickly inspect the data locally in the background.
+2. Review the preflight summary:
+   - The projected number of **Notebooks**, **Notes**, and **Attachments**.
+   - A tree preview of the detected notebook structure.
+   - Any non-blocking warnings (such as oversized attachments or formatting notes).
+3. Under "Import into", choose whether to **Create top-level notebooks** (default) or import them under an existing parent notebook.
+
+#### Step 5: Confirm and Stream Import
+
+1. After reviewing the preflight summary, click **Confirm import** in the bottom-right corner.
+2. RTNote parses the data locally in chunks, creating notes and streaming attachments one by one:
+   - Real-time progress indicators show current processing files and completion status.
+   - On the desktop client, background sync is paused safely and resumed automatically upon completion, refreshing the workspace cleanly.
+
+#### Step 6: Verify Imported Notes
+
+1. Once the import finishes, the dialog displays a list of results.
+2. Click **Open note** next to any item in the list to inspect formatting, images, and timestamps.
+3. If any step was interrupted by temporary network instability, click **Retry unfinished steps** to resume without duplicating notes that have already been created.
+
+---
+
+### Advanced Alternative: Automation Scripts & MCP for Huge Archives
+
+If your knowledge base spans tens of thousands of notes or tens of gigabytes, or if you prefer running automated sync on a headless server, you can also use command-line tooling and MCP:
+
+1. **Automated Export**: Use the open-source tool `pipx install evernote-backup`, run `evernote-backup init` and `evernote-backup sync` to dump all notebooks to local disk.
+2. **MCP / Script Import**: Refer to the script [`scripts/import-evernote-enex-via-mcp.mjs`](https://github.com/MadlyFX/rtnote/blob/main/scripts/import-evernote-enex-via-mcp.mjs) in this repository and connect it via RTNote's Remote MCP service for automated batch migration.

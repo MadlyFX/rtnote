@@ -277,7 +277,7 @@ export const PublicSharePage = () => {
     document.head.appendChild(robots);
     if (share) {
       document.title = withEnvironmentTitlePrefix(
-        `${getMemoDisplayTitle(share.title, t("common.untitledMemo"))} · EdgeEver`,
+        `${getMemoDisplayTitle(share.title, t("common.untitledMemo"))} · RTNote`,
         { development: import.meta.env.DEV, profile: __EDGEEVER_DEVELOPMENT_PROFILE__ },
       );
     } else if (passwordRequired) {
@@ -451,7 +451,7 @@ export const PublicShareArticle = ({
         {showBranding ? (
           <footer className="px-5 pb-6 pt-2 text-center text-xs text-slate-500 sm:px-10 sm:pb-8">
             <a
-              href="https://edgeever.org/"
+              href="https://github.com/MadlyFX/rtnote"
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-sm transition-colors hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"

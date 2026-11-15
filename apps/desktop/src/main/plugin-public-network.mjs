@@ -20,7 +20,7 @@ export function createPluginPublicNetworkRuntime({ fetchPublic = nodePublicFetch
           else controller.signal.addEventListener("abort", () => reject(controller.signal.reason), { once: true });
         });
         const response = await Promise.race([
-          fetchPublic(url.href, { method, headers: { ...headers, "User-Agent": "EdgeEver-Plugins/1.0" }, redirect: "manual", signal: controller.signal }),
+          fetchPublic(url.href, { method, headers: { ...headers, "User-Agent": "RTNote-Plugins/1.0" }, redirect: "manual", signal: controller.signal }),
           aborted,
         ]);
         const bytes = await readPublicBody(response, controller.signal);
