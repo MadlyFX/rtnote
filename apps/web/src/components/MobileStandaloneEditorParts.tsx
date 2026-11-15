@@ -1,4 +1,4 @@
-import { Bold, Check, ChevronDown, ImagePlus, List, ListIndentDecrease, ListIndentIncrease, ListTodo, Minus, Quote, Redo2, Undo2 } from "lucide-react";
+import { Bold, Check, ChevronDown, ImagePlus, List, ListIndentDecrease, ListIndentIncrease, ListTodo, Minus, Quote, Redo2, Type, Undo2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
   MOBILE_EDITOR_TOOLBAR_ACTIONS,
@@ -73,6 +73,8 @@ export const MobileEditorToolbar = ({
   onDecreaseListIndent,
   onToggleBlockquote,
   onSetHorizontalRule,
+  formatActive = false,
+  onToggleFormat,
 }: {
   disabled: boolean;
   undoAvailable: boolean;
@@ -94,6 +96,8 @@ export const MobileEditorToolbar = ({
   onDecreaseListIndent: () => void;
   onToggleBlockquote: () => void;
   onSetHorizontalRule: () => void;
+  formatActive?: boolean;
+  onToggleFormat: () => void;
 }) => {
   const icons: Record<MobileEditorToolbarActionId, ReactNode> = {
     undo: <Undo2 aria-hidden="true" size={18} strokeWidth={2} />,
@@ -106,6 +110,7 @@ export const MobileEditorToolbar = ({
     decreaseListIndent: <ListIndentDecrease aria-hidden="true" size={18} strokeWidth={2.1} />,
     blockquote: <Quote aria-hidden="true" size={17} strokeWidth={2.2} />,
     horizontalRule: <Minus aria-hidden="true" size={18} strokeWidth={2.4} />,
+    format: <Type aria-hidden="true" size={18} strokeWidth={2.2} />,
   };
   const handlers: Record<MobileEditorToolbarActionId, () => void> = {
     undo: onUndo,
@@ -118,12 +123,14 @@ export const MobileEditorToolbar = ({
     decreaseListIndent: onDecreaseListIndent,
     blockquote: onToggleBlockquote,
     horizontalRule: onSetHorizontalRule,
+    format: onToggleFormat,
   };
   const activeStates: Partial<Record<MobileEditorToolbarActionId, boolean>> = {
     bold: boldActive,
     bulletList: bulletListActive,
     taskList: taskListActive,
     blockquote: blockquoteActive,
+    format: formatActive,
   };
 
   return (

@@ -121,6 +121,20 @@ enum EditorContentCodec {
                 let src = attrs["src"] as? String ?? ""
                 let alt = attrs["alt"] as? String ?? ""
                 if !src.isEmpty { lines.append("![\(alt)](\(src))") }
+            case "imageFigure":
+                // A captioned image: the image line, then its caption as text.
+                for child in dict["content"] as? [Any] ?? [] {
+                    guard let childDict = child as? [String: Any] else { continue }
+                    if childDict["type"] as? String == "image" {
+                        let attrs = childDict["attrs"] as? [String: Any] ?? [:]
+                        let src = attrs["src"] as? String ?? ""
+                        let alt = attrs["alt"] as? String ?? ""
+                        if !src.isEmpty { lines.append("![\(alt)](\(src))") }
+                    } else {
+                        let caption = blockText(childDict)
+                        if !caption.isEmpty { lines.append(caption) }
+                    }
+                }
             case "bulletList", "orderedList", "taskList":
                 if let items = dict["content"] as? [Any] {
                     for item in items {

@@ -4,7 +4,7 @@ import Image from "@tiptap/extension-image";
 import { NodeViewWrapper, ReactNodeViewRenderer, useEditorState, type NodeViewProps } from "@tiptap/react";
 import { AlignLeft, AlignCenter, AlignRight, Maximize2, MoveHorizontal } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { getImageReferrerPolicy, IMAGE_GALLERY_NODE_TYPE, imageAlignmentMargins, parseImageAlignment, type ImageAlignment } from "@edgeever/shared";
+import { getImageReferrerPolicy, IMAGE_FIGURE_NODE_TYPE, IMAGE_GALLERY_NODE_TYPE, imageAlignmentMargins, parseImageAlignment, type ImageAlignment } from "@edgeever/shared";
 import {
   IMAGE_WIDTH_PRESETS,
   NEW_IMAGE_WIDTH_PERCENT,
@@ -55,13 +55,18 @@ const ResizableImageNodeView = ({
   const width = previewWidth ?? nodeWidth;
   const explicitAlignment = parseImageAlignment(node.attrs.alignment);
   const alignment = explicitAlignment ?? "left";
-  const { editable, inGallery, explicitlySelected } = useEditorState({
+  const { editable, inGallery, explicitlySelected, captioned } = useEditorState({
     editor,
-    selector: ({ editor: activeEditor }) => ({
-      editable: activeEditor.isEditable,
-      inGallery: isImageInGallery(activeEditor.state.doc, getPos()),
-      explicitlySelected: imageSelectionKey.getState(activeEditor.state) === getPos(),
-    }),
+    selector: ({ editor: activeEditor }) => {
+      const position = getPos();
+      return {
+        editable: activeEditor.isEditable,
+        inGallery: isImageInGallery(activeEditor.state.doc, position),
+        explicitlySelected: imageSelectionKey.getState(activeEditor.state) === position,
+        captioned: typeof position === "number"
+          && activeEditor.state.doc.resolve(position).parent.type.name === IMAGE_FIGURE_NODE_TYPE,
+      };
+    },
   });
   const showImageControls = selected && explicitlySelected && !inGallery;
   const showSizeControls = editable && showImageControls;
@@ -208,6 +213,14 @@ const ResizableImageNodeView = ({
     if (!editor.isEditable || isImageInGallery(editor.state.doc, getPos())) return;
     updateAttributes({ width: clampImageWidth(nextWidth) });
   }, [editor, getPos, updateAttributes]);
+
+  const toggleCaption = () => {
+    const position = getPos();
+    if (!editor.isEditable || typeof position !== "number" || isImageInGallery(editor.state.doc, position)) return;
+    hideImageMenu();
+    if (captioned) editor.chain().focus().removeImageCaption(position).run();
+    else editor.chain().focus().addImageCaption(position).run();
+  };
 
   const updateAlignment = (next: ImageAlignment) => {
     if (!editor.isEditable || isImageInGallery(editor.state.doc, getPos())) return;
@@ -366,6 +379,15 @@ const ResizableImageNodeView = ({
                   </Tooltip>
                 </div>
               </TooltipProvider>
+              <button
+                type="button"
+                className={cn("edgeever-image-preset", captioned && "is-active")}
+                aria-pressed={captioned}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={toggleCaption}
+              >
+                <span>{t(captioned ? "editor.removeImageCaption" : "editor.addImageCaption")}</span>
+              </button>
               {canGroupAdjacentImages ? (
                 <button
                   type="button"

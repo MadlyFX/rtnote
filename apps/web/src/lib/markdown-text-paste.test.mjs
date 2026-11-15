@@ -4,14 +4,15 @@ import { TextSelection } from "@tiptap/pm/state";
 import { createEdgeEverDocumentExtensions } from "@edgeever/shared";
 import { createEdgeEverMathematics } from "@edgeever/shared/mathematics";
 import { ensureTestWindowDom } from "./restore-test-global.mjs";
+import { compactEditorJson } from "./editor-json-test-helpers.mjs";
 import { isBlockMarkdownText, pasteBlockMarkdown } from "./markdown-text-paste.ts";
 
 const createEditor = (content = { type: "doc", content: [{ type: "paragraph" }] }) => {
   ensureTestWindowDom();
-  return new Editor({
+  return compactEditorJson(new Editor({
     extensions: createEdgeEverDocumentExtensions({ mathematics: createEdgeEverMathematics() }),
     content,
-  });
+  }));
 };
 
 const clipboard = (entries) => ({

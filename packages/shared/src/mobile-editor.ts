@@ -14,13 +14,15 @@ export type MobileEditorToolbarActionId =
   | "increaseListIndent"
   | "decreaseListIndent"
   | "blockquote"
-  | "horizontalRule";
+  | "horizontalRule"
+  | "format";
 
 export const MOBILE_EDITOR_ACTIVE_FLAGS = {
   bold: 1,
   taskList: 2,
   bulletList: 8,
   blockquote: 16,
+  format: 32,
 } as const;
 
 export const MOBILE_EDITOR_TOOLBAR_ACTIONS = [
@@ -34,6 +36,7 @@ export const MOBILE_EDITOR_TOOLBAR_ACTIONS = [
   { id: "decreaseListIndent", activeFlag: 0 },
   { id: "blockquote", activeFlag: MOBILE_EDITOR_ACTIVE_FLAGS.blockquote },
   { id: "horizontalRule", activeFlag: 0 },
+  { id: "format", activeFlag: MOBILE_EDITOR_ACTIVE_FLAGS.format },
 ] as const satisfies ReadonlyArray<{
   id: MobileEditorToolbarActionId;
   activeFlag: number;
@@ -54,6 +57,7 @@ const MOBILE_EDITOR_COPY = {
       decreaseListIndent: "减少列表层级（Shift + Tab）",
       blockquote: "引用",
       horizontalRule: "分割线",
+      format: "格式",
     },
     imageScale: "图片显示尺寸",
     imageSizes: {
@@ -170,6 +174,7 @@ const MOBILE_EDITOR_COPY = {
       decreaseListIndent: "減少列表層級（Shift + Tab）",
       blockquote: "引用",
       horizontalRule: "分割線",
+      format: "格式",
     },
     imageScale: "圖片顯示尺寸",
     imageSizes: {
@@ -286,6 +291,7 @@ const MOBILE_EDITOR_COPY = {
       decreaseListIndent: "Decrease list level (Shift + Tab)",
       blockquote: "Quote",
       horizontalRule: "Horizontal rule",
+      format: "Format",
     },
     imageScale: "Image display size",
     imageSizes: {
@@ -402,6 +408,7 @@ const MOBILE_EDITOR_COPY = {
       decreaseListIndent: "リストの階層を下げる（Shift + Tab）",
       blockquote: "引用",
       horizontalRule: "区切り線",
+      format: "書式",
     },
     imageScale: "画像の表示サイズ",
     imageSizes: {
@@ -518,6 +525,7 @@ const MOBILE_EDITOR_COPY = {
       decreaseListIndent: "Zmniejsz poziom listy (Shift + Tab)",
       blockquote: "Cytat",
       horizontalRule: "Linia pozioma",
+      format: "Formatowanie",
     },
     imageScale: "Rozmiar wyświetlania obrazu",
     imageSizes: {
@@ -634,6 +642,7 @@ const MOBILE_EDITOR_COPY = {
       decreaseListIndent: "Уменьшить уровень списка (Shift + Tab)",
       blockquote: "Цитата",
       horizontalRule: "Горизонтальная линия",
+      format: "Формат",
     },
     imageScale: "Размер изображения",
     imageSizes: {
@@ -750,6 +759,7 @@ const MOBILE_EDITOR_COPY = {
       decreaseListIndent: "Disminuir sangría (Mayús + Tab)",
       blockquote: "Cita",
       horizontalRule: "Línea horizontal",
+      format: "Formato",
     },
     imageScale: "Tamaño de la imagen",
     imageSizes: {
@@ -866,6 +876,7 @@ const MOBILE_EDITOR_COPY = {
       decreaseListIndent: "Einzug verkleinern (Umschalt + Tab)",
       blockquote: "Zitat",
       horizontalRule: "Trennlinie",
+      format: "Format",
     },
     imageScale: "Bildgröße",
     imageSizes: {
@@ -982,6 +993,7 @@ const MOBILE_EDITOR_COPY = {
       decreaseListIndent: "Diminuer le retrait (Maj + Tab)",
       blockquote: "Citation",
       horizontalRule: "Ligne horizontale",
+      format: "Mise en forme",
     },
     imageScale: "Taille de l'image",
     imageSizes: {

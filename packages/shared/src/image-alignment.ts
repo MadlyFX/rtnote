@@ -80,10 +80,41 @@ const supportedImageSource = (source: string) => {
 };
 const LINKED_IMAGE_HTML = /<a\b((?:[^"'>]|"[^"]*"|'[^']*')*)>\s*(<img\b(?:[^"'>]|"[^"]*"|'[^']*')*\/?>)\s*<\/a>[ \t]*(?:\n|$)/i;
 
-/** HTML keeps the alignment useful in exports outside RTNote, too. */
-export const alignedImageToHtml = (node: JSONContent): string => {
+/**
+ * Reads an `<img>` (optionally wrapped in a link) at the start of `source`,
+ * as written by alignedImageToHtml. Returns null for unsupported sources.
+ */
+export const readImageHtml = (source: string) => {
+  const candidate = LINKED_IMAGE_HTML.exec(source);
+  const wrapped = candidate?.index === 0 ? candidate : null;
+  const match = wrapped ?? /^<img\b(?:[^"'>]|"[^"]*"|'[^']*')*\/?>[ \t]*(?:\n|$)/i.exec(source);
+  if (!match) return null;
+  const tag = wrapped?.[2] ?? match[0];
+  const src = readImageHtmlAttribute(tag, "src");
+  if (!supportedImageSource(src)) return null;
+  const link = getImageLink({
+    href: readImageHtmlAttribute(tag, "data-image-link-href") || (wrapped ? readImageHtmlAttribute(wrapped[1]!, "href") : ""),
+    title: readImageHtmlAttribute(tag, "data-image-link-title") || (wrapped ? readImageHtmlAttribute(wrapped[1]!, "title") : "") || null,
+  });
+  return { raw: match[0], attributes: {
+    src,
+    alignment: parseImageAlignment(readImageHtmlAttribute(tag, "data-image-align")),
+    ...(link ? { link } : {}),
+    alt: readImageHtmlAttribute(tag, "alt") || null,
+    title: readImageHtmlAttribute(tag, "title") || null,
+    width: parseImageWidth(readImageHtmlAttribute(tag, "width")),
+  } };
+};
+
+/**
+ * HTML keeps the alignment useful in exports outside RTNote, too. Captioned
+ * images pass `keepUnaligned` so an image without an explicit alignment does
+ * not gain one on the way back in.
+ */
+export const alignedImageToHtml = (node: JSONContent, options: { keepUnaligned?: boolean } = {}): string => {
   const attrs = node.attrs ?? {};
-  const alignment = parseImageAlignment(attrs.alignment) ?? "left";
+  const explicitAlignment = parseImageAlignment(attrs.alignment);
+  const alignment = explicitAlignment ?? "left";
   const width = parseImageWidth(attrs.width);
   const attribute = (key: string, value: unknown) => `${key}="${escapeAttribute(String(value ?? ""))}"`;
   const values = [attribute("src", attrs.src), attribute("alt", attrs.alt)];
@@ -93,10 +124,13 @@ export const alignedImageToHtml = (node: JSONContent): string => {
     if (link.title) values.push(attribute("data-image-link-title", link.title));
   }
   if (attrs.title) values.push(attribute("title", attrs.title));
-  values.push(attribute("data-image-align", alignment));
-  if (width !== null) values.push(attribute("width", `${width}%`));
-  const style = imageAlignmentStyle(alignment, width);
-  values.push(attribute("style", style));
+  if (explicitAlignment || !options.keepUnaligned) {
+    values.push(attribute("data-image-align", alignment));
+    if (width !== null) values.push(attribute("width", `${width}%`));
+    values.push(attribute("style", imageAlignmentStyle(alignment, width)));
+  } else if (width !== null) {
+    values.push(attribute("width", `${width}%`));
+  }
   const image = `<img ${values.join(" ")} />`;
   return link && isAllowedUri(link.href)
     ? `<a ${attribute("href", link.href)}${link.title ? ` ${attribute("title", link.title)}` : ""}>${image}</a>`
@@ -130,25 +164,9 @@ export const EdgeEverImage = Image.extend({
       return image === -1 ? linked : linked === -1 ? image : Math.min(image, linked);
     },
     tokenize(source) {
-      const candidate = LINKED_IMAGE_HTML.exec(source);
-      const wrapped = candidate?.index === 0 ? candidate : null;
-      const match = wrapped ?? /^<img\b(?:[^"'>]|"[^"]*"|'[^']*')*\/?>[ \t]*(?:\n|$)/i.exec(source);
-      if (!match) return undefined;
-      const tag = wrapped?.[2] ?? match[0];
-      const alignment = parseImageAlignment(readImageHtmlAttribute(tag, "data-image-align"));
-      const src = readImageHtmlAttribute(tag, "src");
-      const link = getImageLink({
-        href: readImageHtmlAttribute(tag, "data-image-link-href") || (wrapped ? readImageHtmlAttribute(wrapped[1]!, "href") : ""),
-        title: readImageHtmlAttribute(tag, "data-image-link-title") || (wrapped ? readImageHtmlAttribute(wrapped[1]!, "title") : "") || null,
-      });
-      if ((!alignment && !link) || !supportedImageSource(src)) return undefined;
-      return { type: "image", raw: match[0], imageAttributes: {
-        src, alignment,
-        ...(link ? { link } : {}),
-        alt: readImageHtmlAttribute(tag, "alt") || null,
-        title: readImageHtmlAttribute(tag, "title") || null,
-        width: parseImageWidth(readImageHtmlAttribute(tag, "width")),
-      } };
+      const image = readImageHtml(source);
+      if (!image || (!image.attributes.alignment && !image.attributes.link)) return undefined;
+      return { type: "image", raw: image.raw, imageAttributes: image.attributes };
     },
   },
 });

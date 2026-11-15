@@ -24,6 +24,7 @@ describe("mobile editor contract", () => {
       "decreaseListIndent",
       "blockquote",
       "horizontalRule",
+      "format",
     ]);
     expect(MOBILE_EDITOR_TOOLBAR_ACTIONS.find(({ id }) => id === "bold")?.activeFlag).toBe(
       MOBILE_EDITOR_ACTIVE_FLAGS.bold
@@ -41,6 +42,7 @@ describe("mobile editor contract", () => {
     expect(getMobileEditorToolbarActionLabel("taskList", "zh-CN")).toBe("任务清单");
     expect(getMobileEditorToolbarActionLabel("increaseListIndent", "zh-CN")).toBe("增加列表层级（Tab）");
     expect(getMobileEditorToolbarActionLabel("decreaseListIndent", "en-US")).toBe("Decrease list level (Shift + Tab)");
+    expect(getMobileEditorToolbarActionLabel("format", "en-US")).toBe("Format");
     expect(getMobileEditorImageScaleLabel("zh-CN")).toBe("图片显示尺寸");
     expect(getMobileEditorImageWidthPresetLabel("medium", "en-US")).toBe("Medium");
   });

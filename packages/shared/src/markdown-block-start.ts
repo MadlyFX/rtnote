@@ -55,7 +55,8 @@ const dollarPairs = (line: string) => line.split("$$").length - 1;
 
 /**
  * Indexes of paragraph separators (`\n\n`) that can be omitted between parse
- * chunks. Lists, quotes, tables, fences, display math, galleries, and details
+ * chunks. Lists, quotes, tables, fences, display math, galleries, details and
+ * HTML containers (tables, figures, aligned blocks)
  * stay in one piece.
  */
 const paragraphChunkBoundaries = (markdown: string): ChunkBoundary[] => {
@@ -113,8 +114,12 @@ const paragraphChunkBoundaries = (markdown: string): ChunkBoundary[] => {
     if (line.includes("<!-- edgeever:image-gallery ") && !line.includes("<!-- /edgeever:image-gallery -->")) {
       gallery = true;
     }
-    const opened = line.match(/<details\b/gi)?.length ?? 0;
-    const closed = line.match(/<\/details\b/gi)?.length ?? 0;
+    // HTML containers whose content can hold blank lines: details, and RTNote's
+    // HTML tables, captioned figures and <div align> wrappers. RTNote writes the
+    // latter three at the start of a line; counting only those keeps a `<div>`
+    // mentioned in prose from disabling chunking for the rest of the note.
+    const opened = (line.match(/<details\b/gi)?.length ?? 0) + (/^ {0,3}<(?:table|figure|div)\b/i.test(line) ? 1 : 0);
+    const closed = (line.match(/<\/details\b/gi)?.length ?? 0) + (/^ {0,3}<\/(?:table|figure|div)>/i.test(line) ? 1 : 0);
     details = Math.max(0, details + opened - closed);
   }
 

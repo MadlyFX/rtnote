@@ -7,6 +7,7 @@
 @import "./note-prose-styles.css";
 @import "./code-highlight-dark.css";
 @import "../../../../packages/shared/src/text-colors.css";
+@import "../../../../packages/shared/src/rich-formatting.css";
 
 @source "../../node_modules/streamdown/dist";
 @custom-variant dark (&:where(.dark, .dark *));
