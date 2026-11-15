@@ -50,6 +50,9 @@ User-visible text always says RTNote.
 - People fork RTNote to deploy it on Cloudflare. Jobs that need secrets, publish releases or spend paid runners must be gated with `github.repository == 'MadlyFX/rtnote'`.
 - Build on standard GitHub-hosted runners. Do not depend on self-hosted runners.
 - Never let a client fetch updates or over-the-air code from EdgeEver's release channels or Expo project.
+- macOS runners cost 10x minutes on a private repository. Keep macOS and iOS jobs behind releases, manual runs, labels or narrow path filters.
+- Releases follow [docs/builds.md](docs/builds.md): versions in `package.json`, `apps/desktop/package.json` and `apps/mobile/app.json` must match the `vX.Y.Z` tag. The Release workflow creates a draft; a person publishes it.
+- The Android release key lives in repository secrets. Never replace it: installed apps can only update from builds signed with the same key.
 
 ## Brand
 

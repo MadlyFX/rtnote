@@ -394,9 +394,8 @@ const desktopPackageMetadata = JSON.parse(readFileSync(new URL("../../package.js
 const desktopRuntimeSystemInfo = () => ({
   appVersion: app.getVersion(),
   autoUpdateSupported: desktopPackageMetadata.edgeeverUpdatePolicy !== "manual",
-  updateDownloadUrl: desktopPackageMetadata.edgeeverUpdatePolicy === "manual"
-    ? "https://github.com/MadlyFX/rtnote/actions/workflows/windows-build.yml"
-    : "https://github.com/MadlyFX/rtnote/releases/latest",
+  // Manual and automatic builds both download new versions from GitHub Releases.
+  updateDownloadUrl: "https://github.com/MadlyFX/rtnote/releases/latest",
   platform: process.platform,
   architecture: process.arch,
   deviceModel: desktopDeviceModel(),

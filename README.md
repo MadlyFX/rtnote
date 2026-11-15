@@ -44,7 +44,7 @@ RTNote differs from EdgeEver in a few deliberate ways:
 | Web clipper | `apps/extension` | Manifest V3 |
 | API and MCP | `apps/api` | Hono on Cloudflare Workers or Bun |
 
-Unsigned Windows installers are built by the [Windows build](.github/workflows/windows-build.yml) workflow. Builds for the other platforms are being set up.
+GitHub Actions builds Windows, Linux and macOS installers and both web clipper packages (the Android APK build is paused for now). Pushing a version tag publishes them all to a GitHub Release. See [Builds and releases](docs/builds.md) for install notes; desktop and clipper builds are not code-signed yet.
 
 ## Deployment
 
@@ -60,7 +60,7 @@ The Cloudflare resource names and `EDGE_EVER_*` settings keep their EdgeEver-era
 
 ### Docker
 
-Docker runs the same application on a VPS, NAS or home server, using SQLite with local files or S3-compatible storage. RTNote does not publish a container image yet, so build it from this repository:
+Docker runs the same application on a VPS, NAS or home server, using SQLite with local files or S3-compatible storage. Tagged releases publish a multi-platform image to `ghcr.io/madlyfx/rtnote`. Until the first release, build it from this repository:
 
 ```sh
 docker compose up -d --build
