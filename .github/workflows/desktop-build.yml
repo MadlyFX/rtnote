@@ -1,0 +1,250 @@
+name: Desktop build
+
+# Builds unsigned RTNote desktop packages for Windows, Linux and macOS.
+# Pull requests and pushes to main produce downloadable workflow artifacts;
+# the Release workflow calls this workflow for tagged releases.
+# macOS runners cost 10x minutes on private repositories, so macOS builds run
+# for releases, manual runs, and pull requests labelled "build-macos".
+on:
+  workflow_dispatch:
+    inputs:
+      macos:
+        description: Also build macOS (billed at 10x minutes on private repositories)
+        type: boolean
+        default: true
+  workflow_call:
+    inputs:
+      macos:
+        type: boolean
+        default: true
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, labeled]
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rtnote-desktop-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_call' }}
+
+env:
+  EDGE_EVER_DESKTOP_BUILD: '1'
+  EDGE_EVER_DESKTOP_FORK_BUILD: '1'
+  NODE_OPTIONS: --experimental-strip-types
+
+jobs:
+  windows:
+    if: >-
+      github.repository == 'MadlyFX/rtnote' &&
+      (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+    name: Windows x64
+    runs-on: windows-latest
+    timeout-minutes: 45
+    env:
+      EDGE_EVER_DESKTOP_ARCH: x64
+      EDGE_EVER_DESKTOP_TARGET: win
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/cache@v5
+        with:
+          path: |
+            ~\.cargo\registry
+            ~\.cargo\git
+            crates\desktop-sidecar\target
+          key: rtnote-windows-x64-rust-${{ hashFiles('crates/desktop-sidecar/Cargo.lock', 'crates/desktop-sidecar/**/*.rs') }}
+          restore-keys: rtnote-windows-x64-rust-
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Check types
+        run: bun run typecheck
+      - name: Test branding and manual update policy
+        run: bun test apps/web/src/lib/branding.test.mjs apps/desktop/src/main/desktop-update-policy.test.mjs
+      - name: Build renderer
+        run: bun run build:web
+      - name: Build native sidecar
+        run: cargo build --manifest-path crates/desktop-sidecar/Cargo.toml --release
+      - name: Package installer
+        run: bun scripts/run-desktop-builder.mjs --publish never
+      - name: Verify manual update isolation
+        run: bun scripts/verify-fork-desktop.mjs
+      - name: Verify package
+        env:
+          EDGE_EVER_VERIFY_TARGET: win32
+        run: bun scripts/verify-desktop-package.mjs
+      - name: Verify packaged startup
+        run: bun run verify:packaged-desktop-startup -- release/desktop/win-unpacked/RTNote.exe
+      - name: Record source and checksums
+        shell: pwsh
+        run: |
+          "Source commit: $(git rev-parse HEAD)" | Set-Content release/desktop/BUILD.txt
+          Get-ChildItem release/desktop -Filter '*-windows-x64.exe' | ForEach-Object {
+            $digest = (Get-FileHash -Algorithm SHA256 -LiteralPath $_.FullName).Hash.ToLowerInvariant()
+            "$digest  $($_.Name)"
+          } | Set-Content release/desktop/SHA256SUMS-windows.txt
+      - uses: actions/upload-artifact@v6
+        with:
+          name: rtnote-desktop-windows-x64
+          path: |
+            release/desktop/*-windows-x64.exe
+            release/desktop/SHA256SUMS-windows.txt
+            release/desktop/BUILD.txt
+          if-no-files-found: error
+          retention-days: 30
+
+  linux:
+    if: >-
+      github.repository == 'MadlyFX/rtnote' &&
+      (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+    name: Linux x64 AppImage
+    # The Rust sidecar is dynamically linked. Building on the oldest supported
+    # Ubuntu keeps its glibc requirement at or below 2.35.
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45
+    env:
+      EDGE_EVER_DESKTOP_ARCH: x64
+      EDGE_EVER_DESKTOP_TARGET: linux
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install AppImage runtime dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes libfuse2 xvfb
+      - uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            crates/desktop-sidecar/target
+          key: rtnote-linux-x64-rust-${{ hashFiles('crates/desktop-sidecar/Cargo.lock', 'crates/desktop-sidecar/**/*.rs') }}
+          restore-keys: rtnote-linux-x64-rust-
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Build renderer
+        run: bun run build:web
+      - name: Build native sidecar
+        run: cargo build --manifest-path crates/desktop-sidecar/Cargo.toml --release
+      - name: Package AppImage
+        run: bun scripts/run-desktop-builder.mjs --publish never
+      - name: Verify manual update isolation
+        run: bun scripts/verify-fork-desktop.mjs
+      - name: Verify package contents, architecture and glibc baseline
+        env:
+          EDGE_EVER_VERIFY_TARGET: linux
+        run: bun scripts/verify-desktop-package.mjs
+      - name: Verify packaged startup
+        run: |
+          executable=""
+          for candidate in release/desktop/linux-unpacked/RTNote release/desktop/linux-unpacked/rtnote; do
+            if [[ -x "$candidate" ]]; then executable="$candidate"; break; fi
+          done
+          test -n "$executable"
+          xvfb-run -a bun run verify:packaged-desktop-startup -- "$executable"
+      - name: Record checksums
+        run: |
+          cd release/desktop
+          sha256sum *-linux-x64.AppImage > SHA256SUMS-linux.txt
+      - uses: actions/upload-artifact@v6
+        with:
+          name: rtnote-desktop-linux-x64
+          path: |
+            release/desktop/*-linux-x64.AppImage
+            release/desktop/SHA256SUMS-linux.txt
+          if-no-files-found: error
+          retention-days: 30
+
+  macos:
+    if: >-
+      github.repository == 'MadlyFX/rtnote' &&
+      (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) &&
+      (inputs.macos == true || contains(github.event.pull_request.labels.*.name, 'build-macos'))
+    name: macOS ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: arm64
+            runner: macos-15
+            unpacked: mac-arm64
+          - arch: x64
+            runner: macos-15-intel
+            unpacked: mac
+    env:
+      EDGE_EVER_DESKTOP_ARCH: ${{ matrix.arch }}
+      EDGE_EVER_DESKTOP_TARGET: mac
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            crates/desktop-sidecar/target
+          key: rtnote-macos-${{ matrix.arch }}-rust-${{ hashFiles('crates/desktop-sidecar/Cargo.lock', 'crates/desktop-sidecar/**/*.rs') }}
+          restore-keys: rtnote-macos-${{ matrix.arch }}-rust-
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Build renderer
+        run: bun run build:web
+      - name: Build native sidecar
+        run: cargo build --manifest-path crates/desktop-sidecar/Cargo.toml --release
+      - name: Package ad-hoc signed DMG
+        run: bun scripts/run-desktop-builder.mjs --publish never
+      - name: Verify manual update isolation
+        run: bun scripts/verify-fork-desktop.mjs
+      - name: Verify packaged startup
+        run: bun run verify:packaged-desktop-startup -- "release/desktop/${{ matrix.unpacked }}/RTNote.app/Contents/MacOS/RTNote"
+      # Runs last: it removes the unpacked app bundle after checking it.
+      - name: Verify package contents and architecture
+        env:
+          EDGE_EVER_VERIFY_TARGET: darwin
+        run: bun scripts/verify-desktop-package.mjs
+      - name: Record checksums
+        run: |
+          cd release/desktop
+          shasum -a 256 *-mac-${{ matrix.arch }}.dmg > SHA256SUMS-mac-${{ matrix.arch }}.txt
+      - uses: actions/upload-artifact@v6
+        with:
+          name: rtnote-desktop-macos-${{ matrix.arch }}
+          path: |
+            release/desktop/*-mac-${{ matrix.arch }}.dmg
+            release/desktop/SHA256SUMS-mac-${{ matrix.arch }}.txt
+          if-no-files-found: error
+          retention-days: 30

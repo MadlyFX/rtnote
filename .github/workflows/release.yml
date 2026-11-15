@@ -1,0 +1,95 @@
+name: Release
+
+# Pushing a vX.Y.Z tag builds every platform and creates a draft GitHub
+# Release with all packages and checksums. Review the draft, then publish it.
+#
+#   git tag v2.23.0 && git push origin v2.23.0
+#
+# The tag must match the version in package.json, apps/desktop/package.json
+# and apps/mobile/app.json.
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rtnote-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  check-version:
+    if: github.repository == 'MadlyFX/rtnote'
+    name: Check versions match the tag
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Compare versions
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          root="$(jq -r .version package.json)"
+          desktop="$(jq -r .version apps/desktop/package.json)"
+          mobile="$(jq -r .expo.version apps/mobile/app.json)"
+          echo "tag=${tag} root=${root} desktop=${desktop} mobile=${mobile}"
+          if [[ "${tag}" != "${root}" || "${tag}" != "${desktop}" || "${tag}" != "${mobile}" ]]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} must match package.json, apps/desktop/package.json and apps/mobile/app.json"
+            exit 1
+          fi
+
+  desktop:
+    needs: check-version
+    uses: ./.github/workflows/desktop-build.yml
+    with:
+      macos: true
+
+  android:
+    needs: check-version
+    uses: ./.github/workflows/android-build.yml
+    secrets: inherit
+
+  extension:
+    needs: check-version
+    uses: ./.github/workflows/extension-build.yml
+
+  docker:
+    needs: check-version
+    uses: ./.github/workflows/docker-image.yml
+    permissions:
+      contents: read
+      packages: write
+    with:
+      release_tag: ${{ github.ref_name }}
+
+  draft-release:
+    needs: [desktop, android, extension, docker]
+    name: Create draft release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          pattern: rtnote-*
+          path: artifacts
+          merge-multiple: true
+      - name: Combine checksums
+        run: |
+          cd artifacts
+          rm -f BUILD.txt
+          cat SHA256SUMS-*.txt > SHA256SUMS.txt
+          rm SHA256SUMS-*.txt
+          ls -la
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" artifacts/* \
+            --repo "${GITHUB_REPOSITORY}" \
+            --draft \
+            --verify-tag \
+            --title "RTNote ${GITHUB_REF_NAME}" \
+            --generate-notes
