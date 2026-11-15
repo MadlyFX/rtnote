@@ -9,7 +9,7 @@ everything and creates a draft GitHub Release.
 | Windows x64 | [Desktop build](../.github/workflows/desktop-build.yml) | NSIS installer `.exe` | Unsigned |
 | Linux x64 | Desktop build | `.AppImage` | Unsigned |
 | macOS arm64 and Intel | Desktop build | `.dmg` | Ad-hoc signed, not notarized |
-| Android arm64 | [Android build](../.github/workflows/android-build.yml) | `.apk` | RTNote release key |
+| Android arm64 | [Android build](../.github/workflows/android-build.yml) | `.apk` (paused, see below) | RTNote release key |
 | Chrome / Edge | [Web clipper build](../.github/workflows/extension-build.yml) | `.zip` | Unsigned |
 | Firefox | Web clipper build | `.zip` | Unsigned |
 | iOS | [iOS build](../.github/workflows/ios-build.yml) | Simulator build and tests only | None |
@@ -23,7 +23,10 @@ minutes at 2 times the Linux rate. To stay within the free allowance:
 - macOS desktop builds run for releases, manual runs, and pull requests with
   the `build-macos` label.
 - The iOS build runs only when `apps/ios` changes, or on demand.
-- The Android, clipper and Docker builds run only when their source changes.
+- The clipper and Docker builds run only when their source changes.
+- The Android build is paused: it runs out of memory on the 7 GB
+  private-repository runner, so it is not part of pull requests or releases.
+  It can still be started by hand from the Actions tab.
 
 ## Installing unsigned builds
 

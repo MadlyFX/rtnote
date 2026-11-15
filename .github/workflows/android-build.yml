@@ -1,34 +1,15 @@
 name: Android build
 
 # Builds the release-signed RTNote Android APK (arm64-v8a) on a GitHub-hosted
-# runner. The Release workflow calls this workflow for tagged releases.
+# runner.
+#
+# Paused: the build does not yet fit on the 7 GB private-repository runner, so
+# it runs only on demand and is not part of pull requests or releases. To bring
+# it back, restore the pull_request/push triggers and the android job in
+# release.yml.
 on:
   workflow_dispatch:
   workflow_call:
-  pull_request:
-    branches: [main]
-    paths:
-      - 'apps/mobile/**'
-      - 'packages/**'
-      - 'patches/**'
-      - 'package.json'
-      - 'bun.lock'
-      - 'scripts/build-android-local.sh'
-      - 'scripts/verify-android-apk-signature.mjs'
-      - 'scripts/prepare-mobile-icons.mjs'
-      - '.github/workflows/android-build.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'apps/mobile/**'
-      - 'packages/**'
-      - 'patches/**'
-      - 'package.json'
-      - 'bun.lock'
-      - 'scripts/build-android-local.sh'
-      - 'scripts/verify-android-apk-signature.mjs'
-      - 'scripts/prepare-mobile-icons.mjs'
-      - '.github/workflows/android-build.yml'
 
 permissions:
   contents: read

@@ -46,10 +46,12 @@ jobs:
     with:
       macos: true
 
-  android:
-    needs: check-version
-    uses: ./.github/workflows/android-build.yml
-    secrets: inherit
+  # Android is paused until its build fits on the CI runner; see
+  # android-build.yml.
+  # android:
+  #   needs: check-version
+  #   uses: ./.github/workflows/android-build.yml
+  #   secrets: inherit
 
   extension:
     needs: check-version
@@ -65,7 +67,7 @@ jobs:
       release_tag: ${{ github.ref_name }}
 
   draft-release:
-    needs: [desktop, android, extension, docker]
+    needs: [desktop, extension, docker]
     name: Create draft release
     runs-on: ubuntu-latest
     permissions:
