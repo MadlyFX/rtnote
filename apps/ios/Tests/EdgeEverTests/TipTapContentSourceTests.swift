@@ -6,7 +6,8 @@ final class TipTapContentSourceTests: XCTestCase {
     func testRichTextNotesAlwaysOpenFromJSON() {
         // Markdown with a pipe, a heading and bold scores as "richer" than this
         // JSON, but schema 2 notes generate their Markdown from the JSON.
-        let json = #"{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"a | b","marks":[{"type":"textStyle","attrs":{"color":"#ff0000"}}]}]}]}"#
+        // ## delimiters: the colour value contains "#, which would end a #"…"# string.
+        let json = ##"{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"a | b","marks":[{"type":"textStyle","attrs":{"color":"#ff0000"}}]}]}]}"##
         let markdown = "# Heading\n\na | b **bold**"
         for mode in [TipTapMode.viewer, TipTapMode.editor] {
             let legacy = TipTapContentSource.resolve(mode: mode, documentJSON: json, markdown: markdown)
