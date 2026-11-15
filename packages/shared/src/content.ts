@@ -231,6 +231,10 @@ export const resolveMemoContentDoc = (
     return currentDoc;
   }
 
+  // Markdown generated from this JSON adds nothing; keep the JSON. This also
+  // covers local caches that do not record the schema version.
+  if (docToMarkdown(currentDoc).trim() === contentMarkdown.trim()) return currentDoc;
+
   const markdownDoc = markdownToDoc(contentMarkdown);
   const properties = getFrontMatterSource(markdownDoc);
   if (properties !== null) {

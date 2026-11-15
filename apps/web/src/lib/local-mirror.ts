@@ -14,6 +14,7 @@ import {
   getTableSummary,
   getNotebookDescendantIds,
   resolveMemoContentDoc,
+  resolveMemoContentWrite,
   resolveMergedMemoTitle,
   type MemoDetail,
   type MemoRevision,
@@ -658,15 +659,18 @@ export const createLocalNotebook = async (scope: string, input: { name: string; 
   return notebook;
 };
 
-export const createLocalTemplate = async (scope: string, input: { name: string; description?: string | null; title?: string | null; contentMarkdown?: string; tags?: string[] }) => {
+export const createLocalTemplate = async (scope: string, input: { name: string; description?: string | null; title?: string | null; contentJson?: TiptapDoc; contentMarkdown?: string; tags?: string[] }) => {
   const now = new Date().toISOString();
-  const contentMarkdown = input.contentMarkdown ?? "";
+  const { contentJson, contentMarkdown } = resolveMemoContentWrite({
+    contentJson: input.contentJson,
+    contentMarkdown: input.contentMarkdown ?? (input.contentJson ? undefined : ""),
+  });
   const template: MemoTemplate = {
     id: `local_${createClientUuid()}`,
     name: input.name.trim(),
     description: input.description ?? null,
     title: input.title ?? null,
-    contentJson: markdownToDoc(contentMarkdown),
+    contentJson,
     contentMarkdown,
     tags: input.tags ?? [],
     createdAt: now,
@@ -676,16 +680,20 @@ export const createLocalTemplate = async (scope: string, input: { name: string; 
   return template;
 };
 
-export const updateLocalTemplate = async (scope: string, templateId: string, input: Partial<Omit<MemoTemplate, "id" | "createdAt" | "updatedAt" | "contentJson">> & { contentMarkdown?: string }) => {
+export const updateLocalTemplate = async (scope: string, templateId: string, input: Partial<Omit<MemoTemplate, "id" | "createdAt" | "updatedAt">>) => {
   const current = (await localDb.templates.get([scope, templateId]));
   if (!current) return null;
-  const contentMarkdown = input.contentMarkdown ?? current.contentMarkdown;
+  // Templates are rich text, like the server's template routes.
+  const { contentJson, contentMarkdown } = resolveMemoContentWrite(
+    { contentJson: input.contentJson, contentMarkdown: input.contentMarkdown },
+    { contentJson: current.contentJson, contentMarkdown: current.contentMarkdown, schemaVersion: 2 },
+  );
   const { scope: _scope, ...template } = current;
   const updated: MemoTemplate = {
     ...template,
     ...input,
     contentMarkdown,
-    contentJson: input.contentMarkdown === undefined ? current.contentJson : markdownToDoc(contentMarkdown),
+    contentJson,
     updatedAt: new Date().toISOString(),
   };
   await putLocalTemplate(scope, updated);

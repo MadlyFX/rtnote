@@ -7,7 +7,7 @@ import type {
   DesktopRpcParams,
   DesktopRpcResponses,
 } from "@edgeever/shared";
-import { docToMarkdown, docToText, markdownToDoc, type MemoDetail } from "@edgeever/shared";
+import { docToMarkdown, docToText, markdownToDoc, mergeMemoDocs, resolveMemoContentDoc, resolveMemoContentWrite, type MemoDetail, type TiptapDoc } from "@edgeever/shared";
 import { localizeDefaultMemoTemplate } from "@edgeever/shared/memo-template-seeds";
 import type { EdgeEverRepository } from "@/lib/repository";
 import { api, getConfiguredDesktopApiBaseUrl } from "@/lib/api";
@@ -165,14 +165,36 @@ export const createDesktopRepository = (): EdgeEverRepository => ({
     await Promise.all(remote.templates.map((template) => request("template.cache", { template })));
     return remote;
   },
-  createTemplate: (input) => request("template.create", input).then((result) => {
+  // The sidecar cannot parse Markdown into rich text, so the renderer
+  // resolves the template body with the same rules as the server.
+  createTemplate: (input) => {
+    // A template saved from a note is copied by the sidecar from that note.
+    const content = input.memoId ? null : resolveMemoContentWrite({
+      contentJson: input.contentJson,
+      contentMarkdown: input.contentMarkdown ?? (input.contentJson ? undefined : ""),
+    });
+    return request("template.create", {
+      ...input,
+      ...(content ? { contentJson: content.contentJson, contentMarkdown: content.contentMarkdown } : {}),
+    }).then((result) => {
+      window.dispatchEvent(new CustomEvent("edgeever:sync-queue-changed"));
+      return result;
+    });
+  },
+  updateTemplate: async (templateId, input) => {
+    let content: { contentJson?: TiptapDoc; contentMarkdown?: string } = {};
+    if (input.contentJson !== undefined || input.contentMarkdown !== undefined) {
+      const current = (await request("template.list", {})).templates.find((template) => template.id === templateId);
+      const resolved = resolveMemoContentWrite(
+        { contentJson: input.contentJson, contentMarkdown: input.contentMarkdown },
+        current ? { contentJson: current.contentJson, contentMarkdown: current.contentMarkdown, schemaVersion: 2 } : null,
+      );
+      content = { contentJson: resolved.contentJson, contentMarkdown: resolved.contentMarkdown };
+    }
+    const result = await request("template.update", { templateId, ...input, ...content });
     window.dispatchEvent(new CustomEvent("edgeever:sync-queue-changed"));
     return result;
-  }),
-  updateTemplate: (templateId, input) => request("template.update", { templateId, ...input }).then((result) => {
-    window.dispatchEvent(new CustomEvent("edgeever:sync-queue-changed"));
-    return result;
-  }),
+  },
   deleteTemplate: (templateId) => request("template.delete", { templateId }).then((result) => {
     window.dispatchEvent(new CustomEvent("edgeever:sync-queue-changed"));
     return result;
@@ -182,7 +204,10 @@ export const createDesktopRepository = (): EdgeEverRepository => ({
     const stored = templates.templates.find((candidate) => candidate.id === templateId);
     if (!stored) throw new Error(`Template not found: ${templateId}`);
     const template = locale ? localizeDefaultMemoTemplate(stored, locale) : stored;
-    return createDesktopRepository().createMemo({ notebookId, title: template.title ?? "", contentMarkdown: template.contentMarkdown, tags: template.tags });
+    // A localized default template only has localized Markdown; otherwise the
+    // stored JSON keeps the template's formatting.
+    const contentJson = template.contentMarkdown === stored.contentMarkdown ? template.contentJson : undefined;
+    return createDesktopRepository().createMemo({ notebookId, title: template.title ?? "", contentJson, contentMarkdown: template.contentMarkdown, tags: template.tags });
   },
   uploadMemoResource: async (memoId, file) => {
     const result = await api.uploadMemoResource(memoId, file);
@@ -266,7 +291,22 @@ export const createDesktopRepository = (): EdgeEverRepository => ({
     return result;
   }),
   mergeMemos: async (input) => {
-    const result = await request("memo.merge", input);
+    // Merge the rich-text documents here, with the same code as the server.
+    // The sidecar alone can only join Markdown.
+    const sources = await Promise.all(input.memoIds.map((memoId) => request("memo.get", { memoId, includeDeleted: false })));
+    const contentJson = mergeMemoDocs(sources.map(({ memo }) => {
+      const doc = resolveMemoContentDoc(memo.contentJson, memo.contentMarkdown, memo);
+      if (!docToText(doc).trim() && memo.contentText.trim()) {
+        throw new Error("Source note content could not be recovered safely. Merge was cancelled.");
+      }
+      return doc;
+    }));
+    const result = await request("memo.merge", {
+      ...input,
+      contentJson,
+      contentMarkdown: docToMarkdown(contentJson),
+      contentText: docToText(contentJson),
+    });
     window.dispatchEvent(new CustomEvent("edgeever:sync-queue-changed"));
     return { memo: await repairDisplayedMemo(result.memo) };
   },

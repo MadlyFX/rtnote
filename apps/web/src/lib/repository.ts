@@ -61,8 +61,8 @@ export type EdgeEverRepository = {
   deleteNotebook(notebookId: string): Promise<{ ok: true }>;
   restoreNotebook(notebookId: string): Promise<{ notebook: Notebook }>;
   listTemplates(): Promise<{ templates: MemoTemplate[] }>;
-  createTemplate(input: { name: string; description?: string | null; memoId?: string; title?: string | null; contentMarkdown?: string; tags?: string[] }): Promise<{ template: MemoTemplate }>;
-  updateTemplate(templateId: string, input: { name?: string; description?: string | null; title?: string | null; contentMarkdown?: string; tags?: string[] }): Promise<{ template: MemoTemplate }>;
+  createTemplate(input: { name: string; description?: string | null; memoId?: string; title?: string | null; contentJson?: TiptapDoc; contentMarkdown?: string; tags?: string[] }): Promise<{ template: MemoTemplate }>;
+  updateTemplate(templateId: string, input: { name?: string; description?: string | null; title?: string | null; contentJson?: TiptapDoc; contentMarkdown?: string; tags?: string[] }): Promise<{ template: MemoTemplate }>;
   deleteTemplate(templateId: string): Promise<{ ok: true }>;
   /** With `locale`, an unedited default template is used in that UI language. */
   useTemplate(templateId: string, notebookId: string, locale?: string): Promise<{ memo: MemoDetail }>;

@@ -1453,6 +1453,7 @@ export const createEdgeEverClient = (options: EdgeEverClientOptions = {}) => {
       description?: string | null;
       memoId?: string;
       title?: string | null;
+      contentJson?: unknown;
       contentMarkdown?: string;
       tags?: string[];
     }) => request<TemplateResponse>("/api/v1/templates", {
@@ -1464,6 +1465,7 @@ export const createEdgeEverClient = (options: EdgeEverClientOptions = {}) => {
       name?: string;
       description?: string | null;
       title?: string | null;
+      contentJson?: unknown;
       contentMarkdown?: string;
       tags?: string[];
     }) => request<TemplateResponse>(`/api/v1/templates/${encodeURIComponent(templateId)}`, {

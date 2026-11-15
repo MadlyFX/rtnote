@@ -21,6 +21,9 @@ import { readEmergencyDraft } from "@/lib/emergency-draft";
 import { notebookDeleteIdsFromPayload } from "@/lib/notebook-delete";
 import { notifyMemoIdRemapped, notifyMemoSyncAcknowledged, notifyNotebookIdRemapped, notifySyncQueueChanged } from "@/lib/sync-events";
 
+const isTiptapDocPayload = (value: unknown): value is TiptapDoc =>
+  Boolean(value) && typeof value === "object" && Array.isArray((value as { content?: unknown }).content);
+
 type StagedResourceRewrite = { memoId: string; placeholder: string; url: string };
 
 export type DesktopSyncPhase =
@@ -516,6 +519,7 @@ const syncOutboxItem = async (item: DesktopOutboxItem, stagedRewrites: StagedRes
       name: String(payload.name ?? ""),
       description: typeof payload.description === "string" ? payload.description : null,
       title: typeof payload.title === "string" ? payload.title : null,
+      contentJson: isTiptapDocPayload(payload.contentJson) ? payload.contentJson : undefined,
       contentMarkdown: typeof payload.contentMarkdown === "string" ? payload.contentMarkdown : "",
       tags: Array.isArray(payload.tags) ? payload.tags.filter((tag): tag is string => typeof tag === "string") : [],
     });
@@ -528,6 +532,7 @@ const syncOutboxItem = async (item: DesktopOutboxItem, stagedRewrites: StagedRes
       name: typeof payload.name === "string" ? payload.name : undefined,
       description: typeof payload.description === "string" ? payload.description : null,
       title: typeof payload.title === "string" ? payload.title : null,
+      contentJson: isTiptapDocPayload(payload.contentJson) ? payload.contentJson : undefined,
       contentMarkdown: typeof payload.contentMarkdown === "string" ? payload.contentMarkdown : undefined,
       tags: Array.isArray(payload.tags) ? payload.tags.filter((tag): tag is string => typeof tag === "string") : [],
     });
