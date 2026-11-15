@@ -71,8 +71,8 @@ else
 fi
 
 cd "$ANDROID_DIR"
-# CI runners have 16 GB shared by the Gradle daemon, the Kotlin daemon, lint and
-# R8 workers, so CI lowers these through the EDGE_EVER_ANDROID_GRADLE_* variables.
+# CI runners have 7 GB shared by Metro, the Gradle and Kotlin daemons, lint and R8
+# workers, so CI lowers these through the EDGE_EVER_ANDROID_* variables.
 GRADLE_JVMARGS="${EDGE_EVER_ANDROID_GRADLE_JVMARGS:--Xmx6g -XX:MaxMetaspaceSize=1g}"
 COMMON_ARGS=(
   --build-cache

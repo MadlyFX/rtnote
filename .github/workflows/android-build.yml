@@ -63,6 +63,18 @@ jobs:
           yes | "$sdkmanager" --licenses > /dev/null || true
           "$sdkmanager" --install "build-tools;36.0.0" "platforms;android-36" > /dev/null
           echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> "$GITHUB_ENV"
+      - name: Add swap space
+        # Private-repository runners have 2 CPUs and 7 GB of RAM, which the
+        # Metro bundle plus the Gradle daemon can exceed. Swap keeps the
+        # runner alive instead of it being shut down.
+        run: |
+          sudo swapoff -a || true
+          sudo rm -f /mnt/swapfile
+          sudo fallocate -l 12G /mnt/swapfile
+          sudo chmod 600 /mnt/swapfile
+          sudo mkswap /mnt/swapfile > /dev/null
+          sudo swapon /mnt/swapfile
+          free -h
       - uses: actions/cache@v5
         with:
           path: |
@@ -89,11 +101,11 @@ jobs:
           EDGE_EVER_ANDROID_APK_ARCHS: arm64-v8a
           # Metro's release bundle exceeds Node's default ~2 GB heap.
           NODE_OPTIONS: --max-old-space-size=6144
-          # The runner has 16 GB. With the local defaults (6 GB Gradle heap,
-          # unbounded workers) lint and R8 exhaust it and the runner is lost.
-          EDGE_EVER_ANDROID_GRADLE_JVMARGS: -Xmx4g -XX:MaxMetaspaceSize=1g
+          # The runner has 7 GB of RAM. The local defaults (6 GB Gradle heap,
+          # unbounded workers) exhaust it and the runner is lost.
+          EDGE_EVER_ANDROID_GRADLE_JVMARGS: -Xmx3g -XX:MaxMetaspaceSize=768m
           EDGE_EVER_ANDROID_GRADLE_MAX_WORKERS: '2'
-          EDGE_EVER_ANDROID_KOTLIN_DAEMON_JVMARGS: -Xmx2g
+          EDGE_EVER_ANDROID_KOTLIN_DAEMON_JVMARGS: -Xmx1536m
         run: bun run build:android:apk
       - name: Remove signing keystore
         if: always()
