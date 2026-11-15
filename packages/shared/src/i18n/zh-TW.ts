@@ -907,6 +907,7 @@ export const zhTW = {
     discard: "放棄修改",
   },
   workspace: {
+    clientBelowMinimum: "此應用版本低於伺服器，筆記以唯讀方式開啟，以免覆蓋較新的格式。請將 RTNote 更新到 {{version}} 或更高版本後再編輯。",
     inboxDeleteTitle: "等待分類不能刪除",
     inboxDeleteDescription: "等待分類是預設筆記本，用來保證新筆記始終有歸屬。",
     selection: {

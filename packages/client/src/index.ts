@@ -147,6 +147,8 @@ export type InstanceHealth = {
     resources?: "r2" | "filesystem" | "s3" | string | null;
   } | null;
   objectStorageProvider?: "builtin" | "s3" | "unknown" | string | null;
+  /** Clients older than this open notes read-only. Absent on older servers. */
+  minClientVersion?: string | null;
 };
 
 export type InstanceRelease = {

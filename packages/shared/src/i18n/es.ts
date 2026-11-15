@@ -1046,6 +1046,7 @@ export const es = {
     "discard": "Descartar cambios"
   },
   "workspace": {
+    "clientBelowMinimum": "Esta app es anterior al servidor y abre las notas en solo lectura para no sobrescribir formatos más recientes. Actualiza RTNote a {{version}} o posterior para editar.",
     "inboxDeleteTitle": "La bandeja de entrada no se puede eliminar",
     "inboxDeleteDescription": "La bandeja de entrada es la libreta predeterminada, para que las notas nuevas siempre tengan un lugar.",
     "selection": {

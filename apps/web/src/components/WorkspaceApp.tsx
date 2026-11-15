@@ -50,7 +50,7 @@ import {
 } from "@/lib/mobile-editor";
 import { cn } from "@/lib/utils";
 import { isBrowserOffline, isBrowserOnline } from "@/lib/network-status";
-import { createDefaultDiagramDocument, createDefaultInfographicDocument, hasPosterDocumentMarker, posterFallbackMarkdown, serializePosterDocument, createDefaultTableDocument, diagramFallbackMarkdown, getNotebookScopeIds, hasTableDocumentMarker, infographicFallbackMarkdown, markdownToDoc, parseDiagramDocument, parseInfographicDocument, parseTableDocument, serializeDiagramDocument, serializeInfographicDocument, serializeTableDocument, tableFallbackMarkdown, type NoteCreateKind, type Notebook, type AuthUser, type MemoSummary, type MemoDetail, type MemoTemplate as SavedMemoTemplate, getMemoDisplayTitle } from "@edgeever/shared";
+import { createDefaultDiagramDocument, createDefaultInfographicDocument, hasPosterDocumentMarker, posterFallbackMarkdown, serializePosterDocument, createDefaultTableDocument, diagramFallbackMarkdown, getNotebookScopeIds, hasTableDocumentMarker, infographicFallbackMarkdown, markdownToDoc, parseDiagramDocument, parseInfographicDocument, parseTableDocument, serializeDiagramDocument, serializeInfographicDocument, serializeTableDocument, tableFallbackMarkdown, type NoteCreateKind, type Notebook, type AuthUser, type MemoSummary, type MemoDetail, type MemoTemplate as SavedMemoTemplate, getMemoDisplayTitle, isClientBelowMinimum } from "@edgeever/shared";
 import { toggleMobileMemoSelection } from "@edgeever/shared/mobile-ui";
 import type {
   Pane,
@@ -719,6 +719,19 @@ export const WorkspaceApp = ({
     queryFn: () => repository.listNotebooks(),
     networkMode: "offlineFirst",
   });
+
+  // Clients older than the server's minimum open notes read-only, so they
+  // cannot save over formatting they do not understand.
+  const instanceCompatibilityQuery = useQuery({
+    queryKey: ["instance-compatibility"],
+    queryFn: () => api.getInstanceHealth(),
+    staleTime: 10 * 60_000,
+    retry: false,
+  });
+  const clientBelowMinimum = isClientBelowMinimum(
+    __EDGEEVER_APP_VERSION__,
+    instanceCompatibilityQuery.data?.minClientVersion,
+  );
 
   const templatesQuery = useQuery({
     queryKey: ["templates"],
@@ -3766,6 +3779,12 @@ export const WorkspaceApp = ({
                       onShowWindow={() => focusDetachedMemo(selectedMemo.id)}
                     />
                   ) : (
+                    <>
+                    {clientBelowMinimum ? (
+                      <div role="status" className="border-b border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-950 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100">
+                        {t("workspace.clientBelowMinimum", { version: instanceCompatibilityQuery.data?.minClientVersion ?? "" })}
+                      </div>
+                    ) : null}
                     <EditorPaneErrorBoundary
                       resetKey={selectedMemo?.id ?? selectedMemoId}
                       onBackToList={() => {
@@ -3779,7 +3798,7 @@ export const WorkspaceApp = ({
                           memo={selectedMemo}
                           notebooks={notebooks}
                           repository={repository}
-                          readOnly={memoView === "trash" || selectedMemo.isDeleted}
+                          readOnly={clientBelowMinimum || memoView === "trash" || selectedMemo.isDeleted}
                           desktopFocusMode={desktopFocusModeActive}
                           onBackToList={() => {
                             clearPendingCreatedMemo();
@@ -3825,7 +3844,7 @@ export const WorkspaceApp = ({
                           memo={selectedMemo}
                           notebooks={notebooks}
                           repository={repository}
-                          readOnly={memoView === "trash" || selectedMemo.isDeleted}
+                          readOnly={clientBelowMinimum || memoView === "trash" || selectedMemo.isDeleted}
                           desktopFocusMode={desktopFocusModeActive}
                           onBackToList={() => {
                             clearPendingCreatedMemo();
@@ -3861,7 +3880,7 @@ export const WorkspaceApp = ({
                           memo={selectedMemo}
                           notebooks={notebooks}
                           repository={repository}
-                          readOnly={memoView === "trash" || selectedMemo.isDeleted}
+                          readOnly={clientBelowMinimum || memoView === "trash" || selectedMemo.isDeleted}
                           desktopFocusMode={desktopFocusModeActive}
                           onBackToList={() => {
                             clearPendingCreatedMemo();
@@ -3897,7 +3916,7 @@ export const WorkspaceApp = ({
                           memo={selectedMemo}
                           notebooks={notebooks}
                           repository={repository}
-                          readOnly={memoView === "trash" || selectedMemo.isDeleted}
+                          readOnly={clientBelowMinimum || memoView === "trash" || selectedMemo.isDeleted}
                           aiAssistantOpenToken={noteAiAssistantOpenToken}
                           shortcutSettings={shortcutSettings}
                           companionAvailable={authRequired && Boolean(user) && !demoMode}
@@ -4024,6 +4043,7 @@ export const WorkspaceApp = ({
                     />
                       )}
                     </EditorPaneErrorBoundary>
+                    </>
                   )}
                 </m.div>
               </Suspense>

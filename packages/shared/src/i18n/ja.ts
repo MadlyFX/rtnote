@@ -896,6 +896,7 @@ export const ja = {
     discard: "変更を破棄",
   },
   workspace: {
+    clientBelowMinimum: "このアプリはサーバーより古いため、新しい書式を上書きしないようノートを読み取り専用で開きます。編集するには RTNote を {{version}} 以降に更新してください。",
     inboxDeleteTitle: "受信トレイは削除できません",
     inboxDeleteDescription: "受信トレイはデフォルトのノートブックなので、新しいノートは必ず行き先があります。",
     selection: {
