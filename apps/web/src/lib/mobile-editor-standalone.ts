@@ -122,5 +122,5 @@ export const normalizeMobileEditorDoc = (memo: MemoDetail): TiptapDoc => {
     return emptyDoc();
   }
 
-  return resolveMemoContentDoc(memo.contentJson, memo.contentMarkdown);
+  return resolveMemoContentDoc(memo.contentJson, memo.contentMarkdown, memo);
 };

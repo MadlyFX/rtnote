@@ -3004,6 +3004,7 @@ export const fr = {
     noteBodyAria: "Corps de la note",
     markdownSourceAria: "Source Markdown",
     richTableSourceProtection: "Cette cellule de tableau contient du contenu enrichi que Markdown ne peut pas représenter fidèlement. La dernière modification n'a pas été appliquée. Modifiez cette structure en vue texte enrichi ; le code source en dehors de la cellule reste modifiable.",
+    markdownViewNotice: "Copie Markdown en lecture seule de cette note. Revenez au texte enrichi pour la modifier.",
     loading: "Chargement",
     emptySelection: "Sélectionnez ou créez une note",
     saveState: {

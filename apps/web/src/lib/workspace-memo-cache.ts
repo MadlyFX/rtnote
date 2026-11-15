@@ -31,7 +31,7 @@ export const memoToSummary = (memo: MemoDetail): MemoSummary => ({
   id: memo.id,
   notebookId: memo.notebookId,
   title: memo.title,
-  excerpt: memo.excerpt || createExcerpt(memo.contentText || docToText(resolveMemoContentDoc(memo.contentJson, memo.contentMarkdown))),
+  excerpt: memo.excerpt || createExcerpt(memo.contentText || docToText(resolveMemoContentDoc(memo.contentJson, memo.contentMarkdown, memo))),
   ...getDiagramSummary(memo.contentMarkdown),
   ...getInfographicSummary(memo.contentMarkdown),
   ...getTableSummary(memo.contentMarkdown),

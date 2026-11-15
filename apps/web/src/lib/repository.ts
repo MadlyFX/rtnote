@@ -304,9 +304,13 @@ export const createWebRepository = (scope: string): EdgeEverRepository => {
       return result;
     }
     const { createLocalMemo } = await import("@/lib/local-mirror");
+    // A localized default template only has localized Markdown; otherwise the
+    // stored JSON keeps the template's formatting.
+    const contentJson = template.contentMarkdown === stored?.contentMarkdown ? template.contentJson : undefined;
     const memo = await createLocalMemo(scope, {
       notebookId,
       title: template.title ?? "",
+      contentJson,
       contentMarkdown: template.contentMarkdown,
       tags: template.tags,
     });
@@ -314,6 +318,7 @@ export const createWebRepository = (scope: string): EdgeEverRepository => {
       temporaryId: memo.id,
       notebookId,
       title: template.title ?? "",
+      contentJson,
       contentMarkdown: template.contentMarkdown,
       tags: template.tags,
       createdAt: memo.createdAt,

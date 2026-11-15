@@ -5,7 +5,6 @@ import {
   docToMarkdown,
   docToText,
   emptyDoc,
-  markdownToDoc,
   mergeMemoDocs,
   resolveMemoContentDoc,
   resolveMergedMemoTitle,
@@ -16,6 +15,7 @@ import {
   listTableAttachmentResourceIds,
   normalizeTags,
   parseTableDocument,
+  resolveMemoContentWrite,
   type MemoDetail,
   type MemoEditSession,
   type MemoSummary,
@@ -63,6 +63,7 @@ export type MemoDetailRow = MemoSummaryRow & {
   merge_source_count: number;
   merged_into_memo_id: string | null;
   content_hash: string;
+  schema_version?: number | null;
 };
 
 type MemoEditSessionRow = {
@@ -97,6 +98,7 @@ export const mapMemoDetail = (row: MemoDetailRow): MemoDetail => ({
   contentMarkdown: row.content_markdown,
   contentText: row.content_text,
   contentHash: row.content_hash,
+  schemaVersion: row.schema_version ?? 1,
   sourceMemoIds: parseJsonArray(row.source_memo_ids),
   mergeSourceCount: row.merge_source_count,
   mergedIntoMemoId: row.merged_into_memo_id,
@@ -334,7 +336,7 @@ export const listMemosForMcp = async (
       .prepare(
         `SELECT m.id, m.notebook_id, m.title, m.excerpt, m.tags_json, m.is_pinned,
                 m.is_archived, m.is_deleted, m.created_at, m.updated_at, m.deleted_at, c.revision,
-                c.content_json, c.content_markdown, c.content_text, c.content_hash,
+                c.content_json, c.content_markdown, c.content_text, c.content_hash, c.schema_version,
                 m.source_memo_ids, m.merge_source_count, m.merged_into_memo_id
          FROM memos m
          INNER JOIN memo_contents c ON c.memo_id = m.id
@@ -391,7 +393,7 @@ export const getMemoDetailRow = async (
     .prepare(
       `SELECT m.id, m.notebook_id, m.title, m.excerpt, m.tags_json, m.is_pinned,
               m.is_archived, m.is_deleted, m.created_at, m.updated_at, m.deleted_at, c.revision,
-              c.content_json, c.content_markdown, c.content_text, c.content_hash,
+              c.content_json, c.content_markdown, c.content_text, c.content_hash, c.schema_version,
               m.source_memo_ids, m.merge_source_count, m.merged_into_memo_id
        FROM memos m
        INNER JOIN memo_contents c ON c.memo_id = m.id
@@ -843,7 +845,7 @@ export const mergeMemosRecord = async (
     .prepare(
       `SELECT m.id, m.notebook_id, m.title, m.excerpt, m.tags_json, m.is_pinned,
               m.is_archived, m.is_deleted, m.created_at, m.updated_at, m.deleted_at, c.revision,
-              c.content_json, c.content_markdown, c.content_text, c.content_hash,
+              c.content_json, c.content_markdown, c.content_text, c.content_hash, c.schema_version,
               m.source_memo_ids, m.merge_source_count, m.merged_into_memo_id
        FROM memos m
        INNER JOIN memo_contents c ON c.memo_id = m.id
@@ -894,7 +896,7 @@ export const mergeMemosRecord = async (
   const title = resolveMergedMemoTitle(input.title, ordered);
   const sourceDocs = ordered.map((memo) => {
     const contentJson = parseDoc(memo.content_json);
-    const doc = resolveMemoContentDoc(contentJson, memo.content_markdown);
+    const doc = resolveMemoContentDoc(contentJson, memo.content_markdown, { schemaVersion: memo.schema_version });
     if (!docToText(doc).trim() && memo.content_text.trim()) {
       throw new AppError("merge_content_unavailable", "One or more memo bodies could not be recovered safely.", 409);
     }
@@ -935,8 +937,8 @@ export const mergeMemosRecord = async (
     db
       .prepare(
         `INSERT INTO memo_contents (
-          memo_id, content_json, content_markdown, content_text, content_hash, revision, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, 0, ?, ?)`
+          memo_id, schema_version, content_json, content_markdown, content_text, content_hash, revision, created_at, updated_at
+        ) VALUES (?, 2, ?, ?, ?, ?, 0, ?, ?)`
       )
       .bind(newMemoId, JSON.stringify(contentJson), mergedMarkdown, contentText, contentHash, now, now),
     upsertMemoSearchDocumentStatement(db, newMemoId, title, contentText, tags.join(" ")),
@@ -987,10 +989,10 @@ export const createMemoRecord = async (
     throw new AppError("not_found", "Notebook not found", 404);
   }
   const tags = normalizeTags(input.tags);
-  const contentMarkdown = input.contentMarkdown ?? "";
-  const contentJson = input.contentJson && typeof input.contentJson === "object"
-    ? input.contentJson as TiptapDoc
-    : markdownToDoc(contentMarkdown);
+  const { contentJson, contentMarkdown, schemaVersion } = resolveMemoContentWrite({
+    contentJson: input.contentJson,
+    contentMarkdown: input.contentMarkdown,
+  });
   const contentText = docToText(contentJson);
   const title = normalizeMemoTitle(input.title);
   const excerpt = createExcerpt(contentText);
@@ -1011,10 +1013,10 @@ export const createMemoRecord = async (
     db
       .prepare(
         `INSERT INTO memo_contents (
-          memo_id, content_json, content_markdown, content_text, content_hash, revision, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, 0, ?, ?)`
+          memo_id, schema_version, content_json, content_markdown, content_text, content_hash, revision, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)`
       )
-      .bind(id, JSON.stringify(contentJson), contentMarkdown, contentText, contentHash, createdAt, updatedAt),
+      .bind(id, schemaVersion, JSON.stringify(contentJson), contentMarkdown, contentText, contentHash, createdAt, updatedAt),
     upsertMemoSearchDocumentStatement(db, id, title, contentText, tags.join(" ")),
     auditStatement(db, actor.actorType, actor.actorId, "memo.create", "memo", id, {
       notebookId: input.notebookId,
@@ -1351,19 +1353,14 @@ export const updateMemoRecord = async (
     return { memo };
   }
 
-  const currentContentJson = parseDoc(current.content_json);
-  const contentJson =
-    input.contentJson !== undefined
-      ? input.contentJson
-      : input.contentMarkdown !== undefined
-        ? markdownToDoc(input.contentMarkdown)
-        : currentContentJson;
-  const contentMarkdown =
-    input.contentMarkdown !== undefined
-      ? input.contentMarkdown
-      : input.contentJson !== undefined
-        ? docToMarkdown(contentJson)
-        : current.content_markdown;
+  const currentContent = {
+    contentJson: parseDoc(current.content_json),
+    contentMarkdown: current.content_markdown,
+    schemaVersion: current.schema_version ?? 1,
+  };
+  const { contentJson, contentMarkdown, schemaVersion } = hasDocumentUpdate
+    ? resolveMemoContentWrite({ contentJson: input.contentJson, contentMarkdown: input.contentMarkdown }, currentContent)
+    : currentContent;
   const contentText = hasDocumentUpdate ? docToText(contentJson) : current.content_text;
   const title =
     input.title !== undefined ? normalizeMemoTitle(input.title) : normalizeMemoTitle(current.title);
@@ -1475,11 +1472,11 @@ export const updateMemoRecord = async (
     db
       .prepare(
         `UPDATE memo_contents
-         SET content_json = ?, content_markdown = ?, content_text = ?, content_hash = ?,
+         SET schema_version = ?, content_json = ?, content_markdown = ?, content_text = ?, content_hash = ?,
              revision = ?, updated_at = ?, created_at = COALESCE(?, created_at)
          WHERE memo_id = ?`
       )
-      .bind(JSON.stringify(contentJson), contentMarkdown, contentText, contentHash, nextRevision, updatedAt, input.createdAt ?? null, id),
+      .bind(schemaVersion, JSON.stringify(contentJson), contentMarkdown, contentText, contentHash, nextRevision, updatedAt, input.createdAt ?? null, id),
     upsertMemoSearchDocumentStatement(db, id, title, contentText, tags.join(" ")),
     ...editSessionStatements,
     auditStatement(db, actor.actorType, actor.actorId, "memo.update", "memo", id, {

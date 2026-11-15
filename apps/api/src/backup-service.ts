@@ -189,9 +189,10 @@ export const restoreJsonMemos = async (
       ),
       db.prepare(
         `INSERT INTO memo_contents (
-          memo_id, content_json, content_markdown, content_text, content_hash, revision, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          memo_id, schema_version, content_json, content_markdown, content_text, content_hash, revision, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(memo_id) DO UPDATE SET
+          schema_version = excluded.schema_version,
           content_json = excluded.content_json,
           content_markdown = excluded.content_markdown,
           content_text = excluded.content_text,
@@ -200,6 +201,7 @@ export const restoreJsonMemos = async (
           updated_at = excluded.updated_at`,
       ).bind(
         memo.id,
+        memo.schemaVersion === 2 ? 2 : 1,
         JSON.stringify(contentJson),
         contentMarkdown,
         contentText,

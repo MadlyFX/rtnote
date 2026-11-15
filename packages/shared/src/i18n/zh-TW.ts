@@ -2812,6 +2812,7 @@ export const zhTW = {
     noteBodyAria: "筆記正文",
     markdownSourceAria: "Markdown 原始碼",
     richTableSourceProtection: "這處表格單元格含有 Markdown 無法完整表示的富文字結構。剛才的修改未應用；請在富文字檢視中修改該結構，表格外的原始碼仍可編輯。",
+    markdownViewNotice: "這是筆記的唯讀 Markdown 副本。切換回富文字即可編輯。",
     loading: "載入中",
     emptySelection: "選擇或新建一條筆記",
     saveState: {

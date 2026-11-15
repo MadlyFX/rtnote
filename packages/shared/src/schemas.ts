@@ -69,16 +69,19 @@ export const TemplateCreateSchema = z.object({
   description: z.string().trim().max(500).optional(),
   memoId: z.string().trim().min(1).optional(),
   title: z.string().trim().max(160).nullable().optional(),
+  // Rich-text body; Markdown is derived from it when both are sent.
+  contentJson: z.unknown().optional(),
   contentMarkdown: z.string().optional(),
   tags: z.array(z.string()).optional(),
-}).refine((input) => input.memoId || input.contentMarkdown !== undefined, {
-  message: "memoId or contentMarkdown is required",
+}).refine((input) => input.memoId || input.contentMarkdown !== undefined || input.contentJson !== undefined, {
+  message: "memoId, contentJson or contentMarkdown is required",
 });
 
 export const TemplateUpdateSchema = z.object({
   name: z.string().trim().min(1).max(160).optional(),
   description: z.string().trim().max(500).nullable().optional(),
   title: z.string().trim().max(160).nullable().optional(),
+  contentJson: z.unknown().optional(),
   contentMarkdown: z.string().optional(),
   tags: z.array(z.string()).optional(),
 });
