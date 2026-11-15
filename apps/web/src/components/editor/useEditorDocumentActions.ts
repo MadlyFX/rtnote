@@ -220,17 +220,17 @@ export const useEditorDocumentActions = ({
       return;
     }
 
-    const currentMarkdown = useMobilePlainTextEditor
-      ? getMobilePlainTextValue()
+    const currentJson = useMobilePlainTextEditor
+      ? markdownToDoc(getMobilePlainTextValue())
       : isEditorReady(editor)
-        ? docToMarkdown(editor.getJSON() as TiptapDoc)
-        : memo.contentMarkdown;
+        ? editor.getJSON() as TiptapDoc
+        : memo.contentJson;
     const currentTemplateMemo: MemoDetail = {
       ...memo,
       title,
       tags: parseTagsText(tagsText),
-      contentJson: markdownToDoc(currentMarkdown),
-      contentMarkdown: currentMarkdown,
+      contentJson: currentJson,
+      contentMarkdown: docToMarkdown(currentJson),
     };
     void onSaveAsTemplate(currentTemplateMemo, name.trim());
   }, [editor, effectiveReadOnly, getMobilePlainTextValue, memo, onSaveAsTemplate, t, tagsText, title, useMobilePlainTextEditor]);

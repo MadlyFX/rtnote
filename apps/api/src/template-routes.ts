@@ -1,6 +1,6 @@
 import {
   emptyDoc,
-  markdownToDoc,
+  resolveMemoContentWrite,
   TemplateCreateSchema,
   TemplateUpdateSchema,
   TemplateUseSchema,
@@ -136,9 +136,10 @@ export const registerTemplateRoutes = (
     const id = createId("template");
     const now = new Date().toISOString();
     const title = memo?.title ?? (input.title?.trim() || null);
-    const contentMarkdown = memo?.contentMarkdown ?? input.contentMarkdown ?? "";
     const tags = memo?.tags ?? input.tags ?? [];
-    const contentJson = memo?.contentJson ?? markdownToDoc(contentMarkdown);
+    const { contentJson, contentMarkdown } = memo
+      ? { contentJson: memo.contentJson, contentMarkdown: memo.contentMarkdown }
+      : resolveMemoContentWrite({ contentJson: input.contentJson, contentMarkdown: input.contentMarkdown ?? (input.contentJson ? undefined : "") });
     await c.env.storage.db.prepare(
       `INSERT INTO memo_templates (
          id, workspace_id, name, description, title, content_json, content_markdown, tags_json, created_at, updated_at
@@ -171,10 +172,12 @@ export const registerTemplateRoutes = (
       return notFound(c, "Template not found");
     }
 
-    const contentMarkdown = input.contentMarkdown ?? current.content_markdown;
-    const contentJson = input.contentMarkdown !== undefined
-      ? markdownToDoc(contentMarkdown)
-      : JSON.parse(current.content_json);
+    // Templates are rich text: JSON edits regenerate the Markdown, and
+    // Markdown-only edits merge into the stored JSON.
+    const { contentJson, contentMarkdown } = resolveMemoContentWrite(
+      { contentJson: input.contentJson, contentMarkdown: input.contentMarkdown },
+      { contentJson: JSON.parse(current.content_json), contentMarkdown: current.content_markdown, schemaVersion: 2 },
+    );
     const tags = input.tags ?? parseJsonArray(current.tags_json);
     const now = new Date().toISOString();
     await c.env.storage.db.prepare(
@@ -209,9 +212,13 @@ export const registerTemplateRoutes = (
     }
     const template = input.locale ? localizeDefaultMemoTemplate(stored, input.locale) : stored;
 
+    // A localized default template only has localized Markdown; otherwise the
+    // stored JSON keeps the template's formatting.
+    const localized = template.contentMarkdown !== stored.contentMarkdown;
     const memo = await createMemoRecord(c.env.storage.db, workspaceId, {
       notebookId: input.notebookId,
       title: template.title ?? undefined,
+      ...(localized ? {} : { contentJson: template.contentJson }),
       contentMarkdown: template.contentMarkdown,
       tags: template.tags,
     }, getAuditActor(c), getActorLabel(c));

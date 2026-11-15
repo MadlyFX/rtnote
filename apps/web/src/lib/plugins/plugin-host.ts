@@ -23,6 +23,7 @@ import {
   normalizePluginPanelChrome,
   type PluginPermission,
   type PluginApiErrorCode,
+  type PluginContentDocument,
   type PluginResource,
   type PluginSchedule,
   type PluginScheduleInput,
@@ -34,7 +35,7 @@ import {
   type ThemeTokenName,
   type ThemeTokens,
 } from "@edgeever/plugin-api";
-import { markdownToDoc, type MemoDetail } from "@edgeever/shared";
+import { docToMarkdown, markdownToDoc, mergeMarkdownIntoDoc, resolveMemoContentDoc, type MemoDetail, type TiptapDoc } from "@edgeever/shared";
 import {
   structuredEditToken, pluginNoteKind, assertPluginMarkdownNote, assertStructuredRevision, pluginDiagram, pluginTable,
   translateStructuredError, applyDiagramOperations, applyTableOperations, diagramSemanticGraph,
@@ -170,7 +171,9 @@ export interface RegisteredPluginAction {
 export interface PluginEditorAdapter {
   getSelection(): PluginEditorSelection | null;
   getDocument(): PluginEditorDocument | null;
+  /** Merges Markdown into the open document (compatibility). */
   replaceDocument(contentMarkdown: string): void;
+  replaceDocumentJson(contentJson: TiptapDoc): void;
   insertEmbed(embed: PluginEmbedInstance): void;
   replaceSelection(contentMarkdown: string): void;
   insertAtCursor(contentMarkdown: string): void;
@@ -290,6 +293,21 @@ const toPluginTemplate = (template: Awaited<ReturnType<EdgeEverRepository["listT
 const getErrorMessage = (error: unknown) => error instanceof Error ? error.message : String(error);
 
 const createPluginApiError = (code: PluginApiErrorCode, message: string) => Object.assign(new Error(message), { code });
+
+const assertPluginContentDocument = (value: unknown): PluginContentDocument => {
+  const record = value as { type?: unknown; content?: unknown } | null;
+  if (!record || typeof record !== "object" || record.type !== "doc" || !Array.isArray(record.content)) {
+    throw createPluginApiError("INVALID_CONTENT_DOCUMENT", 'contentJson must be a document: {"type":"doc","content":[...]}.');
+  }
+  return structuredClone(record) as PluginContentDocument;
+};
+
+const currentPluginDoc = (note: MemoDetail): TiptapDoc =>
+  resolveMemoContentDoc(note.contentJson, note.contentMarkdown, note);
+
+// The server regenerates Markdown from the JSON; the copy sent here keeps the
+// local mirror consistent until the saved note comes back.
+const pluginContentWrite = (contentJson: TiptapDoc) => ({ contentJson, contentMarkdown: docToMarkdown(contentJson) });
 
 const isUtf16Boundary = (value: string, offset: number) => {
   if (offset <= 0 || offset >= value.length) return true;
@@ -1214,13 +1232,14 @@ export class EdgeEverPluginHost {
           const contentMarkdown = applyPluginMarkdownEdits(current.contentMarkdown, input.edits);
           assertPluginMarkdownNote({ contentMarkdown });
           if (contentMarkdown === current.contentMarkdown) return toPluginNote(current);
+          // Rich text is the source of truth: merge the edited Markdown so
+          // untouched blocks keep their formatting.
           const updated = (await this.repository.updateMemo(current, {
             expectedRevision: input.expectedRevision,
             expectedContentHash: input.expectedContentHash,
             editSessionId: `plugin:${manifest.id}`,
             title: current.title ?? "",
-            contentJson: markdownToDoc(contentMarkdown),
-            contentMarkdown,
+            ...pluginContentWrite(mergeMarkdownIntoDoc(currentPluginDoc(current), contentMarkdown)),
             tags: current.tags,
           }, { guardLocalSnapshot: true })).memo;
           const note = toPluginNote(updated);
@@ -1230,7 +1249,13 @@ export class EdgeEverPluginHost {
         create: async (input) => {
           assertPermission(manifest, "notes:write");
           assertPluginMarkdownNote({ contentMarkdown: input.contentMarkdown });
-          const note = toPluginNote((await this.repository.createMemo(input)).memo);
+          const contentJson = input.contentJson === undefined ? undefined : assertPluginContentDocument(input.contentJson);
+          const note = toPluginNote((await this.repository.createMemo({
+            notebookId: input.notebookId,
+            title: input.title,
+            tags: input.tags,
+            ...(contentJson ? { contentJson: contentJson as TiptapDoc } : { contentMarkdown: input.contentMarkdown }),
+          })).memo);
           await this.onWorkspaceChanged?.();
           return note;
         },
@@ -1239,18 +1264,25 @@ export class EdgeEverPluginHost {
           assertPermission(manifest, "notes:read");
           const current = (await this.repository.getMemo(noteId)).memo;
           assertSaved(noteId);
-          if (input.contentMarkdown !== undefined) {
+          if (input.contentMarkdown !== undefined || input.contentJson !== undefined) {
             assertPluginMarkdownNote(current);
+          }
+          if (input.contentMarkdown !== undefined) {
             assertPluginMarkdownNote({ contentMarkdown: input.contentMarkdown });
           }
-          const contentMarkdown = input.contentMarkdown ?? current.contentMarkdown;
+          // Metadata-only updates resend the stored content untouched, so a
+          // structured note keeps its Markdown marker.
+          const content = input.contentJson !== undefined
+            ? pluginContentWrite(assertPluginContentDocument(input.contentJson) as TiptapDoc)
+            : input.contentMarkdown !== undefined
+              ? pluginContentWrite(mergeMarkdownIntoDoc(currentPluginDoc(current), input.contentMarkdown))
+              : { contentJson: current.contentJson, contentMarkdown: current.contentMarkdown };
           const updated = (await this.repository.updateMemo(current, {
             expectedRevision: current.revision,
             expectedContentHash: current.contentHash,
             editSessionId: `plugin:${manifest.id}`,
             title: input.title ?? current.title ?? "",
-            contentJson: input.contentMarkdown === undefined ? current.contentJson : markdownToDoc(contentMarkdown),
-            contentMarkdown,
+            ...content,
             tags: input.tags ?? current.tags,
           }, { guardLocalSnapshot: true })).memo;
           const note = toPluginNote(updated);
@@ -1581,8 +1613,19 @@ export class EdgeEverPluginHost {
           if (!current) throw new Error("No note editor is currently active.");
           const contentMarkdown = applyPluginMarkdownEdits(current.contentMarkdown, edits);
           assertPluginMarkdownNote({ contentMarkdown });
-          if (contentMarkdown !== current.contentMarkdown) this.editorAdapter.replaceDocument(contentMarkdown);
-          return { ...current, contentMarkdown, hasUnsavedChanges: contentMarkdown !== current.contentMarkdown || current.hasUnsavedChanges };
+          if (contentMarkdown === current.contentMarkdown) return current;
+          this.editorAdapter.replaceDocument(contentMarkdown);
+          return this.editorAdapter.getDocument() ?? { ...current, contentMarkdown, hasUnsavedChanges: true };
+        },
+        replaceDocumentJson: async (contentJson) => {
+          await assertEditorMarkdown();
+          assertPermission(manifest, "editor:read");
+          assertPermission(manifest, "editor:write");
+          if (!this.editorAdapter) throw new Error("No note editor is currently active.");
+          const current = this.editorAdapter.getDocument();
+          if (!current) throw new Error("No note editor is currently active.");
+          this.editorAdapter.replaceDocumentJson(assertPluginContentDocument(contentJson) as TiptapDoc);
+          return this.editorAdapter.getDocument() ?? current;
         },
         insertEmbed: async (input) => {
           await assertEditorMarkdown();

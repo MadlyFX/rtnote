@@ -1,3 +1,4 @@
+import { markdownToDoc } from "@edgeever/shared";
 import { describe, expect, test } from "bun:test";
 import { globSync, readFileSync } from "node:fs";
 import { Database } from "bun:sqlite";
@@ -392,7 +393,13 @@ describe("template CRUD routes", () => {
     expect(body.memo.id).toBe("memo_1");
     expect(harness.createdMemos).toEqual([{
       workspaceId: "ws_owner",
-      input: { notebookId: "nb_1", title: "Meeting notes", contentMarkdown: "## Agenda", tags: ["meeting"] },
+      input: {
+        notebookId: "nb_1",
+        title: "Meeting notes",
+        contentJson: markdownToDoc("## Agenda"),
+        contentMarkdown: "## Agenda",
+        tags: ["meeting"],
+      },
       actor: { actorType: "user", actorId: "usr_owner" },
       actorLabel: "user:usr_owner",
     }]);
@@ -414,6 +421,7 @@ describe("template CRUD routes", () => {
     expect(harness.createdMemos[0].input).toEqual({
       notebookId: "nb_2",
       title: undefined,
+      contentJson: markdownToDoc("Body"),
       contentMarkdown: "Body",
       tags: [],
     });

@@ -63,7 +63,7 @@ const stringArraysEqual = (first: string[], second: string[]) =>
   first.length === second.length && first.every((value, index) => value === second[index]);
 
 export const isLocalDraftEquivalentToMemo = (memo: MemoDetail, draft: LocalDraft) => {
-  const memoContent = resolveMemoContentDoc(memo.contentJson, memo.contentMarkdown);
+  const memoContent = resolveMemoContentDoc(memo.contentJson, memo.contentMarkdown, memo);
   return draft.title === getEditableMemoTitle(memo.title) &&
     stringArraysEqual(parseTagsText(draft.tagsText), memo.tags) &&
     docToMarkdown(normalizeImageGalleries(draft.contentJson)) === docToMarkdown(memoContent);
@@ -106,7 +106,7 @@ export const resolveEditorDraftState = ({
     ? draft.contentJson
     : useQueuedPayload && queuedPayload
       ? queuedPayload.contentJson
-      : resolveMemoContentDoc(memo.contentJson, memo.contentMarkdown);
+      : resolveMemoContentDoc(memo.contentJson, memo.contentMarkdown, memo);
   const contentJson = normalizeImageGalleries(sourceContentJson);
   const repairedSavedContent = source === "memo" && Boolean(
     memo.contentJson && normalizeImageGalleries(memo.contentJson) !== memo.contentJson,

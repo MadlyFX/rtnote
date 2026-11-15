@@ -3004,6 +3004,7 @@ export const es = {
     "noteBodyAria": "Cuerpo de la nota",
     "markdownSourceAria": "Código fuente Markdown",
     "richTableSourceProtection": "Esta celda de la tabla contiene contenido enriquecido que Markdown no puede representar por completo. El último cambio no se aplicó. Modifica esta estructura en la vista de texto enriquecido; el código fuente fuera de la celda sigue siendo editable.",
+    "markdownViewNotice": "Copia de solo lectura en Markdown de esta nota. Vuelve al texto enriquecido para editarla.",
     "loading": "Cargando",
     "emptySelection": "Selecciona o crea una nota",
     "saveState": {

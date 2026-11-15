@@ -783,7 +783,7 @@ export const mergeLocalMemos = async (scope: string, input: { memoIds: string[];
   const sources = (await Promise.all(input.memoIds.map((memoId) => getLocalMemo(scope, memoId)))).filter((memo): memo is MemoDetail => Boolean(memo));
   if (sources.length < 2) return null;
   const sourceDocs = sources.map((memo) => {
-    const doc = resolveMemoContentDoc(memo.contentJson, memo.contentMarkdown);
+    const doc = resolveMemoContentDoc(memo.contentJson, memo.contentMarkdown, memo);
     if (!docToText(doc).trim() && memo.contentText.trim()) {
       throw new Error("Source note content could not be recovered safely. Merge was cancelled.");
     }

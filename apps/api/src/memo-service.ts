@@ -5,7 +5,6 @@ import {
   docToMarkdown,
   docToText,
   emptyDoc,
-  markdownToDoc,
   mergeMemoDocs,
   resolveMemoContentDoc,
   resolveMergedMemoTitle,

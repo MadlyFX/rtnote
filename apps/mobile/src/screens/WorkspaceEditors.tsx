@@ -868,7 +868,7 @@ export const RichEditorModal = ({
   const restoredDraft = initialDraft?.expectedRevision === memo?.revision ? initialDraft : null;
   const initialContentJson = restoredDraft
     ? markdownToDoc(restoredDraft.contentMarkdown)
-    : resolveMemoContentDoc(memo?.contentJson, memo?.contentMarkdown);
+    : resolveMemoContentDoc(memo?.contentJson, memo?.contentMarkdown, memo ?? undefined);
   const editorRef = useRef<LocalTiptapEditorRef>(null);
   const resourceDataUrlCacheRef = useRef(new Map<string, Promise<string | null>>());
   const imageLoadFailureNotifier = useMemo(

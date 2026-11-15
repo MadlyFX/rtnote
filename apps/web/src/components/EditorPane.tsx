@@ -144,9 +144,9 @@ import {
   noteProseCssVariables,
   noteProseStyleCssVariables,
   markdownToDoc,
+  mergeMarkdownIntoDoc,
   normalizeImageGalleries,
   PLUGIN_EMBED_NODE_TYPE,
-  pluginEmbedToMarkdown,
   wrapDetailsContentHtml,
   isPdfAttachment,
   resolveMemoContentDoc,
@@ -1325,7 +1325,7 @@ const RichEditorPane = ({
       noteLinkSuggestionExtensionRef.current,
     ],
     content: memo
-      ? resolveMemoContentDoc(memo.contentJson, memo.contentMarkdown)
+      ? resolveMemoContentDoc(memo.contentJson, memo.contentMarkdown, memo)
       : { type: "doc", content: [{ type: "paragraph" }] },
     editable: Boolean(memo && !effectiveReadOnly && editorIsHydratedForCurrentMemo),
     editorProps: {
@@ -2164,6 +2164,21 @@ const RichEditorPane = ({
     [mobilePlainText]
   );
 
+  // The phone-width editor is a Markdown text box. Merge its text into the
+  // stored rich text so paragraphs the user did not touch keep their
+  // formatting. Cached because character counts call this on every render.
+  const mobilePlainTextDocCacheRef = useRef<{ memo: MemoDetail | null; text: string; doc: TiptapDoc } | null>(null);
+  const mobilePlainTextToDoc = useCallback((text: string): TiptapDoc => {
+    const currentMemo = memoRef.current ?? null;
+    const cached = mobilePlainTextDocCacheRef.current;
+    if (cached && cached.memo === currentMemo && cached.text === text) return cached.doc;
+    const doc = currentMemo
+      ? mergeMarkdownIntoDoc(resolveMemoContentDoc(currentMemo.contentJson, currentMemo.contentMarkdown, currentMemo), text)
+      : markdownToDoc(text);
+    mobilePlainTextDocCacheRef.current = { memo: currentMemo, text, doc };
+    return doc;
+  }, []);
+
   const persistCurrentDraft = useCallback(
     (nextTitle = memoFieldsRef.current.title, nextTagsText = memoFieldsRef.current.tagsText, nextMobilePlainText = getMobilePlainTextValue()) => {
       const currentMemo = memoRef.current;
@@ -2183,7 +2198,7 @@ const RichEditorPane = ({
         title: nextTitle,
         tagsText: nextTagsText,
         contentJson: useMobilePlainTextEditor
-          ? markdownToDoc(nextMobilePlainText)
+          ? mobilePlainTextToDoc(nextMobilePlainText)
           : useMarkdownSourceEditor
             ? resolveMarkdownModeContent(
                 markdownModeSnapshotRef.current,
@@ -2194,7 +2209,7 @@ const RichEditorPane = ({
         updatedAt: new Date().toISOString(),
       });
     },
-    [getMobilePlainTextValue, markdownSource, useMarkdownSourceEditor, useMobilePlainTextEditor]
+    [getMobilePlainTextValue, markdownSource, mobilePlainTextToDoc, useMarkdownSourceEditor, useMobilePlainTextEditor]
   );
   persistResourceInsertionDraftRef.current = () => persistCurrentDraft();
 
@@ -2476,7 +2491,7 @@ const RichEditorPane = ({
 
   const getCurrentContentJson = useCallback((): TiptapDoc | null => {
     if (useMobilePlainTextEditor) {
-      return markdownToDoc(getMobilePlainTextValue());
+      return mobilePlainTextToDoc(getMobilePlainTextValue());
     }
 
     if (useMarkdownSourceEditor) {
@@ -2493,11 +2508,11 @@ const RichEditorPane = ({
     }
 
     return normalizeImageGalleries(currentEditor.getJSON() as TiptapDoc);
-  }, [getMobilePlainTextValue, markdownSource, useMarkdownSourceEditor, useMobilePlainTextEditor]);
+  }, [getMobilePlainTextValue, markdownSource, mobilePlainTextToDoc, useMarkdownSourceEditor, useMobilePlainTextEditor]);
 
   const characterCount = useMemo(() => {
     const contentJson = getCurrentContentJson()
-      ?? (memo ? resolveMemoContentDoc(memo.contentJson, memo.contentMarkdown) : null);
+      ?? (memo ? resolveMemoContentDoc(memo.contentJson, memo.contentMarkdown, memo) : null);
 
     return countMemoCharacters(contentJson);
   }, [dirtyVersion, editorContentVersion, getCurrentContentJson, memo]);
@@ -2860,7 +2875,7 @@ const RichEditorPane = ({
     }
 
     if (memo) {
-      const nextMarkdown = docToMarkdown(resolveMemoContentDoc(memo.contentJson, memo.contentMarkdown));
+      const nextMarkdown = docToMarkdown(resolveMemoContentDoc(memo.contentJson, memo.contentMarkdown, memo));
       setMobilePlainText(nextMarkdown);
       setMobilePlainTextElementValue(mobileTextAreaRef.current, nextMarkdown);
     }
@@ -3154,8 +3169,8 @@ const RichEditorPane = ({
         expectedContentHash: currentMemo.contentHash,
         editSessionId: editSession.id,
         title: writableFields.title,
+        // The server regenerates Markdown from the JSON.
         contentJson,
-        contentMarkdown: useMarkdownSourceEditor ? markdownSource : undefined,
         tags: parseTagsText(writableFields.tagsText),
       };
       persistEmergencyDraft({
@@ -3270,6 +3285,14 @@ const RichEditorPane = ({
       return;
     }
 
+    // Keep the read-only Markdown view in step after a plugin changes the
+    // rich document.
+    const refreshMarkdownView = () => {
+      if (!isMarkdownMode) return;
+      const contentJson = editor.getJSON() as TiptapDoc;
+      hydrateMarkdownSource(pluginEditorMemoId, contentJson, docToMarkdown(contentJson), { force: true });
+    };
+
     const adapter: PluginEditorAdapter = {
       getSelection: () => {
         const { selection, doc } = editor.state;
@@ -3283,16 +3306,26 @@ const RichEditorPane = ({
           contentMarkdown: context?.contentMarkdown ?? "",
         };
       },
-      getDocument: () => ({
-        noteId: pluginEditorMemoId,
-        contentMarkdown: isMarkdownMode
-          ? markdownSource
-          : docToMarkdown(editor.getJSON() as TiptapDoc),
-        hasUnsavedChanges: hasUnsavedChanges || saveMutation.isPending,
-      }),
+      // The Markdown view is read-only, so the rich editor always holds the
+      // current document.
+      getDocument: () => {
+        const contentJson = editor.getJSON() as TiptapDoc;
+        return {
+          noteId: pluginEditorMemoId,
+          contentJson,
+          contentMarkdown: docToMarkdown(contentJson),
+          hasUnsavedChanges: hasUnsavedChanges || saveMutation.isPending,
+        };
+      },
+      replaceDocumentJson: (contentJson) => {
+        editor.commands.setContent(contentJson);
+        refreshMarkdownView();
+        markDirty();
+      },
       replaceDocument: (contentMarkdown) => {
-        if (isMarkdownMode) setMarkdownSource(contentMarkdown);
-        else editor.commands.setContent(markdownToDoc(contentMarkdown));
+        // Merge so blocks the plugin did not change keep their formatting.
+        editor.commands.setContent(mergeMarkdownIntoDoc(editor.getJSON() as TiptapDoc, contentMarkdown));
+        refreshMarkdownView();
         markDirty();
       },
       insertEmbed: (embed) => {
@@ -3305,11 +3338,8 @@ const RichEditorPane = ({
           title: embed.title,
           dataJson: JSON.stringify(embed.data),
         };
-        if (isMarkdownMode) {
-          setMarkdownSource((current) => `${current.trimEnd()}${current.trim() ? "\n\n" : ""}${pluginEmbedToMarkdown(attributes)}\n`);
-        } else {
-          editor.chain().focus().insertContent({ type: PLUGIN_EMBED_NODE_TYPE, attrs: attributes }).run();
-        }
+        editor.chain().focus().insertContent({ type: PLUGIN_EMBED_NODE_TYPE, attrs: attributes }).run();
+        refreshMarkdownView();
         markDirty();
       },
       replaceSelection: (contentMarkdown) => {
@@ -3324,7 +3354,7 @@ const RichEditorPane = ({
       },
     };
     return pluginHost.setEditorAdapter(adapter);
-  }, [editor, effectiveReadOnly, hasUnsavedChanges, hydratedEditorMemoId, isMarkdownMode, markdownSource, markDirty, pluginEditorMemoId, pluginHost, saveMutation.isPending]);
+  }, [editor, effectiveReadOnly, hasUnsavedChanges, hydratedEditorMemoId, hydrateMarkdownSource, isMarkdownMode, markDirty, pluginEditorMemoId, pluginHost, saveMutation.isPending]);
   // useMutation returns a new result object on every render. Depending on the
   // whole object makes autosave timers restart during unrelated renders and
   // can starve a recovered draft indefinitely. These members are stable (or
@@ -3829,7 +3859,7 @@ const RichEditorPane = ({
 
     const nextTitle = getEditableMemoTitle(remoteMemo.title);
     const nextTagsText = remoteMemo.tags.join(", ");
-    const nextContent = resolveMemoContentDoc(remoteMemo.contentJson, remoteMemo.contentMarkdown);
+    const nextContent = resolveMemoContentDoc(remoteMemo.contentJson, remoteMemo.contentMarkdown, remoteMemo);
     const nextMarkdown = remoteMemo.contentMarkdown || docToMarkdown(nextContent);
 
     memoRef.current = remoteMemo;
@@ -4772,6 +4802,12 @@ const RichEditorPane = ({
               </>
             ) : useMarkdownSourceEditor ? (
               <div ref={markdownMenuAnchorRef} className="relative min-h-0 flex-1">
+                <div
+                  role="note"
+                  className="absolute inset-x-0 top-0 z-10 flex h-9 items-center border-b border-border bg-muted/60 px-4 text-xs text-muted-foreground"
+                >
+                  {t("editor.markdownViewNotice")}
+                </div>
                 {richTableEditBlocked ? (
                   <div role="alert" className="absolute inset-x-3 bottom-3 z-50 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-950 shadow-sm dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100">
                     {t("editor.richTableSourceProtection")}
@@ -4787,7 +4823,9 @@ const RichEditorPane = ({
                     onChange={handleMarkdownSourceChange}
                     onPasteFiles={uploadMarkdownPasteFiles}
                     themeName={markdownTheme}
-                    readOnly={effectiveReadOnly}
+                    // Rich text is the source of truth; Markdown is a derived,
+                    // read-only view (copy and export only).
+                    readOnly
                     placeholder={`# ${t("editor.placeholder")}`}
                     ariaLabel={t("editor.markdownSourceAria")}
                     onSlashCommandTrigger={() => {
@@ -4796,7 +4834,7 @@ const RichEditorPane = ({
                     onLinkShortcut={openExternalLinkDialog}
                     onSelectionChange={syncMarkdownAiMenu}
                     onReady={handleMarkdownSourceReady}
-                    className="absolute inset-0 h-full w-full"
+                    className="absolute inset-x-0 bottom-0 top-9 w-full"
                   />
                 </Suspense>
                 {markdownAiMenu ? (

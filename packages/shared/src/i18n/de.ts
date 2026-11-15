@@ -3004,6 +3004,7 @@ export const de = {
     "noteBodyAria": "Notizinhalt",
     "markdownSourceAria": "Markdown-Quelltext",
     "richTableSourceProtection": "Diese Tabellenzelle enthält Rich-Text-Inhalte, die Markdown nicht vollständig darstellen kann. Die letzte Änderung wurde nicht angewendet. Bearbeiten Sie diese Struktur in der Rich-Text-Ansicht; der Quelltext außerhalb der Zelle bleibt bearbeitbar.",
+    "markdownViewNotice": "Schreibgeschützte Markdown-Kopie dieser Notiz. Wechsle zurück zu Rich Text, um sie zu bearbeiten.",
     "loading": "Wird geladen",
     "emptySelection": "Wählen Sie eine Notiz aus oder erstellen Sie eine neue",
     "saveState": {

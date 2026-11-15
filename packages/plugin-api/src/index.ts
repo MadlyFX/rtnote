@@ -96,7 +96,7 @@ export interface PluginSettingsSchema {
 
 export type PluginSettingValue = string | number | boolean;
 
-export const PLUGIN_API_ERROR_CODES = ["NOTE_CONFLICT", "RESOURCE_CONFLICT", "INVALID_MARKDOWN_EDIT", "STRUCTURED_NOTE_REQUIRED", "INVALID_STRUCTURED_EDIT", "NOTE_TYPE_MISMATCH", "TABLE_DATA_CHANGES_REQUIRED", "HOST_UPGRADE_REQUIRED"] as const;
+export const PLUGIN_API_ERROR_CODES = ["NOTE_CONFLICT", "RESOURCE_CONFLICT", "INVALID_MARKDOWN_EDIT", "STRUCTURED_NOTE_REQUIRED", "INVALID_STRUCTURED_EDIT", "NOTE_TYPE_MISMATCH", "TABLE_DATA_CHANGES_REQUIRED", "HOST_UPGRADE_REQUIRED", "INVALID_CONTENT_DOCUMENT"] as const;
 export type PluginApiErrorCode = (typeof PLUGIN_API_ERROR_CODES)[number];
 export interface PluginApiError extends Error {
   code: PluginApiErrorCode;
@@ -211,7 +211,11 @@ export interface PluginNoteSummary {
 }
 
 export interface PluginNote extends PluginNoteSummary {
-  /** Full persisted document; read-only through this API. Special payloads also live in contentMarkdown. */
+  /**
+   * Full persisted rich-text document; the source of truth for prose notes.
+   * Write it back with notes.update({ contentJson }). Structured payloads
+   * (tables, diagrams, posters, infographics) live in contentMarkdown.
+   */
   contentJson: PluginContentDocument;
   revision: number;
   contentMarkdown: string;
@@ -247,12 +251,20 @@ export interface PluginNoteQuery {
 export interface PluginNoteCreateInput {
   notebookId: string;
   title?: string;
+  /** Rich-text body. Takes precedence over contentMarkdown. */
+  contentJson?: PluginContentDocument;
   contentMarkdown?: string;
   tags?: string[];
 }
 
 export interface PluginNoteUpdateInput {
   title?: string;
+  /** Replaces the rich-text body. Takes precedence over contentMarkdown. */
+  contentJson?: PluginContentDocument;
+  /**
+   * Compatibility: merged into the rich-text body block by block, so blocks
+   * whose Markdown is unchanged keep their formatting.
+   */
   contentMarkdown?: string;
   tags?: string[];
 }
@@ -389,6 +401,9 @@ export interface PluginEditorSelection {
 
 export interface PluginEditorDocument {
   noteId: string;
+  /** Rich-text document currently in the editor. */
+  contentJson: PluginContentDocument;
+  /** Markdown copy generated from contentJson. */
   contentMarkdown: string;
   hasUnsavedChanges: boolean;
 }
@@ -583,6 +598,8 @@ export interface PluginContext {
     getSelection(): Promise<PluginEditorSelection | null>;
     getDocument(): Promise<PluginEditorDocument | null>;
     editMarkdown(edits: PluginMarkdownEdit[]): Promise<PluginEditorDocument>;
+    /** Replaces the open note's rich-text document. */
+    replaceDocumentJson(contentJson: PluginContentDocument): Promise<PluginEditorDocument>;
     insertEmbed(input: PluginEmbedInput): Promise<PluginEmbedInstance>;
     embeds: {
       register(renderer: PluginEmbedRenderer): () => void;

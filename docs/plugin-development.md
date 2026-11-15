@@ -152,7 +152,7 @@ The plugin context object (`context`) exposes these capability interfaces:
 | **`context.tags`** | `metadata:read`<br>`metadata:write` | `list()`, `rename()`, `delete()` | Global tag listing, renaming, and removal |
 | **`context.templates`** | `templates:read`<br>`templates:write` | `list()`, `create()`, `update()`, `delete()`, `use()` | Template management and one-click note creation |
 | **`context.resources`** | `resources:read`<br>`resources:write` | `list()`, `read()`, `upload()`, `update()`, `rename()`, `delete()` | Upload, read, update, and manage note media/file attachments |
-| **`context.editor`** | `editor:read`<br>`editor:write`<br>`ui:embeds` | `getSelection()`, `replaceSelection()`, `insertAtCursor()`, `getDocument()`, `editMarkdown()`, `insertEmbed()`, `embeds.register()` | Active editor manipulation, live document edits, and custom block embeds |
+| **`context.editor`** | `editor:read`<br>`editor:write`<br>`ui:embeds` | `getSelection()`, `replaceSelection()`, `insertAtCursor()`, `getDocument()`, `replaceDocumentJson()`, `editMarkdown()`, `insertEmbed()`, `embeds.register()` | Active editor manipulation, live document edits, and custom block embeds |
 | **`context.ui`** | `ui:navigation`<br>`ui:notices`<br>`ui:panels` | `showNotice()`, `openNote()`, `panels.register()`, `panels.open()` | Host notifications, precise note navigation, and custom DOM panels |
 | **`context.commands`** | `ui:commands` | `register()` | Register global or editor commands for command palette and menus |
 | **`context.settings`** | *(None)* | `get()`, `set()`, `remove()` | Read and update the plugin's host-rendered settings |
@@ -202,12 +202,20 @@ const newNote = await context.notes.create({
   tags: ["tag1"]
 });
 
-// Update entire note
+// Notes are rich text. note.contentJson is the source of truth and
+// note.contentMarkdown is a copy generated from it.
+
+// Replace the body with a rich-text document (keeps colours, fonts,
+// alignment, image sizes and captions)
 await context.notes.update(noteId, {
   title: "Updated Title",
-  contentMarkdown: "New body",
+  contentJson: { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "New body" }] }] },
   tags: ["updated"]
 });
+
+// Markdown still works for compatibility. It is merged block by block:
+// paragraphs whose Markdown you did not change keep their formatting.
+await context.notes.update(noteId, { contentMarkdown: "New body" });
 
 // Partial optimistic edit with concurrency check (revision & contentHash)
 await context.notes.editMarkdown(noteId, {
@@ -380,6 +388,9 @@ await context.editor.insertAtCursor("- [ ] New task\n");
 // Live edit in-memory document without losing unsaved changes
 const doc = await context.editor.getDocument();
 if (doc) {
+  // Preferred: edit doc.contentJson and write it back
+  await context.editor.replaceDocumentJson(doc.contentJson);
+  // Compatibility: Markdown edits are merged into the rich document
   await context.editor.editMarkdown([
     { from: 0, to: 0, insert: "<!-- inserted header -->\n" }
   ]);

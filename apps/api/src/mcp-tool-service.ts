@@ -1159,6 +1159,7 @@ export const callMcpTool = async (
       const memo = await createMemoRecord(c.env.storage.db, auth.workspaceId, {
         notebookId: getRequiredString(args.notebookId, "notebookId"),
         title: template.title ?? undefined,
+        contentJson: template.contentJson,
         contentMarkdown: template.contentMarkdown,
         tags: template.tags,
       }, getAuditActor(c), getActorLabel(c));
