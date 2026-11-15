@@ -3,6 +3,28 @@ import XCTest
 @testable import EdgeEver
 
 final class TipTapContentSourceTests: XCTestCase {
+    func testRichTextNotesAlwaysOpenFromJSON() {
+        // Markdown with a pipe, a heading and bold scores as "richer" than this
+        // JSON, but schema 2 notes generate their Markdown from the JSON.
+        // ## delimiters: the colour value contains "#, which would end a #"…"# string.
+        let json = ##"{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"a | b","marks":[{"type":"textStyle","attrs":{"color":"#ff0000"}}]}]}]}"##
+        let markdown = "# Heading\n\na | b **bold**"
+        for mode in [TipTapMode.viewer, TipTapMode.editor] {
+            let legacy = TipTapContentSource.resolve(mode: mode, documentJSON: json, markdown: markdown)
+            XCTAssertFalse(legacy.useJSON)
+            let rich = TipTapContentSource.resolve(mode: mode, documentJSON: json, markdown: markdown, schemaVersion: 2)
+            XCTAssertTrue(rich.useJSON)
+            XCTAssertEqual(rich.payload, json)
+        }
+    }
+
+    func testCreateSendsJSONUnlessItIsTheEmptyPlaceholder() {
+        XCTAssertNil(OutboxFlusher.createContentJson(#"{"type":"doc","content":[{"type":"paragraph"}]}"#, markdown: "# Seed"))
+        XCTAssertNotNil(OutboxFlusher.createContentJson(#"{"type":"doc","content":[{"type":"paragraph"}]}"#, markdown: ""))
+        XCTAssertNotNil(OutboxFlusher.createContentJson(#"{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"x"}]}]}"#, markdown: "x"))
+        XCTAssertNil(OutboxFlusher.createContentJson(nil, markdown: "x"))
+    }
+
     func testViewerPrefersMarkdownForVisualDiagramEnvelope() {
         let decision = TipTapContentSource.resolve(
             mode: .viewer,

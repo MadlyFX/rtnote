@@ -35,6 +35,9 @@ import { createClientUuid } from "@/lib/client-id";
 import { notebookDeleteIdsFromPayload } from "@/lib/notebook-delete";
 import { acknowledgeNotebookId, hasTemporaryNotebookDependency, notebookRemapTables, repairQueuedNotebookReferences } from "@/lib/notebook-id-remap";
 
+const isTiptapDocPayload = (value: unknown): value is TiptapDoc =>
+  Boolean(value) && typeof value === "object" && Array.isArray((value as { content?: unknown }).content);
+
 export type { SyncQueueSummary, SyncRunResult } from "@edgeever/shared";
 export type SyncQueueResult = MemoDetail | Notebook | MemoTemplate | Resource | null;
 export type MemoUpdateAcknowledgement = "completed" | "rebased" | "stale";
@@ -798,6 +801,7 @@ const syncQueueItem = async (item: SyncQueueItem): Promise<SyncQueueResult> => {
       name: String(payload.name ?? ""),
       description: typeof payload.description === "string" ? payload.description : null,
       title: typeof payload.title === "string" ? payload.title : null,
+      contentJson: isTiptapDocPayload(payload.contentJson) ? payload.contentJson : undefined,
       contentMarkdown: typeof payload.contentMarkdown === "string" ? payload.contentMarkdown : "",
       tags: Array.isArray(payload.tags) ? payload.tags.filter((value): value is string => typeof value === "string") : [],
     });
@@ -809,6 +813,7 @@ const syncQueueItem = async (item: SyncQueueItem): Promise<SyncQueueResult> => {
       name: typeof payload.name === "string" ? payload.name : undefined,
       description: typeof payload.description === "string" ? payload.description : null,
       title: typeof payload.title === "string" ? payload.title : null,
+      contentJson: isTiptapDocPayload(payload.contentJson) ? payload.contentJson : undefined,
       contentMarkdown: typeof payload.contentMarkdown === "string" ? payload.contentMarkdown : undefined,
       tags: Array.isArray(payload.tags) ? payload.tags.filter((value): value is string => typeof value === "string") : [],
     });

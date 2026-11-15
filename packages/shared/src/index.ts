@@ -60,6 +60,7 @@ export * from "./note-image-card";
 export * from "./pdf-attachment";
 export * from "./types";
 export * from "./version";
+export * from "./client-compat";
 export * from './plugin-capabilities';
 
 export {

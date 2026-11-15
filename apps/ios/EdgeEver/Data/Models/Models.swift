@@ -121,6 +121,9 @@ struct MemoDetail: Codable, Equatable, Sendable, Identifiable {
     var sourceMemoIds: [String]
     var mergeSourceCount: Int
     var mergedIntoMemoId: String?
+    /// memo_contents.schema_version. 2 means contentJson is the only source and
+    /// contentMarkdown is generated from it. Missing from older servers and caches.
+    var schemaVersion: Int? = nil
 
     var displayTitle: String {
         let t = title?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""

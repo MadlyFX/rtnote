@@ -23,7 +23,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { WORKSPACE_PAGE_TITLE_CLASSNAME } from "@/lib/workspace-ui";
 import { copyTextToClipboard } from "@/lib/clipboard";
-import { createTemplateCards, createTemplateDraft, templateDraftToPayload } from "@/lib/template-center";
+import { createTemplateCards, createTemplateDraft, emptyTemplateDraft, templateDraftToPayload, type TemplatePayload } from "@/lib/template-center";
+import { TemplateRichEditor } from "@/components/TemplateRichEditor";
 import { listMemoTemplateGallery, type MemoTemplateGalleryEntry } from "@edgeever/shared/memo-template-gallery";
 import { ClipboardCopyNotice } from "@/components/ClipboardCopyNotice";
 import type { MemoTemplate as SavedMemoTemplate } from "@edgeever/shared";
@@ -72,18 +73,17 @@ export const TemplatesPane = ({
   canCreateMemo: boolean;
   isCreating: boolean;
   onClose: () => void;
-  onCreateSavedTemplate: (payload: { name: string; description: string | null; title: string | null; contentMarkdown: string; tags: string[] }) => Promise<void>;
+  onCreateSavedTemplate: (payload: TemplatePayload) => Promise<void>;
   savedTemplates: SavedMemoTemplate[];
   onUseSavedTemplate: (template: SavedMemoTemplate) => void;
   onDeleteSavedTemplate: (template: SavedMemoTemplate) => void;
-  onUpdateSavedTemplate: (templateId: string, payload: { name: string; description: string | null; title: string | null; contentMarkdown: string; tags: string[] }) => Promise<void>;
+  onUpdateSavedTemplate: (templateId: string, payload: TemplatePayload) => Promise<void>;
   onOpenExecutionCenter: () => void;
 }) => {
   const { t, i18n } = useTranslation();
   const [editingTemplate, setEditingTemplate] = useState<SavedMemoTemplate | null>(null);
   const [creatingTemplate, setCreatingTemplate] = useState(false);
-  const [draft, setDraft] = useState({ name: "", description: "", title: "", contentMarkdown: "", tags: "" });
-  const [editorTab, setEditorTab] = useState<"raw" | "preview">("raw");
+  const [draft, setDraft] = useState(emptyTemplateDraft);
 
   const [previewTemplate, setPreviewTemplate] = useState<{
     title: string;
@@ -114,15 +114,13 @@ export const TemplatesPane = ({
   const startEditing = (template: SavedMemoTemplate) => {
     setCreatingTemplate(false);
     setEditingTemplate(template);
-    setEditorTab("raw");
     setDraft(createTemplateDraft(template));
   };
 
   const startCreating = () => {
     setEditingTemplate(null);
     setCreatingTemplate(true);
-    setEditorTab("raw");
-    setDraft({ name: "", description: "", title: "", contentMarkdown: "", tags: "" });
+    setDraft(emptyTemplateDraft());
   };
 
   const cancelEditing = () => {
@@ -179,11 +177,6 @@ export const TemplatesPane = ({
       setAddingGalleryKey(null);
     }
   };
-
-  const draftHtmlPreview = useMemo(
-    () => (draft.contentMarkdown ? safeMarkdownPreview(draft.contentMarkdown) : ""),
-    [draft.contentMarkdown]
-  );
 
   const previewHtmlContent = useMemo(
     () => (previewTemplate?.contentMarkdown ? safeMarkdownPreview(previewTemplate.contentMarkdown) : ""),
@@ -295,44 +288,19 @@ export const TemplatesPane = ({
                     </div>
                   </div>
 
-                  {/* Content Area with Editor / Preview Toggle */}
+                  {/* Template body, edited as rich text like a note */}
                   <div>
                     <div className="mb-1.5 flex items-center justify-between">
                       <label className="text-xs font-medium text-slate-700">{t("templates.content")}</label>
-                      <div className="inline-flex rounded-lg bg-slate-100 p-0.5 text-xs font-medium text-slate-600">
-                        <button
-                          type="button"
-                          className={`rounded-md px-2.5 py-1 transition ${editorTab === "raw" ? "bg-card text-slate-900 shadow-2xs" : "hover:text-slate-900"}`}
-                          onClick={() => setEditorTab("raw")}
-                        >
-                          {t("templates.rawEditor")}
-                        </button>
-                        <button
-                          type="button"
-                          className={`rounded-md px-2.5 py-1 transition ${editorTab === "preview" ? "bg-card text-slate-900 shadow-2xs" : "hover:text-slate-900"}`}
-                          onClick={() => setEditorTab("preview")}
-                        >
-                          {t("templates.previewEditor")}
-                        </button>
-                      </div>
                     </div>
-
-                    {editorTab === "raw" ? (
-                      <textarea
-                        className="min-h-48 w-full resize-y rounded-lg border border-slate-200 bg-card p-3.5 font-mono text-xs text-slate-900 outline-none focus-visible:border-slate-400 focus-visible:ring-2 focus-visible:ring-slate-400/25"
-                        value={draft.contentMarkdown}
-                        onChange={(e) => setDraft((c) => ({ ...c, contentMarkdown: e.target.value }))}
-                        placeholder={t("templates.contentPlaceholder")}
-                      />
-                    ) : (
-                      <div className="min-h-48 w-full overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-4 text-xs text-slate-800">
-                        {draftHtmlPreview ? (
-                          <div className="prose prose-xs max-w-none" dangerouslySetInnerHTML={{ __html: draftHtmlPreview }} />
-                        ) : (
-                          <span className="italic text-slate-400">{t("templates.contentPlaceholder")}</span>
-                        )}
-                      </div>
-                    )}
+                    <TemplateRichEditor
+                      // Remount per template so the editor starts from that template's body.
+                      key={editingTemplate?.id ?? "new"}
+                      value={draft.contentJson}
+                      onChange={(contentJson) => setDraft((c) => ({ ...c, contentJson, contentChanged: true }))}
+                      placeholder={t("templates.contentPlaceholder")}
+                      ariaLabel={t("templates.content")}
+                    />
                   </div>
 
                   <div className="flex justify-end gap-2 pt-2">

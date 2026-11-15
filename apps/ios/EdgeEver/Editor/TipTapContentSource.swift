@@ -11,10 +11,18 @@ enum TipTapContentSource: Sendable {
 
     private static let emptyStub = "{\"type\":\"doc\",\"content\":[{\"type\":\"paragraph\"}]}"
 
-    static func resolve(mode: TipTapMode, documentJSON: String, markdown: String) -> Decision {
+    static func resolve(mode: TipTapMode, documentJSON: String, markdown: String, schemaVersion: Int? = nil) -> Decision {
         let json = documentJSON.trimmingCharacters(in: .whitespacesAndNewlines)
         let mdTrim = markdown.trimmingCharacters(in: .whitespacesAndNewlines)
         let jsonUsable = !json.isEmpty && json != emptyStub
+
+        // Rich-text notes (schema 2): the JSON is the only source and the
+        // Markdown is a copy generated from it, so never prefer the Markdown.
+        // Structured notes keep their data in a Markdown marker and are never
+        // schema 2.
+        if (schemaVersion ?? 1) >= 2, !json.isEmpty, !hasStructuredMarker(markdown) {
+            return Decision(useJSON: true, payload: documentJSON, fingerprint: "json:\(json)")
+        }
 
         // Detail/viewer: prefer JSON when it carries image width attrs (markdown drops them).
         // Fall back to markdown for empty/stub JSON or when markdown encodes richer structure
@@ -65,6 +73,13 @@ enum TipTapContentSource: Sendable {
             return Decision(useJSON: true, payload: documentJSON, fingerprint: "json:\(json)")
         }
         return Decision(useJSON: false, payload: markdown, fingerprint: "md:\(markdown)")
+    }
+
+    static func hasStructuredMarker(_ markdown: String) -> Bool {
+        markdown.contains("<!-- edgeever-diagram-v1:")
+            || markdown.contains("<!-- edgeever-table-v1:")
+            || markdown.contains("<!-- edgeever-poster-v1:")
+            || markdown.contains("<!-- edgeever-infographic-v1:")
     }
 
     static func stripStructuredTableMarker(_ markdown: String) -> String {

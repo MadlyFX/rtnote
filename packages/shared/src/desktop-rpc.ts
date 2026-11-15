@@ -148,8 +148,8 @@ export type DesktopRpcParams = {
   "notebook.restore": { notebookId: string };
   "template.list": Record<string, never>;
   "template.cache": { template: MemoTemplate };
-  "template.create": { name: string; description?: string | null; memoId?: string; title?: string | null; contentMarkdown?: string; tags?: string[] };
-  "template.update": { templateId: string; name?: string; description?: string | null; title?: string | null; contentMarkdown?: string; tags?: string[] };
+  "template.create": { name: string; description?: string | null; memoId?: string; title?: string | null; contentJson?: TiptapDoc; contentMarkdown?: string; tags?: string[] };
+  "template.update": { templateId: string; name?: string; description?: string | null; title?: string | null; contentJson?: TiptapDoc; contentMarkdown?: string; tags?: string[] };
   "template.delete": { templateId: string };
   "resource.list": { limit?: number };
   "resource.cache": { resource: import("./types").Resource };
@@ -161,7 +161,8 @@ export type DesktopRpcParams = {
   "memo.deleteBatch": { memoIds: string[]; permanent?: boolean };
   "memo.emptyTrash": Record<string, never>;
   "memo.pinBatch": { memoIds: string[]; isPinned: boolean };
-  "memo.merge": { memoIds: string[]; notebookId?: string; title?: string };
+  /** contentJson/contentMarkdown/contentText: the merged document built by the renderer. */
+  "memo.merge": { memoIds: string[]; notebookId?: string; title?: string; contentJson?: TiptapDoc; contentMarkdown?: string; contentText?: string };
   "memo.list": DesktopMemoListParams;
   "memo.get": { memoId: string; includeDeleted?: boolean };
   "memo.create": DesktopMemoCreateParams;

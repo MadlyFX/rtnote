@@ -5,7 +5,6 @@ import { BackHandler, Platform } from "react-native";
 import {
   DEFAULT_MEMO_TITLE,
   docToMarkdown,
-  markdownToDoc,
   resolveMemoContentDoc,
   type MemoDetail,
   type Notebook,
@@ -18,7 +17,7 @@ import {
   cancelMobileEditorUpload,
   flushMobileEditor,
 } from "../lib/mobile-editor-controller";
-import { clearMobileMemoDraft, writeMobileMemoDraft, type MobileMemoDraft } from "../lib/mobile-drafts";
+import { clearMobileMemoDraft, restoreDraftDoc, writeMobileMemoDraft, type MobileMemoDraft } from "../lib/mobile-drafts";
 import { prepareUploadAsset } from "../lib/mobile-image-upload";
 import { localizeMissingNotebookName, useMobileLocale, getMobileCatalog, formatMobileCopy, type MobileLocale } from "../lib/mobile-locale";
 import { useSession } from "../lib/session";
@@ -110,7 +109,7 @@ export const useMobileRichEditor = ({
   const { resolvedLocale } = useMobileLocale();
   const restoredDraft = restoreDraft(memo, initialDraft);
   const initialContentJson = restoredDraft
-    ? markdownToDoc(restoredDraft.contentMarkdown)
+    ? restoreDraftDoc(restoredDraft, memo)
     : resolveMemoContentDoc(memo?.contentJson, memo?.contentMarkdown, memo ?? undefined);
   const resourceDataUrlCacheRef = useRef(new Map<string, Promise<string | null>>());
   const imageLoadFailureNotifier = useMemo(
@@ -190,7 +189,7 @@ export const useMobileRichEditor = ({
     memoBaseRef.current = memo;
     const nextDraft = restoreDraft(memo, initialDraft);
     const nextContentJson = nextDraft
-      ? markdownToDoc(nextDraft.contentMarkdown)
+      ? restoreDraftDoc(nextDraft, memo)
       : resolveMemoContentDoc(memo.contentJson, memo.contentMarkdown, memo);
     contentJsonRef.current = nextContentJson;
     contentMarkdownRef.current = nextDraft?.contentMarkdown ?? memo.contentMarkdown ?? "";
@@ -253,6 +252,7 @@ export const useMobileRichEditor = ({
       memoId: currentMemo.id,
       expectedRevision: currentMemo.revision,
       title: titleRef.current.trim(),
+      contentJson: contentJsonRef.current,
       contentMarkdown: contentMarkdownRef.current,
       notebookId: notebookIdRef.current,
       tagsText: tagsTextRef.current,
@@ -449,6 +449,7 @@ export const useMobileRichEditor = ({
         memoId: currentMemo.id,
         expectedRevision: currentMemo.revision,
         title: titleRef.current.trim(),
+        contentJson: contentJsonRef.current,
         contentMarkdown: contentMarkdownRef.current,
         notebookId: notebookIdRef.current,
         tagsText: tagsTextRef.current,

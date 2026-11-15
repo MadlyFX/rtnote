@@ -888,6 +888,7 @@ export const enUS = {
     discard: "Discard changes",
   },
   workspace: {
+    clientBelowMinimum: "This app is older than the server and opens notes read-only so it cannot overwrite newer formatting. Update RTNote to {{version}} or later to edit.",
     inboxDeleteTitle: "Inbox cannot be deleted",
     inboxDeleteDescription: "Inbox is the default notebook, so new notes always have a home.",
     selection: {

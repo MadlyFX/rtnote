@@ -907,6 +907,7 @@ export const zhCN = {
     discard: "放弃修改",
   },
   workspace: {
+    clientBelowMinimum: "此应用版本低于服务器，笔记以只读方式打开，以免覆盖较新的格式。请将 RTNote 更新到 {{version}} 或更高版本后再编辑。",
     inboxDeleteTitle: "等待分类不能删除",
     inboxDeleteDescription: "等待分类是默认笔记本，用来保证新笔记始终有归属。",
     selection: {

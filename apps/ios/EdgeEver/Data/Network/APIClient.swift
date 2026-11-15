@@ -174,17 +174,21 @@ actor APIClient {
 
     // MARK: - Memos
 
+    /// `contentJson`, when given, is the rich-text source: the server stores it
+    /// and generates the Markdown copy from it.
     func createMemo(
         notebookId: String,
         title: String?,
         contentMarkdown: String?,
         tags: [String]?,
         createdAt: String? = nil,
-        updatedAt: String? = nil
+        updatedAt: String? = nil,
+        contentJson: JSONValue? = nil
     ) async throws -> MemoDetail {
         struct Body: Encodable {
             var notebookId: String
             var title: String?
+            var contentJson: JSONValue?
             var contentMarkdown: String?
             var tags: [String]?
             var createdAt: String?
@@ -196,6 +200,7 @@ actor APIClient {
             body: Body(
                 notebookId: notebookId,
                 title: title,
+                contentJson: contentJson,
                 contentMarkdown: contentMarkdown,
                 tags: tags,
                 createdAt: createdAt,

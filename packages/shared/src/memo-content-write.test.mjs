@@ -111,4 +111,9 @@ describe("resolveMemoContentDoc with schema version 2", () => {
     expect(resolveMemoContentDoc(json, markdown).content[0].type).toBe("taskList");
     expect(resolveMemoContentDoc(json, markdown, { schemaVersion: 2 }).content[0]).toEqual(sizedImage);
   });
+
+  test("keeps the JSON when the Markdown was generated from it, even without a schema version", () => {
+    const json = { type: "doc", content: [sizedImage] };
+    expect(resolveMemoContentDoc(json, docToMarkdown(json)).content[0]).toEqual(sizedImage);
+  });
 });

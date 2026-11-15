@@ -350,6 +350,14 @@ pub(crate) fn cache_template(database: &Connection, params: &Value) -> Result<Va
     template_value(database, &id).map(|template| json!({ "template": template }))
 }
 
+/// A rich-text TipTap document passed as `contentJson`, if present.
+fn rich_text_param(params: &Value) -> Option<Value> {
+    params
+        .get("contentJson")
+        .filter(|value| value.get("content").map(Value::is_array).unwrap_or(false))
+        .cloned()
+}
+
 pub(crate) fn create_template(database: &Connection, params: &Value) -> Result<Value, String> {
     let name = string_param(params, "name")?;
     let id = now_id("tpl_local");
@@ -384,7 +392,9 @@ pub(crate) fn create_template(database: &Connection, params: &Value) -> Result<V
                     .to_owned(),
                 markdown.clone(),
                 params.get("tags").cloned().unwrap_or_else(|| json!([])),
-                markdown_doc(&markdown),
+                // The renderer sends the rich-text document; markdown_doc is a
+                // lossy fallback for older renderers.
+                rich_text_param(params).unwrap_or_else(|| markdown_doc(&markdown)),
             )
         };
     let description = params.get("description").and_then(Value::as_str);
@@ -397,7 +407,7 @@ pub(crate) fn create_template(database: &Connection, params: &Value) -> Result<V
         &json!({
             "temporaryId": id, "name": name, "description": description,
             "title": if title.is_empty() { Value::Null } else { json!(title) },
-            "contentMarkdown": markdown, "tags": tags,
+            "contentMarkdown": markdown, "contentJson": content_json, "tags": tags,
         }),
     )?;
     Ok(template)
@@ -433,7 +443,14 @@ pub(crate) fn update_template(database: &Connection, params: &Value) -> Result<V
         .get("tags")
         .cloned()
         .unwrap_or_else(|| current.get("tags").cloned().unwrap_or_else(|| json!([])));
-    database.execute("UPDATE memo_templates SET name = ?1, description = ?2, title = ?3, content_json = ?4, content_markdown = ?5, tags_json = ?6, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ?7", rusqlite::params![name, description, title, markdown_doc(markdown).to_string(), markdown, tags.to_string(), template_id]).map_err(|e| e.to_string())?;
+    let content_json = rich_text_param(params).unwrap_or_else(|| {
+        if params.get("contentMarkdown").is_some() {
+            markdown_doc(markdown)
+        } else {
+            current.get("contentJson").cloned().unwrap_or_else(|| markdown_doc(markdown))
+        }
+    });
+    database.execute("UPDATE memo_templates SET name = ?1, description = ?2, title = ?3, content_json = ?4, content_markdown = ?5, tags_json = ?6, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ?7", rusqlite::params![name, description, title, content_json.to_string(), markdown, tags.to_string(), template_id]).map_err(|e| e.to_string())?;
     let template = template_value(database, &template_id)?;
     enqueue_change(database, "template.update", &template_id, params)?;
     Ok(template)

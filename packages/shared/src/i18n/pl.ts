@@ -896,6 +896,7 @@ export const pl = {
     discard: "Odrzuć zmiany",
   },
   workspace: {
+    clientBelowMinimum: "Ta aplikacja jest starsza niż serwer i otwiera notatki tylko do odczytu, aby nie nadpisać nowszego formatowania. Zaktualizuj RTNote do wersji {{version}} lub nowszej, aby edytować.",
     inboxDeleteTitle: "Nie można usunąć Skrzynki",
     inboxDeleteDescription: "Skrzynka to domyślny notatnik, dzięki niemu nowe notatki zawsze mają swoje miejsce.",
     selection: {

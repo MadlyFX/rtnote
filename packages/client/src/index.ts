@@ -147,6 +147,8 @@ export type InstanceHealth = {
     resources?: "r2" | "filesystem" | "s3" | string | null;
   } | null;
   objectStorageProvider?: "builtin" | "s3" | "unknown" | string | null;
+  /** Clients older than this open notes read-only. Absent on older servers. */
+  minClientVersion?: string | null;
 };
 
 export type InstanceRelease = {
@@ -1453,6 +1455,7 @@ export const createEdgeEverClient = (options: EdgeEverClientOptions = {}) => {
       description?: string | null;
       memoId?: string;
       title?: string | null;
+      contentJson?: unknown;
       contentMarkdown?: string;
       tags?: string[];
     }) => request<TemplateResponse>("/api/v1/templates", {
@@ -1464,6 +1467,7 @@ export const createEdgeEverClient = (options: EdgeEverClientOptions = {}) => {
       name?: string;
       description?: string | null;
       title?: string | null;
+      contentJson?: unknown;
       contentMarkdown?: string;
       tags?: string[];
     }) => request<TemplateResponse>(`/api/v1/templates/${encodeURIComponent(templateId)}`, {

@@ -317,10 +317,30 @@ pub(crate) fn merge_memos(database: &Connection, params: &Value) -> Result<Value
         .unwrap_or_default();
     tags.sort();
     tags.dedup();
-    let markdown = markdowns.join("\n\n---\n\n");
-    let content_json = markdown_doc(&markdown);
+    // The renderer merges the rich-text documents with the same code as the
+    // server and passes the result. The joined-Markdown fallback is only for
+    // older renderers; it loses formatting until the server merge syncs back.
+    let provided_json = params
+        .get("contentJson")
+        .filter(|value| value.get("content").map(Value::is_array).unwrap_or(false));
+    let provided_markdown = params.get("contentMarkdown").and_then(Value::as_str);
+    let (markdown, content_json, content_text) = match (provided_json, provided_markdown) {
+        (Some(json), Some(markdown)) => {
+            let text = params
+                .get("contentText")
+                .and_then(Value::as_str)
+                .map(str::to_owned)
+                .unwrap_or_else(|| markdown.lines().collect::<Vec<_>>().join(" "));
+            (markdown.to_owned(), json.clone(), text)
+        }
+        _ => {
+            let markdown = markdowns.join("\n\n---\n\n");
+            let content_json = markdown_doc(&markdown);
+            let content_text = markdown.lines().collect::<Vec<_>>().join(" ");
+            (markdown, content_json, content_text)
+        }
+    };
     let content_json_text = content_json.to_string();
-    let content_text = markdown.lines().collect::<Vec<_>>().join(" ");
     let id = now_id("memo_local");
     let source_ids = serde_json::to_string(&ids).unwrap_or_else(|_| "[]".to_owned());
     let tx = database

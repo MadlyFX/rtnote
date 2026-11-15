@@ -3,6 +3,7 @@ import {
   createExcerpt,
   docToText,
   markdownToDoc,
+  MIN_CLIENT_VERSION,
   normalizeTags,
 } from "@edgeever/shared";
 import { Hono } from "hono";
@@ -247,6 +248,7 @@ app.get("/api/health", async (c) => {
         }
       : {}),
     authMode,
+    minClientVersion: MIN_CLIENT_VERSION,
     build: INSTANCE_BUILD_ID.slice(0, 12),
     deployment: resolveInstanceDeploymentMetadata(c.env),
     deploymentVersionCreatedAt: resolveDeploymentVersionCreatedAt(c.env),

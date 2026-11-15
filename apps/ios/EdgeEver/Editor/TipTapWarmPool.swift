@@ -7,6 +7,8 @@ struct TipTapSession {
     var mode: TipTapMode
     var documentJSON: String
     var markdown: String
+    /// See MemoDetail.schemaVersion. 2 opens the note from documentJSON only.
+    var schemaVersion: Int? = nil
     var baseURL: URL?
     var token: String?
     var locale: String
@@ -547,7 +549,8 @@ final class SharedTipTapRuntime: NSObject, WKScriptMessageHandler, WKNavigationD
         TipTapContentSource.resolve(
             mode: session.mode,
             documentJSON: session.documentJSON,
-            markdown: session.markdown
+            markdown: session.markdown,
+            schemaVersion: session.schemaVersion
         )
     }
 

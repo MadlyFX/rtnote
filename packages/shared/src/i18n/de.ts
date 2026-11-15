@@ -1046,6 +1046,7 @@ export const de = {
     "discard": "Änderungen verwerfen"
   },
   "workspace": {
+    "clientBelowMinimum": "Diese App ist älter als der Server und öffnet Notizen schreibgeschützt, damit neuere Formatierungen nicht überschrieben werden. Aktualisiere RTNote auf {{version}} oder neuer, um zu bearbeiten.",
     "inboxDeleteTitle": "„Eingang“ kann nicht gelöscht werden",
     "inboxDeleteDescription": "„Eingang“ ist das Standard-Notizbuch, damit neue Notizen immer einen festen Ort haben.",
     "selection": {

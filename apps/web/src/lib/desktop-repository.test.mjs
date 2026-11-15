@@ -66,6 +66,7 @@ afterAll(() => {
 });
 
 const { createDesktopRepository } = await import("./desktop-repository.ts");
+const { markdownToDoc } = await import("@edgeever/shared");
 
 describe("desktop repository notebook filters", () => {
   test("uses the notebook subtree without also restricting results to the parent", async () => {
@@ -364,7 +365,8 @@ const desktopResource = (id, overrides = {}) => ({
   id, memoId: "memo-1", kind: "attachment", filename: `${id}.txt`, byteSize: 3, url: `/api/v1/resources/${id}/blob`, ...overrides,
 });
 const desktopTemplate = (id, overrides = {}) => ({
-  id, name: id, description: null, title: `${id} title`, contentJson: { type: "doc", content: [] }, contentMarkdown: "**Body**", tags: ["t"],
+  // Stored templates keep JSON and Markdown in step.
+  id, name: id, description: null, title: `${id} title`, contentJson: markdownToDoc("**Body**"), contentMarkdown: "**Body**", tags: ["t"],
   createdAt: "2026-01-01", updatedAt: "2026-01-01", ...overrides,
 });
 
@@ -586,10 +588,16 @@ describe("desktop repository notes", () => {
   });
 
   test("merges notes in the sidecar and shows resource links through the desktop protocol", async () => {
+    const source = (id, text) => ({ memo: { id, contentJson: markdownToDoc(text), contentMarkdown: text, contentText: text } });
     await withSidecar({
+      "memo.get": ({ memoId }) => source(memoId, `Body ${memoId}`),
       "memo.merge": () => ({ memo: { id: "memo-merged", contentJson: { type: "doc", content: [{ type: "image", attrs: { src: "/api/v1/resources/res-1/blob" } }] }, contentMarkdown: "![a](/api/v1/resources/res-1/blob)" } }),
-    }, async ({ events }) => {
+    }, async ({ calls, events }) => {
       const { memo } = await createDesktopRepository().mergeMemos({ memoIds: ["a", "b"] });
+      const mergeCall = calls.find((call) => call.method === "memo.merge");
+      expect(mergeCall.params.contentMarkdown).toContain("Body a");
+      expect(mergeCall.params.contentMarkdown).toContain("Body b");
+      expect(mergeCall.params.contentJson.type).toBe("doc");
       expect(memo.contentJson.content[0].attrs.src).toBe("edgeever-resource://resource/res-1");
       expect(memo.contentMarkdown).toBe("![a](edgeever-resource://resource/res-1)");
       expect(events).toEqual(["edgeever:sync-queue-changed"]);

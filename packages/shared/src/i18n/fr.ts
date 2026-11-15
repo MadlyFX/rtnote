@@ -1046,6 +1046,7 @@ export const fr = {
     discard: "Ignorer les modifications"
   },
   workspace: {
+    clientBelowMinimum: "Cette application est plus ancienne que le serveur et ouvre les notes en lecture seule pour ne pas écraser une mise en forme plus récente. Mettez RTNote à jour vers {{version}} ou plus pour modifier.",
     inboxDeleteTitle: "La boîte de réception ne peut pas être supprimée",
     inboxDeleteDescription: "La boîte de réception est le carnet par défaut pour que les nouvelles notes aient toujours un emplacement.",
     selection: {
