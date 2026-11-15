@@ -168,6 +168,7 @@ const EvernoteImportGuidePane = lazy(() =>
   import("./EvernoteImportGuidePane").then((module) => ({ default: module.EvernoteImportGuidePane }))
 );
 const TagsPane = lazy(() => import("./TagsPane").then((module) => ({ default: module.TagsPane })));
+import type { TemplatePayload } from "@/lib/template-center";
 const TemplatesPane = lazy(() => import("./TemplatesPane").then((module) => ({ default: module.TemplatesPane })));
 const AiPromptsPane = lazy(() => import("./AiPromptsPane").then((module) => ({ default: module.AiPromptsPane })));
 const ExecutionCenterPane = lazy(() =>
@@ -1370,8 +1371,7 @@ export const WorkspaceApp = ({
   });
 
   const createTemplateMutation = useMutation({
-    mutationFn: (input: { name: string; description: string | null; title: string | null; contentMarkdown: string; tags: string[] }) =>
-      repository.createTemplate(input),
+    mutationFn: (input: TemplatePayload) => repository.createTemplate(input),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["templates"] });
       setAppNoticeDialog({ title: t("templates.templateCreated"), description: t("templates.templateCreated") });
@@ -1426,7 +1426,7 @@ export const WorkspaceApp = ({
   const updateTemplateMutation = useMutation({
     mutationFn: (input: {
       templateId: string;
-      payload: { name: string; description: string | null; title: string | null; contentMarkdown: string; tags: string[] };
+      payload: TemplatePayload;
     }) => repository.updateTemplate(input.templateId, input.payload),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["templates"] });

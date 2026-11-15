@@ -30,12 +30,18 @@ describe("template center", () => {
     const [card] = createTemplateCards([storedChinese], "pl");
     const draft = { ...createTemplateDraft(card.template), name: "Moja notatka" };
 
+    // The untouched body is not resent, so the stored Markdown stays exact.
     expect(templateDraftToPayload(draft)).toEqual({
       name: "Moja notatka",
       description: chinese.description,
       title: chinese.title,
-      contentMarkdown: chinese.contentMarkdown,
       tags: ["template", "quick-note"],
     });
+  });
+
+  test("an edited body is sent as rich text with a generated Markdown copy", () => {
+    const contentJson = { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "New body" }] }] };
+    const draft = { ...createTemplateDraft(storedChinese), contentJson, contentChanged: true };
+    expect(templateDraftToPayload(draft)).toMatchObject({ contentJson, contentMarkdown: "New body" });
   });
 });

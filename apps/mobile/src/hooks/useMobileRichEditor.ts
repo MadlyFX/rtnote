@@ -5,7 +5,6 @@ import { BackHandler, Platform } from "react-native";
 import {
   DEFAULT_MEMO_TITLE,
   docToMarkdown,
-  markdownToDoc,
   resolveMemoContentDoc,
   type MemoDetail,
   type Notebook,
