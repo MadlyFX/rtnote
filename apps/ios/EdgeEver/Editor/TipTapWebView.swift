@@ -27,6 +27,7 @@ struct TipTapWebView: UIViewRepresentable {
     var onReaderScroll: ((_ collapsed: Bool) -> Void)? = nil
     var onImageExportEvent: (([String: Any]) -> Void)? = nil
     var onBodyReady: (() -> Void)? = nil
+    var schemaVersion: Int? = nil
 
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
@@ -48,6 +49,7 @@ struct TipTapWebView: UIViewRepresentable {
                 mode: mode,
                 documentJSON: documentJSON,
                 markdown: markdown,
+                schemaVersion: schemaVersion,
                 baseURL: baseURL,
                 token: token,
                 locale: locale,

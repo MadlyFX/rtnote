@@ -11,6 +11,8 @@ final class MemoEditViewModel {
     var notebookId = ""
     var contentMarkdown = ""
     var contentJSON = MemoEditViewModel.emptyDocJSON
+    /// Schema version of the note being edited; see MemoDetail.schemaVersion.
+    var schemaVersion: Int? = nil
     var expectedRevision: Int?
     var expectedContentHash: String?
     var memoId: String?

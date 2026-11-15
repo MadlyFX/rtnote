@@ -86,10 +86,11 @@ actor OutboxFlusher {
                 contentMarkdown: payload.contentMarkdown,
                 tags: payload.tags,
                 createdAt: payload.createdAt,
-                updatedAt: item.updatedAt
+                updatedAt: item.updatedAt,
+                contentJson: Self.createContentJson(payload.contentJson, markdown: payload.contentMarkdown)
             )
-            // Create API builds contentJson from markdown only — image width is lost.
-            // Keep local TipTap JSON (with width) on the mirror for detail/edit display.
+            // Older servers build contentJson from Markdown only, losing image
+            // widths. Keep the local TipTap JSON on the mirror for display.
             if let local = Self.parseContentJson(payload.contentJson) {
                 memo.contentJson = local
             }
@@ -210,15 +211,27 @@ actor OutboxFlusher {
             notebookId: payload.notebookId,
             title: payload.title,
             contentMarkdown: payload.contentMarkdown,
-            tags: payload.tags
+            tags: payload.tags,
+            contentJson: Self.createContentJson(payload.contentJson, markdown: payload.contentMarkdown)
         )
-        // Create API only accepts markdown (drops image width). Prefer local TipTap JSON
-        // for the mirror so detail/edit still show the size the user set until a later
-        // contentJson update lands on the server.
+        // Older servers build contentJson from Markdown only. Prefer the local
+        // TipTap JSON on the mirror so detail/edit keep the user's formatting.
         if let local = Self.parseContentJson(payload.contentJson) {
             memo.contentJson = local
         }
         return memo
+    }
+
+    /// JSON to send with a create, or nil when it is only the empty placeholder
+    /// that template and clip seeds carry before the editor emits content.
+    static func createContentJson(_ raw: String?, markdown: String?) -> JSONValue? {
+        guard let raw else { return nil }
+        let compact = raw.filter { !$0.isWhitespace }
+        let placeholder = compact == #"{"type":"doc","content":[{"type":"paragraph"}]}"#
+            || compact == #"{"type":"doc","content":[]}"#
+        let hasMarkdown = !(markdown ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        if placeholder && hasMarkdown { return nil }
+        return parseContentJson(raw)
     }
 
     private static func parseContentJson(_ raw: String?) -> JSONValue? {

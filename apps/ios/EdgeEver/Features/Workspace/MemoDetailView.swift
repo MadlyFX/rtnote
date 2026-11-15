@@ -882,7 +882,8 @@ struct MemoDetailView: View {
                     },
                     onBodyReady: {
                         bodyReady = true
-                    }
+                    },
+                    schemaVersion: memo.schemaVersion
                 )
 
                 if !bodyReady {

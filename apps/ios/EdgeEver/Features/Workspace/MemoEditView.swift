@@ -600,7 +600,8 @@ struct MemoEditView: View {
                             if initialFocus == .title {
                                 focusTitleOnce()
                             }
-                        }
+                        },
+                        schemaVersion: viewModel.schemaVersion
                     )
                     .opacity(1)
                 }
@@ -863,6 +864,7 @@ struct MemoEditView: View {
         contentMarkdown = seed.contentMarkdown
         // Empty stub JSON forces TipTapContentSource to open from markdown structure.
         contentJSON = MemoEditViewModel.emptyDocJSON
+        viewModel.schemaVersion = nil
         baselineMarkdown = seed.contentMarkdown
         editorReady = false
         markDirtyAndScheduleSave()
@@ -939,6 +941,9 @@ struct MemoEditView: View {
             tagsText = ""
             contentMarkdown = ""
             contentJSON = MemoEditViewModel.emptyDocJSON
+            // A template or clip seed opens from Markdown; never inherit the
+            // previous note's schema version.
+            viewModel.schemaVersion = nil
             notebookId = nb
             memoId = nil
             expectedRevision = nil
@@ -960,6 +965,7 @@ struct MemoEditView: View {
                 tagsText = memo.tags.joined(separator: ", ")
                 contentMarkdown = memo.contentMarkdown
                 contentJSON = (try? memo.contentJson.jsonString()) ?? contentJSON
+                viewModel.schemaVersion = memo.schemaVersion
                 notebookId = memo.notebookId
                 expectedRevision = memo.revision
                 expectedContentHash = memo.contentHash
@@ -1005,6 +1011,7 @@ struct MemoEditView: View {
             tagsText = remote.tags.joined(separator: ", ")
             contentMarkdown = remote.contentMarkdown
             contentJSON = (try? remote.contentJson.jsonString()) ?? contentJSON
+            viewModel.schemaVersion = remote.schemaVersion
             expectedRevision = remote.revision
             expectedContentHash = remote.contentHash
             baselineMarkdown = contentMarkdown
@@ -1015,6 +1022,7 @@ struct MemoEditView: View {
             tagsText = memo.tags.joined(separator: ", ")
             contentMarkdown = memo.contentMarkdown
             contentJSON = (try? memo.contentJson.jsonString()) ?? contentJSON
+            viewModel.schemaVersion = memo.schemaVersion
             expectedRevision = memo.revision
             expectedContentHash = memo.contentHash
             baselineMarkdown = contentMarkdown
@@ -1226,7 +1234,8 @@ struct MemoEditView: View {
             notebookId: notebookId.isEmpty ? (availableNotebooks.first?.id ?? "") : notebookId,
             title: title.isEmpty ? env.preferences.t("无标题笔记", en: "Untitled note", pl: "Notatka bez tytułu") : title,
             contentMarkdown: contentMarkdown,
-            tags: tags
+            tags: tags,
+            contentJson: OutboxFlusher.createContentJson(contentJSON, markdown: contentMarkdown)
         )
         try env.mirror.upsertMemo(scope: scope, memo: memo)
         try env.drafts.clear(scope: scope, key: DraftRepository.newKey)
