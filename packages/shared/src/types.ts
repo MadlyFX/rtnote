@@ -51,6 +51,12 @@ export type MemoSummary = {
 export type MemoDetail = MemoSummary & {
   contentJson: TiptapDoc;
   contentMarkdown: string;
+  /**
+   * memo_contents.schema_version. 2 means contentJson is the only source and
+   * contentMarkdown is generated from it. Absent from older servers and
+   * local caches, which means legacy (1).
+   */
+  schemaVersion?: number;
   contentText: string;
   contentHash: string;
   sourceMemoIds: string[];

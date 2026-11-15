@@ -187,9 +187,9 @@ export const duplicateMemoRecord = async (
       ),
       db.prepare(
         `INSERT INTO memo_contents (
-          memo_id, content_json, content_markdown, content_text, content_hash, revision, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, 0, ?, ?)`,
-      ).bind(newMemoId, JSON.stringify(contentJson), contentMarkdown, contentText, contentHash, now, now),
+          memo_id, schema_version, content_json, content_markdown, content_text, content_hash, revision, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)`,
+      ).bind(newMemoId, source.schema_version ?? 1, JSON.stringify(contentJson), contentMarkdown, contentText, contentHash, now, now),
       upsertMemoSearchDocumentStatement(db, newMemoId, title, contentText, tags.join(" ")),
       ...copies.map((copy) => db.prepare(
         `INSERT INTO resources (

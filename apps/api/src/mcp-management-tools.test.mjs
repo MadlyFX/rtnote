@@ -535,6 +535,38 @@ describe("MCP template and AI instruction management", () => {
     expect(parseDiagramDocument(stored.content_markdown).nodes.map((node) => node.id)).toContain("redis");
   });
 
+  test("writes rich text through contentJson and merges Markdown edits", async () => {
+    const { sqlite, auth, context } = createFixture();
+    sqlite.query("INSERT INTO notebooks (id, workspace_id, name) VALUES ('nb_rich', 'ws_mcp', 'Rich')").run();
+    const red = {
+      type: "paragraph",
+      content: [{ type: "text", text: "Red", marks: [{ type: "textStyle", attrs: { color: "#ff0000" } }] }],
+    };
+    const doc = { type: "doc", content: [red, { type: "paragraph", content: [{ type: "text", text: "Plain" }] }] };
+    const created = await callMcpTool(context, auth, "create_memo", { notebookId: "nb_rich", contentJson: doc });
+    expect(created.memo.schemaVersion).toBe(2);
+    const read = await callMcpTool(context, auth, "get_memo", { memoId: created.memo.id, format: "all" });
+    expect(read.memo.contentJson).toEqual(doc);
+
+    const updated = await callMcpTool(context, auth, "update_memo", {
+      memoId: created.memo.id,
+      contentMarkdown: read.memo.contentMarkdown.replace("Plain", "Edited by agent"),
+    });
+    const stored = JSON.parse(sqlite.query("SELECT content_json FROM memo_contents WHERE memo_id = ?").get(created.memo.id).content_json);
+    expect(stored.content[0]).toEqual(red);
+    expect(updated.memo.contentMarkdown).toContain("Edited by agent");
+
+    await expect(callMcpTool(context, auth, "update_memo", {
+      memoId: created.memo.id,
+      contentJson: doc,
+      contentMarkdown: "both",
+    })).rejects.toMatchObject({ code: "invalid_params" });
+    await expect(callMcpTool(context, auth, "update_memo", {
+      memoId: created.memo.id,
+      contentJson: { type: "paragraph" },
+    })).rejects.toMatchObject({ code: "invalid_params" });
+  });
+
   test("refuses to replace a structured table through update_memo", async () => {
     const { sqlite, auth, context } = createFixture();
     sqlite.query("INSERT INTO notebooks (id, workspace_id, name) VALUES (?, ?, ?)")

@@ -33,6 +33,7 @@ export type SyncMemoDetailRow = {
   merge_source_count: number;
   merged_into_memo_id: string | null;
   content_hash: string;
+  schema_version?: number | null;
 };
 
 type SyncRouteDependencies = {
@@ -119,7 +120,7 @@ export const registerSyncRoutes = (
       context.env.storage.db.prepare(
         `SELECT m.id, ${syncMemoNotebookIdSql} AS notebook_id, m.title, m.excerpt, m.tags_json, m.is_pinned,
                 m.is_archived, m.is_deleted, m.created_at, m.updated_at, m.deleted_at, mc.revision,
-                mc.content_json, mc.content_markdown, mc.content_text, mc.content_hash,
+                mc.content_json, mc.content_markdown, mc.content_text, mc.content_hash, mc.schema_version,
                 m.source_memo_ids, m.merge_source_count, m.merged_into_memo_id
          FROM memos m
          INNER JOIN memo_contents mc ON mc.memo_id = m.id
@@ -211,7 +212,7 @@ export const registerSyncRoutes = (
         return context.env.storage.db.prepare(
           `SELECT m.id, ${syncMemoNotebookIdSql} AS notebook_id, m.title, m.excerpt, m.tags_json, m.is_pinned,
                   m.is_archived, m.is_deleted, m.created_at, m.updated_at, m.deleted_at, mc.revision,
-                  mc.content_json, mc.content_markdown, mc.content_text, mc.content_hash,
+                  mc.content_json, mc.content_markdown, mc.content_text, mc.content_hash, mc.schema_version,
                   m.source_memo_ids, m.merge_source_count, m.merged_into_memo_id
            FROM memos m
            INNER JOIN memo_contents mc ON mc.memo_id = m.id

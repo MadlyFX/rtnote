@@ -209,7 +209,7 @@ const MCP_TOOL_DEFINITIONS = [
   },
   {
     name: "create_memo",
-    description: "Create a prose Markdown memo in a notebook. For an editable poster/海报笔记, use create_poster_memo instead; never substitute poster-style prose.",
+    description: "Create a prose memo in a notebook from Markdown or a rich-text TipTap document (contentJson). For an editable poster/海报笔记, use create_poster_memo instead; never substitute poster-style prose.",
     inputSchema: {
       type: "object",
       required: ["notebookId"],
@@ -218,6 +218,10 @@ const MCP_TOOL_DEFINITIONS = [
         notebookId: { type: "string" },
         title: { type: "string" },
         contentMarkdown: { type: "string" },
+        contentJson: {
+          type: "object",
+          description: "Rich-text body as a TipTap document ({\"type\":\"doc\",\"content\":[...]}). Preserves colours, fonts, alignment, image sizes and captions. Use instead of contentMarkdown, not with it. Read the current document with get_memo format \"all\".",
+        },
         tags: { type: "array", items: { type: "string" } },
         createdAt: { type: "string", format: "date-time" },
         updatedAt: { type: "string", format: "date-time" },
@@ -550,7 +554,7 @@ const MCP_TOOL_DEFINITIONS = [
   },
   {
     name: "update_memo",
-    description: "Update memo title, Markdown, tags, notebook, or pinned state. To generate an editable poster/海报笔记, call create_poster_memo; to edit one, use get_poster then update_poster. Never manually encode poster source or replace a poster request with ordinary prose.",
+    description: "Update memo title, body, tags, notebook, or pinned state. The body is rich text: contentJson replaces it with a TipTap document; contentMarkdown is merged block by block, so paragraphs you did not change keep their formatting. To generate an editable poster/海报笔记, call create_poster_memo; to edit one, use get_poster then update_poster. Never manually encode poster source or replace a poster request with ordinary prose.",
     inputSchema: {
       type: "object",
       required: ["memoId"],
@@ -560,6 +564,10 @@ const MCP_TOOL_DEFINITIONS = [
         title: { type: "string" },
         isPinned: { type: "boolean" },
         contentMarkdown: { type: "string" },
+        contentJson: {
+          type: "object",
+          description: "Rich-text body as a TipTap document ({\"type\":\"doc\",\"content\":[...]}). Preserves colours, fonts, alignment, image sizes and captions. Use instead of contentMarkdown, not with it. Read the current document with get_memo format \"all\".",
+        },
         tags: { type: "array", items: { type: "string" } },
         notebookId: { type: "string" },
         expectedRevision: { type: "integer", minimum: 0 },

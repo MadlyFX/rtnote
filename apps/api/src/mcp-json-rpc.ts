@@ -1,3 +1,4 @@
+import type { TiptapDoc } from "@edgeever/shared";
 import { AppError } from "./app-error";
 
 export type JsonRpcRequest = {
@@ -53,6 +54,16 @@ export const getRequiredString = (value: unknown, name: string) => {
   }
 
   return parsed;
+};
+
+/** A TipTap document argument, or undefined when absent. */
+export const getOptionalTiptapDoc = (value: unknown, name: string): TiptapDoc | undefined => {
+  if (value === undefined || value === null) return undefined;
+  const record = asRecord(value);
+  if (record.type !== "doc" || !Array.isArray(record.content)) {
+    throw new AppError("invalid_params", `${name} must be a TipTap document: {"type":"doc","content":[...]}`, 400);
+  }
+  return record as unknown as TiptapDoc;
 };
 
 export const getOptionalStringArray = (value: unknown) =>

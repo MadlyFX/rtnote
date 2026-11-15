@@ -50,6 +50,7 @@ import {
   escapeMarkdownLinkLabel,
   getOptionalString,
   getOptionalStringArray,
+  getOptionalTiptapDoc,
   getRequiredString,
   getRequiredStringArray,
 } from "./mcp-json-rpc";
@@ -458,10 +459,14 @@ export const callMcpTool = async (
       const notebookId = getRequiredString(args.notebookId, "notebookId");
       const actor = getAuditActor(c);
       const actorLabel = getActorLabel(c);
+      const contentJson = getOptionalTiptapDoc(args.contentJson, "contentJson");
+      if (contentJson && args.contentMarkdown !== undefined) {
+        throw new AppError("invalid_params", "Send contentJson or contentMarkdown, not both.", 400);
+      }
       const memo = await createMemoRecord(c.env.storage.db, auth.workspaceId, {
         notebookId,
         title: getOptionalString(args.title) ?? undefined,
-        contentMarkdown: getOptionalString(args.contentMarkdown) ?? "",
+        ...(contentJson ? { contentJson } : { contentMarkdown: getOptionalString(args.contentMarkdown) ?? "" }),
         tags: getOptionalStringArray(args.tags),
         createdAt: getOptionalString(args.createdAt) ?? undefined,
         updatedAt: getOptionalString(args.updatedAt) ?? undefined,
@@ -666,7 +671,11 @@ export const callMcpTool = async (
     case "update_memo": {
       assertScope(auth, "write:memos");
       const memoId = getRequiredString(args.memoId, "memoId");
-      if (args.contentMarkdown !== undefined) {
+      const contentJson = getOptionalTiptapDoc(args.contentJson, "contentJson");
+      if (contentJson && args.contentMarkdown !== undefined) {
+        throw new AppError("invalid_params", "Send contentJson or contentMarkdown, not both.", 400);
+      }
+      if (args.contentMarkdown !== undefined || contentJson) {
         const existing = await getMemoDetail(c.env.storage.db, auth.workspaceId, memoId);
         if (existing && parseDiagramDocument(existing.contentMarkdown)) {
           throw new AppError(
@@ -707,7 +716,8 @@ export const callMcpTool = async (
           notebookId: getOptionalString(args.notebookId) ?? undefined,
           title: getOptionalString(args.title) ?? undefined,
           isPinned: typeof args.isPinned === "boolean" ? args.isPinned : undefined,
-          contentMarkdown: getOptionalString(args.contentMarkdown) ?? undefined,
+          contentJson,
+          contentMarkdown: contentJson ? undefined : getOptionalString(args.contentMarkdown) ?? undefined,
           tags: Array.isArray(args.tags) ? getOptionalStringArray(args.tags) : undefined,
           createdAt: getOptionalString(args.createdAt) ?? undefined,
           updatedAt: getOptionalString(args.updatedAt) ?? undefined,

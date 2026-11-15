@@ -47,7 +47,8 @@ const createSyncIntegrationFixture = () => {
     );
     CREATE TABLE memo_contents (
       memo_id TEXT PRIMARY KEY, revision INTEGER NOT NULL DEFAULT 0, content_json TEXT NOT NULL,
-      content_markdown TEXT NOT NULL DEFAULT '', content_text TEXT NOT NULL DEFAULT '', content_hash TEXT NOT NULL
+      content_markdown TEXT NOT NULL DEFAULT '', content_text TEXT NOT NULL DEFAULT '', content_hash TEXT NOT NULL,
+      schema_version INTEGER NOT NULL DEFAULT 1
     );
     CREATE TABLE mobile_sync_changes (
       id INTEGER PRIMARY KEY AUTOINCREMENT, workspace_id TEXT NOT NULL, entity_type TEXT NOT NULL,
@@ -65,7 +66,7 @@ const createSyncIntegrationFixture = () => {
       'memo_trashed', 'ws_1', 'nb_deleted', 'Trashed', 1,
       '2026-09-09T00:00:00.000Z', '2026-09-09T00:00:00.000Z', '2026-09-09T00:00:00.000Z'
     );
-    INSERT INTO memo_contents VALUES ('memo_trashed', 1, '{"type":"doc"}', '', '', 'hash');
+    INSERT INTO memo_contents VALUES ('memo_trashed', 1, '{"type":"doc"}', '', '', 'hash', 1);
     INSERT INTO mobile_sync_changes (workspace_id, entity_type, entity_id, operation) VALUES
       ('ws_1', 'memo', 'memo_trashed', 'upsert'),
       ('ws_1', 'notebook', 'nb_child', 'upsert');
@@ -156,7 +157,8 @@ describe("sync route contracts", () => {
       );
       CREATE TABLE memo_contents (
         memo_id TEXT PRIMARY KEY, revision INTEGER NOT NULL DEFAULT 0, content_json TEXT NOT NULL,
-        content_markdown TEXT NOT NULL DEFAULT '', content_text TEXT NOT NULL DEFAULT '', content_hash TEXT NOT NULL
+        content_markdown TEXT NOT NULL DEFAULT '', content_text TEXT NOT NULL DEFAULT '', content_hash TEXT NOT NULL,
+      schema_version INTEGER NOT NULL DEFAULT 1
       );
       CREATE TABLE mobile_sync_changes (
         id INTEGER PRIMARY KEY AUTOINCREMENT, workspace_id TEXT NOT NULL, entity_type TEXT NOT NULL,
@@ -171,7 +173,7 @@ describe("sync route contracts", () => {
         'memo_trashed', 'ws_1', 'nb_deleted', 'Trashed', 1,
         '2026-09-10T00:00:00.000Z', '2026-09-10T00:00:00.000Z', '2026-09-10T00:00:00.000Z'
       );
-      INSERT INTO memo_contents VALUES ('memo_trashed', 1, '{"type":"doc"}', '', '', 'hash');
+      INSERT INTO memo_contents VALUES ('memo_trashed', 1, '{"type":"doc"}', '', '', 'hash', 1);
     `);
     const storage = createSelfHostedStorageAdapter(sqlite, "/tmp/edgeever-sync-renamed-inbox-unused");
     const app = new Hono();

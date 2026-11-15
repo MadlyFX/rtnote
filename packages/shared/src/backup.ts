@@ -122,6 +122,8 @@ const MemoDetailSchema = z.object({
   contentMarkdown: z.string(),
   contentText: z.string(),
   contentHash: z.string(),
+  // Absent in EdgeEver backups, which restore as legacy notes.
+  schemaVersion: z.number().int().min(1).max(2).optional(),
   sourceMemoIds: z.array(z.string()),
   mergeSourceCount: z.number().int().min(0),
   mergedIntoMemoId: z.string().nullable(),

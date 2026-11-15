@@ -192,20 +192,26 @@ const upgradeMathCodeFences = (doc: TiptapDoc): TiptapDoc => {
 };
 
 /**
- * Recovers Markdown features that an older editor schema could not persist in
+ * Returns the document to open for a memo.
+ *
+ * Rich-text notes (schema version 2) always open from contentJson; their
+ * Markdown is only a copy generated from it. For legacy notes, this recovers
+ * Markdown features that an older editor schema could not persist in
  * contentJson. The stored Markdown remains the compatibility source in that
  * case; otherwise the richer JSON document (for example image sizing attrs)
  * keeps precedence.
  */
 export const resolveMemoContentDoc = (
   contentJson: TiptapDoc | null | undefined,
-  contentMarkdown: string | null | undefined
+  contentMarkdown: string | null | undefined,
+  options: { schemaVersion?: number | null } = {},
 ): TiptapDoc => {
   const currentDoc = contentJson && Array.isArray(contentJson.content)
     ? upgradeMathCodeFences(normalizeImageGalleries(
         upgradeStandaloneFileLinks(upgradeStandalonePdfLinks(upgradeLegacyAttachmentLinks(contentJson))),
       ))
     : emptyDoc();
+  if (typeof options.schemaVersion === "number" && options.schemaVersion >= 2) return currentDoc;
   if (getFrontMatterSource(currentDoc) !== null) return currentDoc;
   if (
     !contentMarkdown?.trim() ||
@@ -446,7 +452,8 @@ const protectLiteralDollarPairs = (value: unknown): unknown => {
 export const resolveMemoContentMarkdown = (
   contentJson: TiptapDoc | null | undefined,
   contentMarkdown: string | null | undefined,
-) => docToMarkdown(resolveMemoContentDoc(contentJson, contentMarkdown));
+  options: { schemaVersion?: number | null } = {},
+) => docToMarkdown(resolveMemoContentDoc(contentJson, contentMarkdown, options));
 
 /**
  * Theme blocks are richer editor-only nodes. Markdown has no portable equivalent,
