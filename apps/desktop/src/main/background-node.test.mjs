@@ -8,7 +8,7 @@ import { once } from "node:events";
 import { backgroundNodeExecutable } from "./background-node.mjs";
 
 test("keeps Windows, Linux and standalone Node runtimes unchanged", () => {
-  for (const [executable, platform] of [["C:\\EdgeEver\\EdgeEver.exe", "win32"], ["/opt/EdgeEver/edgeever", "linux"], ["/usr/bin/node", "darwin"]]) {
+  for (const [executable, platform] of [["C:\\RTNote\\RTNote.exe", "win32"], ["/opt/RTNote/edgeever", "linux"], ["/usr/bin/node", "darwin"]]) {
     expect(backgroundNodeExecutable(executable, platform)).toBe(executable);
   }
 });

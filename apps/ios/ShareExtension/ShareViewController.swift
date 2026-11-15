@@ -3,8 +3,8 @@ import UniformTypeIdentifiers
 
 /// Lightweight share extension: text, web URLs, and images → App Group → open main app.
 class ShareViewController: UIViewController {
-    private let appGroupId = "group.org.edgeever.mobile"
-    private let hostScheme = "edgeever"
+    private let appGroupId = "group.com.madlyfx.rtnote"
+    private let hostScheme = "rtnote"
     private let payloadKey = "edgeever.share.payload"
     private let imageDirectoryName = "incoming-share-images"
 

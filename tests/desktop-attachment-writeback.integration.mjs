@@ -99,12 +99,12 @@ try {
   results.push("renderer open action → watched copy → real API replacement → refreshed desktop bytes → fresh reopening → reveal action");
 
   await application.evaluate(() => { globalThis.testOffline = true; });
-  await writeFile(localPath, "offline edit recovered after restarting EdgeEver");
+  await writeFile(localPath, "offline edit recovered after restarting RTNote");
   await expect.poll(() => page.evaluate(() => window.edgeeverDesktop.attachmentWritebacks().then(items => items.some(item => item.status === "error"))), { timeout: 20_000 }).toBe(true);
   await application.close(); application = null;
   await launch();
-  await expect.poll(cloudText, { timeout: 45_000 }).toBe("offline edit recovered after restarting EdgeEver");
-  await expect(page.locator(".edgeever-file-viewer")).toContainText(`${Buffer.byteLength("offline edit recovered after restarting EdgeEver")} B`);
+  await expect.poll(cloudText, { timeout: 45_000 }).toBe("offline edit recovered after restarting RTNote");
+  await expect(page.locator(".edgeever-file-viewer")).toContainText(`${Buffer.byteLength("offline edit recovered after restarting RTNote")} B`);
   results.push("offline pending snapshot survives an actual Electron restart and resumes in the original account, including displayed file metadata");
 
   const latest = (await (await api("/resources")).json()).resources.find(item => item.id === resource.id);

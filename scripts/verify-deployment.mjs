@@ -243,7 +243,7 @@ const main = async () => {
 
   const secretNames = parseSecretNames(runWrangler(["secret", "list", "--format", "json"]));
   if (!secretNames.has("EDGE_EVER_AUTH_PASSWORD") && !secretNames.has("EDGE_EVER_AUTH_PASSWORD_HASH")) {
-    throw new Error("The deployed Worker has no EdgeEver authentication Secret.");
+    throw new Error("The deployed Worker has no RTNote authentication Secret.");
   }
   console.log("[ok] Worker authentication Secret is deployed");
 

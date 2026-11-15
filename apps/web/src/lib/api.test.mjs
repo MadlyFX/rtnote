@@ -318,13 +318,13 @@ describe("desktop instance setup", () => {
     expect(storage.get(DESKTOP_API_BASE_URL_STORAGE_KEY)).toBe("https://notes.example.com");
   });
 
-  test("maps the App Review demo alias to the public instance", async () => {
+  test("does not expand a bare demo alias into a hosted instance", async () => {
     calls.length = 0;
     const saving = saveDesktopApiBaseUrl("demo");
     await Promise.resolve();
-    expect(calls).toEqual([["bridge:start", "https://demo.edgeever.org"]]);
+    expect(calls).toEqual([["bridge:start", "https://demo"]]);
     completeSave();
-    await expect(saving).resolves.toBe("https://demo.edgeever.org");
+    await expect(saving).resolves.toBe("https://demo");
   });
 
   test("prefixes https when the instance host has no protocol", async () => {

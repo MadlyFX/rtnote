@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { isEdgeEverAppPath, OAUTH_DISCOVERY_PATH_PREFIXES } from "./app-paths.ts";
 
-describe("EdgeEver app paths", () => {
+describe("RTNote app paths", () => {
   test("routes the API, MCP and OAuth discovery to the app", () => {
     for (const pathname of [
       "/api/v1/memos",

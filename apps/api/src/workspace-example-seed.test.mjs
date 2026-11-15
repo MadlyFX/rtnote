@@ -115,7 +115,7 @@ describe("workspace example seed", () => {
 
     await ensureWorkspaceExampleSeed(env, "ws_default");
 
-    expect(sqlite.query("SELECT title FROM memos WHERE id = 'memo_welcome'").get()).toEqual({ title: "Witaj w EdgeEver" });
+    expect(sqlite.query("SELECT title FROM memos WHERE id = 'memo_welcome'").get()).toEqual({ title: "Witaj w RTNote" });
     expect(exampleCounts(sqlite)).toEqual({ "demo-features": 7, "feature-demos": 7 });
   });
 
@@ -173,7 +173,7 @@ describe("workspace example seed", () => {
       `SELECT c.content_markdown
        FROM memo_contents c
        INNER JOIN memos m ON m.id = c.memo_id
-       WHERE m.workspace_id = ? AND m.title LIKE '欢迎使用 EdgeEver%'`,
+       WHERE m.workspace_id = ? AND m.title LIKE '欢迎使用 RTNote%'`,
     ).get(workspace.workspaceId).content_markdown;
     expect(markdown).toContain(`/api/v1/resources/${workspace.workspaceId}_res_demo_logo/blob`);
     expect(markdown).not.toContain("/api/v1/resources/res_demo_logo/blob");

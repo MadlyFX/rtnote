@@ -1,6 +1,5 @@
 # Chemical formulas and equations in "Insert formula"
 
-[简体中文](2026-10-28-chemistry-formulas.zh-CN.md)
 
 ## Problem and outcome
 

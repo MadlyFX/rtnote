@@ -215,7 +215,7 @@ final class EditorBundleTests: XCTestCase {
         XCTAssertGreaterThan(data.count, 100_000, "packaged editor is too small — likely missing TipTap build")
         let head = String(data: data.prefix(800), encoding: .utf8) ?? ""
         XCTAssertTrue(
-            head.contains("EdgeEver") || head.contains("tiptap") || head.contains("module"),
+            head.contains("RTNote") || head.contains("tiptap") || head.contains("module"),
             "expected TipTap editor HTML, got: \(head.prefix(120))"
         )
     }

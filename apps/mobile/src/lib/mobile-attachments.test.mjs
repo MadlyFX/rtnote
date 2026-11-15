@@ -151,8 +151,8 @@ describe("mobile attachments", () => {
 
   test("resolves export mime types and filenames for SAF", () => {
     expect(resolveResourceMimeType("photo.webp", "")).toBe("image/webp");
-    expect(resolveResourceMimeType("EdgeEver 极客猫猫", "image/svg+xml")).toBe("image/svg+xml");
-    expect(resolveExportFilename("EdgeEver 极客猫猫", "image/svg+xml")).toBe("EdgeEver 极客猫猫.svg");
+    expect(resolveResourceMimeType("RTNote 极客猫猫", "image/svg+xml")).toBe("image/svg+xml");
+    expect(resolveExportFilename("RTNote 极客猫猫", "image/svg+xml")).toBe("RTNote 极客猫猫.svg");
     expect(resolveExportFilename("report.pdf", "application/pdf")).toBe("report.pdf");
   });
 

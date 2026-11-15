@@ -3,7 +3,7 @@ import { mkdir, readFile, realpath, readdir, rmdir, rm, stat, writeFile } from "
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { WeChatArchiveError, wechatChatNoteFromArchive } from "./wechat-chat-archive.mjs";
 
-export const WECHAT_INCOMING_DIRECTORY_NAME = "EdgeEver Incoming";
+export const WECHAT_INCOMING_DIRECTORY_NAME = "RTNote Incoming";
 export const SHARE_IMPORT_FILE_ID = "file";
 export const MAX_SHARE_IMPORT_BYTES = 512 * 1024 * 1024;
 const SAFE_ID = /^[A-Za-z0-9_-]{1,80}$/;
@@ -68,7 +68,7 @@ export const wechatImportFilePath = (value) => {
   } catch {
     return null;
   }
-  if (url.protocol !== "edgeever:" || (url.hostname !== "wechat-import" && url.hostname !== "share-import")) return null;
+  if (url.protocol !== "rtnote:" || (url.hostname !== "wechat-import" && url.hostname !== "share-import")) return null;
   const filePath = url.searchParams.get("path");
   if (!filePath || !isAbsolute(filePath) || filePath.includes("\0")) return null;
   return filePath;
@@ -367,7 +367,7 @@ export const createWeChatShareController = ({
         if (!file.isFile() || file.name.startsWith(".") || file.name.toLowerCase().endsWith(".partial")) continue;
         const sourcePath = join(directory, file.name);
         if (await stat(failureMarkerPath(sourcePath)).then(() => true, () => false)) continue;
-        const url = new URL(file.name.toLowerCase().endsWith(".zip") ? "edgeever://wechat-import" : "edgeever://share-import");
+        const url = new URL(file.name.toLowerCase().endsWith(".zip") ? "rtnote://wechat-import" : "rtnote://share-import");
         url.searchParams.set("path", sourcePath);
         await importFromProtocolUrl(url.href);
       }

@@ -18,7 +18,6 @@
     "**/dist/**",
     "**/vendor/**",
     "apps/ios/**",
-    "apps/site/.astro/**",
     "apps/extension/dist-firefox/**",
     "packages/plugin-api/dist/**"
   ]

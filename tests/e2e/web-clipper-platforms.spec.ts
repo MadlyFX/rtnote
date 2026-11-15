@@ -237,7 +237,7 @@ test("platform clips persist through the extension and local API; archived image
         expect(resources, `${platform.name}: ${memo.contentMarkdown}`).toHaveLength(platform.imageCount);
         await article.goto("about:blank"); sourceBlocked = true;
         // With the source page gone and every external source host blocked,
-        // reopen the saved note's image from the EdgeEver resource endpoint.
+        // reopen the saved note's image from the RTNote resource endpoint.
         for (const resource of resources) {
           const blob = await request.get(`/api/v1/resources/${resource[1]}/blob`);
           expect(blob.ok()).toBe(true);
@@ -287,7 +287,7 @@ test("platform clips persist through the extension and local API; archived image
         await expect(editor.locator("h2").filter({hasText:"什么是Deepseek V3"})).toHaveCount(1);
         await expect(editor.locator("h3").filter({hasText:"第一步：注册华为云账号"})).toHaveCount(1);
       }
-      // Code-copy buttons are added by EdgeEver's editor after loading. They
+      // Code-copy buttons are added by RTNote's editor after loading. They
       // are not part of the archived article or its source-site controls.
       const articleText = await editor.evaluate(element => {
         const copy = element.cloneNode(true) as Element;

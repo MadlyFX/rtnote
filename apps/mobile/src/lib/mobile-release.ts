@@ -1,11 +1,11 @@
 import { clean, gt, valid } from "semver";
 
-const LATEST_RELEASE_API_URL = "https://api.github.com/repos/tianma-if/edgeever/releases/latest";
+const LATEST_RELEASE_API_URL = "https://api.github.com/repos/MadlyFX/rtnote/releases/latest";
 
-export const GITHUB_LATEST_RELEASE_URL = "https://github.com/tianma-if/edgeever/releases/latest";
-export const ANDROID_APPLICATION_ID = "org.edgeever.mobile";
-export const GOOGLE_PLAY_APP_URL = "market://details?id=org.edgeever.mobile";
-export const GOOGLE_PLAY_WEB_URL = "https://play.google.com/store/apps/details?id=org.edgeever.mobile";
+export const GITHUB_LATEST_RELEASE_URL = "https://github.com/MadlyFX/rtnote/releases/latest";
+export const ANDROID_APPLICATION_ID = "com.madlyfx.rtnote";
+export const GOOGLE_PLAY_APP_URL = "market://details?id=com.madlyfx.rtnote";
+export const GOOGLE_PLAY_WEB_URL = "https://play.google.com/store/apps/details?id=com.madlyfx.rtnote";
 
 type MobileInstallUpdateSourceBase = {
   url: string;
@@ -72,7 +72,7 @@ const findAndroidReleaseAsset = (assets: unknown): MobileRelease | null => {
         !version ||
         !("browser_download_url" in asset) ||
         typeof asset.browser_download_url !== "string" ||
-        !asset.browser_download_url.startsWith("https://github.com/tianma-if/edgeever/releases/download/") ||
+        !asset.browser_download_url.startsWith("https://github.com/MadlyFX/rtnote/releases/download/") ||
         !("digest" in asset) ||
         typeof asset.digest !== "string" ||
         !/^sha256:[a-f0-9]{64}$/.test(asset.digest) ||

@@ -1,6 +1,5 @@
 # Third-party note import change scope
 
-[简体中文](2026-10-27-third-party-import.zh-CN.md)
 
 Related: [Issue #657](https://github.com/tianma-if/edgeever/issues/657). Contract: [third-party import plan](../third-party-import-plan.md).
 

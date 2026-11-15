@@ -24,7 +24,7 @@ describe("desktop app protocol", () => {
     const outside = join(directory, "outside.txt");
     try {
       await mkdir(join(webRoot, "assets"), { recursive: true });
-      await writeFile(join(webRoot, "index.html"), "<!doctype html><title>EdgeEver</title>");
+      await writeFile(join(webRoot, "index.html"), "<!doctype html><title>RTNote</title>");
       await writeFile(join(webRoot, "assets/main.js"), "globalThis.ready = true;");
       await writeFile(outside, "private");
       await symlink(outside, join(webRoot, "escape.txt"));
@@ -33,7 +33,7 @@ describe("desktop app protocol", () => {
       const response = await handle(new Request(DESKTOP_APP_ENTRY_URL));
       expect(response.status).toBe(200);
       expect(response.headers.get("content-type")).toBe("text/html; charset=utf-8");
-      expect(await response.text()).toContain("EdgeEver");
+      expect(await response.text()).toContain("RTNote");
 
       expect((await handle(new Request("edgeever-app://app/../outside.txt"))).status).toBe(404);
       expect((await handle(new Request("edgeever-app://app/escape.txt"))).status).toBe(404);

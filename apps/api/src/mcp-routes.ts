@@ -22,7 +22,7 @@ type McpProtocolEra = "modern" | "legacy";
 const LEGACY_MCP_PROTOCOL_VERSION = LEGACY_MCP_PROTOCOL_VERSIONS[0];
 const MCP_CACHE_TTL_MS = 60 * 60 * 1000;
 const MCP_SERVER_INFO = {
-  name: "edgeever",
+  name: "rtnote",
   version: packageMetadata.version,
   description: "A workspace-scoped notes and knowledge management MCP server.",
 };
@@ -186,8 +186,8 @@ export const handleMcpMessage = async (
         request.id ?? null,
         -32001,
         hasBearerCredential(context)
-          ? "Invalid or revoked API token. Create a new token in EdgeEver settings."
-          : "Authentication required. Send an EdgeEver API token as \"Authorization: Bearer <token>\".",
+          ? "Invalid or revoked API token. Create a new token in RTNote settings."
+          : "Authentication required. Send an RTNote API token as \"Authorization: Bearer <token>\".",
       ),
       status: 401,
     };
@@ -343,7 +343,7 @@ export const registerMcpRoutes = (
       // RFC 6750: tell clients whether to ask for a token or replace a rejected one.
       context.header(
         "WWW-Authenticate",
-        hasBearerCredential(context) ? 'Bearer realm="EdgeEver MCP", error="invalid_token"' : 'Bearer realm="EdgeEver MCP"',
+        hasBearerCredential(context) ? 'Bearer realm="RTNote MCP", error="invalid_token"' : 'Bearer realm="RTNote MCP"',
       );
     }
     return context.json(result.body, result.status as 200);

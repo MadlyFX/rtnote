@@ -17,10 +17,10 @@ describe("bilingual content locale", () => {
     }
   });
 
-  test("Evernote guide and demo notebook fall back to English, not Chinese, for ja/pl/ru", () => {
+  test("the import guide is English-only and the demo notebook falls back to English for ja/pl/ru", () => {
     const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
     expect(read("../components/EvernoteImportGuidePane.tsx"))
-      .toContain("prefersChineseContent(i18n.resolvedLanguage) ? migrationGuideMarkdown : migrationGuideEnglishMarkdown");
+      .not.toContain("prefersChineseContent");
     expect(read("../components/WorkspaceApp.tsx"))
       .toContain("const demoNotebook = prefersChineseContent(i18n.resolvedLanguage)");
   });

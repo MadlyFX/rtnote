@@ -78,10 +78,10 @@ const startWebDav = ({ password = "secret", rejectPut = false } = {}) => {
 
 describe("normalizeWebDavBackupConfig", () => {
   test("trims fields, drops trailing URL slashes and normalizes the remote path", () => {
-    expect(normalizeWebDavBackupConfig({ url: " https://dav.example.com/remote.php/dav/// ", username: " alice ", remotePath: " \\Backups\\EdgeEver\\ " })).toEqual({
+    expect(normalizeWebDavBackupConfig({ url: " https://dav.example.com/remote.php/dav/// ", username: " alice ", remotePath: " \\Backups\\RTNote\\ " })).toEqual({
       url: "https://dav.example.com/remote.php/dav",
       username: "alice",
-      remotePath: "/Backups/EdgeEver",
+      remotePath: "/Backups/RTNote",
     });
   });
 
@@ -183,9 +183,9 @@ describe("WebDAV client", () => {
 
   test("tests the connection by listing the normalized remote directory with basic auth", async () => {
     const dav = startWebDav();
-    dav.collections.add("/EdgeEver/backups");
-    await testWebDavConnection({ url: `${dav.url}/`, username: " alice ", remotePath: "EdgeEver/backups/" }, "secret");
-    expect(dav.requests.map(({ method, path }) => [method, path])).toEqual([["PROPFIND", "/EdgeEver/backups"]]);
+    dav.collections.add("/RTNote/backups");
+    await testWebDavConnection({ url: `${dav.url}/`, username: " alice ", remotePath: "RTNote/backups/" }, "secret");
+    expect(dav.requests.map(({ method, path }) => [method, path])).toEqual([["PROPFIND", "/RTNote/backups"]]);
   });
 
   test("surfaces authentication and missing-directory failures", async () => {
@@ -197,9 +197,9 @@ describe("WebDAV client", () => {
   test("creates the remote directory and uploads a timestamped archive without overwriting", async () => {
     const dav = startWebDav();
     const archive = new Blob([new Uint8Array([80, 75, 3, 4, 1, 2, 3])], { type: "application/zip" });
-    const result = await uploadWebDavBackup({ url: dav.url, username: "alice", remotePath: "/EdgeEver/backups" }, "secret", archive, new Date("2026-10-29T08:15:30.123Z"));
-    expect(result).toEqual({ filename: "edgeever-2026-10-29T08-15-30-123Z.zip", remotePath: "/EdgeEver/backups/edgeever-2026-10-29T08-15-30-123Z.zip", size: 7 });
-    expect(dav.collections.has("/EdgeEver/backups")).toBe(true);
+    const result = await uploadWebDavBackup({ url: dav.url, username: "alice", remotePath: "/RTNote/backups" }, "secret", archive, new Date("2026-10-29T08:15:30.123Z"));
+    expect(result).toEqual({ filename: "edgeever-2026-10-29T08-15-30-123Z.zip", remotePath: "/RTNote/backups/edgeever-2026-10-29T08-15-30-123Z.zip", size: 7 });
+    expect(dav.collections.has("/RTNote/backups")).toBe(true);
     expect(dav.files.get(result.remotePath)).toEqual(new Uint8Array([80, 75, 3, 4, 1, 2, 3]));
     const put = dav.requests.find(({ method }) => method === "PUT");
     expect(put.headers["if-none-match"]).toBe("*");
@@ -207,16 +207,16 @@ describe("WebDAV client", () => {
 
   test("reports a rejected upload instead of claiming success", async () => {
     const dav = startWebDav({ rejectPut: true });
-    await expect(uploadWebDavBackup({ url: dav.url, username: "alice", remotePath: "/EdgeEver/backups" }, "secret", new Blob(["zip"]))).rejects.toThrow();
+    await expect(uploadWebDavBackup({ url: dav.url, username: "alice", remotePath: "/RTNote/backups" }, "secret", new Blob(["zip"]))).rejects.toThrow();
   });
 
   test("does not overwrite an existing archive with the same timestamp", async () => {
     const dav = startWebDav();
-    const config = { url: dav.url, username: "alice", remotePath: "/EdgeEver/backups" };
+    const config = { url: dav.url, username: "alice", remotePath: "/RTNote/backups" };
     const timestamp = new Date("2026-10-29T08:15:30.123Z");
     await uploadWebDavBackup(config, "secret", new Blob(["first"]), timestamp);
     await expect(uploadWebDavBackup(config, "secret", new Blob(["second"]), timestamp)).rejects.toThrow();
-    expect(new TextDecoder().decode(dav.files.get("/EdgeEver/backups/edgeever-2026-10-29T08-15-30-123Z.zip"))).toBe("first");
+    expect(new TextDecoder().decode(dav.files.get("/RTNote/backups/edgeever-2026-10-29T08-15-30-123Z.zip"))).toBe("first");
   });
 
   test("uploads into the server root without a double slash", async () => {

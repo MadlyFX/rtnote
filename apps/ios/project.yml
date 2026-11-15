@@ -1,6 +1,6 @@
 name: EdgeEver
 options:
-  bundleIdPrefix: org.edgeever
+  bundleIdPrefix: com.madlyfx
   deploymentTarget:
     iOS: "17.0"
   createIntermediateGroups: true
@@ -26,7 +26,7 @@ settings:
     # Automatic signing: required for Xcode Cloud (managed certs/profiles for
     # App Store + Development exports). Local ExportOptions.plist still pins
     # App Store profiles for Scripts/archive-app-store.sh export.
-    DEVELOPMENT_TEAM: 9KA3NM38B6
+    DEVELOPMENT_TEAM: ""
     CODE_SIGN_STYLE: Automatic
 configs:
   Debug: debug
@@ -65,7 +65,7 @@ targets:
         codeSign: true
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: org.edgeever.mobile
+        PRODUCT_BUNDLE_IDENTIFIER: com.madlyfx.rtnote
         PRODUCT_NAME: EdgeEver
         INFOPLIST_FILE: EdgeEver/Resources/Info.plist
         CODE_SIGN_ENTITLEMENTS: EdgeEver/Resources/EdgeEver.entitlements
@@ -77,13 +77,13 @@ targets:
         # Always Automatic: Xcode Cloud needs managed Development + Distribution
         # profiles. Local App Store export still uses ExportOptions.plist (manual
         # profiles) in Scripts/archive-app-store.sh.
-        DEVELOPMENT_TEAM: 9KA3NM38B6
+        DEVELOPMENT_TEAM: ""
         CODE_SIGN_STYLE: Automatic
     info:
       path: EdgeEver/Resources/Info.plist
       properties:
-        CFBundleDisplayName: EdgeEver
-        CFBundleName: EdgeEver
+        CFBundleDisplayName: RTNote
+        CFBundleName: RTNote
         CFBundleShortVersionString: "$(MARKETING_VERSION)"
         CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         CFBundleLocalizations:
@@ -96,22 +96,22 @@ targets:
           - UIInterfaceOrientationPortrait
         UIRequiresFullScreen: true
         CFBundleURLTypes:
-          - CFBundleURLName: org.edgeever.mobile
+          - CFBundleURLName: com.madlyfx.rtnote
             CFBundleURLSchemes:
-              - edgeever
+              - rtnote
         ITSAppUsesNonExemptEncryption: false
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
           NSAllowsArbitraryLoads: true
           NSAllowsArbitraryLoadsInWebContent: true
-        NSPhotoLibraryUsageDescription: EdgeEver needs photo library access to insert images into notes.
-        NSCameraUsageDescription: EdgeEver needs camera access to take photos and insert them into notes.
-        NSMicrophoneUsageDescription: EdgeEver only uses the microphone if content inside a note explicitly requests it.
+        NSPhotoLibraryUsageDescription: RTNote needs photo library access to insert images into notes.
+        NSCameraUsageDescription: RTNote needs camera access to take photos and insert them into notes.
+        NSMicrophoneUsageDescription: RTNote only uses the microphone if content inside a note explicitly requests it.
     entitlements:
       path: EdgeEver/Resources/EdgeEver.entitlements
       properties:
         com.apple.security.application-groups:
-          - group.org.edgeever.mobile
+          - group.com.madlyfx.rtnote
     scheme:
       testTargets:
         - EdgeEverTests
@@ -125,20 +125,20 @@ targets:
     settings:
       base:
         # Keep the existing App Store App ID used by the previous RN share extension.
-        PRODUCT_BUNDLE_IDENTIFIER: org.edgeever.mobile.expo-sharing-extension
+        PRODUCT_BUNDLE_IDENTIFIER: com.madlyfx.rtnote.expo-sharing-extension
         PRODUCT_NAME: ShareExtension
         INFOPLIST_FILE: ShareExtension/Info.plist
         CODE_SIGN_ENTITLEMENTS: ShareExtension/ShareExtension.entitlements
         GENERATE_INFOPLIST_FILE: false
         SKIP_INSTALL: true
         LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"
-        DEVELOPMENT_TEAM: 9KA3NM38B6
+        DEVELOPMENT_TEAM: ""
         CODE_SIGN_STYLE: Automatic
     entitlements:
       path: ShareExtension/ShareExtension.entitlements
       properties:
         com.apple.security.application-groups:
-          - group.org.edgeever.mobile
+          - group.com.madlyfx.rtnote
   EdgeEverTests:
     type: bundle.unit-test
     platform: iOS
@@ -148,7 +148,7 @@ targets:
       - target: EdgeEver
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: org.edgeever.mobile.tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.madlyfx.rtnote.tests
         GENERATE_INFOPLIST_FILE: true
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/EdgeEver.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/EdgeEver"
         BUNDLE_LOADER: "$(TEST_HOST)"

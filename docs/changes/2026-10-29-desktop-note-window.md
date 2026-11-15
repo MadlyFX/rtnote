@@ -1,6 +1,5 @@
 # Open a note in a new window (desktop)
 
-[简体中文](2026-10-29-desktop-note-window.zh-CN.md)
 
 ## Problem and outcome
 

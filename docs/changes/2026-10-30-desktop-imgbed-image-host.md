@@ -1,6 +1,5 @@
 # CloudFlare ImgBed image host (desktop)
 
-[简体中文](2026-10-30-desktop-imgbed-image-host.zh-CN.md)
 
 ## Problem and outcome
 

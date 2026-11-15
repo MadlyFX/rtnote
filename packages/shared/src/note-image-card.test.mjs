@@ -89,7 +89,7 @@ describe("note image templates", () => {
         theme, title: "Private title", notebook: "Private notebook", author: "Private author", tags: ["Private tag"],
         updatedAt: "Private date", bodyHtml: "<p>Public body</p>", showUpdatedAt: false, showBranding: false,
       });
-      for (const hidden of ["Private title", "Private notebook", "Private author", "Private tag", "Private date", "EdgeEver"]) expect(markup).not.toContain(hidden);
+      for (const hidden of ["Private title", "Private notebook", "Private author", "Private tag", "Private date", "RTNote"]) expect(markup).not.toContain(hidden);
       expect(markup).toContain("<p>Public body</p>");
     }
   });

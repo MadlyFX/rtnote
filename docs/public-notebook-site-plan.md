@@ -1,8 +1,7 @@
 # Public notebook site improvement plan
 
-[简体中文](public-notebook-site-plan.zh-CN.md)
 
-Related: [Issue #591](https://github.com/tianma-if/edgeever/issues/591). Updated: 2026-10-21.
+Related: [Issue #591](https://github.com/MadlyFX/rtnote/issues/591). Updated: 2026-10-21.
 
 Status: R01–R13 are implemented. Site settings expand in the notebook share dialog; original-note controls manage per-site visibility, and a separate search picker selects the homepage. Local and independent Cloudflare acceptance are recorded in the [implementation checklist](changes/2026-10-21-public-notebook-site.md). Baseline: official `5d1a0661`. Historical ablations used `4ad082b5` and remain separate from product validation. Real crawlers, native devices and Docker containers remain unverified.
 

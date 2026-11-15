@@ -1,6 +1,5 @@
 # Desktop backups follow the system network
 
-[简体中文](2026-11-01-desktop-backup-system-network.zh-CN.md)
 
 ## Problem and outcome
 

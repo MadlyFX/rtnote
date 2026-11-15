@@ -157,15 +157,15 @@ export default defineConfig({
       includeAssets: [],
       includeManifestIcons: false,
       manifest: {
-        name: "EdgeEver",
-        short_name: "EdgeEver",
-        description: "EdgeEver：基于 Cloudflare 与 Docker 自托管的现代化开源笔记与 AI 个人知识库。",
+        name: "RTNote",
+        short_name: "RTNote",
+        description: "RTNote: an open-source, rich-text notes workspace you can self-host on Cloudflare or Docker.",
         start_url: "/",
         scope: "/",
         display: "standalone",
         background_color: "#0f172a",
         theme_color: "#0f172a",
-        lang: "zh-CN",
+        lang: "en-US",
         categories: ["productivity", "utilities"],
         icons: [
           {

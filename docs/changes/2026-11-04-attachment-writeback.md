@@ -1,6 +1,5 @@
 # Issue #771: write back externally edited desktop attachments
 
-[简体中文](2026-11-04-attachment-writeback.zh-CN.md)
 
 ## Problem and outcome
 

@@ -1,6 +1,5 @@
 # Expiry and open counter for single-note share links
 
-[简体中文](2026-11-01-memo-share-expiry-views.zh-CN.md)
 
 ## Problem and outcome
 

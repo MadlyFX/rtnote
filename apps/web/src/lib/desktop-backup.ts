@@ -12,11 +12,11 @@ const createDevMockBackupState = (): DesktopBackupStatus => {
       enabled: true,
       interval: "weekly",
       retention: 5,
-      directory: "~/Documents/EdgeEver Backups",
+      directory: "~/Documents/RTNote Backups",
       encrypted: false,
     },
     backupSetId: "dev_workspace_preview",
-    actualDirectory: "~/Documents/EdgeEver Backups/dev_workspace_preview",
+    actualDirectory: "~/Documents/RTNote Backups/dev_workspace_preview",
     passwordSet: false,
     secureStorageAvailable: true,
     lastCheck: { at: oneHourAgo, result: "success" },
@@ -32,15 +32,15 @@ const createDevMockBackupState = (): DesktopBackupStatus => {
     importWarning: null,
     history: [
       {
-        name: "EdgeEver-2026-11-02_130344.zip",
-        directory: "~/Documents/EdgeEver Backups/dev_workspace_preview",
+        name: "RTNote-2026-11-02_130344.zip",
+        directory: "~/Documents/RTNote Backups/dev_workspace_preview",
         completedAt: oneHourAgo,
         size: 134680210,
         encrypted: false,
       },
       {
-        name: "EdgeEver-2026-10-26_091211.zip",
-        directory: "~/Documents/EdgeEver Backups/dev_workspace_preview",
+        name: "RTNote-2026-10-26_091211.zip",
+        directory: "~/Documents/RTNote Backups/dev_workspace_preview",
         completedAt: new Date(now.getTime() - 86400000 * 7).toISOString(),
         size: 125120890,
         encrypted: false,
@@ -48,7 +48,7 @@ const createDevMockBackupState = (): DesktopBackupStatus => {
     ],
     task: null,
     offsite: {
-      config: { enabled: false, url: "", username: "", folder: "/EdgeEver/backups" },
+      config: { enabled: false, url: "", username: "", folder: "/RTNote/backups" },
       passwordSet: false,
       secureStorageAvailable: true,
       lastAttemptAt: null,
@@ -88,12 +88,12 @@ const createDevBackupBridge = () => {
           return devStatus as any;
         }
         case "choose-directory":
-          return "~/Documents/EdgeEver Backups" as any;
+          return "~/Documents/RTNote Backups" as any;
         case "open-folder":
           console.info("[Dev Preview] 打开备份目录:", devStatus.actualDirectory);
           return true as any;
         case "run": {
-          const newName = `EdgeEver-${new Date().toISOString().slice(0, 10)}_${Date.now().toString().slice(-6)}.zip`;
+          const newName = `RTNote-${new Date().toISOString().slice(0, 10)}_${Date.now().toString().slice(-6)}.zip`;
           devStatus = {
             ...devStatus,
             lastSuccessAt: new Date().toISOString(),

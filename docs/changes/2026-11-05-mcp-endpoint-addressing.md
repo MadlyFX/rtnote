@@ -1,6 +1,5 @@
 # MCP server address, discovery responses and client path encoding
 
-[简体中文](2026-11-05-mcp-endpoint-addressing.zh-CN.md)
 
 Related Issue: #798
 

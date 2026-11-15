@@ -175,7 +175,7 @@ describe("buildStandaloneHtmlDocument", () => {
     const html = mod.buildStandaloneHtmlDocument({ title: "Doc", bodyHtml: "<p>Hi</p>" });
     expect(html.startsWith("<!DOCTYPE html>\n<html lang=\"en\">")).toBe(true);
     expect(html).toContain('<meta charset="utf-8" />');
-    expect(html).toContain('<meta name="generator" content="EdgeEver" />');
+    expect(html).toContain('<meta name="generator" content="RTNote" />');
     expect(html).toContain("<title>Doc</title>");
     expect(html).toContain("<style>\n\n</style>");
     expect(html).toContain("<p>Hi</p>");

@@ -1,6 +1,6 @@
 # Share options: custom password, update time and branding
 
-[简体中文](2026-10-30-share-options.zh-CN.md) · [Issue #714](https://github.com/tianma-if/edgeever/issues/714)
+[Issue #714](https://github.com/tianma-if/edgeever/issues/714)
 
 ## Problem and outcome
 

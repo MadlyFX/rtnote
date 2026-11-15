@@ -37,11 +37,6 @@ import {
   workspacePackageManifests,
 } from "./publish-web-clipper.mjs";
 
-const workflow = readFileSync(
-  new URL("../.github/workflows/extension-store.yml", import.meta.url),
-  "utf8",
-);
-
 describe("web clipper store command", () => {
   test("reports HTTP field errors, nested details and status without leaking credentials", async () => {
     const client = createChromeClient({ accessToken: "private-access", fetchImpl: async () => ({
@@ -327,7 +322,7 @@ describe("web clipper store command", () => {
   });
 
   test("uses a one-line Firefox note when none was provided", () => {
-    expect(resolveReleaseNotes({ version: "0.1.9" })).toBe("EdgeEver Web Clipper 0.1.9.");
+    expect(resolveReleaseNotes({ version: "0.1.9" })).toBe("RTNote Web Clipper 0.1.9.");
   });
 
   test("includes the review login only in the private approval note", () => {
@@ -384,15 +379,6 @@ describe("web clipper store command", () => {
       writeFileSync(join(rebuilt, "extra.js"), "extra");
       expect(() => assertIdenticalBuildDirectories(expected, rebuilt)).toThrow("extra.js");
     } finally { rmSync(staging, { recursive: true, force: true }); }
-  });
-
-  test("extension CI covers shared UI and verifies the review archive on the official repository", () => {
-    const build = readFileSync(new URL("../.github/workflows/extension-build.yml", import.meta.url), "utf8");
-    expect(build.match(/"apps\/web\/src\/components\/ui\/\*\*"/g)).toHaveLength(2);
-    expect(build.match(/"apps\/web\/src\/lib\/utils.ts"/g)).toHaveLength(2);
-    expect(build).toContain("if: github.repository == 'tianma-if/edgeever'");
-    expect(build).toContain("run: bun scripts/verify-extension-source.mjs");
-    expect(build).toContain("bun-version-file: package.json");
   });
 
   test("independent builds do not inherit store credentials or external module paths", () => {
@@ -484,23 +470,6 @@ describe("web clipper store command", () => {
     expect(upload.method).toBe("POST");
     expect(upload.body).toBeInstanceOf(FormData);
     expect(upload.body.get("channel")).toBe("listed");
-  });
-
-  test("keeps store submission on the official repository workflow", () => {
-    expect(workflow).toContain("github.repository == 'tianma-if/edgeever'");
-    expect(workflow).toContain("workflow_dispatch:");
-    expect(workflow).toContain("- published");
-    expect(workflow).toContain("!github.event.release.prerelease");
-    expect(workflow).toContain("!github.event.release.draft");
-    expect(workflow).toContain("ref: ${{ github.event.release.tag_name || inputs.release_tag || github.sha }}");
-    expect(workflow).toContain("inputs.platform || 'both'");
-    expect(workflow).toContain("CHROME_WEB_STORE_SERVICE_ACCOUNT_JSON");
-    expect(workflow).toContain("AMO_JWT_ISSUER");
-    expect(workflow).toContain("AMO_JWT_SECRET");
-    expect(workflow).toContain("edgeever-web-clipper-store");
-    expect(workflow).not.toContain("bun run release");
-    expect(workflow).not.toContain("publish:stores");
-    expect(workflow).not.toContain("echo ${{ secrets");
   });
 });
 

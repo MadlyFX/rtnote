@@ -21,8 +21,8 @@ export const renderNotebookSitePage = async (
   const resolved = alias ? await resolveNotebookSiteToken(db, identity) : { token: identity };
   const site = resolved ? await getNotebookSite(db, resolved.token) : null;
   let status = site ? 200 : 404;
-  let title = "Shared notebook · EdgeEver";
-  let description = "Read a shared notebook on EdgeEver.";
+  let title = "Shared notebook · RTNote";
+  let description = "Read a shared notebook on RTNote.";
   let indexable = false;
   let canonical = `${url.origin}${url.pathname}`;
   let image = new URL("/apple-touch-icon.png", url).href;
@@ -32,7 +32,7 @@ export const renderNotebookSitePage = async (
       .bind(site.token, selected).first<{ title: string | null; excerpt: string }>() : null;
     if (memoId && !note) status = 404;
     if (status === 200) {
-      title = `${getMemoDisplayTitle(note?.title, site.name)} · EdgeEver`;
+      title = `${getMemoDisplayTitle(note?.title, site.name)} · RTNote`;
       description = note?.excerpt || site.name;
       indexable = alias && site.settings.allowIndexing;
       const base = site.site_slug ? `/s/${encodeURIComponent(site.site_slug)}` : `/share/notebook/${encodeURIComponent(site.token)}`;

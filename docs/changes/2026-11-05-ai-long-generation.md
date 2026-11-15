@@ -1,6 +1,5 @@
 # Long generation in parts and continuations, sidebar body commands (#652 PR B)
 
-[简体中文](2026-11-05-ai-long-generation.zh-CN.md)
 
 Related Issue: #652
 

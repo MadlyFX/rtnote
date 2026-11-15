@@ -12,15 +12,15 @@ test("resource downloads require a safe resource ID and explicit download filena
 
 describe("desktop window open policy", () => {
   test("allows only the packaged print preview beside the app entry", () => {
-    const appUrl = "file:///Applications/EdgeEver.app/Contents/Resources/web/index.html";
+    const appUrl = "file:///Applications/RTNote.app/Contents/Resources/web/index.html";
 
     expect(isAllowedPrintPreviewUrl(
-      "file:///Applications/EdgeEver.app/Contents/Resources/web/note-print.html?token=abc",
+      "file:///Applications/RTNote.app/Contents/Resources/web/note-print.html?token=abc",
       appUrl,
     )).toBe(true);
     expect(isAllowedPrintPreviewUrl("file:///note-print.html?token=abc", appUrl)).toBe(false);
     expect(isAllowedPrintPreviewUrl(
-      "file:///Applications/EdgeEver.app/Contents/Resources/web/mobile-edit.html",
+      "file:///Applications/RTNote.app/Contents/Resources/web/mobile-edit.html",
       appUrl,
     )).toBe(false);
   });

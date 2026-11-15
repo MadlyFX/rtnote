@@ -86,7 +86,7 @@ test("Hacker News clips persist through the extension and local API; archived im
         expect(resources).toHaveLength(1);
         await article.goto("about:blank"); sourceBlocked = true;
         // With the source page gone and every external source host blocked,
-        // reopen the saved note's image from the EdgeEver resource endpoint.
+        // reopen the saved note's image from the RTNote resource endpoint.
         const blob = await request.get(`/api/v1/resources/${resources[0][1]}/blob`);
         expect(blob.ok()).toBe(true);
         expect(Buffer.from(await blob.body()).equals(png)).toBe(true);

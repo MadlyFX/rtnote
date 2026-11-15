@@ -1,0 +1,15 @@
+RTNote
+Copyright (C) 2026 RTNote contributors
+
+RTNote is derived from EdgeEver
+(https://github.com/tianma-if/edgeever), copyright EdgeEver contributors,
+licensed under the GNU Affero General Public License version 3. RTNote was
+created from EdgeEver version 2.23.0 and retains EdgeEver's full commit
+history, which records the authorship of the original work.
+
+RTNote is distributed under the same license; see LICENSE. RTNote is not
+affiliated with or endorsed by the EdgeEver project.
+
+Third-party components keep their own licenses and notices, including those
+recorded in packages/shared/src/note-image-assets/NOTICE.md and in the license
+files of bundled dependencies.

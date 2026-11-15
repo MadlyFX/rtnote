@@ -466,7 +466,7 @@ const backup = await request("storage.backup");
 assert.equal(backup.ok, true);
 const outsideBackup = join(dataDir, "outside.sqlite");
 writeFileSync(outsideBackup, "not a managed backup");
-await assert.rejects(() => request("storage.restore", { path: outsideBackup }), /managed EdgeEver backup/);
+await assert.rejects(() => request("storage.restore", { path: outsideBackup }), /managed RTNote backup/);
 const stagedResourceDirectory = join(dataDir, "resource-outbox");
 mkdirSync(stagedResourceDirectory, { recursive: true });
 writeFileSync(join(stagedResourceDirectory, "stage-test.bin"), "offline attachment snapshot");

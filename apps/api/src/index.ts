@@ -310,7 +310,7 @@ app.use("/api/v1/*", async (c, next) => {
       role: "owner",
     });
     await ensureWorkspaceExampleSeed(c.env, DEFAULT_WORKSPACE_ID).catch((error) => {
-      console.error("EdgeEver example seed failed", error);
+      console.error("RTNote example seed failed", error);
     });
     await next();
     return;
@@ -456,7 +456,7 @@ app.post("/api/v1/demo/reset", async (c) => {
 });
 
 /**
- * Executes the platform-neutral EdgeEver application with an injected storage
+ * Executes the platform-neutral RTNote application with an injected storage
  * adapter. Runtime entrypoints must remain thin and call this function rather
  * than introducing platform-specific route or service implementations.
  */
@@ -531,17 +531,17 @@ app.onError((error, c) => {
   if (requestError) return requestError;
 
   if (isDatabaseDailyQuotaError(error)) {
-    console.error("EdgeEver database daily quota exhausted", error);
+    console.error("RTNote database daily quota exhausted", error);
     return apiError(c, "database_daily_quota_exceeded",
       "The instance's Cloudflare D1 daily database quota is exhausted. Daily quotas reset at 00:00 UTC. The instance owner can also upgrade the Workers plan.", 503);
   }
 
   if (isDatabaseNotReadyError(error)) {
-    console.error("EdgeEver database readiness check failed", error);
+    console.error("RTNote database readiness check failed", error);
     return databaseNotReady(c);
   }
 
-  console.error("Unhandled EdgeEver API error", error);
+  console.error("Unhandled RTNote API error", error);
   return apiError(c, "internal_error", "An unexpected server error occurred.", 500);
 });
 

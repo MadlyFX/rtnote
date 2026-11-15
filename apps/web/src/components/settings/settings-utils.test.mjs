@@ -83,7 +83,7 @@ describe("MCP server address", () => {
     expect(getMcpRemoteServerUrl()).toBe("https://ever.example/mcp");
     expect(JSON.parse(buildMcpRemoteConfig("eev_token"))).toEqual({
       mcpServers: {
-        edgeever: {
+        rtnote: {
           url: "https://ever.example/mcp",
           headers: { Authorization: "Bearer eev_token" },
         },

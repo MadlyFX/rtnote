@@ -1,6 +1,5 @@
 # Remember the last memo sort mode
 
-[简体中文](2026-11-02-persist-memo-sort.zh-CN.md)
 
 ## Problem and outcome
 

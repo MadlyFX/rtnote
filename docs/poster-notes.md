@@ -1,6 +1,5 @@
 # Poster notes
 
-[简体中文](poster-notes.zh-CN.md)
 
 Choose **More types → Poster (Beta)** to create an editable poster. In an ordinary note, choose **Create poster** from the note actions to create a separate poster using the title and selected text (or the first 240 characters of the body). The original note remains intact.
 

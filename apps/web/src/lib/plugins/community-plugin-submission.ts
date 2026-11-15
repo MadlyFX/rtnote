@@ -20,7 +20,7 @@ export const precheckCommunityPluginSubmission = async (input: string) => {
   }
   const downloaded = await downloadGithubExtension(coordinates.repositoryUrl);
   if (isReservedMarketplacePluginId(downloaded.manifest.id)) {
-    throw new Error("Plugin ids under org.edgeever are reserved for EdgeEver.");
+    throw new Error("Plugin ids under org.edgeever are reserved for RTNote.");
   }
   if (!downloaded.checksums.manifestJson) throw new Error("The GitHub release is missing manifest.json.");
   if (downloaded.manifest.type === "plugin" && !downloaded.checksums.mainJs) {

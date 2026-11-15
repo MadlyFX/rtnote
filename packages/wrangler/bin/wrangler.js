@@ -37,7 +37,7 @@ const run = (executable, commandArgs, options = {}) => {
 
 if (shouldRunEdgeEverDeployment(args, process.env, repositoryConfig)) {
   console.error(
-    "[info] Cloudflare used its default deploy command; routing it through EdgeEver's validated deployment pipeline.",
+    "[info] Cloudflare used its default deploy command; routing it through RTNote's validated deployment pipeline.",
   );
   run("bun", ["run", "deploy"], {
     env: edgeEverDeploymentEnvironment(),

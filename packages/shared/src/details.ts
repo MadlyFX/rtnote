@@ -91,7 +91,7 @@ const readHtmlAttr = (attrs: string, name: string) => {
 const escapeMarkdownLabel = (value: string) =>
   value.replace(/\\/g, "\\\\").replace(/\[/g, "\\[").replace(/\]/g, "\\]");
 
-/** http(s) URLs that are not already stored EdgeEver resources. */
+/** http(s) URLs that are not already stored RTNote resources. */
 const isRemoteHttpUrl = (value: string) => {
   // oxlint-disable-next-line no-control-regex -- rejects URLs containing control characters or whitespace
   if (!value || /[\u0000-\u0020"'<>`]/.test(value)) return false;

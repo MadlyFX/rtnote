@@ -9,17 +9,17 @@
 	<key>signingStyle</key>
 	<string>manual</string>
 	<key>teamID</key>
-	<string>9KA3NM38B6</string>
+	<string></string>
 	<key>uploadSymbols</key>
 	<true/>
 	<key>manageAppVersionAndBuildNumber</key>
 	<false/>
 	<key>provisioningProfiles</key>
 	<dict>
-		<key>org.edgeever.mobile</key>
-		<string>*[expo] org.edgeever.mobile AppStore 2026-08-01T04:08:38.265Z</string>
-		<key>org.edgeever.mobile.expo-sharing-extension</key>
-		<string>*[expo] org.edgeever.mobile.expo-sharing-extension AppStore 2026-08-01T04:09:04.014Z</string>
+		<key>com.madlyfx.rtnote</key>
+		<string>*[expo] com.madlyfx.rtnote AppStore 2026-08-01T04:08:38.265Z</string>
+		<key>com.madlyfx.rtnote.expo-sharing-extension</key>
+		<string>*[expo] com.madlyfx.rtnote.expo-sharing-extension AppStore 2026-08-01T04:09:04.014Z</string>
 	</dict>
 </dict>
 </plist>

@@ -338,7 +338,7 @@ describe("public notebook site controls", () => {
     f.db.run("UPDATE memos SET title = ? WHERE id = 'memo_child'", ["无标题笔记"]);
     const untitledHtml = await (await render("/s/docs/memo_child")).text();
     expect(untitledHtml).not.toContain("无标题笔记");
-    expect(untitledHtml).toMatch(/<title>[^<]+ · EdgeEver<\/title>/);
+    expect(untitledHtml).toMatch(/<title>[^<]+ · RTNote<\/title>/);
     await manage(f, "/memos/memo_child", { excluded: true });
     const hidden = await render("/s/docs/memo_child");
     expect(hidden.status).toBe(404);

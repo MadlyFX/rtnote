@@ -1,6 +1,5 @@
 # Resource MIME browser acceptance
 
-[简体中文](README.zh-CN.md)
 
 [`browser-results.json`](browser-results.json) records Chromium checks through the real EdgeEver API, using isolated SQLite/filesystem storage on loopback. The content was synthetic and contained no scripts or credentials.
 

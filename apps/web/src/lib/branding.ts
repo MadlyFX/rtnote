@@ -3,12 +3,14 @@ import { useEffect, useState } from "react";
 export type BrandingPreference = { name: string; logoUrl: string; color: string };
 export const BRANDING_STORAGE_KEY = "edgeever.branding";
 const BRANDING_CHANGED_EVENT = "edgeever:branding-changed";
-export const DEFAULT_BRANDING: BrandingPreference = { name: "EdgeEver", logoUrl: "", color: "#1ba456" };
+export const DEFAULT_BRANDING: BrandingPreference = { name: "RTNote", logoUrl: "", color: "#1ba456" };
 
 export const normalizeBrandLogoUrl = (value: unknown): string => {
   if (typeof value !== "string") return "";
   const url = value.trim();
   if (/^data:image\/(png|jpeg|webp);base64,[a-z0-9+/=]+$/i.test(url) && url.length <= 350_000) return url;
+  // Control characters are matched on purpose: they must never reach a URL.
+  // oxlint-disable-next-line no-control-regex
   if (!url || /[\u0000-\u0020\\"'<>]/.test(url)) return "";
   if (url.startsWith("/") && !url.startsWith("//")) return url;
   try {
@@ -20,10 +22,12 @@ export const normalizeBrandLogoUrl = (value: unknown): string => {
 export const resolveBranding = (value: unknown): BrandingPreference => {
   const input = value && typeof value === "object" ? value as Partial<BrandingPreference> : {};
   const name = typeof input.name === "string"
+    // Control characters are replaced on purpose so they never reach titles.
+    // oxlint-disable-next-line no-control-regex
     ? Array.from(input.name.replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim()).slice(0, 48).join("")
     : "";
   let color = typeof input.color === "string" ? input.color.trim().toLowerCase() : "";
-  if (/^#[a-f0-9]{3}$/.test(color)) color = `#${[...color.slice(1)].map(c => c + c).join("")}`;
+  if (/^#[a-f0-9]{3}$/.test(color)) color = `#${Array.from(color.slice(1), c => c + c).join("")}`;
   return { name: name || DEFAULT_BRANDING.name, logoUrl: normalizeBrandLogoUrl(input.logoUrl), color: /^#[a-f0-9]{6}$/.test(color) ? color : DEFAULT_BRANDING.color };
 };
 
@@ -63,7 +67,7 @@ export const brandForeground = (hex: string): string => {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.179 ? "#000000" : "#FFFFFF";
 };
 
-export const withAppBrandName = (text: string, name = getBranding().name) => text.replaceAll("EdgeEver", () => name);
+export const withAppBrandName = (text: string, name = getBranding().name) => text.replaceAll("RTNote", () => name);
 
 export const replaceBrandTitle = (title: string, previousName: string, nextName: string): string => {
   if (title === previousName) return nextName;

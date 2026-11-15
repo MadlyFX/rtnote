@@ -1,6 +1,6 @@
-# Deploy EdgeEver with Docker
+# Deploy RTNote with Docker
 
-EdgeEver uses the same web application, Hono routes, services, authentication,
+RTNote uses the same web application, Hono routes, services, authentication,
 MCP implementation, and append-only migrations on Cloudflare
 and Docker. Only the thin runtime and infrastructure adapters differ: Docker
 uses Bun with SQLite and local files (or S3-compatible object storage), while
@@ -12,47 +12,20 @@ Cloudflare uses Workers with D1 and R2.
 - An `amd64` or `arm64` Linux host.
 - Linux kernel 5.6 or later. Older kernels are outside the formally supported
   Docker environment because Bun may fail to resolve container dependencies
-  there. The installer warns without blocking installation; if startup reports
+  there. If startup reports
   `EISDIR reading .../node_modules/...`, upgrade the host OS or kernel before
   changing `/data` permissions or replacing application data.
 - A reverse proxy with HTTPS when the instance is reachable outside a trusted
   local network.
 
-## One-command install
+## Compose
 
-With Docker Compose v2 already installed:
-
-```sh
-curl -fsSL https://edgeever.org/install.sh | bash
-```
-
-The installer creates `~/edgeever`, generates an administrator password, pulls
-`latest`, starts the container, and waits for it to become healthy. Run the same
-command again to upgrade without replacing the password or `/data` volume. The
-installer and Compose configuration use the official GHCR image.
-
-By default, the installer schedules `~/edgeever/update.sh` with the current
-user's crontab at 04:17 server time every day. The updater refreshes the Compose
-configuration, pulls the configured image tag, restarts the service when needed,
-and verifies container health. Output is appended to `~/edgeever/update.log`.
-The default `latest` tag receives new releases automatically; a version supplied
-with `--version` remains pinned. Use `--no-auto-update` or
-`EDGE_EVER_AUTO_UPDATE=false` to disable the schedule. If `crontab` is unavailable,
-the installer keeps `update.sh` and prints instructions for adding it to the NAS
-task scheduler.
-
-Use `--version vX.Y.Z`, `--port PORT`, or `--install-dir DIR` when needed. Run
-`curl -fsSL https://edgeever.org/install.sh | bash -s -- --help` for all options.
-
-## Manual Compose
-
-Download `compose.yaml`, choose the release you want to run, and provide a
-strong instance password:
+RTNote does not publish a container image yet. Clone this repository, provide a
+strong instance password, and let Compose build the image:
 
 ```sh
-export EDGE_EVER_VERSION=vX.Y.Z
 export EDGE_EVER_AUTH_PASSWORD='replace-with-a-long-random-password'
-docker compose up -d
+docker compose up -d --build
 docker compose ps
 ```
 
@@ -62,8 +35,9 @@ storage are ready.
 
 ### Image registry
 
-The official image is `ghcr.io/tianma-if/edgeever` and supports `linux/amd64`
-and `linux/arm64`. Pin `EDGE_EVER_VERSION` to a release tag in production.
+Compose tags the locally built image as `ghcr.io/madlyfx/rtnote`, the name
+RTNote's published image will use once releases start. The Dockerfile builds
+for `linux/amd64` and `linux/arm64`.
 
 Compose creates one named volume. Everything that must survive a container
 replacement is under `/data`:
@@ -77,11 +51,6 @@ replacement is under `/data`:
 The image runs as the non-root `bun` user (UID/GID `1000`). If a NAS requires
 a host bind mount instead of the named volume, create the directory first and
 grant UID/GID `1000` read/write access.
-When an installation or automatic update fails, the script performs a real
-write test against `/data` and reports the mount type, source, container user,
-and directory state. If permissions are the cause, it prints a repair command
-tailored to a Docker named volume or NAS bind mount; it never changes existing
-data permissions automatically.
 
 ## Configuration
 
@@ -133,11 +102,11 @@ administration port.
 
 ## Backup and restore
 
-Use EdgeEver's ZIP export for portable content backups. Also make a cold copy
+Use RTNote's ZIP export for portable content backups. Also make a cold copy
 of the `/data` volume for complete instance recovery:
 
 1. Run `docker compose stop edgeever` and wait for the shutdown-complete log.
-   EdgeEver checkpoints SQLite's WAL during graceful shutdown.
+   RTNote checkpoints SQLite's WAL during graceful shutdown.
 2. Copy or snapshot the entire named volume, including the SQLite file,
    `edgeever-secrets.json`, and the `resources` directory.
 3. Start the service with `docker compose start edgeever`.
@@ -150,17 +119,16 @@ manage secrets outside the volume. Cloudflare deployments still require the
 Worker authentication secret; they do not use this file. When S3 storage is
 enabled, back up the bucket separately.
 
-Restore only while EdgeEver is stopped, into an empty volume. Test backups
+Restore only while RTNote is stopped, into an empty volume. Test backups
 periodically on a separate instance.
 
 ## Upgrade and rollback
 
-Use immutable release tags instead of `latest` for production:
+Pull the newer RTNote source, then rebuild and restart:
 
 ```sh
-export EDGE_EVER_VERSION=vX.Y.Z
-docker compose pull
-docker compose up -d
+git pull
+docker compose up -d --build
 docker compose ps
 ```
 
@@ -171,21 +139,21 @@ when a data rollback is required.
 
 The image default command is `bun scripts/self-hosted-server.js`. It also keeps
 `scripts/self-hosted-server.mjs` as an alias, because NAS and GUI panels often
-reuse the command saved from v1.62 and earlier. If logs show
-`Module not found "scripts/self-hosted-server.mjs"`, pull a release that includes
-that alias, or clear the custom command so the image default is used.
+reuse a saved command. If logs show
+`Module not found "scripts/self-hosted-server.mjs"`, clear the custom command so
+the image default is used.
 
-To move between Cloudflare and Docker, use EdgeEver's full backup/export and
+To move between Cloudflare and Docker, use RTNote's full backup/export and
 restore flow. Do not copy a live D1 database file or rewrite migration history.
 
 ## Build from source
 
 ```sh
-docker build --tag edgeever:local .
+docker build --tag rtnote:local .
 docker run --rm -p 8787:8787 \
   -e EDGE_EVER_AUTH_PASSWORD='replace-with-a-long-random-password' \
   -v edgeever-data:/data \
-  edgeever:local
+  rtnote:local
 ```
 
 ### System information metadata
@@ -205,7 +173,7 @@ images report them as unknown unless you pass the build arguments below.
 
 Triggers are `github_release`, `main_push` or `manual`. `EDGE_EVER_DEPLOYMENT_METHOD=docker`
 describes a container deployment, while `github_actions`, `cloudflare_workers_builds`
-and `local_cli` describe the mechanism that ran a build or deployment. EdgeEver
+and `local_cli` describe the mechanism that ran a build or deployment. RTNote
 never infers Docker or the registry on its own, because the same server also runs
 directly under Bun and images can be copied between registries. Missing or invalid
 values are shown as unknown.
@@ -225,7 +193,7 @@ docker run --rm -p 8787:8787 \
   -e EDGE_EVER_DEPLOYMENT_TRIGGER=manual \
   -e EDGE_EVER_DEPLOYMENT_METHOD=docker \
   -v edgeever-data:/data \
-  edgeever:local
+  rtnote:local
 ```
 
 PostgreSQL is not supported in the first Docker release. It remains a future

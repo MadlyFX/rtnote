@@ -49,7 +49,7 @@ export const downloadGithubReleaseAsset = async ({
     redirect: "follow",
     headers: {
       Accept: "application/octet-stream",
-      "User-Agent": "EdgeEver",
+      "User-Agent": "RTNote",
       "X-GitHub-Api-Version": GITHUB_API_VERSION,
     },
   });
@@ -78,7 +78,7 @@ export const readGithubRepositoryManifestText = async ({
   const response = await request(`https://api.github.com/repos/${owner}/${repository}/contents/manifest.json`, {
     headers: {
       Accept: "application/vnd.github.raw+json",
-      "User-Agent": "EdgeEver",
+      "User-Agent": "RTNote",
       "X-GitHub-Api-Version": GITHUB_API_VERSION,
     },
   });
@@ -87,7 +87,7 @@ export const readGithubRepositoryManifestText = async ({
     if (response.status === 403 || response.status === 429) {
       for (const ref of ["HEAD", "main", "master"] as const) {
         const raw = await request(`https://raw.githubusercontent.com/${owner}/${repository}/${ref}/manifest.json`, {
-          headers: { "User-Agent": "EdgeEver" },
+          headers: { "User-Agent": "RTNote" },
         });
         if (raw.ok) {
           const text = await raw.text();
@@ -134,7 +134,7 @@ export const readGithubLatestReleaseManifestText = async ({
       `https://github.com/${owner}/${repository}/releases/latest/download/manifest.json`,
       {
         redirect: "follow",
-        headers: { "User-Agent": "EdgeEver" },
+        headers: { "User-Agent": "RTNote" },
       },
     );
     if (response.ok) return assertManifestSize(await response.text());
@@ -146,7 +146,7 @@ export const readGithubLatestReleaseManifestText = async ({
     const response = await request(`https://api.github.com/repos/${owner}/${repository}/releases/latest`, {
       headers: {
         Accept: "application/vnd.github+json",
-        "User-Agent": "EdgeEver",
+        "User-Agent": "RTNote",
         "X-GitHub-Api-Version": GITHUB_API_VERSION,
       },
     });
@@ -189,7 +189,7 @@ export const readGithubReleaseByTag = async ({
     {
       headers: {
         Accept: "application/vnd.github+json",
-        "User-Agent": "EdgeEver",
+        "User-Agent": "RTNote",
         "X-GitHub-Api-Version": GITHUB_API_VERSION,
       },
     },
@@ -200,7 +200,7 @@ export const readGithubReleaseByTag = async ({
     try {
       const publicManifest = await request(publicUrl, {
         redirect: "follow",
-        headers: { "User-Agent": "EdgeEver" },
+        headers: { "User-Agent": "RTNote" },
       });
       if (publicManifest.ok) {
         return {
@@ -293,7 +293,7 @@ export const downloadGithubReleaseAssetByTag = async ({
     try {
       const response = await request(url, {
         redirect: "follow",
-        headers: { "User-Agent": "EdgeEver" },
+        headers: { "User-Agent": "RTNote" },
       });
       return await readBoundedAsset(response, assetName);
     } catch (error) {

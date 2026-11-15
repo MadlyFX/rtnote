@@ -63,7 +63,7 @@ describe("parseMarkdownImagePaste", () => {
 });
 
 describe("isSupportedMarkdownImageSource", () => {
-  test("allows remote and EdgeEver-managed image sources", () => {
+  test("allows remote and RTNote-managed image sources", () => {
     expect(isSupportedMarkdownImageSource("https://example.com/image.png")).toBe(true);
     expect(isSupportedMarkdownImageSource("http://example.com/image.png")).toBe(true);
     expect(isSupportedMarkdownImageSource("/api/v1/resources/res_1/blob")).toBe(true);

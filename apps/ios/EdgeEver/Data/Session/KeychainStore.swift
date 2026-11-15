@@ -4,7 +4,7 @@ import Security
 /// Keychain-backed storage with UserDefaults fallback when Keychain is unavailable
 /// (unsigned simulator installs, missing entitlements, etc.).
 enum KeychainStore {
-    static let service = "org.edgeever.mobile"
+    static let service = "com.madlyfx.rtnote"
 
     enum Key {
         static let session = "edgeever.mobile.session"

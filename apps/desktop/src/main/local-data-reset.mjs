@@ -50,7 +50,7 @@ export const managedUserDataDirectory = (userDataDirectory, appDataDirectory) =>
   ) {
     throw new LocalDataResetError(
       "unsafe-data-directory",
-      "EdgeEver local data must be a direct child of the application-data directory or a single @scope/name directory in it",
+      "RTNote local data must be a direct child of the application-data directory or a single @scope/name directory in it",
     );
   }
   return target;
@@ -66,7 +66,7 @@ export const macApplicationBundlePath = (executablePath) => {
   }
   throw new LocalDataResetError(
     "application-bundle-not-found",
-    "EdgeEver must be running from a macOS application bundle",
+    "RTNote must be running from a macOS application bundle",
   );
 };
 
@@ -102,7 +102,7 @@ export const scheduleMacLocalDataReset = async ({
   } catch (error) {
     throw new LocalDataResetError(
       "helper-start-failed",
-      "EdgeEver could not start the local-data reset helper",
+      "RTNote could not start the local-data reset helper",
       { cause: error },
     );
   }

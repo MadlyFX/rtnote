@@ -83,7 +83,7 @@ const prompt: AiPromptTemplate = {
   updatedAt: memo.updatedAt,
 };
 
-describe("EdgeEver ZIP", () => {
+describe("RTNote ZIP", () => {
   test("passes server-provided continuation cursors to later ZIP pages", async () => {
     const cursors: (string | undefined)[] = [];
     const blob = await createEdgeEverZip({

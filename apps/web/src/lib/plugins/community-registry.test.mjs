@@ -10,7 +10,7 @@ const bundledEntry = {
   id: "org.edgeever.tasks",
   name: "Tasks",
   description: "Official tasks",
-  author: "EdgeEver",
+  author: "RTNote",
   publisher: "edgeever",
   category: "Productivity",
   repositoryUrl: "https://github.com/tianma-if/edgeever-tasks",

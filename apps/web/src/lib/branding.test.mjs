@@ -48,18 +48,18 @@ describe("personal branding", () => {
     const favicon = { href: "/favicon.svg", getAttribute: () => "/favicon.svg", removeAttribute() {} };
     const theme = { content: "#0f172a" };
     const style = new Map();
-    globalThis.document = { title: "EdgeEver", querySelector: selector => selector.includes('rel="icon"') ? favicon : theme, documentElement: { style: { setProperty: (key, value) => style.set(key, value) } } };
+    globalThis.document = { title: "RTNote", querySelector: selector => selector.includes('rel="icon"') ? favicon : theme, documentElement: { style: { setProperty: (key, value) => style.set(key, value) } } };
     const cleanup = installBrandingPreferences();
-    writeBranding({ name: "My EdgeEver", color: "#ffffff", logoUrl: "https://example.com/a.png" });
-    expect(document.title).toBe("My EdgeEver");
+    writeBranding({ name: "My RTNote", color: "#ffffff", logoUrl: "https://example.com/a.png" });
+    expect(document.title).toBe("My RTNote");
     expect(favicon.href).toBe("https://example.com/a.png");
     expect(style.get("--brand-green-rgb")).toBe("255 255 255");
     target.localStorage.setItem(BRANDING_STORAGE_KEY, JSON.stringify({ ...DEFAULT_BRANDING, name: "Another" }));
     target.dispatchEvent(new Event("storage"));
     expect(document.title).toBe("Another");
     expect(favicon.href).toBe("/favicon.svg");
-    expect(replaceBrandTitle("A note about EdgeEver · Another", "Another", "New")).toBe("A note about EdgeEver · New");
-    expect(replaceBrandTitle("[DEV] EdgeEver", "EdgeEver", "My Notes")).toBe("[DEV] My Notes");
+    expect(replaceBrandTitle("A note about RTNote · Another", "Another", "New")).toBe("A note about RTNote · New");
+    expect(replaceBrandTitle("[DEV] RTNote", "RTNote", "My Notes")).toBe("[DEV] My Notes");
     cleanup();
   });
   test("accent button text remains readable on light and dark colors", () => {
@@ -69,6 +69,6 @@ describe("personal branding", () => {
     expect(brandForeground("#000000")).toBe("#FFFFFF");
   });
   test("names with replacement characters are displayed literally", () => {
-    expect(withAppBrandName("Welcome to EdgeEver", "$& Notes")).toBe("Welcome to $& Notes");
+    expect(withAppBrandName("Welcome to RTNote", "$& Notes")).toBe("Welcome to $& Notes");
   });
 });

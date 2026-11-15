@@ -14,7 +14,7 @@ const modernRequest = (method, params = {}) => ({
   },
 });
 
-describe("EdgeEver MCP stdio adapter headers", () => {
+describe("RTNote MCP stdio adapter headers", () => {
   test("mirrors modern protocol routing fields into HTTP headers", () => {
     expect(createMcpHttpHeaders(modernRequest("server/discover"), null)).toEqual({
       "MCP-Protocol-Version": "2026-07-28",

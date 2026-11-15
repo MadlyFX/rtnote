@@ -16,7 +16,7 @@ const setup = (upload) => {
   };
   return storage;
 };
-const copy = { title: "Failed", message: "Retry?", retry: "Retry", fallback: "EdgeEver", cancel: "Cancel" };
+const copy = { title: "Failed", message: "Retry?", retry: "Retry", fallback: "RTNote", cancel: "Cancel" };
 const file = () => new File([new Uint8Array([137, 80, 78, 71])], "image.png", { type: "image/png" });
 
 test("default, corrupt settings and ordinary Web runtime retain attachment uploads", async () => {

@@ -136,7 +136,7 @@ export const verifyLogin = async (env: Bindings, username: string, password: str
     if (!isSupportedPasswordHash(existingUser.password_hash)) {
       throw new AppError(
         "password_hash_invalid",
-        "This account has an invalid password hash. Reset it with the EdgeEver password reset command.",
+        "This account has an invalid password hash. Reset it with the RTNote password reset command.",
         503,
       );
     }
@@ -323,7 +323,7 @@ const authenticateBearerToken = async (c: AppContext, touch: boolean): Promise<A
   }
 
   await ensureWorkspaceExampleSeed(c.env, row.workspace_id).catch((error) => {
-    console.error("EdgeEver example seed failed", error);
+    console.error("RTNote example seed failed", error);
   });
 
   return {
@@ -383,7 +383,7 @@ const authenticateSessionToken = async (c: AppContext, token: string, touch: boo
     : await ensureUserWorkspace(c.env.storage.db, row.user_id, row.username, c.req.header("accept-language"));
 
   await ensureWorkspaceExampleSeed(c.env, workspace.workspaceId).catch((error) => {
-    console.error("EdgeEver example seed failed", error);
+    console.error("RTNote example seed failed", error);
   });
 
   return {

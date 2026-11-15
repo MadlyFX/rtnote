@@ -1,60 +1,60 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "EdgeEver" : {
+    "RTNote" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "EdgeEver"
+            "value" : "RTNote"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "EdgeEver"
+            "value" : "RTNote"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "EdgeEver"
+            "value" : "RTNote"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "EdgeEver"
+            "value" : "RTNote"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "EdgeEver"
+            "value" : "RTNote"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "EdgeEver"
+            "value" : "RTNote"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "EdgeEver"
+            "value" : "RTNote"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "EdgeEver"
+            "value" : "RTNote"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "EdgeEver"
+            "value" : "RTNote"
           }
         }
       }

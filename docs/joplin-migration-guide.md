@@ -1,67 +1,67 @@
-# Joplin 笔记迁入指引
+# Joplin Migration Guide
 
 [简体中文](note-migration-guide.md) | [English](note-migration-guide.en-US.md)
 
-> 💡 **提示**：第三方笔记迁入教程现已全面升级并合并至统一指引：
-> 👉 **[第三方笔记平滑迁入 EdgeEver 完整指南](note-migration-guide.md)**（全面覆盖原生一键导入与 AI Agent / MCP 迁入）。
+> 💡 **Notice**: All third-party note migration guides have been merged and updated into a unified guide:
+> 👉 **[Migrate from Third-Party Notes to RTNote: The Complete Guide](note-migration-guide.en-US.md)** (covering native GUI one-click import and AI Agent / MCP migration).
 
-EdgeEver 原生支持将你的 Joplin 知识库完整导入。在 Web 网页端或 Electron 桌面端中，**无需安装转换插件或运行任何脚本**，即可通过图形界面将 Joplin 导出的 JEX 归档、RAW 导出目录或 Markdown 目录无缝迁入 EdgeEver。
-
----
-
-### 原生导入支持特性
-
-- **多格式全面支持**：
-  - **JEX 格式（.jex）**：Joplin 原生 TAR 归档，包含全部笔记、元数据与附件资源。
-  - **RAW 导出目录**：包含完整数据结构的 Joplin RAW 导出文件夹或其 `.zip` 压缩包。
-  - **Markdown 导出目录**：支持 Joplin 导出的 Markdown 目录（含 Front Matter）及其 `.zip`。
-- **完整笔记本树还原**：基于 Joplin 的父子笔记本层级关系，完整还原嵌套笔记本目录树。
-- **标签与时间戳保留**：自动映射 Joplin 标签关联关系，精确保留原始创建时间与更新时间。
-- **资源与附件无缝迁移**：自动解析 Joplin 正文中的资源 ID（例如 `:/abcdef123456...`），将关联的本地图片、PDF 及附件安全上传至 EdgeEver 资源库，并精确改写正文链接。
-- **客户端本地扫描**：在本地浏览器/桌面端流式解析，清晰展示预检统计，避免将未确认的数据整包传输至服务端。
+RTNote natively supports importing your entire Joplin knowledge base. In either the Web app or the Electron desktop client, **no converter plugins or custom scripts are needed**. You can migrate Joplin JEX archives, RAW export folders, or Markdown directories directly into RTNote via an intuitive graphical interface.
 
 ---
 
-### 迁移步骤
+### Native Import Features
 
-#### 步骤 1：从 Joplin 导出笔记
+- **Broad Format Support**:
+  - **JEX Format (.jex)**: Joplin's native TAR archive containing all notes, metadata, and resource attachments.
+  - **RAW Export Folder**: Joplin's raw structure directory or its `.zip` archive.
+  - **Markdown Export**: Supports Markdown directories exported with Front Matter and their `.zip` archives.
+- **Full Notebook Hierarchy**: Reconstructs nested notebook trees faithfully from Joplin's parent-child notebook relationships.
+- **Tags & Timestamp Retention**: Maps Joplin tag relations accurately and retains original creation and modification dates.
+- **Resource & Attachment Transfer**: Resolves internal Joplin resource IDs (e.g., `:/abcdef123456...`), uploads local images, PDFs, and attachments to RTNote's secure resource store, and rewrites body links cleanly.
+- **Local Preflight Scanning**: Parses archives locally in your browser or desktop environment, providing a clear preflight summary before any write.
 
-1. 打开 Joplin 桌面客户端。
-2. 点击顶部菜单栏的 **文件（File）→ 导出全部（Export all）**。
-3. 选择导出格式：
-   - **推荐方式**：选择 **JEX - Joplin 导出目录（JEX - Joplin Export File）**，导出为单一 `.jex` 文件。
-   - **备用方式**：也可选择 **RAW - Joplin 导出目录** 或 **MD - Markdown（带有 Front Matter）**，并将导出的文件夹打包为 `.zip`。
+---
 
-#### 步骤 2：在 EdgeEver 中打开导入入口
+### Migration Steps
 
-1. 打开 EdgeEver 网页端或桌面端并登录。
-2. 点击左侧底部导航栏的 **设置（Settings）** 图标。
-3. 在设置页面的 **导入与导出** 区域中，找到 **从其他应用导入** 卡片，点击 **开始导入**。
+#### Step 1: Export Notes from Joplin
 
-#### 步骤 3：选择来源并载入文件
+1. Open the Joplin desktop client.
+2. Click **File → Export all** in the top menu bar.
+3. Choose the export format:
+   - **Recommended**: Select **JEX - Joplin Export File** to produce a single `.jex` archive.
+   - **Alternative**: Select **RAW - Joplin Export Directory** or **MD - Markdown (with Front Matter)**, then compress the exported directory into a `.zip` archive.
 
-1. 在导入对话框中，来源应用点击选中 **Joplin**。
-2. 添加你的 Joplin 导出数据：
-   - **拖拽**：直接将 `.jex` 文件、RAW 导出文件夹或导出的 `.zip` 压缩包拖入弹窗中心的虚线区域。
-   - **浏览选择**：点击 **选择文件** 选取 `.jex` 或 `.zip`，或点击 **选择文件夹** 选取 RAW/Markdown 导出目录。
+#### Step 2: Open the Import Dialog in RTNote
 
-#### 步骤 4：本地安全预检与选择目标
+1. Open RTNote in your web browser or desktop client and sign in.
+2. Click the **Settings** gear icon at the bottom of the left sidebar.
+3. In the **Import and export** section, locate the **Import from other apps** card and click **Start import**.
 
-1. 载入后，EdgeEver 会在客户端本地快速解包扫描笔记、标签与资源条目。
-2. 预检界面将展示数据概览：
-   - 即将生成的 **笔记本数量**、**笔记篇数** 与 **附件数量**。
-   - 识别出的多级笔记本目录树。
-   - 任何格式提醒或未关联资源的说明。
-3. 在「导入位置」中，选择将数据 **创建为顶层笔记本**（默认），或选择放入某个已有父笔记本中。
+#### Step 3: Choose Source and Add Files
 
-#### 步骤 5：确认导入并流式写入
+1. In the import dialog, select **Joplin** under Source app.
+2. Add your exported data:
+   - **Drag and Drop**: Drag the `.jex` file, RAW folder, or `.zip` archive directly into the dashed dropzone area.
+   - **Browse**: Click **Choose files** to pick a `.jex` or `.zip` file, or click **Choose folder** to select a RAW/Markdown export directory.
 
-1. 确认预检信息无误后，点击右下角 **确认导入**。
-2. EdgeEver 将在本地对笔记正文与附件进行流式解析、创建与资源上传：
-   - 界面实时显示处理进度及当前处理文件。
-   - Electron 桌面端导入时会自动挂起后台同步，导入完成后自动恢复同步并刷新工作区。
+#### Step 4: Local Preflight & Target Selection
 
-#### 步骤 6：核验导入结果
+1. RTNote rapidly unpacks and scans notes, tags, and resources locally in the background.
+2. Review the preflight summary:
+   - Projected counts of **Notebooks**, **Notes**, and **Attachments**.
+   - Tree view of the detected notebook hierarchy.
+   - Formatting alerts or unlinked resources (if any).
+3. Under "Import into", choose to **Create top-level notebooks** (default) or place them beneath an existing parent notebook.
 
-1. 导入完成后，在弹窗中可以浏览导入结果列表，点击 **打开笔记** 快速核验笔记内容、图片嵌入与标签。
-2. 若有个别附件因网络波动未能上传成功，点击 **重试未完成步骤** 即可进行增量重试，不会产生重复笔记。
+#### Step 5: Confirm and Stream Import
+
+1. After confirming the preflight details, click **Confirm import** in the bottom-right corner.
+2. RTNote streams and parses notes and attachments locally:
+   - The UI shows real-time progress, processed item counts, and current file names.
+   - Desktop sync is safely paused during execution and resumed upon completion.
+
+#### Step 6: Verify Imported Notes
+
+1. Once the import completes, review the finished notes list. Click **Open note** to verify text content, images, and tags.
+2. If any attachment was interrupted by network timeouts, click **Retry unfinished steps** to resume without creating duplicate notes.

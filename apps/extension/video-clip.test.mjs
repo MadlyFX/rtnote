@@ -730,7 +730,7 @@ test("keeps the video menu hosts away from the other page commands", () => {
 
 test("ships the video-note phrases in the extension locales", () => {
   const zh = messages("zh_CN");
-  expect(zh.saveVideoNoteToEdgeEver.message).toBe("保存视频笔记到 EdgeEver");
+  expect(zh.saveVideoNoteToEdgeEver.message).toBe("保存视频笔记到 RTNote");
   expect(zh.videoNoteSaved.message).toBe("已保存视频笔记");
   expect(zh.videoTranscriptSaved.message).toBe("已保存字幕，总结未生成");
   expect(zh.videoTranscriptNeedScope.message).toBe("已保存字幕，总结未生成。请在设置中为 Token 加上 ai:generate，并配置默认模型。");
@@ -741,7 +741,7 @@ test("ships the video-note phrases in the extension locales", () => {
   expect(zh.videoNotRead.message).toBe("没有读到这个视频");
   expect(zh.videoNoCaptions.message).toBe("这一集没有可用字幕");
   const pl = messages("pl");
-  expect(pl.saveVideoNoteToEdgeEver.message).toBe("Zapisz notatkę z wideo w EdgeEver");
+  expect(pl.saveVideoNoteToEdgeEver.message).toBe("Zapisz notatkę z wideo w RTNote");
   expect(pl.videoSummaryHeading.message).toBe("Podsumowanie");
   expect(pl.videoTranscriptHeading.message).toBe("Transkrypcja");
   for (const locale of ["en", "ja", "pl"]) {

@@ -1,6 +1,5 @@
 # Region clipping verification
 
-[简体中文](README.zh-CN.md)
 
 ## Browser interaction and content
 

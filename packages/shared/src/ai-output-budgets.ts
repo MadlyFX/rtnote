@@ -12,7 +12,7 @@ export const AI_MODEL_OUTPUT_BUDGET_FIELDS = [
 
 export type AiModelOutputBudgetField = (typeof AI_MODEL_OUTPUT_BUDGET_FIELDS)[number];
 
-/** `null` means "use the EdgeEver default for this scenario". */
+/** `null` means "use the RTNote default for this scenario". */
 export type AiModelOutputBudgets = Record<AiModelOutputBudgetField, number | null>;
 
 export const AI_MODEL_OUTPUT_BUDGET_DEFAULTS: Record<AiModelOutputBudgetField, number> = {

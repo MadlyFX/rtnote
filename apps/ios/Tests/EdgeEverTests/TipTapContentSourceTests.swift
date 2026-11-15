@@ -188,7 +188,7 @@ final class TipTapContentSourceTests: XCTestCase {
                 subdirectory: "EditorBundle"
             )
             XCTAssertNotNil(alt, "EditorBundle missing from test host")
-            throw XCTSkip("EditorBundle not in test host bundle — run against EdgeEver app target tests")
+            throw XCTSkip("EditorBundle not in test host bundle — run against RTNote app target tests")
         }
 
         let config = WKWebViewConfiguration()

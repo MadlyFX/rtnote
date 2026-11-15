@@ -10,7 +10,7 @@ import {
   type AppLocalePreference,
   type SupportedLocale,
 } from "./locales";
-import { zhCN } from "./resources/zh-CN";
+import { enUS } from "./resources/en-US";
 
 export {
   defaultLocale,
@@ -21,21 +21,22 @@ export {
   type SupportedLocale,
 } from "./locales";
 
+// English ships in the main bundle; every other catalog loads on demand.
 export const resources = {
-  "zh-CN": { translation: zhCN },
+  "en-US": { translation: enUS },
 } as const;
 
 type OptionalLocale = Exclude<SupportedLocale, keyof typeof resources>;
 
 const isOptionalLocale = (locale: SupportedLocale): locale is OptionalLocale =>
-  locale !== "zh-CN";
+  locale !== "en-US";
 
 const loadOptionalCatalog = async (locale: OptionalLocale) => {
+  if (locale === "zh-CN") {
+    return (await import("./resources/zh-CN")).zhCN;
+  }
   if (locale === "zh-TW") {
     return (await import("./resources/zh-TW")).zhTW;
-  }
-  if (locale === "en-US") {
-    return (await import("./resources/en-US")).enUS;
   }
   if (locale === "ja") {
     return (await import("./resources/ja")).ja;
@@ -60,8 +61,9 @@ const ensureLocaleCatalog = async (locale: SupportedLocale) => {
     return;
   }
 
-  if (locale !== "en-US") {
-    await ensureLocaleCatalog("en-US");
+  // Traditional Chinese falls back to Simplified Chinese before English.
+  if (locale === "zh-TW") {
+    await ensureLocaleCatalog("zh-CN");
   }
   i18n.addResourceBundle(locale, "translation", await loadOptionalCatalog(locale), true, true);
 };
@@ -70,12 +72,7 @@ void i18n.use(initReactI18next).init({
   resources,
   lng: isOptionalLocale(getInitialLocale()) ? defaultLocale : getInitialLocale(),
   fallbackLng: {
-    "zh-TW": ["zh-CN"],
-    ja: ["en-US"],
-    pl: ["en-US"],
-    ru: ["en-US"],
-    es: ["en-US"],
-    de: ["en-US"],
+    "zh-TW": ["zh-CN", "en-US"],
     default: [defaultLocale],
   },
   supportedLngs: supportedLocales,

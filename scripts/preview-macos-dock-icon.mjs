@@ -8,7 +8,7 @@ import { assertMacIcnsComplete } from "./desktop-icns.mjs";
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const defaultIconPath = join(projectRoot, "apps/desktop/assets/icon.icns");
 
-export const PREVIEW_APP_NAME = "EdgeEver Logo Preview";
+export const PREVIEW_APP_NAME = "RTNote Logo Preview";
 
 export const createPreviewInfoPlist = (bundleIdentifier) => `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">

@@ -1,12 +1,12 @@
 {
   "extensionName": {
-    "message": "EdgeEver Web Clipper"
+    "message": "RTNote Web Clipper"
   },
   "extensionDescription": {
-    "message": "Zapisuj strony, wybrany tekst, obrazy i wpisy Hacker News w swojej instancji EdgeEver."
+    "message": "Zapisuj strony, wybrany tekst, obrazy i wpisy Hacker News w swojej instancji RTNote."
   },
   "actionTitle": {
-    "message": "Zapisz w EdgeEver"
+    "message": "Zapisz w RTNote"
   },
   "webClipper": {
     "message": "Web Clipper"
@@ -27,13 +27,13 @@
     "message": "Dokończ konfigurację rozszerzenia"
   },
   "savedToEdgeEver": {
-    "message": "Zapisano w EdgeEver."
+    "message": "Zapisano w RTNote."
   },
   "saveFailed": {
     "message": "Nie udało się zapisać."
   },
   "optionsTitle": {
-    "message": "Ustawienia EdgeEver Web Clipper"
+    "message": "Ustawienia RTNote Web Clipper"
   },
   "diagnosticsTitle": {
     "message": "Informacje i diagnostyka"
@@ -90,10 +90,10 @@
     "message": "Nieznane"
   },
   "instanceAddress": {
-    "message": "Adres URL instancji EdgeEver"
+    "message": "Adres URL instancji RTNote"
   },
   "tokenPlaceholder": {
-    "message": "Utwórz go w ustawieniach EdgeEver"
+    "message": "Utwórz go w ustawieniach RTNote"
   },
   "defaultNotebook": {
     "message": "Domyślny notatnik"
@@ -140,13 +140,13 @@
     "message": "Nie udało się zapisać ustawień."
   },
   "missingSettingsDetails": {
-    "message": "Najpierw wpisz adres URL instancji EdgeEver i token API w ustawieniach rozszerzenia."
+    "message": "Najpierw wpisz adres URL instancji RTNote i token API w ustawieniach rozszerzenia."
   },
   "instancePermissionRequired": {
-    "message": "Zezwól rozszerzeniu na dostęp do Twojej instancji EdgeEver."
+    "message": "Zezwól rozszerzeniu na dostęp do Twojej instancji RTNote."
   },
   "requestFailed": {
-    "message": "Żądanie do EdgeEver nie powiodło się ($STATUS$).",
+    "message": "Żądanie do RTNote nie powiodło się ($STATUS$).",
     "placeholders": {
       "status": {
         "content": "$1"
@@ -166,7 +166,7 @@
     "message": "Słowo kluczowe"
   },
   "noAvailableNotebooks": {
-    "message": "Brak dostępnych notatników w EdgeEver."
+    "message": "Brak dostępnych notatników w RTNote."
   },
   "currentPageNotFound": {
     "message": "Nie znaleziono bieżącej strony."
@@ -189,10 +189,10 @@
     "message": "Brak dodatkowych szczegółów"
   },
   "instanceNetworkFailed": {
-    "message": "Nie udało się połączyć z instancją EdgeEver. Sprawdź adres URL instancji, połączenie sieciowe i ustawienia CORS."
+    "message": "Nie udało się połączyć z instancją RTNote. Sprawdź adres URL instancji, połączenie sieciowe i ustawienia CORS."
   },
   "saveFailedWithReason": {
-    "message": "Nie udało się zapisać w EdgeEver: $DETAIL$",
+    "message": "Nie udało się zapisać w RTNote: $DETAIL$",
     "placeholders": {
       "detail": {
         "content": "$1"
@@ -203,10 +203,10 @@
     "message": "(Na tej stronie nie znaleziono treści do odczytania)"
   },
   "saveSelectionToEdgeEver": {
-    "message": "Zapisz zaznaczenie w EdgeEver"
+    "message": "Zapisz zaznaczenie w RTNote"
   },
   "selectionSaveHint": {
-    "message": "Zaznacz tekst na stronie, kliknij prawym przyciskiem i wybierz „Zapisz zaznaczenie w EdgeEver”. Zostanie zapisany jako nowa notatka w domyślnym notatniku wybranym poniżej."
+    "message": "Zaznacz tekst na stronie, kliknij prawym przyciskiem i wybierz „Zapisz zaznaczenie w RTNote”. Zostanie zapisany jako nowa notatka w domyślnym notatniku wybranym poniżej."
   },
   "savingSelection": {
     "message": "Zapisywanie zaznaczenia…"
@@ -221,10 +221,10 @@
     "message": "Zaznaczenie"
   },
   "saveImageToEdgeEver": {
-    "message": "Zapisz obraz w EdgeEver"
+    "message": "Zapisz obraz w RTNote"
   },
   "imageSaveHint": {
-    "message": "Kliknij prawym przyciskiem obraz na stronie i wybierz „Zapisz obraz w EdgeEver”. Zostanie zapisany jako nowa notatka w domyślnym notatniku wybranym poniżej."
+    "message": "Kliknij prawym przyciskiem obraz na stronie i wybierz „Zapisz obraz w RTNote”. Zostanie zapisany jako nowa notatka w domyślnym notatniku wybranym poniżej."
   },
   "savingImage": {
     "message": "Zapisywanie obrazu…"
@@ -242,7 +242,7 @@
     "message": "Tego formatu obrazu nie można jeszcze zapisać w notatce. Obsługiwane formaty: PNG, JPEG, GIF, WebP i AVIF."
   },
   "imagePermissionIntro": {
-    "message": "Ta strona nie może odczytać pliku obrazu. Gdy zezwolisz na dostęp do witryny, która go udostępnia, EdgeEver zapisze go jako nową notatkę w domyślnym notatniku Web Clippera. Odczytywany jest tylko wybrany obraz."
+    "message": "Ta strona nie może odczytać pliku obrazu. Gdy zezwolisz na dostęp do witryny, która go udostępnia, RTNote zapisze go jako nową notatkę w domyślnym notatniku Web Clippera. Odczytywany jest tylko wybrany obraz."
   },
   "imagePermissionHost": {
     "message": "Witryna: $HOST$",
@@ -265,7 +265,7 @@
     "message": "Nie zezwolono na dostęp do witryny, więc obraz nie został zapisany."
   },
   "imageResourceScopeRequired": {
-    "message": "Ten token API nie może zapisywać załączników. Utwórz token z pełnym dostępem w ustawieniach EdgeEver."
+    "message": "Ten token API nie może zapisywać załączników. Utwórz token z pełnym dostępem w ustawieniach RTNote."
   },
   "imageNoteFallbackTitle": {
     "message": "Obraz"
@@ -274,16 +274,16 @@
     "message": "Obraz"
   },
   "imageSaveWindowTitle": {
-    "message": "Zapisz obraz w EdgeEver"
+    "message": "Zapisz obraz w RTNote"
   },
   "imageSaveExpired": {
     "message": "Ten zapis wygasł. Kliknij obraz prawym przyciskiem i spróbuj ponownie."
   },
   "saveTweetToEdgeEver": {
-    "message": "Zapisz post w EdgeEver"
+    "message": "Zapisz post w RTNote"
   },
   "tweetSaveHint": {
-    "message": "W serwisie X kliknij post prawym przyciskiem i wybierz „Zapisz post w EdgeEver”. Tekst posta, także ten ukryty pod „Pokaż więcej”, oraz zdjęcia trafią do jednej nowej notatki w tym samym domyślnym notatniku."
+    "message": "W serwisie X kliknij post prawym przyciskiem i wybierz „Zapisz post w RTNote”. Tekst posta, także ten ukryty pod „Pokaż więcej”, oraz zdjęcia trafią do jednej nowej notatki w tym samym domyślnym notatniku."
   },
   "savingTweet": {
     "message": "Zapisywanie posta…"
@@ -316,16 +316,16 @@
     "message": "Post"
   },
   "tweetSaveWindowTitle": {
-    "message": "Zapisz post w EdgeEver"
+    "message": "Zapisz post w RTNote"
   },
   "tweetTimeLabel": {
     "message": "Czas"
   },
   "saveGithubRepoToEdgeEver": {
-    "message": "Zapisz informacje o repozytorium w EdgeEver"
+    "message": "Zapisz informacje o repozytorium w RTNote"
   },
   "githubRepoSaveHint": {
-    "message": "Na stronie repozytorium GitHub lub w drzewie kodu kliknij prawym przyciskiem tło strony, opis lub tekst README i wybierz „Zapisz informacje o repozytorium w EdgeEver”. Adres i opis zostaną zapisane jako nowa notatka w domyślnym notatniku wybranym powyżej. Strony zgłoszeń, dyskusji i pojedynczych plików nie są zapisywane."
+    "message": "Na stronie repozytorium GitHub lub w drzewie kodu kliknij prawym przyciskiem tło strony, opis lub tekst README i wybierz „Zapisz informacje o repozytorium w RTNote”. Adres i opis zostaną zapisane jako nowa notatka w domyślnym notatniku wybranym powyżej. Strony zgłoszeń, dyskusji i pojedynczych plików nie są zapisywane."
   },
   "savingGithubRepo": {
     "message": "Zapisywanie repozytorium…"
@@ -352,10 +352,10 @@
     "message": "Tematy"
   },
   "saveXhsToEdgeEver": {
-    "message": "Zapisz notatkę w EdgeEver"
+    "message": "Zapisz notatkę w RTNote"
   },
   "xhsSaveHint": {
-    "message": "W serwisie Xiaohongshu kliknij prawym przyciskiem tekst notatki i wybierz „Zapisz notatkę w EdgeEver”. Tytuł, tekst i zdjęcia trafią do jednej nowej notatki. Komentarze są pomijane. Kliknięcie prawym przyciskiem zdjęcia nadal zapisuje tylko ten obraz."
+    "message": "W serwisie Xiaohongshu kliknij prawym przyciskiem tekst notatki i wybierz „Zapisz notatkę w RTNote”. Tytuł, tekst i zdjęcia trafią do jednej nowej notatki. Komentarze są pomijane. Kliknięcie prawym przyciskiem zdjęcia nadal zapisuje tylko ten obraz."
   },
   "savingXhs": {
     "message": "Zapisywanie notatki…"
@@ -391,13 +391,13 @@
     "message": "Notatka z Xiaohongshu"
   },
   "xhsSaveWindowTitle": {
-    "message": "Zapisz notatkę w EdgeEver"
+    "message": "Zapisz notatkę w RTNote"
   },
   "xhsLocationLabel": {
     "message": "Lokalizacja"
   },
   "saveZhihuToEdgeEver": {
-    "message": "Zapisz odpowiedź lub artykuł w EdgeEver"
+    "message": "Zapisz odpowiedź lub artykuł w RTNote"
   },
   "zhihuQuestionLabel": {
     "message": "Pytanie"
@@ -415,7 +415,7 @@
     "message": "Treść"
   },
   "zhihuSaveHint": {
-    "message": "W serwisie Zhihu kliknij prawym przyciskiem tekst odpowiedzi lub artykułu i wybierz „Zapisz odpowiedź lub artykuł w EdgeEver”. Tytuł, autor, tekst i zdjęcia trafią do jednej nowej notatki. Komentarze są pomijane. Kliknięcie prawym przyciskiem zdjęcia nadal zapisuje tylko ten obraz."
+    "message": "W serwisie Zhihu kliknij prawym przyciskiem tekst odpowiedzi lub artykułu i wybierz „Zapisz odpowiedź lub artykuł w RTNote”. Tytuł, autor, tekst i zdjęcia trafią do jednej nowej notatki. Komentarze są pomijane. Kliknięcie prawym przyciskiem zdjęcia nadal zapisuje tylko ten obraz."
   },
   "savingZhihu": {
     "message": "Zapisywanie odpowiedzi lub artykułu z Zhihu…"
@@ -451,10 +451,10 @@
     "message": "Odpowiedź lub artykuł z Zhihu"
   },
   "zhihuSaveWindowTitle": {
-    "message": "Zapisz odpowiedź lub artykuł w EdgeEver"
+    "message": "Zapisz odpowiedź lub artykuł w RTNote"
   },
   "saveRedditToEdgeEver": {
-    "message": "Zapisz post z Reddita w EdgeEver"
+    "message": "Zapisz post z Reddita w RTNote"
   },
   "savingReddit": {
     "message": "Zapisywanie posta z Reddita…"
@@ -478,7 +478,7 @@
     "message": "Strona z linku"
   },
   "saveVideoNoteToEdgeEver": {
-    "message": "Zapisz notatkę z wideo w EdgeEver"
+    "message": "Zapisz notatkę z wideo w RTNote"
   },
   "savingVideoNote": {
     "message": "Zapisywanie notatki z wideo…"
@@ -553,16 +553,16 @@
     "message": "Notatka z wideo"
   },
   "saveHackerNewsToEdgeEver": {
-    "message": "Zapisz wpis Hacker News w EdgeEver"
+    "message": "Zapisz wpis Hacker News w RTNote"
   },
   "saveV2exToEdgeEver": {
-    "message": "Zapisz temat V2EX w EdgeEver"
+    "message": "Zapisz temat V2EX w RTNote"
   },
   "saveXiaoyuzhouToEdgeEver": {
-    "message": "Zapisz odcinek Xiaoyuzhou w EdgeEver"
+    "message": "Zapisz odcinek Xiaoyuzhou w RTNote"
   },
   "savingPlatformClip": {
-    "message": "Zapisywanie strony w EdgeEver…"
+    "message": "Zapisywanie strony w RTNote…"
   },
   "platformNotDetail": {
     "message": "Otwórz stronę konkretnego wpisu, tematu lub odcinka i spróbuj ponownie."
@@ -580,7 +580,7 @@
     "message": "Tekst zapisano. Część obrazów nadal korzysta z linków zewnętrznych."
   },
   "platformSavedWithImages": {
-    "message": "Zapisano w EdgeEver wraz ze wszystkimi obrazami."
+    "message": "Zapisano w RTNote wraz ze wszystkimi obrazami."
   },
   "platformNoShowNotes": {
     "message": "Ten odcinek nie ma Show Notes."
@@ -607,19 +607,19 @@
     "message": "Podcast"
   },
   "saveFacebookToEdgeEver": {
-    "message": "Zapisz post Facebooka w EdgeEver"
+    "message": "Zapisz post Facebooka w RTNote"
   },
   "saveInstagramToEdgeEver": {
-    "message": "Zapisz post Instagrama w EdgeEver"
+    "message": "Zapisz post Instagrama w RTNote"
   },
   "saveLinkedinToEdgeEver": {
-    "message": "Zapisz post LinkedIn w EdgeEver"
+    "message": "Zapisz post LinkedIn w RTNote"
   },
   "saveThreadsToEdgeEver": {
-    "message": "Zapisz post Threads w EdgeEver"
+    "message": "Zapisz post Threads w RTNote"
   },
   "saveBlueskyToEdgeEver": {
-    "message": "Zapisz post Bluesky w EdgeEver"
+    "message": "Zapisz post Bluesky w RTNote"
   },
   "socialSelectPost": {
     "message": "Otwórz stronę posta lub kliknij wybrany post ponownie prawym przyciskiem, aby go zapisać."
@@ -646,7 +646,7 @@
     "message": "Xiaoyuzhou"
   },
   "saveSubstackNoteToEdgeEver": {
-    "message": "Zapisz notatkę Substack w EdgeEver"
+    "message": "Zapisz notatkę Substack w RTNote"
   },
   "adaptedPlatformsTitle": {
     "message": "Platformy z dedykowaną obsługą"
@@ -709,10 +709,10 @@
     "message": "Powiadomienia o zapisywaniu"
   },
   "saveBossToEdgeEver": {
-    "message": "Zapisz ofertę BOSS Zhipin w EdgeEver"
+    "message": "Zapisz ofertę BOSS Zhipin w RTNote"
   },
   "saveXueqiuToEdgeEver": {
-    "message": "Zapisz wpis Xueqiu w EdgeEver"
+    "message": "Zapisz wpis Xueqiu w RTNote"
   },
   "platformBoss": {
     "message": "BOSS Zhipin"
@@ -730,31 +730,31 @@
     "message": "WeChat"
   },
   "saveWechatToEdgeEver": {
-    "message": "Zapisz WeChat w EdgeEver"
+    "message": "Zapisz WeChat w RTNote"
   },
   "platformJike": {
     "message": "Jike"
   },
   "saveJikeToEdgeEver": {
-    "message": "Zapisz Jike w EdgeEver"
+    "message": "Zapisz Jike w RTNote"
   },
   "platformSspai": {
     "message": "SSPAI"
   },
   "saveSspaiToEdgeEver": {
-    "message": "Zapisz SSPAI w EdgeEver"
+    "message": "Zapisz SSPAI w RTNote"
   },
   "platformJuejin": {
     "message": "Juejin"
   },
   "saveJuejinToEdgeEver": {
-    "message": "Zapisz Juejin w EdgeEver"
+    "message": "Zapisz Juejin w RTNote"
   },
   "platformDouban": {
     "message": "Douban"
   },
   "saveDoubanToEdgeEver": {
-    "message": "Zapisz Douban w EdgeEver"
+    "message": "Zapisz Douban w RTNote"
   },
   "platformOfficialAccountLabel": {
     "message": "Konto oficjalne"
@@ -763,7 +763,7 @@
     "message": "Lista źródłowa"
   },
   "doubanSelectComment": {
-    "message": "Kliknij krótką opinię prawym przyciskiem i wybierz „Zapisz Douban w EdgeEver” lub zapisz zaznaczony tekst."
+    "message": "Kliknij krótką opinię prawym przyciskiem i wybierz „Zapisz Douban w RTNote” lub zapisz zaznaczony tekst."
   },
   "pageCaptureRestricted": {
     "message": "Ograniczona treść"
@@ -813,7 +813,7 @@
     "message": "Wybierz ponownie"
   },
   "regionSave": {
-    "message": "Zapisz w EdgeEver"
+    "message": "Zapisz w RTNote"
   },
   "regionCancel": {
     "message": "Anuluj"

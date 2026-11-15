@@ -9,8 +9,8 @@ struct EdgeEverApp: App {
             RootView()
                 .environment(env)
                 .onOpenURL { url in
-                    // Share Extension opens edgeever://share after writing App Group payload.
-                    guard url.scheme == "edgeever" else { return }
+                    // Share Extension opens rtnote://share after writing App Group payload.
+                    guard url.scheme == "rtnote" else { return }
                     // WorkspaceView consumes pending share payloads on appear / foreground.
                     NotificationCenter.default.post(name: .edgeEverShareReceived, object: nil)
                 }

@@ -1,6 +1,6 @@
 # Cloudflare Manual Deployment and Recovery
 
-Use this page for advanced configuration, troubleshooting, and emergency recovery. Most users should use [Deploy EdgeEver online from a Fork](deploy-cloudflare-button.md); AI Agents should use [AI Agent Cloudflare Deployment](agent-deploy-cloudflare.md).
+Use this page for advanced configuration, troubleshooting, and emergency recovery. Most users should use [Deploy RTNote online from a Fork](deploy-cloudflare-button.md); AI Agents should use [AI Agent Cloudflare Deployment](agent-deploy-cloudflare.md).
 
 ## First manual deployment
 
@@ -63,7 +63,7 @@ Do not commit `.env.local` or write passwords to D1.
 ## Enable third-party OSS settings
 
 Configure an S3-compatible object store from **Settings → Advanced**, then use
-**Test connection** before saving it. EdgeEver encrypts the external Secret
+**Test connection** before saving it. RTNote encrypts the external Secret
 Access Key with a purpose-specific key derived from the existing instance
 authentication secret before storing it in D1. No additional encryption
 variable is required. Keep the instance authentication secret stable and back
@@ -81,4 +81,4 @@ it up; changing or losing it makes saved external credentials unusable.
 
 ## Automatic updates
 
-After manual deployment, configure [Cloudflare Workers Builds](cloudflare-workers-builds.md) and enable **Update deployed EdgeEver** in the Fork's **Actions**.
+After manual deployment, configure [Cloudflare Workers Builds](cloudflare-workers-builds.md) so every push to the Fork's `main` redeploys RTNote. Use GitHub **Sync fork** to take newer RTNote versions.

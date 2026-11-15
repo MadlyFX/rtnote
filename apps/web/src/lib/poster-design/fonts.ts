@@ -7,14 +7,14 @@ export async function loadPosterFont(family: string, text = "", { deadline = tru
   // The deadline must include bundled fallback preparation: a damaged local
   // asset can fall through to slow remote mirrors before catalog loading starts.
   const prepare = async () => {
-    await loadOfflineFonts(text || "EdgeEver 中文");
+    await loadOfflineFonts(text || "RTNote 中文");
     const registrationFamily = family.split(",")[0].trim().replace(/^["']|["']$/g, "");
     const id = findCatalogFont(registrationFamily);
     if (!id) return;
     await loadCatalogFont(id, text || `${FONT_CATALOG[id].zh} ${FONT_CATALOG[id].en}`, { family: registrationFamily });
     cache.clearFontCache(family);
     // Fabric keys glyph metrics by the complete runtime fallback stack.
-    cache.clearFontCache(`${registrationFamily}, "EdgeEver Offline Sans", sans-serif`);
+    cache.clearFontCache(`${registrationFamily}, "RTNote Offline Sans", sans-serif`);
   };
   await (deadline ? withFontDeadline(prepare()) : prepare());
 }

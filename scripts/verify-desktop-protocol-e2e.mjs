@@ -11,7 +11,7 @@ if (!executablePath || !existsSync(executablePath) || !statSync(executablePath).
   throw new Error(`Packaged desktop executable is missing: ${executablePath || "<not provided>"}`);
 }
 
-const fixtureBytes = Buffer.from("EdgeEver private protocol E2E fixture.\n", "utf8");
+const fixtureBytes = Buffer.from("RTNote private protocol E2E fixture.\n", "utf8");
 const fixtureText = fixtureBytes.toString("utf8");
 const cachedResourceId = "protocol-e2e-resource";
 const downloadFilename = "edgeever-protocol-e2e.txt";

@@ -57,7 +57,7 @@ export function registerPluginCapabilityRoutes(app: Hono<AppEnv>, dependencies: 
     if (!c.env.publicNetworkFetch) return apiError(c, 'plugin_network_unavailable', 'This runtime has no public network transport.', 503);
     try {
       const signal = AbortSignal.any([c.req.raw.signal, AbortSignal.timeout(PUBLIC_NETWORK_TIMEOUT_MS)]);
-      const response = await c.env.publicNetworkFetch(url.href, { method: input.method, headers: { ...headers, 'User-Agent': 'EdgeEver-Plugins/1.0' }, redirect: 'manual', credentials: 'omit', signal });
+      const response = await c.env.publicNetworkFetch(url.href, { method: input.method, headers: { ...headers, 'User-Agent': 'RTNote-Plugins/1.0' }, redirect: 'manual', credentials: 'omit', signal });
       const bytes = await readPublicBody(response, signal);
       const outputHeaders = new Headers({
         'Cache-Control': 'no-store',

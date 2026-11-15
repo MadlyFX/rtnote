@@ -269,7 +269,7 @@ pub(crate) fn restore_database(
     if backup_path.parent() != Some(backup_dir.as_path())
         || backup_path.extension().and_then(|value| value.to_str()) != Some("sqlite")
     {
-        return Err("Backup path must point to a managed EdgeEver backup".to_owned());
+        return Err("Backup path must point to a managed RTNote backup".to_owned());
     }
 
     // Windows refuses to rotate/delete a backup while a read connection still

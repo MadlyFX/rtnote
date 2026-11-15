@@ -18,15 +18,15 @@ export type EditorBodyFontPreference = {
 };
 
 const CJK_FALLBACK =
-  '"EdgeEver Offline Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif';
+  '"RTNote Offline Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif';
 
 export const BUNDLED_FONT_STACKS = {
-  wenkai: `"EdgeEver Kai", ${CJK_FALLBACK}`,
-  "wenkai-screen": `"EdgeEver Kai Screen", ${CJK_FALLBACK}`,
-  zhuque: `"EdgeEver Fangsong", ${CJK_FALLBACK}`,
-  "source-han-serif": `"Source Serif 4", "EdgeEver Song", ${CJK_FALLBACK}`,
-  "neo-zhi-song": `"EdgeEver Zhi Song", ${CJK_FALLBACK}`,
-  "source-han-sans": `"EdgeEver Hei", ${CJK_FALLBACK}`,
+  wenkai: `"RTNote Kai", ${CJK_FALLBACK}`,
+  "wenkai-screen": `"RTNote Kai Screen", ${CJK_FALLBACK}`,
+  zhuque: `"RTNote Fangsong", ${CJK_FALLBACK}`,
+  "source-han-serif": `"Source Serif 4", "RTNote Song", ${CJK_FALLBACK}`,
+  "neo-zhi-song": `"RTNote Zhi Song", ${CJK_FALLBACK}`,
+  "source-han-sans": `"RTNote Hei", ${CJK_FALLBACK}`,
   "source-serif": `"Source Serif 4", ${CJK_FALLBACK}`,
 } as const;
 

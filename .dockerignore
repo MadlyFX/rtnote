@@ -19,8 +19,6 @@ apps/extension/**
 apps/ios
 apps/mobile/**
 !apps/mobile/package.json
-apps/site/**
-!apps/site/package.json
 **/*.test.*
 **/.DS_Store
 *.log

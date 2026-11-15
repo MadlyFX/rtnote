@@ -1,12 +1,12 @@
 {
   "extensionName": {
-    "message": "EdgeEver 网页剪藏"
+    "message": "RTNote 网页剪藏"
   },
   "extensionDescription": {
-    "message": "将网页、选中文字、图片及 Hacker News 主帖保存到你自托管的 EdgeEver 实例。"
+    "message": "将网页、选中文字、图片及 Hacker News 主帖保存到你自托管的 RTNote 实例。"
   },
   "actionTitle": {
-    "message": "保存到 EdgeEver"
+    "message": "保存到 RTNote"
   },
   "webClipper": {
     "message": "网页剪藏"
@@ -27,13 +27,13 @@
     "message": "请先完成插件配置"
   },
   "savedToEdgeEver": {
-    "message": "已保存到 EdgeEver。"
+    "message": "已保存到 RTNote。"
   },
   "saveFailed": {
     "message": "保存失败。"
   },
   "optionsTitle": {
-    "message": "EdgeEver Web Clipper 设置"
+    "message": "RTNote Web Clipper 设置"
   },
   "diagnosticsTitle": {
     "message": "关于与诊断信息"
@@ -90,10 +90,10 @@
     "message": "未知"
   },
   "instanceAddress": {
-    "message": "EdgeEver 实例地址"
+    "message": "RTNote 实例地址"
   },
   "tokenPlaceholder": {
-    "message": "从 EdgeEver 设置中创建"
+    "message": "从 RTNote 设置中创建"
   },
   "defaultNotebook": {
     "message": "默认笔记本"
@@ -140,13 +140,13 @@
     "message": "保存失败。"
   },
   "missingSettingsDetails": {
-    "message": "请先在插件设置中填写 EdgeEver 地址和 API Token。"
+    "message": "请先在插件设置中填写 RTNote 地址和 API Token。"
   },
   "instancePermissionRequired": {
-    "message": "需要允许插件访问你的 EdgeEver 实例。"
+    "message": "需要允许插件访问你的 RTNote 实例。"
   },
   "requestFailed": {
-    "message": "EdgeEver 请求失败（$STATUS$）。",
+    "message": "RTNote 请求失败（$STATUS$）。",
     "placeholders": {
       "status": {
         "content": "$1"
@@ -166,7 +166,7 @@
     "message": "关键词"
   },
   "noAvailableNotebooks": {
-    "message": "EdgeEver 中没有可用的笔记本。"
+    "message": "RTNote 中没有可用的笔记本。"
   },
   "currentPageNotFound": {
     "message": "找不到当前页面。"
@@ -189,10 +189,10 @@
     "message": "未返回具体错误"
   },
   "instanceNetworkFailed": {
-    "message": "无法连接 EdgeEver 实例。请检查实例地址、网络连接和跨域设置。"
+    "message": "无法连接 RTNote 实例。请检查实例地址、网络连接和跨域设置。"
   },
   "saveFailedWithReason": {
-    "message": "保存到 EdgeEver 失败：$DETAIL$",
+    "message": "保存到 RTNote 失败：$DETAIL$",
     "placeholders": {
       "detail": {
         "content": "$1"
@@ -203,10 +203,10 @@
     "message": "（网页没有可提取的正文内容）"
   },
   "saveSelectionToEdgeEver": {
-    "message": "保存所选内容到 EdgeEver"
+    "message": "保存所选内容到 RTNote"
   },
   "selectionSaveHint": {
-    "message": "选中网页上的一段文字后右键，选择“保存所选内容到 EdgeEver”。这段文字会存成一条新笔记，放进上面选择的默认笔记本。"
+    "message": "选中网页上的一段文字后右键，选择“保存所选内容到 RTNote”。这段文字会存成一条新笔记，放进上面选择的默认笔记本。"
   },
   "savingSelection": {
     "message": "正在保存选中文字……"
@@ -221,10 +221,10 @@
     "message": "选中文字"
   },
   "saveImageToEdgeEver": {
-    "message": "保存图片到 EdgeEver"
+    "message": "保存图片到 RTNote"
   },
   "imageSaveHint": {
-    "message": "在网页图片上右键，选择“保存图片到 EdgeEver”。图片会存成一条新笔记，放进上面选择的默认笔记本。"
+    "message": "在网页图片上右键，选择“保存图片到 RTNote”。图片会存成一条新笔记，放进上面选择的默认笔记本。"
   },
   "savingImage": {
     "message": "正在保存图片……"
@@ -265,7 +265,7 @@
     "message": "没有获得网站访问权限，图片还没有保存。"
   },
   "imageResourceScopeRequired": {
-    "message": "这个 API Token 没有写入附件的权限。请在 EdgeEver 设置里创建一个完整访问的 Token。"
+    "message": "这个 API Token 没有写入附件的权限。请在 RTNote 设置里创建一个完整访问的 Token。"
   },
   "imageNoteFallbackTitle": {
     "message": "图片"
@@ -274,16 +274,16 @@
     "message": "图片"
   },
   "imageSaveWindowTitle": {
-    "message": "保存图片到 EdgeEver"
+    "message": "保存图片到 RTNote"
   },
   "imageSaveExpired": {
     "message": "这次保存已经结束。请在图片上重新右键。"
   },
   "saveTweetToEdgeEver": {
-    "message": "保存推文到 EdgeEver"
+    "message": "保存推文到 RTNote"
   },
   "tweetSaveHint": {
-    "message": "在 X 上右键一条推文，选择“保存推文到 EdgeEver”。正文会完整保存，包括被「显示更多」折叠的部分；已经显示的图片也会放进同一条新笔记，笔记本与上面的默认笔记本相同。"
+    "message": "在 X 上右键一条推文，选择“保存推文到 RTNote”。正文会完整保存，包括被「显示更多」折叠的部分；已经显示的图片也会放进同一条新笔记，笔记本与上面的默认笔记本相同。"
   },
   "savingTweet": {
     "message": "正在保存这条推文……"
@@ -316,16 +316,16 @@
     "message": "一条推文"
   },
   "tweetSaveWindowTitle": {
-    "message": "保存推文到 EdgeEver"
+    "message": "保存推文到 RTNote"
   },
   "tweetTimeLabel": {
     "message": "时间"
   },
   "saveGithubRepoToEdgeEver": {
-    "message": "保存仓库信息到 EdgeEver"
+    "message": "保存仓库信息到 RTNote"
   },
   "githubRepoSaveHint": {
-    "message": "在 GitHub 仓库主页或代码目录上，右键页面空白、简介或 README 正文，选择“保存仓库信息到 EdgeEver”。仓库地址和简介会存成一条新笔记，放进上面选择的默认笔记本。Issue、讨论和单个文件页不会保存。"
+    "message": "在 GitHub 仓库主页或代码目录上，右键页面空白、简介或 README 正文，选择“保存仓库信息到 RTNote”。仓库地址和简介会存成一条新笔记，放进上面选择的默认笔记本。Issue、讨论和单个文件页不会保存。"
   },
   "savingGithubRepo": {
     "message": "正在保存这个仓库……"
@@ -352,10 +352,10 @@
     "message": "话题"
   },
   "saveXhsToEdgeEver": {
-    "message": "保存笔记到 EdgeEver"
+    "message": "保存笔记到 RTNote"
   },
   "xhsSaveHint": {
-    "message": "在小红书笔记正文上右键，选择“保存笔记到 EdgeEver”。标题、正文和笔记里的图片会存成一条新笔记，评论不会写入。右键图片仍然只保存这张图片。"
+    "message": "在小红书笔记正文上右键，选择“保存笔记到 RTNote”。标题、正文和笔记里的图片会存成一条新笔记，评论不会写入。右键图片仍然只保存这张图片。"
   },
   "savingXhs": {
     "message": "正在保存这篇笔记……"
@@ -391,13 +391,13 @@
     "message": "一篇小红书笔记"
   },
   "xhsSaveWindowTitle": {
-    "message": "保存笔记到 EdgeEver"
+    "message": "保存笔记到 RTNote"
   },
   "xhsLocationLabel": {
     "message": "地点"
   },
   "saveZhihuToEdgeEver": {
-    "message": "保存回答/文章到 EdgeEver"
+    "message": "保存回答/文章到 RTNote"
   },
   "zhihuQuestionLabel": {
     "message": "问题"
@@ -415,7 +415,7 @@
     "message": "正文"
   },
   "zhihuSaveHint": {
-    "message": "在知乎回答或文章的正文上右键，选择“保存回答/文章到 EdgeEver”。标题、作者、正文和图片会存成一条新笔记，评论不会写入。右键图片仍然只保存这张图片。"
+    "message": "在知乎回答或文章的正文上右键，选择“保存回答/文章到 RTNote”。标题、作者、正文和图片会存成一条新笔记，评论不会写入。右键图片仍然只保存这张图片。"
   },
   "savingZhihu": {
     "message": "正在保存这篇知乎内容……"
@@ -451,10 +451,10 @@
     "message": "一篇知乎内容"
   },
   "zhihuSaveWindowTitle": {
-    "message": "保存回答/文章到 EdgeEver"
+    "message": "保存回答/文章到 RTNote"
   },
   "saveRedditToEdgeEver": {
-    "message": "保存 Reddit 帖子到 EdgeEver"
+    "message": "保存 Reddit 帖子到 RTNote"
   },
   "savingReddit": {
     "message": "正在保存这条 Reddit 帖子……"
@@ -478,7 +478,7 @@
     "message": "外部链接"
   },
   "saveVideoNoteToEdgeEver": {
-    "message": "保存视频笔记到 EdgeEver"
+    "message": "保存视频笔记到 RTNote"
   },
   "savingVideoNote": {
     "message": "正在保存视频笔记……"
@@ -553,16 +553,16 @@
     "message": "视频笔记"
   },
   "saveHackerNewsToEdgeEver": {
-    "message": "保存 Hacker News 主帖到 EdgeEver"
+    "message": "保存 Hacker News 主帖到 RTNote"
   },
   "saveV2exToEdgeEver": {
-    "message": "保存 V2EX 主题到 EdgeEver"
+    "message": "保存 V2EX 主题到 RTNote"
   },
   "saveXiaoyuzhouToEdgeEver": {
-    "message": "保存小宇宙单集到 EdgeEver"
+    "message": "保存小宇宙单集到 RTNote"
   },
   "savingPlatformClip": {
-    "message": "正在保存当前内容到 EdgeEver…"
+    "message": "正在保存当前内容到 RTNote…"
   },
   "platformNotDetail": {
     "message": "请打开支持的主帖、主题或单集详情页后重试。"
@@ -580,7 +580,7 @@
     "message": "正文已保存，部分图片仍为外链。"
   },
   "platformSavedWithImages": {
-    "message": "已保存到 EdgeEver，图片已全部归档。"
+    "message": "已保存到 RTNote，图片已全部归档。"
   },
   "platformNoShowNotes": {
     "message": "本期无 Show Notes。"
@@ -607,19 +607,19 @@
     "message": "节目"
   },
   "saveFacebookToEdgeEver": {
-    "message": "保存 Facebook 帖子到 EdgeEver"
+    "message": "保存 Facebook 帖子到 RTNote"
   },
   "saveInstagramToEdgeEver": {
-    "message": "保存 Instagram 帖子到 EdgeEver"
+    "message": "保存 Instagram 帖子到 RTNote"
   },
   "saveLinkedinToEdgeEver": {
-    "message": "保存 LinkedIn 动态到 EdgeEver"
+    "message": "保存 LinkedIn 动态到 RTNote"
   },
   "saveThreadsToEdgeEver": {
-    "message": "保存 Threads 帖子到 EdgeEver"
+    "message": "保存 Threads 帖子到 RTNote"
   },
   "saveBlueskyToEdgeEver": {
-    "message": "保存 Bluesky 帖子到 EdgeEver"
+    "message": "保存 Bluesky 帖子到 RTNote"
   },
   "socialSelectPost": {
     "message": "请打开帖子详情页，或在目标帖子上再次右键保存。"
@@ -646,7 +646,7 @@
     "message": "小宇宙"
   },
   "saveSubstackNoteToEdgeEver": {
-    "message": "保存 Substack 短帖到 EdgeEver"
+    "message": "保存 Substack 短帖到 RTNote"
   },
   "adaptedPlatformsTitle": {
     "message": "深度适配平台"
@@ -709,10 +709,10 @@
     "message": "剪藏提示"
   },
   "saveBossToEdgeEver": {
-    "message": "保存 BOSS 直聘岗位到 EdgeEver"
+    "message": "保存 BOSS 直聘岗位到 RTNote"
   },
   "saveXueqiuToEdgeEver": {
-    "message": "保存雪球帖子到 EdgeEver"
+    "message": "保存雪球帖子到 RTNote"
   },
   "platformBoss": {
     "message": "BOSS 直聘"
@@ -730,31 +730,31 @@
     "message": "微信公众号"
   },
   "saveWechatToEdgeEver": {
-    "message": "保存微信公众号到 EdgeEver"
+    "message": "保存微信公众号到 RTNote"
   },
   "platformJike": {
     "message": "即刻"
   },
   "saveJikeToEdgeEver": {
-    "message": "保存即刻到 EdgeEver"
+    "message": "保存即刻到 RTNote"
   },
   "platformSspai": {
     "message": "少数派"
   },
   "saveSspaiToEdgeEver": {
-    "message": "保存少数派到 EdgeEver"
+    "message": "保存少数派到 RTNote"
   },
   "platformJuejin": {
     "message": "掘金"
   },
   "saveJuejinToEdgeEver": {
-    "message": "保存掘金到 EdgeEver"
+    "message": "保存掘金到 RTNote"
   },
   "platformDouban": {
     "message": "豆瓣"
   },
   "saveDoubanToEdgeEver": {
-    "message": "保存豆瓣到 EdgeEver"
+    "message": "保存豆瓣到 RTNote"
   },
   "platformOfficialAccountLabel": {
     "message": "公众号"
@@ -763,7 +763,7 @@
     "message": "原列表"
   },
   "doubanSelectComment": {
-    "message": "请在目标短评上右键选择“保存豆瓣到 EdgeEver”，或选中文字后剪藏。"
+    "message": "请在目标短评上右键选择“保存豆瓣到 RTNote”，或选中文字后剪藏。"
   },
   "pageCaptureRestricted": {
     "message": "内容受限"
@@ -813,7 +813,7 @@
     "message": "重新选择"
   },
   "regionSave": {
-    "message": "保存到 EdgeEver"
+    "message": "保存到 RTNote"
   },
   "regionCancel": {
     "message": "取消"

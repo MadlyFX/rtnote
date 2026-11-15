@@ -1,6 +1,5 @@
 # Issue 650 desktop scheduled backup implementation scope
 
-[简体中文](2026-10-23-desktop-scheduled-backup.zh-CN.md)
 
 ## Problem and outcome
 

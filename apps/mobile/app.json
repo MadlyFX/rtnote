@@ -1,37 +1,34 @@
 {
   "expo": {
-    "name": "EdgeEver",
-    "slug": "edgeever",
-    "scheme": "edgeever",
+    "name": "RTNote",
+    "slug": "rtnote",
+    "scheme": "rtnote",
     "version": "2.22.0",
     "runtimeVersion": {
       "policy": "appVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/59d2a8c8-fe8f-4e59-874f-a5887f584a20",
+      "enabled": false,
       "checkAutomatically": "NEVER",
-      "fallbackToCacheTimeout": 0,
-      "requestHeaders": {
-        "expo-channel-name": "production"
-      }
+      "fallbackToCacheTimeout": 0
     },
     "icon": "./assets/icon.png",
     "orientation": "default",
     "userInterfaceStyle": "light",
     "ios": {
-      "bundleIdentifier": "org.edgeever.mobile",
+      "bundleIdentifier": "com.madlyfx.rtnote",
       "supportsTablet": false,
       "config": {
         "usesNonExemptEncryption": false
       },
       "infoPlist": {
         "UIRequiresFullScreen": true,
-        "NSMicrophoneUsageDescription": "EdgeEver only uses the microphone if web content inside a note explicitly requests it.",
-        "NSCameraUsageDescription": "Allow EdgeEver to use your camera to take photos and insert them into your notes."
+        "NSMicrophoneUsageDescription": "RTNote only uses the microphone if web content inside a note explicitly requests it.",
+        "NSCameraUsageDescription": "Allow RTNote to use your camera to take photos and insert them into your notes."
       }
     },
     "android": {
-      "package": "org.edgeever.mobile",
+      "package": "com.madlyfx.rtnote",
       "versionCode": 260,
       "adaptiveIcon": {
         "backgroundColor": "#16A06E",
@@ -45,9 +42,9 @@
       [
         "expo-image-picker",
         {
-          "cameraPermission": "Allow EdgeEver to take photos and insert them into your notes.",
+          "cameraPermission": "Allow RTNote to take photos and insert them into your notes.",
           "microphonePermission": false,
-          "photosPermission": "Allow EdgeEver to choose photos to insert into your notes."
+          "photosPermission": "Allow RTNote to choose photos to insert into your notes."
         }
       ],
       [
@@ -97,11 +94,7 @@
       "typedRoutes": true
     },
     "extra": {
-      "router": {},
-      "eas": {
-        "projectId": "59d2a8c8-fe8f-4e59-874f-a5887f584a20"
-      }
-    },
-    "owner": "tianma-if-edgeever"
+      "router": {}
+    }
   }
 }

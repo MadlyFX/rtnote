@@ -11,7 +11,7 @@ test("propagates source failures instead of publishing a partial ZIP", async () 
   }, { edgeeverVersion: "2.2.0", buildId: "test" })).rejects.toThrow("source unavailable");
 });
 
-test("reads ZIP64 containers without changing the EdgeEver v2 logical format", async () => {
+test("reads ZIP64 containers without changing the RTNote v2 logical format", async () => {
   const writer = new ZipWriter(new BlobWriter(), { zip64: true, useWebWorkers: false, level: 0 });
   await writer.add("manifest.json", new TextReader(JSON.stringify(manifest)));
   await writer.add("notebooks.json", new TextReader("[]"));

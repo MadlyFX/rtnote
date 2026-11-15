@@ -192,7 +192,7 @@ type ImageExportRequest = {
   branding?: boolean;
 };
 let mode: "viewer" | "editor" = "viewer";
-let locale: MobileEditorLocale = "zh-CN";
+let locale: MobileEditorLocale = "en-US";
 let currentPlaceholder = "开始输入…";
 let suppressChange = false;
 const resourceResolvers = new Map<string, (dataUrl: string | null) => void>();
@@ -1448,7 +1448,7 @@ const api: EdgeEverEditorAPI = {
     const nextMode = opts.mode === "editor" ? "editor" : "viewer";
     const modeChanged = nextMode !== mode;
     mode = nextMode;
-    locale = opts.locale === "en-US" || opts.locale === "ja" || opts.locale === "pl" ? opts.locale : "zh-CN";
+    locale = opts.locale === "zh-CN" || opts.locale === "ja" || opts.locale === "pl" ? opts.locale : "en-US";
     // Configuring a reused WebView is not a document edit. TipTap otherwise emits
     // an update for its old (often empty) body before native pushes the share seed.
     editor.setEditable(mode === "editor", false);

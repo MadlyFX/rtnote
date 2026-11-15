@@ -494,7 +494,7 @@ describe("ACP command allow-list", () => {
       expect(international.command.unsetEnv).toEqual(["CODEBUDDY_INTERNET_ENVIRONMENT"]);
       expect(createAcpSpawnPlan(international.command, directory).options.env.CODEBUDDY_INTERNET_ENVIRONMENT).toBeUndefined();
       // New encrypted builds need their own native key provider, unavailable in
-      // EdgeEver's Electron. Keep the CLI and edition while changing the host.
+      // RTNote's Electron. Keep the CLI and edition while changing the host.
       const nativeHost = path.resolve(path.dirname(bundled), "../../../../MacOS/Electron");
       await mkdir(path.dirname(nativeHost), { recursive: true });
       await writeFile(nativeHost, "// fake WorkBuddy Electron");
@@ -989,7 +989,7 @@ describe("ACP stdio session", () => {
     }, 15_000);
   }
 
-  sessionTest("an EdgeEver MCP setup failure does not mark a healthy Agent as disconnected", async () => {
+  sessionTest("an RTNote MCP setup failure does not mark a healthy Agent as disconnected", async () => {
     const directory = await mkdtemp(path.join(tmpdir(), "edgeever-acp-mcp-status-"));
     try {
       const scriptPath = await writeFakeAgent(directory, { reportPath: path.join(directory, "report.json"), secretPath: path.join(directory, "secret.txt") });
@@ -1238,7 +1238,7 @@ describe("ACP stdio session", () => {
     try {
       const scriptPath = await writeFakeAgent(directory, { reportPath, advertiseAuth: true, authMethodId: "internal", codeBuddy: { persist: true, authUrls: [loginLink] } });
       const { runtime, opened, diagnostics } = codeBuddyRuntime(scriptPath);
-      // The CLI starts a session without an account; EdgeEver must still call it signed out.
+      // The CLI starts a session without an account; RTNote must still call it signed out.
       expect(await runtime.probeAdapter({ id: "codebuddy" })).toMatchObject({ state: "needs_login", authMethods: [{ id: "internal", name: "Browser" }] });
       expect(await runtime.authenticateAdapter({ id: "codebuddy", methodId: "internal" })).toMatchObject({ state: "available" });
       // A second, fresh process must restore the account before success is reported.
@@ -1247,7 +1247,7 @@ describe("ACP stdio session", () => {
       expect(new Set(sessions).size).toBe(2);
       expect(sessions[1]).toBe((await readFile(`${reportPath}.pid`, "utf8")).trim());
       expect(await runtime.probeAdapter({ id: "codebuddy" })).toMatchObject({ state: "available" });
-      // The CLI opens the browser itself; EdgeEver opens nothing on its own.
+      // The CLI opens the browser itself; RTNote opens nothing on its own.
       expect(opened).toEqual([]);
       expect(runtime.reopenLoginPage("codebuddy")).toEqual({ opened: false });
       expect(JSON.stringify(diagnostics)).not.toContain("private-login-state");

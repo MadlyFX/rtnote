@@ -8,7 +8,7 @@ import { spawn, spawnSync } from "node:child_process";
 import { join, resolve, basename, dirname } from "node:path";
 import { createHash } from "node:crypto";
 
-if (process.env.GITHUB_ACTIONS !== "true" || process.env.GITHUB_REPOSITORY !== "tianma-if/edgeever") {
+if (process.env.GITHUB_ACTIONS !== "true" || process.env.GITHUB_REPOSITORY !== "MadlyFX/rtnote") {
   throw new Error("Native installer verification is restricted to the official disposable CI runners");
 }
 const root = resolve(process.argv[2]);
@@ -17,7 +17,7 @@ const [oldVersion, intermediateVersion, latestVersion] = versions;
 const evidence = join(root, "evidence");
 mkdirSync(evidence, { recursive: true });
 const report = { platform: process.platform, arch: process.arch, sourceSha: process.env.GITHUB_SHA, versions,
-  instrumentation: "Full EdgeEver builds with isolated app identity, local feed, command harness and ephemeral Windows trust key; production update controller and native installers are unchanged.",
+  instrumentation: "Full RTNote builds with isolated app identity, local feed, command harness and ephemeral Windows trust key; production update controller and native installers are unchanged.",
   fixtureRun: process.env.FIXTURE_RUN || null,
   scenarios: [] };
 let feedVersion = intermediateVersion;
@@ -25,8 +25,8 @@ let corruptSignature = false;
 let corruptPackage = false;
 const requests = [];
 const metadataName = process.platform === "darwin" ? "latest-mac.yml" : process.platform === "win32" ? "latest.yml" : "latest-linux.yml";
-const packageName = (version) => process.platform === "darwin" ? `EdgeEver-${version}-mac-${process.arch}.zip`
-  : process.platform === "win32" ? `EdgeEver-${version}-windows-x64.exe` : `EdgeEver-${version}-linux-x64.AppImage`;
+const packageName = (version) => process.platform === "darwin" ? `RTNote-${version}-mac-${process.arch}.zip`
+  : process.platform === "win32" ? `RTNote-${version}-windows-x64.exe` : `RTNote-${version}-linux-x64.AppImage`;
 const server = createServer((request, response) => {
   const pathname = new URL(request.url, "http://127.0.0.1").pathname;
   const parts = pathname.split("/").filter(Boolean);
@@ -98,7 +98,7 @@ const installBaseline = async (directory) => {
     });
     return executable;
   }
-  const appImage = join(installed, "EdgeEver.AppImage");
+  const appImage = join(installed, "RTNote.AppImage");
   await cp(join(root, oldVersion, packageName(oldVersion)), appImage);
   chmodSync(appImage, 0o755);
   return appImage;

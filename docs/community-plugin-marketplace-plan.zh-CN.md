@@ -1,8 +1,8 @@
-# EdgeEver 社区插件市场方案
+# RTNote 社区插件市场方案
 
 本文档描述社区插件的收录、签名分发和客户端合并方式。官方插件的安装与自动更新仍以内置 `extensions/registry.json` 为信任根。社区目录只追加条目，不改写官方条目。
 
-市场收录表示插件在收录时通过了公开源码、许可证和 Release 字节钉扎检查。它不表示 EdgeEver 保证插件安全。启用后的插件仍是页面内的可信代码，声明的权限只作展示，不拦截 API。用户直接粘贴 GitHub 仓库或 Manifest 地址安装的路径保持不变。
+市场收录表示插件在收录时通过了公开源码、许可证和 Release 字节钉扎检查。它不表示 RTNote 保证插件安全。启用后的插件仍是页面内的可信代码，声明的权限只作展示，不拦截 API。用户直接粘贴 GitHub 仓库或 Manifest 地址安装的路径保持不变。
 
 ---
 
@@ -12,7 +12,7 @@
 
 目标：
 
-- 社区插件上架不再跟随 EdgeEver 应用发版。
+- 社区插件上架不再跟随 RTNote 应用发版。
 - 首次收录由维护者合并；同一仓库的后续版本在权限、许可证和所有权不变时由 CI 更新校验和。
 - 客户端只把验签通过的社区目录叠加到内置官方列表上。
 - 自建实例默认不请求社区目录。
@@ -45,7 +45,7 @@
 
 下架记录能阻止新版本客户端安装、更新和官方自动更新，并提示已安装用户停用。尚未升级的客户端不认识这张表，官方插件的紧急下架仍要通过应用更新完成。
 
-签名使用 Ed25519，对 Registry 原始字节签名。公钥打进客户端，同时接受当前密钥和上一把密钥，便于先发一版客户端再轮换。签名私钥只放在 `tianma-if/edgeever-plugins` 的发布环境，不放进 EdgeEver 主仓库。签名证明文件来自这把密钥；客户端仍按上表丢弃 `publisher`、官方 ID 和保留前缀，不因为签名就执行这些字段。
+签名使用 Ed25519，对 Registry 原始字节签名。公钥打进客户端，同时接受当前密钥和上一把密钥，便于先发一版客户端再轮换。签名私钥只放在 `tianma-if/edgeever-plugins` 的发布环境，不放进 RTNote 主仓库。签名证明文件来自这把密钥；客户端仍按上表丢弃 `publisher`、官方 ID 和保留前缀，不因为签名就执行这些字段。
 
 ---
 
@@ -55,7 +55,7 @@
 
 ```mermaid
 flowchart TD
-    subgraph Client ["EdgeEver 客户端"]
+    subgraph Client ["RTNote 客户端"]
         Bundled["内置 registry.json：官方插件信任根"]
         Market["插件市场页面"]
         Cache["上一份验签通过的社区目录缓存"]
@@ -109,7 +109,7 @@ tianma-if/edgeever-plugins
 
 `compile-registry.mjs` 读取 `plugins/*.json`。活动条目进入 `entries`，`status: "revoked"` 的条目进入 `revocations`，并从 `entries` 移除。`published-ids.json` 里的每个 ID 必须要么仍是活动条目，要么有下架记录；删除插件文件而不能通过发布。社区条目的 `distribution.type` 固定为 `github`。只提供 Manifest URL 的插件仍可让用户直接安装，不进入社区目录。
 
-发布产物是一对文件：`community-registry.json` 与 `community-registry.json.sig`。它们放在 EdgeEver 自己的主机名上，缓存时间短（`max-age=60`）。不使用 jsDelivr 这类无法由本仓库立即失效的公共缓存。
+发布产物是一对文件：`community-registry.json` 与 `community-registry.json.sig`。它们放在 RTNote 自己的主机名上，缓存时间短（`max-age=60`）。不使用 jsDelivr 这类无法由本仓库立即失效的公共缓存。
 
 ---
 
@@ -243,7 +243,7 @@ tianma-if/edgeever-plugins
 
 ## 八、实施顺序
 
-1. **独立仓库与校验脚本。** 建立 `tianma-if/edgeever-plugins`，实现校验、聚合、签名发布和已收录版本的自动更新。此阶段不改 EdgeEver 客户端，官方插件仍随主工程发布。
+1. **独立仓库与校验脚本。** 建立 `tianma-if/edgeever-plugins`，实现校验、聚合、签名发布和已收录版本的自动更新。此阶段不改 RTNote 客户端，官方插件仍随主工程发布。
 2. **客户端认识新字段并验签。** 扩展 `parseMarketplaceRegistry` 的可选字段，但保持 `registryVersion` 为 `"1"`。实现打开市场时的拉取、验签、合并、下架记忆和 `apiVersion` 过滤。实例代理默认为关闭。
 3. **市场展示。** 社区条目显示许可证和社区标记，提供手动刷新。信任确认文案继续把它们视为社区插件。
 4. **端内预检向导。** 只复用现有 Manifest 与 Release 读取。不新增源码树或许可证代理。

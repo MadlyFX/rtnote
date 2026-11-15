@@ -34,7 +34,7 @@ describe("note image export helpers", () => {
     expect(markup).toContain("#idea");
     expect(markup).toContain("2026-08-22 19:00");
     expect(markup).toContain("Hello World");
-    expect(markup).toContain("EdgeEver");
+    expect(markup).toContain("RTNote");
   });
 
   test("keeps terminal decoration separate from manual font choice", () => {

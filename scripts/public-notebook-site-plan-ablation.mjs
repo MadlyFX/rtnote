@@ -246,6 +246,6 @@ try {
     reusedPriorEvidence: { file: "docs/public-notebook-site-schema-ablation.json", baselineCommit: previous.baselineCommit, commonFunctionalScenarios: 19, benchmarkGroups: previous.benchmarks.length, rerun: false, limitation: "Prior override-table necessity was conditional on retaining per-item manual state; that premise is removed here." },
     decisions,
     notVerified: ["Product UI and usability", "Real password unlock and upgrade", "Cloudflare/Docker page handlers", "Crawler indexing and social previews", "Production query/network performance", "Concurrent writer contention"],
-    externalReferences: ["https://github.com/tianma-if/edgeever/issues/591", "https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics", "https://developers.google.com/search/docs/crawling-indexing/sitemaps/overview", "https://ogp.me/"],
+    externalReferences: ["https://github.com/MadlyFX/rtnote/issues/591", "https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics", "https://developers.google.com/search/docs/crawling-indexing/sitemaps/overview", "https://ogp.me/"],
   }, null, 2)}\n`);
 } finally { db.close(); }

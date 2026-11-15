@@ -296,7 +296,7 @@ export const platformHtmlMarkdown = (body: Element | DocumentFragment, baseUrl: 
     table.parentNode!.insertBefore(paragraph,table);
     caption.remove();
   }
-  // EdgeEver stores Markdown, so Joplin's HTML fallback would display source
+  // RTNote stores Markdown, so Joplin's HTML fallback would display source
   // text. Keep the grid and use inline Markdown for rich cell contents.
   const options: TurndownService.Options & {preserveTableHtml: boolean} = { bulletListMarker: "-", codeBlockStyle: "fenced", headingStyle: "atx", linkStyle: "inlined", preserveTableHtml:false };
   const turndown = new TurndownService(options);

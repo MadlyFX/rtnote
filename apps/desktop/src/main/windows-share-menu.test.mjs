@@ -10,18 +10,18 @@ import {
   windowsShareMenuLabel,
 } from "./windows-share-menu.mjs";
 
-const exePath = "C:\\Users\\Example\\AppData\\Local\\Programs\\EdgeEver\\EdgeEver.exe";
+const exePath = "C:\\Users\\Example\\AppData\\Local\\Programs\\RTNote\\RTNote.exe";
 
 describe("Windows share menu", () => {
   test("names the verb in the desktop locale", () => {
-    expect(windowsShareMenuLabel("zh-CN")).toBe("发送到 EdgeEver");
-    expect(windowsShareMenuLabel("zh-TW")).toBe("傳送至 EdgeEver");
-    expect(windowsShareMenuLabel("es-ES")).toBe("Enviar a EdgeEver");
-    expect(windowsShareMenuLabel("de-DE")).toBe("An EdgeEver senden");
-    expect(windowsShareMenuLabel("ja-JP")).toBe("EdgeEver に送る");
-    expect(windowsShareMenuLabel("en-US")).toBe("Send to EdgeEver");
-    expect(windowsShareMenuLabel("pl-PL")).toBe("Wyślij do EdgeEver");
-    expect(windowsShareMenuLabel("ru-RU")).toBe("Отправить в EdgeEver");
+    expect(windowsShareMenuLabel("zh-CN")).toBe("发送到 RTNote");
+    expect(windowsShareMenuLabel("zh-TW")).toBe("傳送至 RTNote");
+    expect(windowsShareMenuLabel("es-ES")).toBe("Enviar a RTNote");
+    expect(windowsShareMenuLabel("de-DE")).toBe("An RTNote senden");
+    expect(windowsShareMenuLabel("ja-JP")).toBe("RTNote に送る");
+    expect(windowsShareMenuLabel("en-US")).toBe("Send to RTNote");
+    expect(windowsShareMenuLabel("pl-PL")).toBe("Wyślij do RTNote");
+    expect(windowsShareMenuLabel("ru-RU")).toBe("Отправить в RTNote");
   });
 
   test("passes one quoted path to the installed executable", () => {
@@ -75,9 +75,9 @@ describe("Windows share menu", () => {
 
   test("installer adds the verb and uninstall removes it", () => {
     const installer = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "..", "nsis", "installer.nsh"), "utf8");
-    expect(installer).toContain("Software\\Classes\\*\\shell\\EdgeEver");
+    expect(installer).toContain("Software\\Classes\\*\\shell\\RTNote");
     expect(installer).toContain("--share-file");
     expect(installer).toContain("MultiSelectModel");
-    expect(installer).toContain("DeleteRegKey HKCU \"Software\\Classes\\*\\shell\\EdgeEver\"");
+    expect(installer).toContain("DeleteRegKey HKCU \"Software\\Classes\\*\\shell\\RTNote\"");
   });
 });

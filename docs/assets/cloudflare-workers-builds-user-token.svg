@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="500" viewBox="0 0 1200 500" role="img" aria-labelledby="title desc">
-  <title id="title">Cloudflare User API Token permissions for EdgeEver Workers Builds</title>
+  <title id="title">Cloudflare User API Token permissions for RTNote Workers Builds</title>
   <desc id="desc">A redacted Cloudflare Create Custom Token form. It selects Account Workers Builds Configuration Edit and Account Workers Scripts Read.</desc>
   <rect width="1200" height="500" fill="#f7f8fa"/>
   <rect x="70" y="42" width="1060" height="410" rx="10" fill="#fff" stroke="#d8dde5"/>

@@ -31,7 +31,7 @@ const harness = async () => {
   const releases = new Map();
   for (const version of ["2.17.0", "2.18.0", "2.19.0"]) {
     const bytes = Buffer.from(`installer ${version}`);
-    const name = `EdgeEver-${version}-windows-x64.exe`;
+    const name = `RTNote-${version}-windows-x64.exe`;
     const path = join(directory, name);
     await writeFile(path, bytes);
     const manifest = {

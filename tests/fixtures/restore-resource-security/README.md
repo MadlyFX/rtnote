@@ -1,6 +1,5 @@
 # Previous-release restore fixture
 
-[简体中文](README.zh-CN.md)
 
 `v2.12.0.zip` was generated with `createEdgeEverZip` extracted using `git archive v2.12.0 packages/shared`, from official release commit `eeaab088f41d0417fbce2266f58ff4adde7f5d76`. The released exporter ran directly under Bun with the installed lockfile dependencies; the patched exporter was not used. `source.json` records its synthetic inputs and attachment bytes.
 

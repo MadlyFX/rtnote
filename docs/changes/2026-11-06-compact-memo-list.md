@@ -1,6 +1,5 @@
 # Two-line compact note list
 
-[简体中文](2026-11-06-compact-memo-list.zh-CN.md)
 
 Related Issue: #802
 

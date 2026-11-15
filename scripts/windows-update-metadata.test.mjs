@@ -14,10 +14,10 @@ describe("Windows update release metadata", () => {
   test("creates installer metadata consumed by electron-updater and the trust gate", async () => {
     const directory = await mkdtemp(join(tmpdir(), "edgeever-windows-metadata-"));
     try {
-      await writeFile(join(directory, "EdgeEver-1.49.0-windows-x64.exe"), "payload");
+      await writeFile(join(directory, "RTNote-1.49.0-windows-x64.exe"), "payload");
       const manifest = await createWindowsUpdateMetadata({ directory, version: "1.49.0" });
       expect(manifest.file).toMatchObject({
-        name: "EdgeEver-1.49.0-windows-x64.exe",
+        name: "RTNote-1.49.0-windows-x64.exe",
         size: 7,
         sha256: "239f59ed55e737c77147cf55ad0c1b030b6d7ee748a7426952f9b852d5a935e5",
       });
@@ -46,7 +46,7 @@ describe("Windows update release metadata", () => {
         arch: "x64",
         releaseDate: "2026-08-30T00:00:00.000Z",
         file: {
-          name: "EdgeEver-1.49.0-windows-x64.exe",
+          name: "RTNote-1.49.0-windows-x64.exe",
           size: 7,
           sha512: "cLM86ckEfjD5F+fqE+Qvd2cAjD9PnJuvSeQ5D8YlVJ6WJe7jm5RUUHTooYJM8/I4RjsRvAPZc0jg/CmZyh//fw==",
           sha256: "239f59ed55e737c77147cf55ad0c1b030b6d7ee748a7426952f9b852d5a935e5",
@@ -84,7 +84,7 @@ describe("Windows update release metadata", () => {
       arch: "x64",
       releaseDate: "2026-08-30T00:00:00.000Z",
       file: {
-        name: "EdgeEver-1.49.0-windows-x64.exe",
+        name: "RTNote-1.49.0-windows-x64.exe",
         size: 7,
         sha512: "cLM86ckEfjD5F+fqE+Qvd2cAjD9PnJuvSeQ5D8YlVJ6WJe7jm5RUUHTooYJM8/I4RjsRvAPZc0jg/CmZyh//fw==",
         sha256: "239f59ed55e737c77147cf55ad0c1b030b6d7ee748a7426952f9b852d5a935e5",

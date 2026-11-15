@@ -11,7 +11,7 @@ const globalOptions = parseOptions(rawArgs);
 const commandArgs = stripGlobalOptions(rawArgs, new Set(["profile"]));
 const [command, ...argv] = commandArgs;
 
-const usage = `EdgeEver CLI
+const usage = `RTNote CLI
 
 Usage:
   bun run cli -- profile set <name> --url <url> --token <token>

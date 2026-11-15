@@ -11,7 +11,7 @@ describe("note print appearance", () => {
       ));
       if (choice === "maple-mono-cn" || choice === "jetbrains") {
         expect(css).toContain("--editor-code-font-family:");
-        expect(css).toContain(choice === "jetbrains" ? "EdgeEver Share JetBrains Mono" : "EdgeEver Share Maple Mono CN");
+        expect(css).toContain(choice === "jetbrains" ? "RTNote Share JetBrains Mono" : "RTNote Share Maple Mono CN");
       } else expect(css).not.toContain("--editor-code-font-family:");
     }
   });

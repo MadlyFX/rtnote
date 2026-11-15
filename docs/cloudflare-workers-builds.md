@@ -18,17 +18,7 @@ Without an explicit override, existing deployments keep their current R2 bucket 
 
 ## Updates and troubleshooting
 
-- A push to `main` builds, applies D1 migrations, deploys, and verifies EdgeEver.
-- **Update deployed EdgeEver** keeps a deployment Fork as an upstream **deploy mirror**:
-  - Default channel `stable` tracks the latest formal Release tag.
-  - Set the GitHub Repository Variable `EDGE_EVER_UPDATE_CHANNEL=edge` to follow upstream `main`.
-  - Read-only forks (no app code changes) apply the target's product snapshot in a new linear commit without installing dependencies or running the project test suite.
-  - Only forks that explicitly set `EDGE_EVER_PRESERVE_FORK_CHANGES=true` merge product changes. A customized merge runs local migrations, the complete non-E2E test suite, type checks, and the production build before pushing; any failure leaves `main` and production unchanged.
-  - Updates preserve the Fork's `.github/workflows/**` and updater helper scripts; `GITHUB_TOKEN` needs no permission to rewrite Actions workflows.
-  - The job **Summary** shows Git and deployment status. *Already on upstream target* means a scheduled run requested no deployment; a successful push still needs confirmation in Cloudflare.
-  - Prefer this workflow over GitHub **Sync fork**. Sync fork follows upstream `main` history and can make the next stable run a deliberate no-op.
-- Optional: repository secret `EDGE_EVER_CLOUDFLARE_DEPLOY_HOOK_URL` triggers a Cloudflare Deploy Hook after a successful push (useful when the Git integration misses a push).
-- Manually running the workflow triggers a new Cloudflare build even when Git is current.
+- A push to `main` builds, applies D1 migrations, deploys, and verifies RTNote.
+- To take a newer RTNote version, use GitHub **Sync fork** on the Fork to bring `main` up to date with `MadlyFX/rtnote`; the push triggers a new build.
+- A Fork that keeps its own application-code changes on `main` must merge RTNote updates itself and resolve conflicts before pushing.
 - Build failure: inspect the Worker **Deployments** log and confirm the Deployment commit SHA matches Fork `main`.
-- Scheduled update never runs: on a public Fork, enable **Update deployed EdgeEver** under **Actions** (scheduled workflows are disabled by default on forks, and may pause after long inactivity).
-- Update push is rejected with `without workflows permission`: the Fork still has an older updater. Use GitHub **Sync fork** once with the repository owner's permission, then re-run **Update deployed EdgeEver**. Routine product updates do not require **Sync fork** after that bootstrap.

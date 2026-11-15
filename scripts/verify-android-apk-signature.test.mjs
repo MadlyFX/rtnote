@@ -6,7 +6,7 @@ import {
 } from "./verify-android-apk-signature.mjs";
 
 describe("Android APK signer verification", () => {
-  test("accepts the single pinned EdgeEver signer", () => {
+  test("accepts the single pinned RTNote signer", () => {
     expect(
       verifyAndroidSignerOutput(
         `Signer #1 certificate SHA-256 digest: ${EDGE_EVER_ANDROID_SIGNER_SHA256}`,

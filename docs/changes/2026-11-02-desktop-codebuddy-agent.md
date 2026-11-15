@@ -1,6 +1,5 @@
 # Add CodeBuddy as a desktop local agent
 
-[简体中文](2026-11-02-desktop-codebuddy-agent.zh-CN.md)
 
 Related Issue: #758
 

@@ -1,4 +1,4 @@
-export const supportedLocales = ["zh-CN", "zh-TW", "en-US", "ja", "pl", "ru", "es", "de", "fr"] as const;
+export const supportedLocales = ["en-US", "zh-CN", "zh-TW", "ja", "pl", "ru", "es", "de", "fr"] as const;
 
 export type SupportedLocale = (typeof supportedLocales)[number];
 
@@ -16,7 +16,7 @@ export const localeEnglishNames: Record<SupportedLocale, string> = {
 };
 
 /** Used when there is no locale evidence (legacy callers, missing headers). */
-export const defaultLocale: SupportedLocale = "zh-CN";
+export const defaultLocale: SupportedLocale = "en-US";
 
 /** Used when locale evidence exists but is not a shipped UI language. */
 export const unmatchedLocale: SupportedLocale = "en-US";

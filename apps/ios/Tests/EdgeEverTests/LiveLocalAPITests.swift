@@ -37,12 +37,12 @@ final class LiveLocalAPITests: XCTestCase {
         do {
             let (_, response) = try await URLSession.shared.data(for: request)
             guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-                throw XCTSkip("Local EdgeEver not running at \(baseURL)")
+                throw XCTSkip("Local RTNote not running at \(baseURL)")
             }
         } catch is XCTSkip {
-            throw XCTSkip("Local EdgeEver not running at \(baseURL)")
+            throw XCTSkip("Local RTNote not running at \(baseURL)")
         } catch {
-            throw XCTSkip("Local EdgeEver not running at \(baseURL)")
+            throw XCTSkip("Local RTNote not running at \(baseURL)")
         }
     }
 

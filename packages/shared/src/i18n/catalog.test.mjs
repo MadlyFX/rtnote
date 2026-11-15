@@ -25,7 +25,7 @@ const collectKeys = (value, prefix = "") => {
 
 describe("shared i18n catalogs", () => {
   test("ships Japanese alongside Chinese and English with matching keys", () => {
-    expect(supportedLocales).toEqual(["zh-CN", "zh-TW", "en-US", "ja", "pl", "ru", "es", "de", "fr"]);
+    expect(supportedLocales).toEqual(["en-US", "zh-CN", "zh-TW", "ja", "pl", "ru", "es", "de", "fr"]);
     expect(collectKeys(ja)).toEqual(collectKeys(enUS));
     expect(collectKeys(ja)).toEqual(collectKeys(zhCN));
     expect(ja.login.title).toContain("サインイン");

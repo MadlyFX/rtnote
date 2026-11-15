@@ -66,7 +66,7 @@ describe("sidebar note links", () => {
     expect(render(markdown)).toContain(`href="#memo=${id}"`);
   });
 
-  test("opens an agent's EdgeEver URL inside the current workspace", () => {
+  test("opens an agent's RTNote URL inside the current workspace", () => {
     const id = "memo_328cb20d4b4040edb3ecb24638abc2d5";
     const markdown = `已创建 [大模型蒸馏流程图](https://edgeever.ai/memo/${id})。`;
     const rewritten = rewriteSidebarNoteLinks(markdown);

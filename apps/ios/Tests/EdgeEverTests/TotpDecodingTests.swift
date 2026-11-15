@@ -103,10 +103,10 @@ final class TotpDecodingTests: XCTestCase {
 
     func testSetupRecoveryCodesAndConfirmResponsesDecode() throws {
         let setup = try EdgeEverJSON.decoder.decode(TotpSetupResponse.self, from: Data("""
-        {"setupId":"setup_abc","secret":"JBSWY3DPEHPK3PXP","otpauthUri":"otpauth://totp/EdgeEver:admin?secret=JBSWY3DPEHPK3PXP&issuer=EdgeEver","issuer":"EdgeEver","accountName":"admin","expiresAt":"2026-11-02T10:15:00.000Z"}
+        {"setupId":"setup_abc","secret":"JBSWY3DPEHPK3PXP","otpauthUri":"otpauth://totp/RTNote:admin?secret=JBSWY3DPEHPK3PXP&issuer=RTNote","issuer":"RTNote","accountName":"admin","expiresAt":"2026-11-02T10:15:00.000Z"}
         """.utf8))
         XCTAssertEqual(setup.setupId, "setup_abc")
-        XCTAssertEqual(setup.issuer, "EdgeEver")
+        XCTAssertEqual(setup.issuer, "RTNote")
         XCTAssertTrue(setup.otpauthUri.hasPrefix("otpauth://"))
 
         let codes = try EdgeEverJSON.decoder.decode(TotpRecoveryCodesResponse.self, from: Data("""
@@ -168,7 +168,7 @@ final class TotpDecodingTests: XCTestCase {
     }
 
     func testQRCodeImageIsGenerated() {
-        XCTAssertNotNil(TotpQRCodeView.makeImage("otpauth://totp/EdgeEver:admin?secret=JBSWY3DPEHPK3PXP&issuer=EdgeEver"))
+        XCTAssertNotNil(TotpQRCodeView.makeImage("otpauth://totp/RTNote:admin?secret=JBSWY3DPEHPK3PXP&issuer=RTNote"))
     }
 
     // MARK: - Unauthorized handling
