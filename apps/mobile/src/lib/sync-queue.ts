@@ -9,6 +9,7 @@ import {
   isMemoSyncBaseCurrent,
   summarizeSyncQueue,
   type MemoDetail,
+  type TiptapDoc,
   type SyncQueueSummary,
   type SyncRunResult,
 } from "@edgeever/shared";
@@ -22,6 +23,11 @@ export type MobileMemoUpdateSyncPayload = {
   expectedRevision: number;
   expectedContentHash: string;
   title: string;
+  /**
+   * Rich-text body. Items queued by older builds only carry Markdown, which
+   * the server merges into the note block by block.
+   */
+  contentJson?: TiptapDoc;
   contentMarkdown: string;
   notebookId: string;
   tags: string[];
@@ -30,6 +36,7 @@ export type MobileMemoUpdateSyncPayload = {
 export type MobileMemoCreateSyncPayload = {
   memoId: string;
   title: string;
+  contentJson?: TiptapDoc;
   contentMarkdown: string;
   notebookId: string;
   tags: string[];
@@ -105,6 +112,7 @@ export const queueMobileMemoUpdate = async (scope: string, payload: MobileMemoUp
         payload: {
           ...pendingCreate.payload,
           title: payload.title,
+          contentJson: payload.contentJson,
           contentMarkdown: payload.contentMarkdown,
           notebookId: payload.notebookId,
           tags: payload.tags,
@@ -387,6 +395,7 @@ const syncMobileQueueItem = async (client: ReturnType<typeof createEdgeEverClien
     const response = await client.createMemo({
       notebookId: item.payload.notebookId,
       title: item.payload.title,
+      ...(item.payload.contentJson ? { contentJson: item.payload.contentJson } : {}),
       contentMarkdown: item.payload.contentMarkdown,
       tags: item.payload.tags,
       createdAt: item.payload.createdAt,
@@ -409,6 +418,10 @@ const syncMobileQueueItem = async (client: ReturnType<typeof createEdgeEverClien
     expectedContentHash: item.payload.expectedContentHash,
     editSessionId: editSession.id,
     title: item.payload.title,
+    // Both copies go up: the server keeps the JSON for prose (and regenerates
+    // the Markdown) but the Markdown marker for structured notes. Markdown-only
+    // items from older builds are merged into the note.
+    ...(item.payload.contentJson ? { contentJson: item.payload.contentJson } : {}),
     contentMarkdown: item.payload.contentMarkdown,
     notebookId: item.payload.notebookId,
     tags: item.payload.tags,
@@ -522,6 +535,7 @@ const promoteQueuedMemoCreate = async (
         expectedRevision: memo.revision,
         expectedContentHash: memo.contentHash,
         title: current.payload.title,
+        contentJson: current.payload.contentJson,
         contentMarkdown: current.payload.contentMarkdown,
         notebookId: current.payload.notebookId,
         tags: current.payload.tags,

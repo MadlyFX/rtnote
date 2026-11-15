@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { markdownToDoc, mergeMarkdownIntoDoc, resolveMemoContentDoc, type MemoDetail, type TiptapDoc } from "@edgeever/shared";
 
 const MOBILE_DRAFT_PREFIX = "edgeever.mobile.memoDraft:";
 const MOBILE_NEW_DRAFT_PREFIX = "edgeever.mobile.newMemoDraft:";
@@ -7,6 +8,8 @@ export type MobileMemoDraft = {
   memoId: string;
   expectedRevision: number;
   title: string;
+  /** Rich-text body; drafts saved by older builds only have Markdown. */
+  contentJson?: TiptapDoc;
   contentMarkdown: string;
   notebookId: string;
   tagsText: string;
@@ -15,6 +18,7 @@ export type MobileMemoDraft = {
 
 export type MobileNewMemoDraft = {
   title: string;
+  contentJson?: TiptapDoc;
   contentMarkdown: string;
   notebookId: string;
   tagsText: string;
@@ -57,6 +61,24 @@ export const writeMobileNewMemoDraft = (scope: string, draft: MobileNewMemoDraft
   AsyncStorage.setItem(getMobileNewMemoDraftKey(scope), JSON.stringify(draft));
 
 export const clearMobileNewMemoDraft = (scope: string) => AsyncStorage.removeItem(getMobileNewMemoDraftKey(scope));
+
+const isDoc = (value: unknown): value is TiptapDoc =>
+  Boolean(value) && typeof value === "object" && Array.isArray((value as { content?: unknown }).content);
+
+/**
+ * The document to restore from a draft. Drafts keep the rich-text JSON; for
+ * Markdown-only drafts from older builds, the Markdown is merged into the
+ * note so unchanged paragraphs keep their formatting.
+ */
+export const restoreDraftDoc = (
+  draft: { contentJson?: unknown; contentMarkdown: string },
+  memo?: Pick<MemoDetail, "contentJson" | "contentMarkdown" | "schemaVersion"> | null,
+): TiptapDoc => {
+  if (isDoc(draft.contentJson)) return draft.contentJson;
+  return memo
+    ? mergeMarkdownIntoDoc(resolveMemoContentDoc(memo.contentJson, memo.contentMarkdown, memo), draft.contentMarkdown)
+    : markdownToDoc(draft.contentMarkdown);
+};
 
 const getMobileMemoDraftKey = (memoId: string) => `${MOBILE_DRAFT_PREFIX}${memoId}`;
 const getMobileNewMemoDraftKey = (scope: string) => `${MOBILE_NEW_DRAFT_PREFIX}${encodeURIComponent(scope)}`;

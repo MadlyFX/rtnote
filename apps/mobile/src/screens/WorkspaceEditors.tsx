@@ -19,6 +19,7 @@ import {
 import {
   clearMobileMemoDraft,
   clearMobileNewMemoDraft,
+  restoreDraftDoc,
   writeMobileMemoDraft,
   type MobileMemoDraft,
 } from "../lib/mobile-drafts";
@@ -336,6 +337,7 @@ export const CreateMemoModal = ({
         memoId: materializedMemo.id,
         expectedRevision: materializedMemo.revision,
         title: currentTitle,
+        contentJson: contentJsonRef.current,
         contentMarkdown: currentContentMarkdown,
         notebookId: currentNotebookId,
         tagsText: currentTagsText,
@@ -411,6 +413,7 @@ export const CreateMemoModal = ({
           expectedRevision: materializedMemo.revision,
           expectedContentHash: materializedMemo.contentHash,
           title: optimisticMemo.title ?? DEFAULT_MEMO_TITLE,
+          contentJson: optimisticMemo.contentJson,
           contentMarkdown: optimisticMemo.contentMarkdown,
           notebookId: optimisticMemo.notebookId,
           tags: optimisticMemo.tags,
@@ -448,6 +451,7 @@ export const CreateMemoModal = ({
         memoId: temporaryId,
         notebookId: memo.notebookId,
         title: memo.title ?? DEFAULT_MEMO_TITLE,
+        contentJson: memo.contentJson,
         contentMarkdown: memo.contentMarkdown,
         tags: memo.tags,
         createdAt: now,
@@ -867,7 +871,7 @@ export const RichEditorModal = ({
   const { resolvedTheme } = useMobileTheme();
   const restoredDraft = initialDraft?.expectedRevision === memo?.revision ? initialDraft : null;
   const initialContentJson = restoredDraft
-    ? markdownToDoc(restoredDraft.contentMarkdown)
+    ? restoreDraftDoc(restoredDraft, memo)
     : resolveMemoContentDoc(memo?.contentJson, memo?.contentMarkdown, memo ?? undefined);
   const editorRef = useRef<LocalTiptapEditorRef>(null);
   const resourceDataUrlCacheRef = useRef(new Map<string, Promise<string | null>>());
@@ -966,6 +970,7 @@ export const RichEditorModal = ({
       memoId: currentMemo.id,
       expectedRevision: currentMemo.revision,
       title: titleRef.current.trim(),
+      contentJson: contentJsonRef.current,
       contentMarkdown: contentMarkdownRef.current,
       notebookId: notebookIdRef.current,
       tagsText: tagsTextRef.current,
@@ -1180,6 +1185,7 @@ export const RichEditorModal = ({
         memoId: currentMemo.id,
         expectedRevision: currentMemo.revision,
         title: titleRef.current.trim(),
+        contentJson: contentJsonRef.current,
         contentMarkdown: contentMarkdownRef.current,
         notebookId: notebookIdRef.current,
         tagsText: tagsTextRef.current,

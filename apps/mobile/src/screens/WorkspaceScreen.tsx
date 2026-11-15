@@ -879,6 +879,7 @@ export const WorkspaceScreen = ({
         expectedRevision: syncBaseMemo.revision,
         expectedContentHash: syncBaseMemo.contentHash,
         title: optimisticMemo.title?.trim() || DEFAULT_MEMO_TITLE,
+        contentJson: optimisticMemo.contentJson,
         contentMarkdown: optimisticMemo.contentMarkdown,
         notebookId: optimisticMemo.notebookId,
         tags: optimisticMemo.tags,
