@@ -19,7 +19,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Alert, Pressable, Text } from "../components/LocalizedText";
 import { ApiRequestError } from "@edgeever/client";
-import { DEFAULT_MEMO_TITLE, getNotebookScopeIds, hasDiagramDocumentMarker, markdownToDoc, type MemoDetail, type MemoSummary, type Notebook } from "@edgeever/shared";
+import { DEFAULT_MEMO_TITLE, getNotebookScopeIds, hasDiagramDocumentMarker, type MemoDetail, type MemoSummary, type Notebook } from "@edgeever/shared";
 import { MOBILE_UI_METRICS } from "@edgeever/shared/mobile-ui";
 import { clearMobileMemoDraft, readMobileMemoDraft, type MobileMemoDraft } from "../lib/mobile-drafts";
 import {
@@ -949,20 +949,6 @@ export const WorkspaceScreen = ({
     },
   });
 
-  const applyAiDraftToMemo = async (memo: MemoDetail, draft: string, mode: "append" | "replace") => {
-    const normalizedDraft = draft.trim();
-    const contentMarkdown = mode === "append"
-      ? [memo.contentMarkdown.trimEnd(), normalizedDraft].filter(Boolean).join("\n\n")
-      : normalizedDraft;
-    await localUpdateMemoMutation.mutateAsync({
-      memo,
-      payload: {
-        contentMarkdown,
-        contentJson: markdownToDoc(contentMarkdown),
-      },
-    });
-  };
-
   const deleteMemoMutation = useMutation({
     onMutate: async ({ memo }) => {
       const cacheSnapshot = await optimisticallyRemoveMemoIds([memo.id]);
@@ -1342,7 +1328,6 @@ export const WorkspaceScreen = ({
         onOpenRevisions={setRevisionMemo}
         onRenameResource={handleRenameResource}
         onAdoptCloudVersion={(memo) => void handleAdoptCloudVersion(memo)}
-        onApplyAiDraft={applyAiDraftToMemo}
         onCopyLocalDraft={(memo) => void handleCopyConflictDraft(memo)}
         onResolveSyncConflict={handleMemoSyncConflict}
         onRetrySync={() => {

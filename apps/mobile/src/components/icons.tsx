@@ -87,10 +87,6 @@ export const Sparkles = createIcon("star");
 export const Square = createIcon("square");
 export const Sun = createIcon("sun");
 export const Tag = createIcon("tag");
-export const TagPlus = ({ color, ...props }: MaterialCommunityIconProps) => {
-  const { resolvedTheme } = useMobileTheme();
-  return <MaterialCommunityIcons name="tag-plus-outline" {...props} color={resolveMobileThemeColor(color as string | undefined, resolvedTheme)} />;
-};
 export const Trash2 = createIcon("trash-2");
 export const Upload = createIcon("upload");
 export const UserRound = createIcon("user");

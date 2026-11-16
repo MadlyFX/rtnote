@@ -2,8 +2,10 @@ import type { PluginNoteKind, PluginContentDocument, PluginDiagramGraph, PluginD
 export * from "./structured-notes";
 export declare const PLUGIN_API_VERSION: "2";
 export declare const THEME_API_VERSION: "1";
-export declare const PLUGIN_PERMISSIONS: readonly ["notes:read", "notes:write", "notes:delete", "metadata:read", "metadata:write", "resources:read", "resources:write", "templates:read", "templates:write", "network", "network:public", "ai:generate", "storage", "secrets", "schedules", "editor:read", "editor:write", "ui:commands", "ui:navigation", "ui:notices", "ui:panels", "ui:embeds"];
+export declare const PLUGIN_PERMISSIONS: readonly ["notes:read", "notes:write", "notes:delete", "metadata:read", "metadata:write", "resources:read", "resources:write", "templates:read", "templates:write", "network", "network:public", "speech:transcribe", "storage", "secrets", "schedules", "editor:read", "editor:write", "ui:commands", "ui:navigation", "ui:notices", "ui:panels", "ui:embeds"];
 export type PluginPermission = (typeof PLUGIN_PERMISSIONS)[number];
+/** Permissions of removed features. Manifests that still list them load; the permission grants nothing. */
+export declare const RETIRED_PLUGIN_PERMISSIONS: readonly ["ai:generate"];
 export type ExtensionPlatform = "web" | "desktop" | "android" | "ios";
 export interface LocalizedExtensionMetadata {
     name?: string;
@@ -488,19 +490,8 @@ export interface PluginPanel {
 }
 export interface PluginContext {
     pluginId: string;
-    ai: {
-        status(): Promise<{
-            configured: boolean;
-            modelName?: string;
-        }>;
-        generate(input: {
-            system: string;
-            prompt: string;
-            maxOutputTokens?: number;
-            signal?: AbortSignal;
-        }): Promise<{
-            text: string;
-        }>;
+    /** Speech transcription through the user's configured speech service. Requires `speech:transcribe`. */
+    speech: {
         transcribeResource(noteId: string, resourceId: string): Promise<{
             text: string;
             resourceId: string;

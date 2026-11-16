@@ -5,7 +5,7 @@ import { createMemoRecord, deleteMemosRecord, getCurrentWorkspaceIdentity, getMe
   getMemosForBulkAction, importMemosRecord, listMemosForMcp, mergeMemosRecord, moveMemosToNotebook,
   restoreMemosRecord, searchMemoSummaries, updateMemoRecord } from "./memo-service";
 
-// Both remote MCP and the built-in companion use this exact dispatcher.
+// Remote MCP clients use this dispatcher.
 export const executeWorkspaceTool = (context: AppContext, auth: AuthContext, name: string, args: Record<string, unknown>) =>
   callMcpTool(context, auth, name, args, { clampNumber, createMemoRecord, deleteMemosRecord,
     getCurrentWorkspaceIdentity, getMemoDetail, getMemoDetailRow, getMemosForBulkAction, importMemosRecord,

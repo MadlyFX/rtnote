@@ -59,10 +59,10 @@ ambiguous.
   image or database. The self-hosted runtime may persist a copy on `/data`
   outside SQLite so NAS/GUI upgrades that drop container environment variables
   keep credential encryption. Cloudflare continues to use Worker secrets only.
-  Object-storage secrets and personal AI model API keys use separate
+  Object-storage secrets and personal speech service API keys use separate
   purpose-specific keys derived from the existing instance authentication
   secret. An optional `EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY` can override the
-  AI credential key for advanced rotation. Stored credentials must remain
+  speech credential key for advanced rotation. Stored credentials must remain
   AES-GCM ciphertext.
 - Make `/data` the only required persistent application path so NAS users can
   back up one volume.
@@ -107,7 +107,3 @@ bun run start:self-hosted
 
 The implementation uses `@aws-sdk/client-s3` and does not load that SDK in the
 Cloudflare Worker entrypoint.
-
-## AI model requests
-
-AI model requests run directly on the client by default, including note generation, conversations, tag suggestions, discoveries, infographics, connection tests, model listing, and extension video summaries. Web clients retry initial browser network/CORS failures through the authenticated instance relay. The relay only accepts model API endpoints belonging to enabled services configured in the current workspace, preserves streaming and cancellation, and never forwards browser cookies. HTTP errors and failures after a response has started do not trigger another model call. Desktop and native mobile clients continue to connect directly; private endpoints must be reachable from those devices. Browser fallback requires the instance to reach the model endpoint. Legacy generation endpoints still require a client update; the relay reuses client-side AI orchestration instead of duplicating it on the backend.

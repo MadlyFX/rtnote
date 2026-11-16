@@ -115,7 +115,6 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
       baseUrl: session.baseUrl,
       token: session.token,
       fetch: createRebindAwareFetch(markRebindRequired),
-      directAiGeneration: true,
       onUnauthorized: () => {
         queryClient.clear();
         setSession(null);

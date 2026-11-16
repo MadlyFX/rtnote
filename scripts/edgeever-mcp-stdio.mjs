@@ -142,8 +142,8 @@ async function forwardToEdgeEver(request) {
 async function createClient(profileName) {
   const directUrl = process.env.EDGEEVER_URL;
   const directToken = process.env.EDGEEVER_TOKEN;
-  // ACP supplies both values for its short-lived local bridge. In that mode,
-  // do not read an unrelated MCP profile from the user's home directory.
+  // When the environment supplies both values, do not read an unrelated MCP
+  // profile from the user's home directory.
   const config = directUrl && directToken ? {} : await readConfig();
   const profile = profileName ? config.profiles?.[profileName] : undefined;
   const baseUrl = (directUrl || profile?.url || DEFAULT_URL).replace(/\/+$/, "");

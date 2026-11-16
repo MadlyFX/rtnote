@@ -1,4 +1,4 @@
-import type { TranscriptCue, VideoChapter, VideoOutline } from "./types";
+import type { TranscriptCue, VideoChapter } from "./types";
 
 const NAMED_ENTITIES: Record<string, string> = {
   amp: "&",
@@ -71,75 +71,8 @@ export const pickSubtitleTrack = <T>(
   return ranked[0]?.track ?? null;
 };
 
-// Adjacent cues become one model block of about 30–60 seconds.
-// The note transcript stays on the original cues.
-export const chunkTranscript = (cues: TranscriptCue[]) => {
-  const cleaned = cleanCues(cues);
-  const blocks: { start: number; text: string }[] = [];
-  let start = 0;
-  let end = 0;
-  let parts: string[] = [];
-  const flush = () => {
-    if (!parts.length) return;
-    blocks.push({ start: Math.floor(start), text: parts.join(" ") });
-    parts = [];
-  };
-  for (const cue of cleaned) {
-    if (!parts.length) {
-      start = cue.start;
-      end = cue.end;
-      parts = [cue.text];
-      continue;
-    }
-    const nextEnd = Math.max(end, cue.end);
-    if (nextEnd - start > 60 && end - start >= 30) {
-      flush();
-      start = cue.start;
-      end = cue.end;
-      parts = [cue.text];
-      continue;
-    }
-    parts.push(cue.text);
-    end = nextEnd;
-    if (end - start >= 60) flush();
-  }
-  flush();
-  return blocks;
-};
-
-export const snapBlockStart = (start: number, blocks: { start: number }[]) => {
-  if (!Number.isFinite(start)) return null;
-  let best: number | null = null;
-  let distance = Infinity;
-  for (const block of blocks) {
-    const delta = Math.abs(start - block.start);
-    if (delta <= 2 && delta < distance) {
-      best = block.start;
-      distance = delta;
-    }
-  }
-  return best;
-};
-
-export const sectionsFromOutline = (
-  chapters: VideoChapter[],
-  outline: VideoOutline | null,
-  blocks: { start: number }[],
-) => {
-  if (chapters.length) {
-    return chapters.flatMap((chapter) => {
-      const title = cleanCueText(chapter.title);
-      if (!title || !Number.isFinite(chapter.start) || chapter.start < 0) return [];
-      return [{ start: Math.floor(chapter.start), text: title }];
-    });
-  }
-  if (!outline) return [];
-  const used = new Set<number>();
-  return outline.sections.flatMap((section) => {
-    const start = snapBlockStart(section.start, blocks);
-    const text = cleanCueText(section.text);
-    if (start === null || !text || used.has(start)) return [];
-    used.add(start);
-    return [{ start, text }];
-  });
-};
+export const sectionsFromChapters = (chapters: VideoChapter[]) => chapters.flatMap((chapter) => {
+  const title = cleanCueText(chapter.title);
+  if (!title || !Number.isFinite(chapter.start) || chapter.start < 0) return [];
+  return [{ start: Math.floor(chapter.start), text: title }];
+});

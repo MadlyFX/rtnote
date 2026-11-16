@@ -54,8 +54,7 @@ describe("dependency security at the actual consumer", () => {
   test("infographic's Nano ID handles non-positive sizes without looping", () => {
     const postcssRequire = consumerRequire(webRequire, "@antv/infographic/package.json", "postcss");
     const version = postcssRequire("nanoid/package.json").version;
-    const npmRequire = consumerRequire(desktopRequire, "npm/package.json");
-    expect(npmRequire("semver").satisfies(version, ">=3.3.18 <4")).toBe(true);
+    expect(Bun.semver.satisfies(version, ">=3.3.18 <4")).toBe(true);
     const { nanoid, customAlphabet } = postcssRequire("nanoid/non-secure");
     expect(nanoid(-1)).toBe("");
     expect(customAlphabet("abc")(0)).toBe("");
@@ -121,15 +120,4 @@ describe("dependency security at the actual consumer", () => {
     expect(quote(["echo", "two words"])).toContain("two words");
   });
 
-  test("npm's bundled dependencies cannot hide vulnerable copies from root overrides", () => {
-    const npmRequire = createRequire(desktopRequire.resolve("npm/package.json"));
-    const semver = npmRequire("semver");
-    const gypRequire = createRequire(npmRequire.resolve("node-gyp/package.json"));
-    const cacheRequire = createRequire(npmRequire.resolve("make-fetch-happen/package.json"));
-    const pacoteRequire = createRequire(npmRequire.resolve("pacote/package.json"));
-    const undici = gypRequire("undici/package.json").version;
-    expect(semver.satisfies(undici, ">=6.28.1 <7 || >=7.29.1 <8 || >=8")).toBe(true);
-    expect(semver.gte(cacheRequire("http-cache-semantics/package.json").version, "4.3.0")).toBe(true);
-    expect(semver.gte(pacoteRequire("tar/package.json").version, "7.5.21")).toBe(true);
-  });
 });

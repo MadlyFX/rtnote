@@ -11,9 +11,8 @@ const labels = {
   menu: "插入功能菜单",
   empty: "没有匹配的功能。",
   close: "关闭菜单",
-  groups: { suggested: "建议", basic: "基本区块", insert: "插入" },
+  groups: { basic: "基本区块", insert: "插入" },
   items: {
-    ai: "用 AI 处理",
     paragraph: "正文",
     "heading-1": "标题 1",
     "heading-2": "标题 2",
@@ -47,7 +46,7 @@ describe("slash command menu", () => {
     const unfilteredItems = filterSlashCommandItems(items, "");
     const heading6Index = unfilteredItems.findIndex((item) => item.id === "heading-6");
 
-    expect(unfilteredItems).toHaveLength(24);
+    expect(unfilteredItems).toHaveLength(23);
     expect(unfilteredItems.slice(heading6Index + 1, heading6Index + 4).map((item) => item.id)).toEqual([
       "current-date",
       "current-time",
@@ -56,7 +55,7 @@ describe("slash command menu", () => {
   });
 
   test("searches localized labels and aliases", () => {
-    expect(filterSlashCommandItems(items, "AI").map((item) => item.id)).toEqual(["ai"]);
+    expect(filterSlashCommandItems(items, "AI").map((item) => item.id)).toEqual([]);
     expect(filterSlashCommandItems(items, "待办").map((item) => item.id)).toEqual(["task-list"]);
     expect(filterSlashCommandItems(items, "h2").map((item) => item.id)).toEqual(["heading-2"]);
     expect(filterSlashCommandItems(items, "h5").map((item) => item.id)).toEqual(["heading-5"]);
@@ -66,7 +65,6 @@ describe("slash command menu", () => {
 
   test("assigns every item a unique lowercase slash command alias", () => {
     expect(items.map((item) => item.command)).toEqual([
-      "ai",
       "text",
       "h1",
       "h2",

@@ -1,4 +1,4 @@
-import { clearAiBodyDraftScope } from "./ai-body-draft-store";
+import { removeLegacyAiData } from "./legacy-ai-cleanup";
 import {
   DEFAULT_MEMO_TITLE,
   createExcerpt,
@@ -868,8 +868,8 @@ export const clearLocalScope = async (scope: string) => {
   await Promise.all(scopedResources
     .filter((resource) => resource.id.startsWith("local_resource_"))
     .map((resource) => removeCachedLocalResourceBytes(resource.url)));
-  // Unapplied AI body drafts live in their own database (#652 PR B).
-  await clearAiBodyDraftScope(scope);
+  // Data left by the retired AI assistant can hold note text.
+  await removeLegacyAiData();
 };
 
 export type { LocalMemo, LocalNotebook };

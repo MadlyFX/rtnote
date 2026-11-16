@@ -182,18 +182,6 @@ const baseWorkspaceStyles = StyleSheet.create({
     borderWidth: 1,
     overflow: "hidden",
   },
-  settingsAiEmbeddedCardFirst: {
-    borderRadius: 0,
-    borderWidth: 0,
-  },
-  settingsAiEmbeddedCard: {
-    borderBottomWidth: 0,
-    borderLeftWidth: 0,
-    borderRadius: 0,
-    borderRightWidth: 0,
-    borderTopColor: "#f1f5f9",
-    borderTopWidth: 1,
-  },
   settingsGroupHeader: {
     alignItems: "center",
     flexDirection: "row",
@@ -1279,16 +1267,6 @@ const baseWorkspaceStyles = StyleSheet.create({
   },
   createMemoTagsPlaceholder: {
     color: "#94a3b8",
-  },
-  smartTagButton: {
-    alignItems: "center",
-    borderRadius: 8,
-    height: 34,
-    justifyContent: "center",
-    width: 34,
-  },
-  smartTagButtonSuccess: {
-    backgroundColor: "#ecfdf5",
   },
   createMemoToolButton: {
     alignItems: "center",

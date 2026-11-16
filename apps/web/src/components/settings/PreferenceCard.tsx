@@ -5,7 +5,7 @@ import { FONT_CATALOG, NOTE_BODY_FONT_MENU_GROUPS, isRemoteNoteImageFont, type R
 import { FontLoadFeedback } from "@/components/FontLoadFeedback";
 import { editorFontLoadState, uiFontLoadState, retryEditorCatalogFont, retryUiCatalogFont } from "@/lib/editor-catalog-fonts";
 import { FontLabel } from "@/components/FontLabel";
-import { AlignLeft, AlignVerticalSpaceAround, AppWindow, BookOpenText, ChartNoAxesCombined, Code2, Heading, Highlighter, Image, LayoutTemplate, Languages, ListTree, MousePointerClick, MoveHorizontal, Palette, Pilcrow, Quote, Sparkles, SpellCheck, SunMoon, Type } from "lucide-react";
+import { AlignLeft, AlignVerticalSpaceAround, AppWindow, BookOpenText, ChartNoAxesCombined, Code2, Heading, Highlighter, Image, LayoutTemplate, Languages, ListTree, MousePointerClick, MoveHorizontal, Palette, Pilcrow, Quote, SpellCheck, SunMoon, Type } from "lucide-react";
 import { useState, useEffect, useSyncExternalStore, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import type {
@@ -48,11 +48,6 @@ import {
   writeEditorLinkOpenMode,
   type EditorLinkOpenMode,
 } from "@/lib/editor-link-click";
-import {
-  AI_SELECTION_MENU_CHANGED_EVENT,
-  readAiSelectionMenuPreference,
-  writeAiSelectionMenuPreference,
-} from "@/lib/ai-selection-menu-preference";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -266,7 +261,6 @@ export const PreferenceCard = ({
   const [cssPreviewTheme, setCssPreviewTheme] = useState<"light" | "dark">("light");
   const [activeLocalePreference, setActiveLocalePreference] = useState<AppLocalePreference>(() => getAppLocalePreference());
   const [linkOpenMode, setLinkOpenMode] = useState<EditorLinkOpenMode>(() => getStoredEditorLinkOpenMode());
-  const [aiSelectionMenuEnabled, setAiSelectionMenuEnabled] = useState(readAiSelectionMenuPreference);
   const [spellcheckEnabled, setSpellcheckEnabled] = useState(readEditorSpellcheckPreference);
   const noteProseStyle = useNoteProseStylePreference();
   const [editorBodyFont, setEditorBodyFont] = useState(readEditorBodyFontPreference);
@@ -286,24 +280,6 @@ export const PreferenceCard = ({
     window.addEventListener("storage", syncPreference);
     return () => {
       window.removeEventListener(EDITOR_SPELLCHECK_CHANGED_EVENT, onPreferenceChanged);
-      window.removeEventListener("storage", syncPreference);
-    };
-  }, []);
-
-  useEffect(() => {
-    const syncPreference = () => setAiSelectionMenuEnabled(readAiSelectionMenuPreference());
-    const onPreferenceChanged = (event: Event) => {
-      const detail = (event as CustomEvent<boolean>).detail;
-      if (typeof detail === "boolean") {
-        setAiSelectionMenuEnabled(detail);
-        return;
-      }
-      syncPreference();
-    };
-    window.addEventListener(AI_SELECTION_MENU_CHANGED_EVENT, onPreferenceChanged);
-    window.addEventListener("storage", syncPreference);
-    return () => {
-      window.removeEventListener(AI_SELECTION_MENU_CHANGED_EVENT, onPreferenceChanged);
       window.removeEventListener("storage", syncPreference);
     };
   }, []);
@@ -780,25 +756,6 @@ export const PreferenceCard = ({
                   setSpellcheckEnabled(enabled);
                 }}
                 aria-label={t("settings.spellcheckAria")}
-              />
-            </div>
-          </div>
-
-          <div className="flex min-h-16 flex-col items-start gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-            <div className="flex min-w-0 items-center gap-3">
-              <Sparkles className="h-4 w-4 shrink-0 text-slate-500" />
-              <div className="min-w-0">
-                <div className={SETTINGS_ITEM_TITLE_CLASSNAME}>{t("settings.aiSelectionMenuTitle")}</div>
-              </div>
-            </div>
-            <div className="flex w-full shrink-0 justify-start sm:w-44 sm:justify-end">
-              <Switch
-                checked={aiSelectionMenuEnabled}
-                onCheckedChange={(enabled) => {
-                  writeAiSelectionMenuPreference(enabled);
-                  setAiSelectionMenuEnabled(enabled);
-                }}
-                aria-label={t("settings.aiSelectionMenuAria")}
               />
             </div>
           </div>

@@ -12,30 +12,13 @@ import { EditorContent, Extension, useEditor, useEditorState, type Editor } from
 import { EdgeEverLink } from "@edgeever/shared/editor-link";
 import * as Clipboard from "expo-clipboard";
 import {
-  AI_SELECTED_TEXT_ACTIONS,
-  AI_TARGET_LANGUAGES,
-  AI_TONES,
-  AI_WHOLE_NOTE_ACTIONS,
-  buildAiAssistantLastActionPreference,
-  canReplaceAiSource,
   createNativeUnsupportedContentExtensions,
-  docToMarkdown,
-  getDefaultAiTargetLanguage,
-  readStoredAiAssistantLastActionPreference,
-  resolveAiAssistantOpenAction,
-  writeStoredAiAssistantLastActionPreference,
-  getAiDocumentFingerprint,
-  getRichTextAiSelectionContext,
-  getRichTextAiSelectionReplacement,
-  isAiSelectionSnapshotCurrent,
-  markdownToDoc,
   MEMO_CONTENT_STYLE,
   createEdgeEverDocumentExtensions,
   applyImageAlignment,
   DETAILS_EDITOR_CSS,
   wrapDetailsContentHtml,
   NativeAttachmentMetadata,
-  normalizeAiSelectionReplacement,
   prepareNativeEditorContent,
   restoreNativeEditorContent,
   getImageReferrerPolicy,
@@ -47,13 +30,6 @@ import {
   attachDiagramReader,
   MIND_MAP_CONNECTOR_NAME,
   mindMapConnector,
-  type AiAction,
-  type AiPromptParameterKind,
-  type AiPromptResultMode,
-  type AiPromptTemplate,
-  type AiStreamEvent,
-  type AiTargetLanguage,
-  type AiTone,
   type TiptapDoc,
   type DiagramDocument,
 } from "@edgeever/shared";
@@ -80,7 +56,6 @@ import {
   getMobileEditorToolbarLabel,
   type MobileEditorToolbarActionId,
 } from "@edgeever/shared/mobile-editor";
-import { formatAiPartList, type AiDraftIncompleteReason } from "@edgeever/shared/ai-generation";
 import {
   type NoteImageTheme,
   type NoteImageFontStyle,
@@ -98,7 +73,7 @@ import {
 import { useDOMImperativeHandle, type DOMImperativeFactory, type DOMProps } from "expo/dom";
 import { toCanvas } from "html-to-image";
 import { createImageInsertTransaction, createNativeImageGalleryView, groupUploadedImages, NATIVE_IMAGE_GALLERY_CSS } from "@edgeever/shared/native-image-gallery";
-import { useCallback, useEffect, useMemo, useRef, useState, type Dispatch, type ReactNode, type Ref, type SetStateAction } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode, type Ref } from "react";
 import {
   createMobileImageUploadPlaceholderSource,
   isMobileImageUploadPlaceholderSource,
@@ -108,11 +83,6 @@ import {
   getMobileAttachmentLinkClass,
   resolveMobileAttachmentContent,
 } from "../lib/mobile-attachment-content";
-import {
-  getMobileAiSourceRange,
-  resolveMobileAiSelectionTriggerPosition,
-  type MobileAiSelectionTriggerPosition,
-} from "../lib/mobile-ai-selection";
 import {
   MOBILE_NOTE_SEARCH_HIGHLIGHT_PLUGIN_KEY,
   createMobileNoteSearchHighlightPlugin,
@@ -139,7 +109,6 @@ export interface LocalTiptapEditorRef extends DOMImperativeFactory {
   focusEnd: () => void;
   replaceAll: (query: DOMValue, replacement: DOMValue) => void;
   search: (query: DOMValue, index: DOMValue) => void;
-  pushAiStreamEvent: (payloadJson: DOMValue) => void;
   exportImage: (requestJson: DOMValue) => void;
 }
 
@@ -158,12 +127,9 @@ type LocalTiptapEditorSharedProps = {
   theme: "light" | "dark";
   /** Live-switchable. The same DomWebView stays mounted across viewer → editor. */
   mode?: "editor" | "viewer";
-  aiPromptsJson?: string;
   autoFocus?: boolean;
   onChange?: (content: EditorDoc) => Promise<void>;
   onPickImage?: () => Promise<void>;
-  onAiRequest?: (requestJson: string) => Promise<void>;
-  onAiCancel?: (requestId: string) => Promise<void>;
   visualDiagramJson?: string;
   visualDiagramNote?: boolean;
   onImagePreview?: (payloadJson: string) => Promise<void>;
@@ -183,8 +149,6 @@ type MermaidRendererProps = {
 const CHANGE_IDLE_MS = 500;
 const TRANSIENT_IMAGE_UPLOAD_META = "edgeeverImageUploadPlaceholder";
 const ignoreSearchResult = async () => undefined;
-const ignoreAiRequest = async () => undefined;
-const AI_PROMPT_OPTION_PREFIX = "prompt:";
 const IMAGE_EXPORT_CHUNK_BYTES = 192 * 1024;
 
 type ImageExportRequest = {
@@ -205,58 +169,6 @@ type ImageExportRequest = {
   showTags?: boolean;
   showUpdatedAt?: boolean;
   branding?: boolean;
-};
-
-const fallbackPromptParameterKind = (action: AiAction): AiPromptParameterKind =>
-  action === "translate" ? "target-language" : action === "change-tone" ? "tone" : "none";
-
-const fallbackPromptResultMode = (action: AiAction): AiPromptResultMode =>
-  canReplaceAiSource(action) ? "both" : "append";
-
-type MobileAiSelection = {
-  from: number;
-  to: number;
-  wholeNote: boolean;
-  isInline: boolean;
-  markdown: string;
-  documentFingerprint: string;
-};
-
-type MobileAiPanelState = {
-  selection: MobileAiSelection;
-  action: AiAction;
-  promptId: string | null;
-  parameterKind: AiPromptParameterKind;
-  resultMode: AiPromptResultMode;
-  targetLanguage: AiTargetLanguage;
-  tone: AiTone;
-  customInstruction: string;
-  refineInstruction: string;
-  output: string;
-  error: string | null;
-  generating: boolean;
-  requestId: string | null;
-  /**
-   * Why the draft is incomplete; an incomplete draft must not replace the selection (#652).
-   * A new request starts as "interrupted" and only a clean finish clears it.
-   */
-  incomplete?: AiDraftIncompleteReason | null;
-  /** The part a long run is working on, and the parts that kept their source text (#652). */
-  progress?: { part: number; parts: number } | null;
-  incompleteParts?: number[];
-};
-
-type MobileAiBridgePayload = {
-  requestId: string;
-  event: AiStreamEvent;
-};
-
-type MobileAiPickerKind = "action" | "language" | "tone";
-
-type MobileAiPickerOption = {
-  active: boolean;
-  label: string;
-  value: string;
 };
 
 type EditorResourceTarget = {
@@ -640,21 +552,6 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
     }
   }, [props.mode, props.mode === "viewer" ? props.visualDiagramJson : undefined]);
   const autoFocus = props.mode === "viewer" ? false : Boolean(props.autoFocus);
-  const aiPromptsJson = props.mode === "viewer" ? "[]" : (props.aiPromptsJson ?? "[]");
-  const aiPrompts = useMemo(() => {
-    try {
-      const parsed = JSON.parse(aiPromptsJson) as unknown;
-      if (!Array.isArray(parsed)) return [];
-      return parsed.filter((prompt): prompt is AiPromptTemplate =>
-        Boolean(prompt)
-        && typeof prompt === "object"
-        && typeof (prompt as Partial<AiPromptTemplate>).id === "string"
-        && typeof (prompt as Partial<AiPromptTemplate>).name === "string"
-        && typeof (prompt as Partial<AiPromptTemplate>).action === "string");
-    } catch {
-      return [];
-    }
-  }, [aiPromptsJson]);
   const startedAtRef = useRef(performance.now());
   const changeTimerRef = useRef<number | null>(null);
   const imageUploadInFlightRef = useRef(false);
@@ -665,58 +562,13 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
   const onImagePreviewRef = useRef(props.mode === "viewer" ? props.onImagePreview : undefined);
   const onDoublePressRef = useRef(props.mode === "viewer" ? props.onDoublePress : undefined);
   const onPickImageRef = useRef(props.mode === "viewer" ? undefined : props.onPickImage);
-  const onAiRequestRef = useRef(props.mode === "viewer" ? undefined : props.onAiRequest);
-  const onAiCancelRef = useRef(props.mode === "viewer" ? undefined : props.onAiCancel);
   const onReadyRef = useRef(props.onReady ?? (async () => undefined));
   const onSearchResultRef = useRef(props.onSearchResult ?? ignoreSearchResult);
   const onReaderScrollRef = useRef(props.onReaderScroll);
   const onImageExportEventRef = useRef(props.onImageExportEvent);
   const searchStateRef = useRef({ activeIndex: -1, query: "" });
-  const [aiPanel, setAiPanel] = useState<MobileAiPanelState | null>(null);
-  const [aiSelectionTrigger, setAiSelectionTrigger] = useState<MobileAiSelectionTriggerPosition | null>(null);
-  const [aiSelectionHint, setAiSelectionHint] = useState(false);
   const [formatPanelOpen, setFormatPanelOpen] = useState(false);
   const formatPanelRef = useRef<MobileFormatPanel | null>(null);
-  const aiSelectionHintTimerRef = useRef<number | null>(null);
-  const [aiUndoFingerprint, setAiUndoFingerprint] = useState<string | null>(null);
-  const aiUndoTimerRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    setAiPanel((current) => {
-      if (!current) return current;
-      if (current.promptId) {
-        const selected = aiPrompts.find((prompt) => prompt.id === current.promptId);
-        if (!selected) {
-          return {
-            ...current,
-            action: "custom",
-            promptId: null,
-            parameterKind: "none",
-            resultMode: "both",
-            output: "",
-            incomplete: null,
-            error: getMobileEditorCopy(props.locale).ai.promptMissing,
-          };
-        }
-        return {
-          ...current,
-          action: selected.action,
-          parameterKind: selected.parameterKind,
-          resultMode: selected.resultMode,
-        };
-      }
-      if (current.action === "custom" || aiPrompts.length === 0) return current;
-      const preferred = aiPrompts.find((prompt) => prompt.seedKey === current.action)
-        ?? aiPrompts[0];
-      return preferred ? {
-        ...current,
-        action: preferred.action,
-        promptId: preferred.id,
-        parameterKind: preferred.parameterKind,
-        resultMode: preferred.resultMode,
-      } : current;
-    });
-  }, [aiPrompts, props.locale]);
 
   onChangeRef.current = props.mode === "viewer" ? undefined : props.onChange;
   onLoadResourceRef.current = props.onLoadResource;
@@ -724,8 +576,6 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
   onImagePreviewRef.current = props.mode === "viewer" ? props.onImagePreview : undefined;
   onDoublePressRef.current = props.mode === "viewer" ? props.onDoublePress : undefined;
   onPickImageRef.current = props.mode === "viewer" ? undefined : props.onPickImage;
-  onAiRequestRef.current = props.mode === "viewer" ? undefined : props.onAiRequest;
-  onAiCancelRef.current = props.mode === "viewer" ? undefined : props.onAiCancel;
   onReadyRef.current = props.onReady ?? (async () => undefined);
   onSearchResultRef.current = props.onSearchResult ?? ignoreSearchResult;
   onReaderScrollRef.current = props.onReaderScroll;
@@ -1057,213 +907,6 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
     editor.view.dispatch(editor.state.tr.delete(from, to));
   }, [editor]);
 
-  const openAiForSelection = useCallback(() => {
-    if (isViewer || !editor || editor.isDestroyed || !onAiRequestRef.current) return false;
-    const sourceRange = getMobileAiSourceRange(editor.state.selection, editor.state.doc.content.size);
-    if (!sourceRange) return false;
-    const { from: sourceFrom, to: sourceTo, wholeNote } = sourceRange;
-    const richSelection = wholeNote
-      ? null
-      : getRichTextAiSelectionContext(editor.state.doc, editor.state.selection);
-    if (!wholeNote && !richSelection) return false;
-    const from = richSelection?.from ?? sourceFrom;
-    const to = richSelection?.to ?? sourceTo;
-    const markdown = richSelection?.contentMarkdown ?? docToMarkdown(getPersistableEditorDoc({
-      type: "doc",
-      content: editor.state.doc.slice(from, to).content.toJSON(),
-    } as EditorDoc, props.baseUrl)).trim();
-    if (!markdown) return false;
-    const resolved = resolveAiAssistantOpenAction({
-      hasSelection: !wholeNote,
-      preference: readStoredAiAssistantLastActionPreference(wholeNote ? "wholeNote" : "selected"),
-      prompts: aiPrompts,
-    });
-    const preferredPrompt = resolved.selectedPromptId
-      ? aiPrompts.find((prompt) => prompt.id === resolved.selectedPromptId) ?? null
-      : null;
-    const initialAction = preferredPrompt?.action ?? resolved.action;
-    setAiPanel({
-      selection: {
-        from,
-        to,
-        wholeNote,
-        isInline: richSelection?.isInline ?? false,
-        markdown,
-        documentFingerprint: getAiDocumentFingerprint(getPersistableEditorDoc(editor.getJSON() as EditorDoc, props.baseUrl)),
-      },
-      action: initialAction,
-      promptId: preferredPrompt?.id ?? null,
-      parameterKind: preferredPrompt?.parameterKind ?? fallbackPromptParameterKind(initialAction),
-      resultMode: preferredPrompt?.resultMode ?? fallbackPromptResultMode(initialAction),
-      targetLanguage: resolved.targetLanguage ?? getDefaultAiTargetLanguage(props.locale),
-      tone: resolved.tone ?? "professional",
-      customInstruction: "",
-      refineInstruction: "",
-      output: "",
-      incomplete: null,
-      error: null,
-      generating: false,
-      requestId: null,
-    });
-    editor.commands.blur();
-    return true;
-  }, [aiPrompts, editor, isViewer, props.baseUrl, props.locale]);
-
-  const closeAiPanel = useCallback(() => {
-    if (!aiPanel || !editor) return;
-    if (aiPanel.requestId) void (onAiCancelRef.current ?? ignoreAiRequest)(aiPanel.requestId);
-    const { from, to } = aiPanel.selection;
-    setAiPanel(null);
-    window.requestAnimationFrame(() => {
-      if (editor.isDestroyed) return;
-      if (aiPanel.selection.wholeNote) {
-        editor.chain().focus().selectAll().run();
-      } else {
-        editor.chain().focus().setTextSelection({ from, to }).run();
-      }
-    });
-  }, [aiPanel, editor]);
-
-  const runAiSelectionRequest = useCallback((refinement?: string) => {
-    if (!aiPanel || !onAiRequestRef.current) return;
-    const instruction = refinement?.trim();
-    const requestId = globalThis.crypto?.randomUUID?.() ?? `ai-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-    const source = instruction ? aiPanel.output : aiPanel.selection.markdown;
-    const action = instruction ? "custom" : aiPanel.action;
-    const promptId = instruction ? null : aiPanel.promptId;
-    setAiPanel((current) => current ? {
-      ...current,
-      output: "",
-      incomplete: "interrupted",
-      progress: null,
-      incompleteParts: [],
-      error: null,
-      generating: true,
-      requestId,
-      refineInstruction: instruction ? "" : current.refineInstruction,
-    } : current);
-    void onAiRequestRef.current(JSON.stringify({
-      requestId,
-      action,
-      locale: props.locale,
-      ...(promptId ? { promptId } : {}),
-      contentMarkdown: source,
-      ...(aiPanel.parameterKind === "target-language" && !instruction ? { targetLanguage: aiPanel.targetLanguage } : {}),
-      ...(aiPanel.parameterKind === "tone" && !instruction ? { tone: aiPanel.tone } : {}),
-      ...(!promptId && action === "custom" ? { instruction: instruction ?? aiPanel.customInstruction.trim() } : {}),
-    })).catch((requestError) => {
-      setAiPanel((current) => current?.requestId === requestId ? {
-        ...current,
-        generating: false,
-        requestId: null,
-        incomplete: current.incomplete === "stopped" ? "stopped" : "interrupted",
-        error: requestError instanceof Error ? requestError.message : getMobileEditorCopy(props.locale).ai.generationFailed,
-      } : current);
-    });
-  }, [aiPanel, props.locale]);
-
-  const pushAiStreamEvent = useCallback((payloadJsonValue: DOMValue) => {
-    if (typeof payloadJsonValue !== "string") return;
-    try {
-      const payload = JSON.parse(payloadJsonValue) as MobileAiBridgePayload;
-      if (!payload.requestId || !payload.event) return;
-      setAiPanel((current) => {
-        if (!current || current.requestId !== payload.requestId) return current;
-        if (payload.event.type === "text-delta") {
-          return { ...current, output: current.output + payload.event.text };
-        }
-        if (payload.event.type === "text-reset") {
-          return { ...current, output: payload.event.text };
-        }
-        if (payload.event.type === "progress") {
-          return { ...current, progress: { part: payload.event.part, parts: payload.event.parts } };
-        }
-        if (payload.event.type === "error") {
-          // Text that arrived before the error stays an incomplete draft.
-          return {
-            ...current,
-            generating: false,
-            requestId: null,
-            incomplete: "interrupted",
-            // An interrupted stream is explained by the incomplete notice instead.
-            error: payload.event.code === "ai_stream_interrupted" ? null : payload.event.message,
-          };
-        }
-        if (payload.event.type === "finish") {
-          const incompleteParts = payload.event.incompleteParts ?? [];
-          return {
-            ...current,
-            generating: false,
-            requestId: null,
-            progress: null,
-            incompleteParts,
-            incomplete: payload.event.truncated || incompleteParts.length ? "truncated" : null,
-          };
-        }
-        return current;
-      });
-    } catch {
-      // Ignore malformed native bridge payloads.
-    }
-  }, []);
-
-  const stopAiSelectionRequest = useCallback(() => {
-    if (!aiPanel?.requestId) return;
-    void (onAiCancelRef.current ?? ignoreAiRequest)(aiPanel.requestId);
-    setAiPanel((current) => current ? {
-      ...current,
-      generating: false,
-      requestId: null,
-      incomplete: current.output ? "stopped" : null,
-    } : current);
-  }, [aiPanel?.requestId]);
-
-  const applyAiSelectionDraft = useCallback((mode: "append" | "replace") => {
-    if (!aiPanel?.output || !editor || editor.isDestroyed) return;
-    const currentDocument = getPersistableEditorDoc(editor.getJSON() as EditorDoc, props.baseUrl);
-    if (!isAiSelectionSnapshotCurrent(aiPanel.selection, currentDocument, editor.state.doc.content.size)) {
-      setAiPanel((current) => current ? {
-        ...current,
-        error: getMobileEditorCopy(props.locale).ai.selectionExpired,
-      } : current);
-      return;
-    }
-    if (mode === "append" && aiPanel.resultMode === "replace") return;
-    if (mode === "replace" && aiPanel.resultMode === "append") return;
-    if (mode === "replace" && aiPanel.incomplete) return;
-    const replacementDraft = mode === "replace"
-      ? normalizeAiSelectionReplacement(aiPanel.output)
-      : aiPanel.output;
-    if (!replacementDraft) return;
-    const replacementDoc = mode === "replace"
-      ? { type: "doc", content: getRichTextAiSelectionReplacement(replacementDraft, aiPanel.selection.isInline) } as EditorDoc
-      : markdownToDoc(replacementDraft);
-    const parsed = resolveImageSources(replacementDoc, props.baseUrl);
-    const content = parsed.content ?? [];
-    const range = mode === "append"
-      ? { from: aiPanel.selection.to, to: aiPanel.selection.to }
-      : { from: aiPanel.selection.from, to: aiPanel.selection.to };
-    editor.chain().focus().insertContentAt(range, content).run();
-    setAiUndoFingerprint(getAiDocumentFingerprint(getPersistableEditorDoc(editor.getJSON() as EditorDoc, props.baseUrl)));
-    if (aiUndoTimerRef.current !== null) window.clearTimeout(aiUndoTimerRef.current);
-    aiUndoTimerRef.current = window.setTimeout(() => {
-      aiUndoTimerRef.current = null;
-      setAiUndoFingerprint(null);
-    }, 6500);
-    setAiPanel(null);
-  }, [aiPanel, editor, props.baseUrl, props.locale]);
-
-  const undoAiSelectionDraft = useCallback(() => {
-    if (!aiUndoFingerprint || !editor || editor.isDestroyed) return;
-    const currentFingerprint = getAiDocumentFingerprint(getPersistableEditorDoc(editor.getJSON() as EditorDoc, props.baseUrl));
-    if (currentFingerprint === aiUndoFingerprint) editor.chain().focus().undo().run();
-    setAiUndoFingerprint(null);
-    if (aiUndoTimerRef.current !== null) {
-      window.clearTimeout(aiUndoTimerRef.current);
-      aiUndoTimerRef.current = null;
-    }
-  }, [aiUndoFingerprint, editor, props.baseUrl]);
-
   const exportImage = useCallback((requestJsonValue: DOMValue) => {
     if (typeof requestJsonValue !== "string" || !editor || editor.isDestroyed || !onImageExportEventRef.current) return;
 
@@ -1467,10 +1110,9 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
       renameResource,
       replaceAll,
       search,
-      pushAiStreamEvent,
       exportImage,
     }),
-    [appendAttachment, beginImageUpload, cancelImageUpload, completeImageUpload, finishImageBatch, editor, exportImage, flush, isViewer, pushAiStreamEvent, removeResource, renameResource, replaceAll, search, setContent]
+    [appendAttachment, beginImageUpload, cancelImageUpload, completeImageUpload, finishImageBatch, editor, exportImage, flush, isViewer, removeResource, renameResource, replaceAll, search, setContent]
   );
 
   useEffect(() => {
@@ -1501,12 +1143,6 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       if (changeTimerRef.current !== null) {
         window.clearTimeout(changeTimerRef.current);
-      }
-      if (aiSelectionHintTimerRef.current !== null) {
-        window.clearTimeout(aiSelectionHintTimerRef.current);
-      }
-      if (aiUndoTimerRef.current !== null) {
-        window.clearTimeout(aiUndoTimerRef.current);
       }
     };
   }, [editor, flush]);
@@ -1554,52 +1190,9 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
     }
 
     let scrollFrame = 0;
-    let triggerFrame = 0;
     let settledScrollTimer: number | null = null;
-    const scrollContainer = getEditorScrollContainer(editor);
-    const updateAiSelectionTrigger = () => {
-      if (!onAiRequestRef.current || editor.isDestroyed) {
-        setAiSelectionTrigger(null);
-        return;
-      }
-      const { empty, from, to } = editor.state.selection;
-      if (empty || from >= to || !editor.state.doc.textBetween(from, to, " ").trim()) {
-        setAiSelectionTrigger(null);
-        return;
-      }
-      const shell = editor.view.dom.closest<HTMLElement>(".edgeever-editor-shell");
-      if (!shell || !scrollContainer) {
-        setAiSelectionTrigger(null);
-        return;
-      }
-      try {
-        const shellRect = shell.getBoundingClientRect();
-        const containerRect = scrollContainer.getBoundingClientRect();
-        const viewport = window.visualViewport;
-        const next = resolveMobileAiSelectionTriggerPosition({
-          selectionStart: editor.view.coordsAtPos(from),
-          selectionEnd: editor.view.coordsAtPos(to),
-          shell: shellRect,
-          visibleBounds: {
-            top: Math.max(containerRect.top, viewport?.offsetTop ?? containerRect.top),
-            bottom: Math.min(
-              containerRect.bottom,
-              viewport ? viewport.offsetTop + viewport.height : containerRect.bottom,
-            ),
-          },
-        });
-        setAiSelectionTrigger((current) => current?.left === next.left && current.top === next.top ? current : next);
-      } catch {
-        setAiSelectionTrigger(null);
-      }
-    };
-    const scheduleAiSelectionTriggerUpdate = () => {
-      window.cancelAnimationFrame(triggerFrame);
-      triggerFrame = window.requestAnimationFrame(updateAiSelectionTrigger);
-    };
     const ensureSelectionVisible = () => {
       updateEditorKeyboardInset(editor);
-      scheduleAiSelectionTriggerUpdate();
       window.cancelAnimationFrame(scrollFrame);
       scrollFrame = window.requestAnimationFrame(() => {
         if (!editor.isDestroyed && editor.isFocused) {
@@ -1621,7 +1214,6 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
     };
 
     const handleSelectionUpdate = () => {
-      scheduleAiSelectionTriggerUpdate();
       if (editor.isFocused) {
         ensureSelectionVisible();
       }
@@ -1630,22 +1222,18 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
     window.addEventListener("resize", ensureSelectionVisible);
     visualViewport?.addEventListener("resize", ensureSelectionVisible);
     visualViewport?.addEventListener("scroll", ensureSelectionVisible);
-    scrollContainer?.addEventListener("scroll", scheduleAiSelectionTriggerUpdate, { passive: true });
     editor.on("focus", ensureSelectionVisible);
     editor.on("selectionUpdate", handleSelectionUpdate);
     updateEditorKeyboardInset(editor);
-    scheduleAiSelectionTriggerUpdate();
 
     return () => {
       window.cancelAnimationFrame(scrollFrame);
-      window.cancelAnimationFrame(triggerFrame);
       if (settledScrollTimer !== null) {
         window.clearTimeout(settledScrollTimer);
       }
       window.removeEventListener("resize", ensureSelectionVisible);
       visualViewport?.removeEventListener("resize", ensureSelectionVisible);
       visualViewport?.removeEventListener("scroll", ensureSelectionVisible);
-      scrollContainer?.removeEventListener("scroll", scheduleAiSelectionTriggerUpdate);
       editor.off("focus", ensureSelectionVisible);
       editor.off("selectionUpdate", handleSelectionUpdate);
     };
@@ -1702,23 +1290,6 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
       return (available("undo") ? 1 : 0) | (available("redo") ? 2 : 0);
     },
   });
-  const requestOpenAiForSelection = () => {
-    if (openAiForSelection()) {
-      setAiSelectionHint(false);
-      if (aiSelectionHintTimerRef.current !== null) {
-        window.clearTimeout(aiSelectionHintTimerRef.current);
-        aiSelectionHintTimerRef.current = null;
-      }
-      return;
-    }
-    setAiSelectionHint(true);
-    if (aiSelectionHintTimerRef.current !== null) window.clearTimeout(aiSelectionHintTimerRef.current);
-    aiSelectionHintTimerRef.current = window.setTimeout(() => {
-      aiSelectionHintTimerRef.current = null;
-      setAiSelectionHint(false);
-    }, 2200);
-  };
-
   const insertImage = async () => {
     if (isViewer || !editor || imageUploadInFlightRef.current || !onPickImageRef.current) {
       return;
@@ -1786,18 +1357,6 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
                 onRun={toolbarHandlers[action.id]}
               />
             ))}
-          {onAiRequestRef.current ? (
-            <button
-              aria-label={getMobileEditorCopy(props.locale).ai.openForNote}
-              className="edgeever-ai-toolbar-button"
-              onClick={requestOpenAiForSelection}
-              onMouseDown={(event) => event.preventDefault()}
-              type="button"
-            >
-              <SparklesIcon />
-              <span>AI</span>
-            </button>
-          ) : null}
         </div>
       ) : null}
       {isViewer && visualDiagram ? (
@@ -1807,46 +1366,6 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
       ) : (
         <EditorContent className="edgeever-editor-scroll" editor={editor} />
       )}
-      {aiSelectionTrigger && !aiPanel ? (
-        <button
-          aria-label={getMobileEditorCopy(props.locale).ai.openForSelection}
-          className="edgeever-ai-selection-trigger"
-          onClick={requestOpenAiForSelection}
-          onMouseDown={(event) => event.preventDefault()}
-          onPointerDown={(event) => event.preventDefault()}
-          style={{ left: aiSelectionTrigger.left, top: aiSelectionTrigger.top }}
-          type="button"
-        >
-          <SparklesIcon />
-          <span>AI</span>
-        </button>
-      ) : null}
-      {aiSelectionHint ? (
-        <div aria-live="polite" className="edgeever-ai-selection-hint" role="status">
-          {getMobileEditorCopy(props.locale).ai.emptyNote}
-        </div>
-      ) : null}
-      {aiUndoFingerprint && !aiPanel ? (
-        <div aria-live="polite" className="edgeever-ai-undo" role="status">
-          <span>{getMobileEditorCopy(props.locale).ai.selectionUpdated}</span>
-          <button onClick={undoAiSelectionDraft} onMouseDown={(event) => event.preventDefault()} type="button">
-            {getMobileEditorCopy(props.locale).actions.undo}
-          </button>
-        </div>
-      ) : null}
-      {aiPanel ? (
-        <MobileSelectionAiPanel
-          locale={props.locale}
-          onApply={applyAiSelectionDraft}
-          onChange={setAiPanel}
-          onClose={closeAiPanel}
-          onGenerate={() => runAiSelectionRequest()}
-          onRefine={(instruction) => runAiSelectionRequest(instruction)}
-          onStop={stopAiSelectionRequest}
-          panel={aiPanel}
-          prompts={aiPrompts}
-        />
-      ) : null}
     </div>
   );
 }
@@ -1863,336 +1382,6 @@ const ToolbarButton = ({ active = false, disabled = false, icon, label, onRun }:
   >
     {icon}
   </button>
-);
-
-const MobileSelectionAiPanel = ({
-  locale,
-  onApply,
-  onChange,
-  onClose,
-  onGenerate,
-  onRefine,
-  onStop,
-  panel,
-  prompts,
-}: {
-  locale: MobileEditorLocale;
-  onApply: (mode: "append" | "replace") => void;
-  onChange: Dispatch<SetStateAction<MobileAiPanelState | null>>;
-  onClose: () => void;
-  onGenerate: () => void;
-  onRefine: (instruction: string) => void;
-  onStop: () => void;
-  panel: MobileAiPanelState;
-  prompts: AiPromptTemplate[];
-}) => {
-  const [picker, setPicker] = useState<MobileAiPickerKind | null>(null);
-  const actionLabels: Record<AiAction, string> = getMobileEditorCopy(locale).ai.actions;
-  const languageLabels: Record<AiTargetLanguage, string> = getMobileEditorCopy(locale).ai.languages;
-  const toneLabels: Record<AiTone, string> = getMobileEditorCopy(locale).ai.tones;
-  const update = (next: Partial<MobileAiPanelState>) => onChange((current) => current ? { ...current, ...next } : current);
-  const generateDisabled = panel.generating || (!panel.promptId && panel.action === "custom" && !panel.customInstruction.trim());
-  const appendDisabled = panel.generating || !panel.output || panel.resultMode === "replace";
-  const replaceDisabled = panel.generating || !panel.output || panel.resultMode === "append" || Boolean(panel.incomplete);
-  const selectedPrompt = panel.promptId ? prompts.find((prompt) => prompt.id === panel.promptId) ?? null : null;
-
-  const persistLastAction = (
-    nextAction: AiAction,
-    nextPromptId: string | null,
-    nextTargetLanguage = panel.targetLanguage,
-    nextTone = panel.tone,
-  ) => {
-    const prompt = nextPromptId ? prompts.find((item) => item.id === nextPromptId) : null;
-    writeStoredAiAssistantLastActionPreference(
-      panel.selection.wholeNote ? "wholeNote" : "selected",
-      buildAiAssistantLastActionPreference({
-        action: nextAction,
-        promptId: nextPromptId,
-        seedKey: prompt?.seedKey ?? null,
-        targetLanguage: nextTargetLanguage,
-        tone: nextTone,
-      }),
-    );
-  };
-
-  const selectPromptOrAction = (value: string) => {
-    if (value.startsWith(AI_PROMPT_OPTION_PREFIX)) {
-      const promptId = value.slice(AI_PROMPT_OPTION_PREFIX.length);
-      const prompt = prompts.find((item) => item.id === promptId);
-      if (!prompt) return;
-      persistLastAction(prompt.action, prompt.id);
-      update({
-        action: prompt.action,
-        promptId: prompt.id,
-        parameterKind: prompt.parameterKind,
-        resultMode: prompt.resultMode,
-        output: "",
-        incomplete: null,
-        error: null,
-      });
-      return;
-    }
-    const action = value as AiAction;
-    persistLastAction(action, null);
-    update({
-      action,
-      promptId: null,
-      parameterKind: fallbackPromptParameterKind(action),
-      resultMode: fallbackPromptResultMode(action),
-      output: "",
-      incomplete: null,
-      error: null,
-    });
-  };
-
-  const pickerOptions: MobileAiPickerOption[] = picker === "action"
-    ? (prompts.length > 0
-      ? [
-          ...prompts.map((prompt) => ({
-            active: panel.promptId === prompt.id,
-            label: prompt.name,
-            value: `${AI_PROMPT_OPTION_PREFIX}${prompt.id}`,
-          })),
-          { active: !panel.promptId && panel.action === "custom", label: actionLabels.custom, value: "custom" },
-        ]
-      : (panel.selection.wholeNote ? AI_WHOLE_NOTE_ACTIONS : AI_SELECTED_TEXT_ACTIONS).map((action) => ({
-          active: !panel.promptId && panel.action === action,
-          label: actionLabels[action],
-          value: action,
-        })))
-    : picker === "language"
-      ? AI_TARGET_LANGUAGES.map((language) => ({
-          active: panel.targetLanguage === language,
-          label: languageLabels[language],
-          value: language,
-        }))
-      : picker === "tone"
-        ? AI_TONES.map((tone) => ({
-            active: panel.tone === tone,
-            label: toneLabels[tone],
-            value: tone,
-          }))
-        : [];
-
-  const pickerTitle = picker === "action"
-    ? getMobileEditorCopy(locale).ai.chooseAction
-    : picker === "language"
-      ? getMobileEditorCopy(locale).ai.chooseTargetLanguage
-      : getMobileEditorCopy(locale).ai.chooseTone;
-
-  const choosePickerOption = (value: string) => {
-    if (picker === "action") selectPromptOrAction(value);
-    if (picker === "language") {
-      const targetLanguage = value as AiTargetLanguage;
-      persistLastAction(panel.action, panel.promptId, targetLanguage);
-      update({ targetLanguage, output: "", error: null, incomplete: null });
-    }
-    if (picker === "tone") {
-      const tone = value as AiTone;
-      persistLastAction(panel.action, panel.promptId, panel.targetLanguage, tone);
-      update({ tone, output: "", error: null, incomplete: null });
-    }
-    setPicker(null);
-  };
-
-  useEffect(() => {
-    if (!picker) return;
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setPicker(null);
-    };
-    document.addEventListener("keydown", closeOnEscape);
-    return () => document.removeEventListener("keydown", closeOnEscape);
-  }, [picker]);
-
-  return (
-    <section
-      aria-label={panel.selection.wholeNote
-        ? getMobileEditorCopy(locale).ai.noteTitle
-        : getMobileEditorCopy(locale).ai.selectionTitle}
-      aria-modal="true"
-      className="edgeever-ai-panel"
-      role="dialog"
-    >
-      <header className="edgeever-ai-panel-header">
-        <div>
-          <strong>{panel.selection.wholeNote
-            ? getMobileEditorCopy(locale).ai.noteTitle
-            : getMobileEditorCopy(locale).ai.selectionTitle}</strong>
-          <small>{panel.selection.wholeNote
-            ? getMobileEditorCopy(locale).ai.noteScopeHint
-            : getMobileEditorCopy(locale).ai.selectionScopeHint}</small>
-        </div>
-        <button aria-label={getMobileEditorCopy(locale).close} onClick={onClose} type="button">×</button>
-      </header>
-      <div className="edgeever-ai-panel-body">
-        <MobileAiPickerField
-          disabled={panel.generating}
-          expanded={picker === "action"}
-          label={getMobileEditorCopy(locale).ai.action}
-          onOpen={() => setPicker("action")}
-          value={selectedPrompt?.name ?? actionLabels[panel.action]}
-        />
-        {panel.parameterKind === "target-language" ? (
-          <MobileAiPickerField
-            disabled={panel.generating}
-            expanded={picker === "language"}
-            label={getMobileEditorCopy(locale).ai.targetLanguage}
-            onOpen={() => setPicker("language")}
-            value={languageLabels[panel.targetLanguage]}
-          />
-        ) : null}
-        {panel.parameterKind === "tone" ? (
-          <MobileAiPickerField
-            disabled={panel.generating}
-            expanded={picker === "tone"}
-            label={getMobileEditorCopy(locale).ai.tone}
-            onOpen={() => setPicker("tone")}
-            value={toneLabels[panel.tone]}
-          />
-        ) : null}
-        {!panel.promptId && panel.action === "custom" ? (
-          <label>
-            <span>{getMobileEditorCopy(locale).ai.instruction}</span>
-            <textarea
-              disabled={panel.generating}
-              maxLength={2000}
-              onChange={(event) => update({ customInstruction: event.target.value })}
-              placeholder={getMobileEditorCopy(locale).ai.instructionPlaceholder}
-              rows={3}
-              value={panel.customInstruction}
-            />
-          </label>
-        ) : null}
-        <div className="edgeever-ai-result-heading">
-          <span>{getMobileEditorCopy(locale).ai.draft}</span>
-          {panel.generating ? <small>{getMobileEditorCopy(locale).ai.generating}</small> : null}
-        </div>
-        <div aria-live="polite" className="edgeever-ai-result">
-          {panel.output || <span>{getMobileEditorCopy(locale).ai.draftPlaceholder}</span>}
-        </div>
-        {panel.output && !panel.generating ? (
-          <label>
-            <span>{getMobileEditorCopy(locale).ai.refineResult}</span>
-            <div className="edgeever-ai-refine-row">
-              <input
-                maxLength={2000}
-                onChange={(event) => update({ refineInstruction: event.target.value })}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" && !event.nativeEvent.isComposing && panel.refineInstruction.trim()) {
-                    event.preventDefault();
-                    onRefine(panel.refineInstruction);
-                  }
-                }}
-                placeholder={getMobileEditorCopy(locale).ai.refinePlaceholder}
-                value={panel.refineInstruction}
-              />
-              <button disabled={!panel.refineInstruction.trim()} onClick={() => onRefine(panel.refineInstruction)} type="button">
-                {getMobileEditorCopy(locale).ai.refine}
-              </button>
-            </div>
-          </label>
-        ) : null}
-        {panel.generating && panel.progress ? (
-          <p aria-live="polite" className="edgeever-ai-progress">
-            {getMobileEditorCopy(locale).ai.progressPart
-              .replace("{{part}}", String(panel.progress.part))
-              .replace("{{parts}}", String(panel.progress.parts))}
-          </p>
-        ) : null}
-        {panel.incomplete && panel.output && !panel.generating ? (
-          <p className="edgeever-ai-error" role="alert">
-            {panel.incomplete === "truncated" && panel.incompleteParts?.length
-              ? getMobileEditorCopy(locale).ai.incompleteParts.replace("{{parts}}", formatAiPartList(panel.incompleteParts, locale))
-              : panel.incomplete === "truncated"
-              ? getMobileEditorCopy(locale).ai.incompleteTruncated
-              : panel.incomplete === "stopped"
-                ? getMobileEditorCopy(locale).ai.incompleteStopped
-                : getMobileEditorCopy(locale).ai.incompleteInterrupted}
-          </p>
-        ) : null}
-        {panel.error ? <p className="edgeever-ai-error" role="alert">{panel.error}</p> : null}
-      </div>
-      <footer className="edgeever-ai-panel-footer">
-        <div>
-          <button disabled={appendDisabled} onClick={() => onApply("append")} type="button">
-            {getMobileEditorCopy(locale).ai.insertAfter}
-          </button>
-          <button disabled={replaceDisabled} onClick={() => onApply("replace")} type="button">
-            {getMobileEditorCopy(locale).ai.replaceSelection}
-          </button>
-        </div>
-        {panel.generating ? (
-          <button className="is-primary" onClick={onStop} type="button">{getMobileEditorCopy(locale).ai.stop}</button>
-        ) : (
-          <button className="is-primary" disabled={generateDisabled} onClick={onGenerate} type="button">
-            {panel.output ? getMobileEditorCopy(locale).ai.regenerate : getMobileEditorCopy(locale).ai.generate}
-          </button>
-        )}
-      </footer>
-      {picker ? (
-        <div className="edgeever-ai-picker-backdrop" onClick={() => setPicker(null)} role="presentation">
-          <section
-            aria-label={pickerTitle}
-            aria-modal="true"
-            className="edgeever-ai-picker-sheet"
-            onClick={(event) => event.stopPropagation()}
-            role="dialog"
-          >
-            <div aria-hidden="true" className="edgeever-ai-picker-handle" />
-            <header className="edgeever-ai-picker-header">
-              <strong>{pickerTitle}</strong>
-              <button aria-label={getMobileEditorCopy(locale).close} onClick={() => setPicker(null)} type="button">×</button>
-            </header>
-            <div aria-label={pickerTitle} className="edgeever-ai-picker-options" role="radiogroup">
-              {pickerOptions.map((option) => (
-                <button
-                  aria-checked={option.active}
-                  autoFocus={option.active}
-                  className={option.active ? "is-selected" : undefined}
-                  key={option.value}
-                  onClick={() => choosePickerOption(option.value)}
-                  role="radio"
-                  type="button"
-                >
-                  <span>{option.label}</span>
-                  <span aria-hidden="true" className="edgeever-ai-picker-check">✓</span>
-                </button>
-              ))}
-            </div>
-          </section>
-        </div>
-      ) : null}
-    </section>
-  );
-};
-
-const MobileAiPickerField = ({
-  disabled,
-  expanded,
-  label,
-  onOpen,
-  value,
-}: {
-  disabled: boolean;
-  expanded: boolean;
-  label: string;
-  onOpen: () => void;
-  value: string;
-}) => (
-  <div className="edgeever-ai-picker-field">
-    <span>{label}</span>
-    <button
-      aria-expanded={expanded}
-      aria-haspopup="dialog"
-      className="edgeever-ai-picker-trigger"
-      disabled={disabled}
-      onClick={onOpen}
-      type="button"
-    >
-      <span>{value}</span>
-      <span aria-hidden="true" className="edgeever-ai-picker-chevron" />
-    </button>
-  </div>
 );
 
 const EditorIcon = ({ children, size, strokeWidth }: { children: ReactNode; size: number; strokeWidth: number }) => (
@@ -2280,14 +1469,6 @@ const FormatIcon = () => (
     <path d="M4 7V4h16v3" />
     <path d="M9 20h6" />
     <path d="M12 4v16" />
-  </EditorIcon>
-);
-
-const SparklesIcon = () => (
-  <EditorIcon size={16} strokeWidth={2.1}>
-    <path d="m12 3-1.9 4.1L6 9l4.1 1.9L12 15l1.9-4.1L18 9l-4.1-1.9Z" />
-    <path d="m5 16-.8 1.8L2.5 19l1.7.8L5 21.5l.8-1.7 1.7-.8-1.7-.8Z" />
-    <path d="m19 15-.7 1.4L17 17l1.3.6.7 1.4.7-1.4L21 17l-1.3-.6Z" />
   </EditorIcon>
 );
 
@@ -3174,12 +2355,6 @@ const getEditorStyles = (theme: "light" | "dark", options?: { viewer?: boolean }
   .edgeever-editor-toolbar button { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; width: 36px; min-height: 32px; padding: 0; border: 1px solid transparent; border-radius: 999px; background: transparent; color: ${theme === "dark" ? "#cbd5e1" : "#64748b"}; }
   .edgeever-editor-toolbar button:active, .edgeever-editor-toolbar button.is-active { border-color: ${theme === "dark" ? "#166534" : "#bbf7d0"}; background: ${theme === "dark" ? "#14532d" : "#ecfdf5"}; color: ${theme === "dark" ? "#86efac" : "#047857"}; }
   .edgeever-editor-toolbar button:disabled { opacity: 0.38; }
-  .edgeever-editor-toolbar .edgeever-ai-toolbar-button { width: auto; gap: 4px; padding: 0 10px; border-color: ${theme === "dark" ? "#166534" : "#bbf7d0"}; background: ${theme === "dark" ? "#052e24" : "#ecfdf5"}; color: ${theme === "dark" ? "#6ee7b7" : "#047857"}; font-weight: 750; }
-  .edgeever-ai-selection-trigger { position: absolute; z-index: 18; display: inline-flex; min-width: 74px; min-height: 38px; align-items: center; justify-content: center; gap: 6px; padding: 0 13px; border: 1px solid ${theme === "dark" ? "#166534" : "#a7f3d0"}; border-radius: 999px; background: ${theme === "dark" ? "#052e24" : "#fff"}; color: ${theme === "dark" ? "#6ee7b7" : "#047857"}; box-shadow: 0 8px 24px rgb(2 44 34 / 20%); font-size: 14px; font-weight: 800; touch-action: manipulation; animation: edgeever-ai-selection-trigger-in 130ms ease-out; }
-  .edgeever-ai-selection-trigger:active { border-color: #16a06e; background: ${theme === "dark" ? "#0b3b2d" : "#ecfdf5"}; transform: scale(.97); }
-  .edgeever-ai-selection-trigger svg { width: 16px; height: 16px; }
-  @keyframes edgeever-ai-selection-trigger-in { from { opacity: 0; transform: translateY(4px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
-  @media (prefers-reduced-motion: reduce) { .edgeever-ai-selection-trigger { animation: none; } }
   .tiptap { min-height: 100%; max-width: 100%; min-width: 0; outline: none; }
   .edgeever-editor-scroll {
     --edgeever-keyboard-inset: 0px;
@@ -3193,56 +2368,6 @@ const getEditorStyles = (theme: "light" | "dark", options?: { viewer?: boolean }
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
   }
-  .edgeever-ai-selection-hint { position: absolute; z-index: 15; top: 64px; left: 50%; max-width: calc(100% - 32px); transform: translateX(-50%); padding: 9px 13px; border-radius: 999px; background: ${theme === "dark" ? "#1e293b" : "#0f172a"}; color: #fff; font-size: 13px; font-weight: 650; box-shadow: 0 8px 24px rgb(15 23 42 / 24%); }
-  .edgeever-ai-undo { position: absolute; z-index: 15; top: 64px; right: 14px; left: 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 10px 9px 13px; border-radius: 10px; background: ${theme === "dark" ? "#1e293b" : "#0f172a"}; color: #fff; font-size: 13px; font-weight: 650; box-shadow: 0 8px 24px rgb(15 23 42 / 24%); }
-  .edgeever-ai-undo button { min-height: 32px; padding: 0 11px; border: 1px solid rgb(255 255 255 / 28%); border-radius: 8px; background: transparent; color: #6ee7b7; font: inherit; font-weight: 750; }
-  .edgeever-ai-panel { position: absolute; z-index: 20; inset: 0; display: flex; min-width: 0; flex-direction: column; background: ${theme === "dark" ? "#0f172a" : "#f8fafc"}; color: ${theme === "dark" ? "#f8fafc" : "#0f172a"}; }
-  .edgeever-ai-panel button, .edgeever-ai-panel input, .edgeever-ai-panel textarea { font: inherit; }
-  .edgeever-ai-panel-header { display: flex; flex: 0 0 auto; align-items: center; justify-content: space-between; gap: 12px; min-height: 58px; padding: 10px 14px; border-bottom: 1px solid ${theme === "dark" ? "#334155" : "#e2e8f0"}; background: ${theme === "dark" ? "#111c18" : "#fff"}; }
-  .edgeever-ai-panel-header div { display: grid; min-width: 0; gap: 2px; }
-  .edgeever-ai-panel-header strong { font-size: 16px; }
-  .edgeever-ai-panel-header small { color: ${theme === "dark" ? "#94a3b8" : "#64748b"}; font-size: 12px; }
-  .edgeever-ai-panel-header > button { width: 36px; height: 36px; border: 0; border-radius: 999px; background: transparent; color: ${theme === "dark" ? "#cbd5e1" : "#475569"}; font-size: 25px; }
-  .edgeever-ai-panel-body { display: grid; min-height: 0; flex: 1 1 auto; align-content: start; gap: 14px; overflow-y: auto; padding: 14px; }
-  .edgeever-ai-panel label, .edgeever-ai-picker-field { display: grid; gap: 6px; color: ${theme === "dark" ? "#e2e8f0" : "#334155"}; font-size: 13px; font-weight: 700; }
-  .edgeever-ai-panel input, .edgeever-ai-panel textarea { width: 100%; border: 1px solid ${theme === "dark" ? "#475569" : "#cbd5e1"}; border-radius: 9px; outline: none; background: ${theme === "dark" ? "#111c18" : "#fff"}; color: ${theme === "dark" ? "#f8fafc" : "#0f172a"}; font-size: 15px; font-weight: 500; }
-  .edgeever-ai-panel input { min-height: 44px; padding: 0 11px; }
-  .edgeever-ai-panel textarea { min-height: 78px; resize: vertical; padding: 10px 11px; }
-  .edgeever-ai-panel input:focus, .edgeever-ai-panel textarea:focus { border-color: #16a06e; box-shadow: 0 0 0 2px rgb(22 160 110 / 14%); }
-  .edgeever-ai-picker-trigger { display: flex; width: 100%; min-height: 46px; align-items: center; justify-content: space-between; gap: 12px; padding: 0 13px; border: 1px solid ${theme === "dark" ? "#475569" : "#cbd5e1"}; border-radius: 10px; outline: none; background: ${theme === "dark" ? "#111c18" : "#fff"}; color: ${theme === "dark" ? "#f8fafc" : "#0f172a"}; text-align: left; font-size: 15px; font-weight: 550; }
-  .edgeever-ai-picker-trigger:focus-visible, .edgeever-ai-picker-trigger[aria-expanded="true"] { border-color: #16a06e; box-shadow: 0 0 0 2px rgb(22 160 110 / 14%); }
-  .edgeever-ai-picker-trigger > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .edgeever-ai-picker-chevron { flex: 0 0 auto; width: 9px; height: 9px; margin: -4px 2px 0 0; border-right: 2px solid ${theme === "dark" ? "#94a3b8" : "#64748b"}; border-bottom: 2px solid ${theme === "dark" ? "#94a3b8" : "#64748b"}; transform: rotate(45deg); }
-  .edgeever-ai-picker-backdrop { position: absolute; z-index: 40; inset: 0; display: flex; align-items: flex-end; background: rgb(2 6 23 / 48%); animation: edgeever-ai-picker-fade 150ms ease-out; }
-  .edgeever-ai-picker-sheet { display: flex; width: 100%; max-height: min(74%, 560px); min-height: 0; flex-direction: column; padding: 8px 12px max(12px, env(safe-area-inset-bottom)); border: 1px solid ${theme === "dark" ? "#33453d" : "#dbe4df"}; border-bottom: 0; border-radius: 22px 22px 0 0; background: ${theme === "dark" ? "#111c18" : "#fff"}; color: ${theme === "dark" ? "#f8fafc" : "#0f172a"}; box-shadow: 0 -18px 48px rgb(2 6 23 / 24%); animation: edgeever-ai-picker-rise 180ms cubic-bezier(.2,.8,.2,1); }
-  .edgeever-ai-picker-handle { width: 38px; height: 4px; margin: 0 auto 5px; border-radius: 999px; background: ${theme === "dark" ? "#475569" : "#cbd5e1"}; }
-  .edgeever-ai-picker-header { display: flex; flex: 0 0 auto; min-height: 48px; align-items: center; justify-content: space-between; gap: 12px; padding: 0 4px 4px 8px; }
-  .edgeever-ai-picker-header strong { font-size: 17px; font-weight: 780; }
-  .edgeever-ai-picker-header button { width: 36px; height: 36px; padding: 0; border: 0; border-radius: 999px; background: ${theme === "dark" ? "#17251f" : "#f1f5f9"}; color: ${theme === "dark" ? "#cbd5e1" : "#475569"}; font-size: 24px; line-height: 1; }
-  .edgeever-ai-picker-options { min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
-  .edgeever-ai-picker-options > button { display: flex; width: 100%; min-height: 50px; align-items: center; justify-content: space-between; gap: 14px; padding: 8px 12px; border: 0; border-bottom: 1px solid ${theme === "dark" ? "#26382f" : "#edf2ef"}; border-radius: 9px; outline: none; background: transparent; color: ${theme === "dark" ? "#e2e8f0" : "#0f172a"}; text-align: left; font-size: 15px; font-weight: 550; }
-  .edgeever-ai-picker-options > button:last-child { border-bottom-color: transparent; }
-  .edgeever-ai-picker-options > button.is-selected { background: ${theme === "dark" ? "#0b3328" : "#ecfdf5"}; color: ${theme === "dark" ? "#6ee7b7" : "#047857"}; font-weight: 720; }
-  .edgeever-ai-picker-options > button:focus-visible { box-shadow: inset 0 0 0 2px #16a06e; }
-  .edgeever-ai-picker-check { display: grid; width: 20px; height: 20px; flex: 0 0 auto; place-items: center; border-radius: 999px; background: #16a06e; color: #fff; font-size: 13px; font-weight: 850; opacity: 0; }
-  .edgeever-ai-picker-options > button.is-selected .edgeever-ai-picker-check { opacity: 1; }
-  @keyframes edgeever-ai-picker-fade { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes edgeever-ai-picker-rise { from { transform: translateY(20px); opacity: .7; } to { transform: translateY(0); opacity: 1; } }
-  @media (prefers-reduced-motion: reduce) { .edgeever-ai-picker-backdrop, .edgeever-ai-picker-sheet { animation: none; } }
-  .edgeever-ai-result-heading { display: flex; align-items: center; justify-content: space-between; color: ${theme === "dark" ? "#e2e8f0" : "#334155"}; font-size: 13px; font-weight: 750; }
-  .edgeever-ai-result-heading small { color: #16a06e; }
-  .edgeever-ai-result { min-height: 170px; max-height: min(42vh, 360px); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 12px; border: 1px solid ${theme === "dark" ? "#334155" : "#dbe4df"}; border-radius: 10px; background: ${theme === "dark" ? "#17251f" : "#fff"}; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 15px; line-height: 1.55; }
-  .edgeever-ai-result > span { color: ${theme === "dark" ? "#94a3b8" : "#64748b"}; }
-  .edgeever-ai-refine-row { display: flex; gap: 8px; }
-  .edgeever-ai-refine-row input { min-width: 0; flex: 1; }
-  .edgeever-ai-refine-row button, .edgeever-ai-panel-footer button { min-height: 40px; padding: 0 12px; border: 1px solid ${theme === "dark" ? "#475569" : "#cbd5e1"}; border-radius: 9px; background: ${theme === "dark" ? "#111c18" : "#fff"}; color: ${theme === "dark" ? "#f8fafc" : "#0f172a"}; font-weight: 700; }
-  .edgeever-ai-panel button:disabled { opacity: 0.42; }
-  .edgeever-ai-progress { margin: 0; color: ${theme === "dark" ? "#a1a1aa" : "#52525b"}; font-size: 13px; line-height: 1.45; }
-  .edgeever-ai-error { margin: 0; color: ${theme === "dark" ? "#fda4af" : "#be123c"}; font-size: 13px; line-height: 1.45; }
-  .edgeever-ai-panel-footer { display: grid; flex: 0 0 auto; gap: 9px; padding: 10px 12px max(10px, env(safe-area-inset-bottom)); border-top: 1px solid ${theme === "dark" ? "#334155" : "#e2e8f0"}; background: ${theme === "dark" ? "#111c18" : "#fff"}; }
-  .edgeever-ai-panel-footer > div { display: flex; gap: 8px; }
-  .edgeever-ai-panel-footer > div button { min-width: 0; flex: 1; }
-  .edgeever-ai-panel-footer .is-primary { border-color: #16a06e; background: #16a06e; color: #fff; }
   .edgeever-editor-content {
     min-height: 100%;
     max-width: 100%;

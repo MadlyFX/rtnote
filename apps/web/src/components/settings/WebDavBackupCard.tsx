@@ -81,7 +81,7 @@ export const WebDavBackupCard = () => {
     try {
       const normalized = persistSettings();
       const temporary = await createEdgeEverZipTemporaryFile(
-        { listNotebooks: api.listNotebooks, listPrompts: api.listAiPrompts, getPage: api.getJsonBackupPage, getResourceResponse: api.getResourceResponse },
+        { listNotebooks: api.listNotebooks, getPage: api.getJsonBackupPage, getResourceResponse: api.getResourceResponse },
         { edgeeverVersion: __EDGEEVER_APP_VERSION__, buildId: __EDGEEVER_BUILD_ID__ },
         setProgress
       );

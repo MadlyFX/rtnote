@@ -105,7 +105,7 @@ Each permission justification field accepts at most 1,000 characters. The host t
 
 ### Data disclosures
 
-The extension handles authentication information, website content, and web browsing activity. These data are used only for the user-triggered clipping feature. Page content is processed locally and sent directly to the user's configured RTNote instance. When the token includes `ai:generate` and the workspace has a default model, that instance sends the caption text to the configured model provider. The extension does not send the page or its audio to any other third party. The developer does not receive or retain it.
+The extension handles authentication information, website content, and web browsing activity. These data are used only for the user-triggered clipping feature. Page content is processed locally and sent directly to the user's configured RTNote instance. The extension does not send the page or its audio to any other third party. The developer does not receive or retain it.
 
 - Data is not sold or transferred to third parties outside the approved use case.
 - Data is not used for purposes unrelated to the extension's single purpose.

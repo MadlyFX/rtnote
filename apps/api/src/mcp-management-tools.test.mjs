@@ -74,7 +74,7 @@ const createFixture = (scopes = ["read:memos", "write:memos"]) => {
   return { sqlite, auth, context };
 };
 
-describe("MCP template and AI instruction management", () => {
+describe("MCP template management", () => {
   test("search snippets expose bounded body matches and preserve summary and access rules", async () => {
     const { sqlite, auth, context } = createFixture();
     sqlite.query("INSERT INTO notebooks (id, workspace_id, name) VALUES ('nb_search', 'ws_mcp', 'Search')").run();
@@ -911,45 +911,6 @@ describe("MCP template and AI instruction management", () => {
     expect((await callMcpTool(context, auth, "list_note_templates", {})).templates).toEqual([]);
   });
 
-  test("manages custom AI instructions and restores built-ins", async () => {
-    const { auth, context } = createFixture();
-
-    const created = await callMcpTool(context, auth, "create_ai_instruction", {
-      name: "Decision log",
-      description: "Extract decisions",
-      instruction: "Return decisions and owners as a Markdown list.",
-      resultMode: "append",
-    });
-    expect(created.instruction).toMatchObject({
-      origin: "custom",
-      name: "Decision log",
-      parameterKind: "none",
-      resultMode: "append",
-    });
-
-    const updated = await callMcpTool(context, auth, "update_ai_instruction", {
-      instructionId: created.instruction.id,
-      instruction: "Return decisions, owners, and due dates.",
-      parameterKind: "tone",
-    });
-    expect(updated.instruction).toMatchObject({
-      instruction: "Return decisions, owners, and due dates.",
-      parameterKind: "tone",
-    });
-
-    const restored = await callMcpTool(context, auth, "restore_default_ai_instructions", { locale: "zh-CN" });
-    expect(restored.restoredCount).toBeGreaterThan(0);
-    expect(restored.instructions).toEqual(expect.arrayContaining([
-      expect.objectContaining({ origin: "default" }),
-      expect.objectContaining({ id: created.instruction.id }),
-    ]));
-
-    expect(await callMcpTool(context, auth, "delete_ai_instruction", { instructionId: created.instruction.id }))
-      .toEqual({ ok: true });
-    await expect(callMcpTool(context, auth, "get_ai_instruction", { instructionId: created.instruction.id }))
-      .rejects.toMatchObject({ code: "not_found" });
-  });
-
   test("enforces memo scopes and demo-mode mutation protection", async () => {
     const readOnly = createFixture(["read:memos"]);
     await expect(callMcpTool(readOnly.context, readOnly.auth, "create_note_template", {
@@ -957,15 +918,11 @@ describe("MCP template and AI instruction management", () => {
       contentMarkdown: "No",
     })).rejects.toMatchObject({ code: "forbidden" });
 
-    const writeOnly = createFixture(["write:memos"]);
-    await expect(callMcpTool(writeOnly.context, writeOnly.auth, "list_ai_instructions", {}))
-      .rejects.toMatchObject({ code: "forbidden" });
-
     const demo = createFixture();
     demo.context.env.EDGE_EVER_DEMO_MODE = "true";
-    await expect(callMcpTool(demo.context, demo.auth, "create_ai_instruction", {
+    await expect(callMcpTool(demo.context, demo.auth, "create_note_template", {
       name: "Denied",
-      instruction: "No",
+      contentMarkdown: "No",
     })).rejects.toMatchObject({ code: "forbidden" });
   });
 });

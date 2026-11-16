@@ -78,7 +78,6 @@ describe("mobile locale translation", () => {
     expect(translateMobileText("修改后会保留当前设备登录，并退出其他设备上的登录会话。", "ja"))
       .toBe("この端末のログインは維持し、他の端末のセッションは終了します。");
     expect(translateMobileText("添加标签", "en-US")).toBe("Add tags");
-    expect(translateMobileText("没有找到适合这篇笔记的新标签。", "en-US")).toBe("No new tags fit this note.");
     expect(translateMobileText("切换产品界面的显示语言。", "en-US")).toBe("Choose the language used in the app.");
     expect(translateMobileText("当前密码不正确。", "en-US")).toBe("The current password is incorrect.");
     expect(translateMobileText("修改中...", "ja")).toBe("変更中...");

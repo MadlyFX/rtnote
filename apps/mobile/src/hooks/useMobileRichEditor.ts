@@ -34,7 +34,6 @@ import {
 } from "./mobile-editor-save-chrome";
 import { useMobileEditorResourceActions } from "./useMobileEditorResourceActions";
 import { useMobileEditorUploadAsset } from "./useMobileEditorUploadAsset";
-import { useMobileSelectionAi } from "./useMobileSelectionAi";
 import {
   createOnceProtectedResourceFailureNotifier,
   type ProtectedResourceLoadFailure,
@@ -314,12 +313,6 @@ export const useMobileRichEditor = ({
   };
 
   const flushEditor = () => flushMobileEditor(editorRef, flushResolverRef);
-  const { aiPromptsJson, cancelSelectionAi, requestSelectionAi } = useMobileSelectionAi({
-    client,
-    editorRef,
-    resolvedLocale,
-    titleRef,
-  });
 
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
@@ -483,8 +476,6 @@ export const useMobileRichEditor = ({
   };
 
   return {
-    aiPromptsJson,
-    cancelSelectionAi,
     contentMarkdown: contentMarkdownRef.current,
     deleteResource,
     dirty,
@@ -501,7 +492,6 @@ export const useMobileRichEditor = ({
     ready,
     renameResource,
     requestClose,
-    requestSelectionAi,
     resourceTarget,
     saveEmphasized: saveChrome.emphasized,
     saveLabel: saveChrome.label,

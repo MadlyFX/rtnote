@@ -4,7 +4,6 @@ import { appendFile, mkdir, open, readdir, readFile, rename, stat, unlink, write
 import { basename, join } from "node:path";
 import { Readable } from "node:stream";
 import { execFile, spawn } from "node:child_process";
-import { backgroundNodeExecutable } from "./background-node.mjs";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { release as operatingSystemRelease } from "node:os";
 import { BackupManager } from "./backup-manager.mjs";
@@ -73,8 +72,6 @@ import { testPicGoConnection, createPicGoUploadQueue, uploadPicGoImage } from ".
 import { testImgBedConnection, uploadImgBedImage } from "./imgbed.mjs";
 import { createPluginPublicNetworkRuntime } from "./plugin-public-network.mjs";
 import { createAiDirectRuntime } from "./ai-direct.mjs";
-import { createAcpPathStore, validateTrustedAcpPath } from "./acp-path-store.mjs";
-import { createAcpHostRuntime, registerAcpIpc } from "./acp-host.mjs";
 import { shouldQuitAfterAllWindowsClosed } from "./window-lifecycle.mjs";
 import { createNoteWindowController, isValidNoteWindowMemoId, noteWindowUrl } from "./note-windows.mjs";
 import {
@@ -167,7 +164,6 @@ let promptedUpdateVersion = null;
 let sidecarScopeKey = "anonymous";
 let activeAccountId = null;
 let shutdownCleanupStarted = false;
-let releaseDesktopAcpSessions = async () => {};
 let sidecarRestartTimer = null;
 let sidecarRestartAttempts = 0;
 let sidecarRestartInFlight = false;
@@ -1904,50 +1900,6 @@ const startApplication = async () => {
   ipcMain.on("desktop:ai-direct-cancel", (event, requestId) => {
     if (isAppRendererSender(event) && typeof requestId === "string") aiDirect.cancel(requestId);
   });
-  const acpRuntime = registerAcpIpc(ipcMain, createAcpHostRuntime({
-    executablePath: backgroundNodeExecutable(process.execPath),
-    mcpExecutablePath: backgroundNodeExecutable(process.execPath),
-    adapterStore: join(app.getPath("userData"), "acp-adapters"),
-    adapterFetchImpl: (url, init) => net.fetch(url, { ...init, credentials: "omit" }),
-    onUpdateDiagnostic: (details) => { void writeDiagnostic("acp.adapter-update-failed", details); },
-    onDiagnostic: (details) => { void writeDiagnostic("acp.adapter-stderr", details); },
-    onProcessDiagnostic: ({ event, ...details }) => { void writeDiagnostic(`acp.adapter-${event}`, details); },
-    // Used only to reopen a validated CodeBuddy login page on explicit request.
-    openExternal: (url) => shell.openExternal(url),
-    mcpScriptPath: app.isPackaged
-      ? join(process.resourcesPath, "mcp-bridge", "edgeever-mcp-stdio.mjs")
-      : join(projectRoot, "scripts", "edgeever-mcp-stdio.mjs"),
-    mcpAccess: () => {
-      const baseUrl = configuredApiBaseUrl;
-      const sessionToken = credentialForUrl(desktopSessionToken, desktopSessionTokenOrigin, baseUrl);
-      const accountId = activeAccountId;
-      return {
-        baseUrl,
-        sessionToken,
-        accountId,
-        // Share the renderer's system proxy and desktop network behavior.
-        fetchImpl: (url, init) => net.fetch(url, { ...init, credentials: "omit" }),
-        onDiagnostic: (details) => { void writeDiagnostic("acp.note-access-failed", details); },
-        isCurrent: () => configuredApiBaseUrl === baseUrl && desktopSessionToken === sessionToken && activeAccountId === accountId,
-      };
-    },
-  }), {
-    allowInstall: (sender, event) => sender === mainWindow?.webContents && event?.senderFrame === sender.mainFrame,
-    adapterPathStore: createAcpPathStore(join(app.getPath("userData"), "acp-adapters", "chosen-path.json")),
-    validateAdapterPath: (filename) => validateTrustedAcpPath(filename, { excludedRoot: app.getPath("userData") }),
-    chooseAdapterPath: async () => {
-      const selection = await dialog.showOpenDialog(mainWindow, { properties: ["openFile"], title: desktopDialogCopy(app.getLocale()).chooseAcpExecutable });
-      if (selection.canceled || !selection.filePaths[0]) return null;
-      return validateTrustedAcpPath(selection.filePaths[0], { excludedRoot: app.getPath("userData") });
-    },
-  });
-  releaseDesktopAcpSessions = () => acpRuntime.releaseWarmSessions();
-  await acpRuntime.pruneAdapters().catch(() => {});
-  const refreshAdapters = () => { void acpRuntime.installDetected().catch(() => []).then(() => acpRuntime.updateInstalled()).catch(() => {}); };
-  const firstAdapterRefresh = setTimeout(refreshAdapters, 10_000);
-  firstAdapterRefresh.unref?.();
-  const adapterRefreshInterval = setInterval(refreshAdapters, 24 * 60 * 60 * 1000);
-  adapterRefreshInterval.unref?.();
   ipcMain.handle("desktop:sync-scheduled-tasks", async (event, tasks) => {
     if (event.sender !== mainWindow?.webContents) throw new Error("Scheduled tasks must come from the main window");
     if (!Array.isArray(tasks) || tasks.length > 1_000) throw new Error("Invalid scheduled task list");
@@ -2463,7 +2415,6 @@ app.on("before-quit", (event) => {
   void (async () => {
     await noteWindows.closeAll();
     await backupManager?.close();
-    await releaseDesktopAcpSessions().catch(() => {});
     await stopSidecar();
     await unlink(crashMarkerPath()).catch(() => {});
     await writeDiagnostic("session.quit");

@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { CircleAlert, Check, ChevronDown, Loader2, Tag, TagPlus, X } from "lucide-react";
+import { Check, ChevronDown, Tag, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { normalizeTags, type TagSummary } from "@edgeever/shared";
 import { Button } from "@/components/ui/button";
@@ -13,37 +13,20 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { api, ApiRequestError } from "@/lib/api";
 import { parseTagsText } from "@/lib/utils";
 
 type EditorTagPickerProps = {
-  contentMarkdown: string;
   disabled: boolean;
   loadTags: () => Promise<{ tags: TagSummary[] }>;
-  title: string;
   value: string;
   onChange: (value: string) => void;
 };
 
-type AiGenerationStatus =
-  | { kind: "idle" }
-  | { kind: "success"; count: number }
-  | { kind: "empty" }
-  | { kind: "error"; message: string };
-
-export const EditorTagPicker = ({ contentMarkdown, disabled, loadTags, title, value, onChange }: EditorTagPickerProps) => {
-  const { t, i18n } = useTranslation();
+export const EditorTagPicker = ({ disabled, loadTags, value, onChange }: EditorTagPickerProps) => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [aiStatus, setAiStatus] = useState<AiGenerationStatus>({ kind: "idle" });
-  const [suggesting, setSuggesting] = useState(false);
-  const suggestionControllerRef = useRef<AbortController | null>(null);
-  const feedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const selectedTags = useMemo(() => normalizeTags(parseTagsText(value)), [value]);
-  const selectedTagKeys = useMemo(
-    () => new Set(selectedTags.map((tag) => tag.toLocaleLowerCase())),
-    [selectedTags],
-  );
   const tagsQuery = useQuery({
     queryKey: ["tags"],
     queryFn: loadTags,
@@ -57,11 +40,6 @@ export const EditorTagPicker = ({ contentMarkdown, disabled, loadTags, title, va
     (tag) => tag.name.toLocaleLowerCase() === normalizedQuery.toLocaleLowerCase()
   );
 
-  useEffect(() => () => {
-    suggestionControllerRef.current?.abort();
-    if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
-  }, []);
-
   const commit = (tags: string[]) => onChange(normalizeTags(tags).join(", "));
   const toggleTag = (name: string) => {
     commit(selectedTags.includes(name)
@@ -74,77 +52,11 @@ export const EditorTagPicker = ({ contentMarkdown, disabled, loadTags, title, va
     commit([...selectedTags, ...additions]);
     setQuery("");
   };
-  const resetAiStatusLater = () => {
-    if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
-    feedbackTimerRef.current = setTimeout(() => {
-      setAiStatus({ kind: "idle" });
-      feedbackTimerRef.current = null;
-    }, 4000);
-  };
-  const generateAndApplyTags = async () => {
-    if (!title.trim() && !contentMarkdown.trim()) return;
-    suggestionControllerRef.current?.abort();
-    if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
-    const controller = new AbortController();
-    suggestionControllerRef.current = controller;
-    setSuggesting(true);
-    setAiStatus({ kind: "idle" });
-    try {
-      const result = await api.suggestAiTags(
-        {
-          title,
-          contentMarkdown,
-          currentTags: selectedTags,
-          locale: i18n.resolvedLanguage,
-        },
-        controller.signal,
-      );
-      const availableSlots = Math.max(0, 24 - selectedTags.length);
-      const additions = result.suggestions
-        .filter((suggestion) => !selectedTagKeys.has(suggestion.name.toLocaleLowerCase()))
-        .slice(0, availableSlots)
-        .map((suggestion) => suggestion.name);
-      if (additions.length > 0) {
-        commit([...selectedTags, ...additions]);
-        setAiStatus({ kind: "success", count: additions.length });
-      } else {
-        setAiStatus({ kind: "empty" });
-      }
-      resetAiStatusLater();
-    } catch (error) {
-      if (controller.signal.aborted) return;
-      setAiStatus({
-        kind: "error",
-        message:
-        error instanceof ApiRequestError && error.code === "ai_not_configured"
-          ? t("editor.tagPicker.aiConfigure")
-          : error instanceof Error
-            ? error.message
-            : t("editor.tagPicker.aiFailed"),
-      });
-    } finally {
-      if (suggestionControllerRef.current === controller) {
-        suggestionControllerRef.current = null;
-        setSuggesting(false);
-      }
-    }
-  };
   const handleOpenChange = (nextOpen: boolean) => {
     setOpen(nextOpen);
     if (nextOpen) return;
     setQuery("");
   };
-  const aiLabel = suggesting
-    ? t("editor.tagPicker.aiGenerating")
-    : aiStatus.kind === "success"
-      ? t("editor.tagPicker.aiAdded", { count: aiStatus.count })
-      : aiStatus.kind === "empty"
-        ? t("editor.tagPicker.aiEmptyShort")
-        : aiStatus.kind === "error"
-          ? t("editor.tagPicker.aiRetry")
-          : t("editor.tagPicker.aiGenerateDirect");
-  const aiDescription = aiStatus.kind === "error" ? aiStatus.message : aiLabel;
-
   return (
     <>
       <div className="edgeever-editor-tag-picker flex min-w-7 max-w-full flex-1 items-center gap-1 overflow-hidden">
@@ -188,35 +100,6 @@ export const EditorTagPicker = ({ contentMarkdown, disabled, loadTags, title, va
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-
-        <TooltipProvider delayDuration={0} skipDelayDuration={0}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                disabled={disabled || suggesting || selectedTags.length >= 24 || (!title.trim() && !contentMarkdown.trim())}
-                className={aiStatus.kind === "error"
-                  ? "edgeever-editor-tag-ai inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-rose-700 outline-none transition hover:bg-rose-50 focus-visible:ring-2 focus-visible:ring-rose-500/20 disabled:opacity-50"
-                  : aiStatus.kind === "success"
-                    ? "edgeever-editor-tag-ai inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-slate-100 text-slate-900 outline-none transition focus-visible:ring-2 focus-visible:ring-slate-400/30 disabled:opacity-50"
-                    : "edgeever-editor-tag-ai inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-slate-600 outline-none transition hover:bg-slate-100 hover:text-slate-950 focus-visible:ring-2 focus-visible:ring-slate-400/30 disabled:opacity-50"}
-                aria-label={aiDescription}
-                onClick={() => void generateAndApplyTags()}
-              >
-                {suggesting
-                  ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  : aiStatus.kind === "success"
-                    ? <Check className="h-3.5 w-3.5" />
-                    : aiStatus.kind === "error"
-                    ? <CircleAlert className="h-3.5 w-3.5" />
-                    : <TagPlus className="h-3.5 w-3.5" />}
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">{aiDescription}</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
-        <span className="sr-only" aria-live="polite">{suggesting || aiStatus.kind !== "idle" ? aiDescription : ""}</span>
       </div>
 
       <Dialog open={open} onOpenChange={handleOpenChange}>

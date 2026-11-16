@@ -6,7 +6,7 @@ const manifest = { format: "edgeever-zip", formatVersion: 2, schemaVersion: 1, e
 
 test("propagates source failures instead of publishing a partial ZIP", async () => {
   await expect(createEdgeEverZip({
-    listNotebooks: async () => ({ notebooks: [] }), listPrompts: async () => ({ prompts: [] }),
+    listNotebooks: async () => ({ notebooks: [] }),
     getPage: async () => { throw new Error("source unavailable"); },
   }, { edgeeverVersion: "2.2.0", buildId: "test" })).rejects.toThrow("source unavailable");
 });

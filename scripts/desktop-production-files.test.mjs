@@ -20,8 +20,8 @@ describe("desktop production archive", () => {
     for (const file of [
       "src/main/example.test.mjs", "src/main/example.spec.cjs",
       "src/main/__tests__/helper.js", "src/main/example.mjs.map",
-      "node_modules/@agentclientprotocol/sdk/dist/acp.test.js",
-      "node_modules/npm/node_modules/example/dist/tests/helper.js",
+      "node_modules/electron-updater/out/main.test.js",
+      "node_modules/webdav/node_modules/example/dist/tests/helper.js",
       "node_modules/zod/index.d.cts", "node_modules/example/index.d.mts",
       "node_modules/example/index.js.map", "node_modules/zod/src/index.ts",
     ]) {
@@ -30,17 +30,12 @@ describe("desktop production archive", () => {
     }
   });
 
-  test("preserves runtime commands, Python support, schemas and license notices", () => {
+  test("preserves runtime code and license notices", () => {
     for (const file of [
       "src/main/index.mjs", "src/preload/index.cjs",
-      "node_modules/npm/lib/commands/test.js", "node_modules/npm/bin/npm-cli.js",
-      "node_modules/node-gyp/gyp/gyp_main.py",
-      "node_modules/@agentclientprotocol/sdk/dist/acp.js",
-      "node_modules/@agentclientprotocol/sdk/schema/schema.json",
-      "node_modules/@agentclientprotocol/sdk/LICENSE-APACHE",
+      "node_modules/webdav/LICENSE",
       "node_modules/zod/index.js", "node_modules/zod/index.cjs",
       "node_modules/electron-updater/out/main.js",
-      "node_modules/npm/docs/output/commands/npm-install.html",
     ]) {
       const filter = file.startsWith("node_modules/") ? dependencyFilter : applicationFilter;
       expect(filter(join(appDir, file), { isDirectory: () => false })).toBe(true);
@@ -49,7 +44,7 @@ describe("desktop production archive", () => {
 
   test("rejects an archive with omitted runtime files or leaked development files", () => {
     expect(() => assertDesktopProductionFiles(["/src/main/index.mjs"])).toThrow("missing runtime file");
-    expect(() => assertDesktopProductionFiles(["/node_modules/sdk/dist/acp.test.js"])).toThrow("development files");
+    expect(() => assertDesktopProductionFiles(["/node_modules/example/dist/index.test.js"])).toThrow("development files");
   });
 
   test("excludes renderer source maps while retaining every font format", () => {

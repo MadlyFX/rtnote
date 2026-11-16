@@ -12,13 +12,11 @@ import {
 import { VIDEO_DOCUMENT_PATTERNS } from "./src/video/patterns.ts";
 import { readBilibiliVideoInPage } from "./src/video/read-bilibili-in-page.ts";
 import { readYouTubeVideoInPage } from "./src/video/read-youtube-in-page.ts";
-import { chunkTranscript, cleanCueText, sectionsFromOutline } from "./src/video/transcript.ts";
+import { cleanCueText, sectionsFromChapters } from "./src/video/transcript.ts";
 import {
   buildVideoNote,
   persistVideoNote,
-  postVideoOutline,
   videoNoteFromCapture,
-  videoOutlineRequestBody,
 } from "./src/video/video-note.ts";
 import {
   cuesFromYouTubeSubtitle,
@@ -36,9 +34,7 @@ const LABELS = {
   platform: "平台",
   captions: "字幕",
   capturedAt: "保存时间",
-  summary: "核心总结",
   outline: "分段大纲",
-  takeaways: "要点",
   transcript: "字幕实录",
   coverAlt: "封面",
   youtube: "YouTube",
@@ -472,7 +468,7 @@ describe.serial("page main world", () => {
   });
 });
 
-test("assembles the Chinese note from chapters and keeps the transcript outside the model chunks", () => {
+test("assembles the Chinese note from chapters and the transcript", () => {
   const capture = {
     platform: "bilibili",
     videoId: "BV1xx411c7xx",
@@ -492,15 +488,8 @@ test("assembles the Chinese note from chapters and keeps the transcript outside 
       { start: 25, end: 29, text: "很多人收藏之后就没有再打开。" },
     ],
   };
-  const outline = {
-    tldr: "视频说明知识管理为什么要形成输入、整理和输出的闭环。",
-    sections: [{ start: 0, text: "模型不该重写大纲" }],
-    takeaways: ["未经整理的收藏，之后很难再被用到。"],
-  };
   const note = buildVideoNote({
     capture,
-    outline,
-    blocks: chunkTranscript(capture.cues),
     labels: LABELS,
     capturedOn: "2026-10-05",
     cover: "placeholder",
@@ -513,18 +502,10 @@ test("assembles the Chinese note from chapters and keeps the transcript outside 
 
 ![封面](/api/v1/resources/EDGEVERRESOURCEID/blob)
 
-## 核心总结
-
-视频说明知识管理为什么要形成输入、整理和输出的闭环。
-
 ## 分段大纲
 
 - [00:00](https://www.bilibili.com/video/BV1xx411c7xx?p=1&t=0) 为什么只靠文件夹分类会失效
 - [04:12](https://www.bilibili.com/video/BV1xx411c7xx?p=1&t=252) PARA 与渐进式总结如何叠在一起
-
-## 要点
-
-- 未经整理的收藏，之后很难再被用到。
 
 <details>
 <summary>字幕实录</summary>
@@ -534,24 +515,17 @@ test("assembles the Chinese note from chapters and keeps the transcript outside 
 
 </details>
 `);
-  expect(note.markdown).not.toContain("模型不该重写大纲");
   expect(note.markdown).not.toContain("hdslb.com");
   expect(note.markdown).not.toContain("ytimg.com");
-  const body = videoOutlineRequestBody(capture);
-  expect(body.hasChapters).toBe(true);
-  expect(body.blocks).toEqual([{ start: 0, text: "大家好，今天我们来聊知识管理。 很多人收藏之后就没有再打开。" }]);
-  expect(JSON.stringify(body)).not.toContain("<details>");
-  expect(JSON.stringify(body)).not.toContain("## ");
-  expect(JSON.stringify(body)).not.toContain("tStartMs");
-  const blocks = [{ start: 0 }, { start: 45 }];
-  expect(sectionsFromOutline([], {
-    tldr: "kept",
-    sections: [{ start: 999, text: "gone" }, { start: 46, text: "near the second block" }],
-    takeaways: [],
-  }, blocks)).toEqual([{ start: 45, text: "near the second block" }]);
+  expect(sectionsFromChapters([
+    { start: 12.7, title: " Opening&amp; intro " },
+    { start: -1, title: "negative" },
+    { start: Number.NaN, title: "not a number" },
+    { start: 30, title: "   " },
+  ])).toEqual([{ start: 12, text: "Opening& intro" }]);
 });
 
-test("still writes the transcript when the outline is refused, unconfigured, invalid, or unreachable", async () => {
+test("writes the transcript without chapters and saves source notes for captionless videos", () => {
   const capture = {
     platform: "youtube",
     videoId: CURRENT_ID,
@@ -561,60 +535,20 @@ test("still writes the transcript when the outline is refused, unconfigured, inv
     sourceUrl: `https://www.youtube.com/watch?v=${CURRENT_ID}`,
     subtitleOrigin: "creator",
     chapters: [],
-    cues: [{ start: 0, end: 2, text: "Hello&amp; there" }],
+    cues: [{ start: 0, end: 2, text: "Hello& there" }],
   };
-  const settings = { instanceUrl: "https://notes.example", token: "token" };
-  const respond = (status, payload) => withPage(() => {
-    globalThis.fetch = async (url) => {
-      expect(String(url)).toBe("https://notes.example/api/v1/ai/video-outline/prepare");
-      return Response.json(payload, { status });
-    };
-  }, () => postVideoOutline(settings, videoOutlineRequestBody({
-    ...capture,
-    cues: [{ start: 0, end: 2, text: "Hello& there" }],
-  })));
-  expect(await respond(403, { error: { code: "forbidden" } })).toEqual({ ok: false, reason: "forbidden" });
-  expect(await respond(409, { error: { code: "ai_not_configured" } })).toEqual({ ok: false, reason: "not_configured" });
-  expect(await respond(422, { error: { code: "video_outline_invalid" } })).toEqual({ ok: false, reason: "invalid" });
-  expect(await respond(413, { error: { code: "video_outline_too_long" } })).toEqual({ ok: false, reason: "too_long" });
-  const offline = await withPage(() => {
-    globalThis.fetch = async () => { throw new Error("offline"); };
-  }, () => postVideoOutline(settings, videoOutlineRequestBody({
-    ...capture,
-    cues: [{ start: 0, end: 2, text: "Hello& there" }],
-  })));
-  expect(offline).toEqual({ ok: false, reason: "failed" });
-
-  for (const attempt of [
-    { ok: false, reason: "forbidden" },
-    { ok: false, reason: "not_configured" },
-    { ok: false, reason: "invalid" },
-    { ok: false, reason: "failed" },
-    { ok: false, reason: "too_long" },
-  ]) {
-    const note = videoNoteFromCapture({
-      capture: { ...capture, cues: [{ start: 0, end: 2, text: "Hello& there" }] },
-      attempt,
-      labels: LABELS,
-      capturedOn: "2026-10-05",
-      cover: "none",
-    });
-    expect(note.markdown).toContain("<details>");
-    expect(note.markdown).toContain("Hello&amp; there");
-    expect(note.markdown).not.toContain("## 核心总结");
-    expect(note.markdown).not.toContain("## 分段大纲");
-  }
-  const scope = videoNoteFromCapture({
-    capture: { ...capture, cues: [{ start: 0, end: 2, text: "Hello& there" }] },
-    attempt: { ok: false, reason: "forbidden" },
+  const note = videoNoteFromCapture({
+    capture,
     labels: LABELS,
     capturedOn: "2026-10-05",
     cover: "none",
   });
-  expect(scope.toast).toBe("transcript-scope");
+  expect(note.toast).toBe("saved");
+  expect(note.markdown).toContain("<details>");
+  expect(note.markdown).toContain("Hello&amp; there");
+  expect(note.markdown).not.toContain("## 分段大纲");
   const bare = videoNoteFromCapture({
     capture: { ...capture, cues: [], subtitleOrigin: undefined },
-    attempt: null,
     labels: LABELS,
     capturedOn: "2026-10-05",
     cover: "none",
@@ -643,7 +577,6 @@ test("omits the cover when the image upload fails and never hotlinks the thumbna
     capture,
     labels: LABELS,
     capturedOn: "2026-10-05",
-    attempt: { ok: true, outline: { tldr: "Saved.", sections: [], takeaways: [] } },
     createMemo: async (body) => { memos.push(body); },
     createWithImage: async (body) => { uploaded.push(body); throw new Error("missing write:resources"); },
   });
@@ -679,7 +612,6 @@ test("saves a video without captions as a source note without queuing transcript
     capture,
     labels: LABELS,
     capturedOn: "2026-10-05",
-    attempt: null,
     createMemo: async (body) => { memos.push(body); },
     createWithImage: async (body) => { uploaded.push(body); throw new Error("missing write:resources"); },
   });
@@ -732,42 +664,24 @@ test("ships the video-note phrases in the extension locales", () => {
   const zh = messages("zh_CN");
   expect(zh.saveVideoNoteToEdgeEver.message).toBe("保存视频笔记到 RTNote");
   expect(zh.videoNoteSaved.message).toBe("已保存视频笔记");
-  expect(zh.videoTranscriptSaved.message).toBe("已保存字幕，总结未生成");
-  expect(zh.videoTranscriptNeedScope.message).toBe("已保存字幕，总结未生成。请在设置中为 Token 加上 ai:generate，并配置默认模型。");
-  expect(zh.videoTranscriptNeedModel.message).toBe("已保存字幕，总结未生成。请先配置默认模型。");
-  expect(zh.videoTranscriptTooLong.message).toBe("已保存字幕。这篇太长，没有生成总结。");
   expect(zh.videoInfoSaved.message).toBe("已保存视频信息");
   expect(zh.videoPageUnsupported.message).toBe("暂不支持这个页面");
   expect(zh.videoNotRead.message).toBe("没有读到这个视频");
   expect(zh.videoNoCaptions.message).toBe("这一集没有可用字幕");
   const pl = messages("pl");
   expect(pl.saveVideoNoteToEdgeEver.message).toBe("Zapisz notatkę z wideo w RTNote");
-  expect(pl.videoSummaryHeading.message).toBe("Podsumowanie");
+  expect(pl.videoOutlineHeading.message.length).toBeGreaterThan(0);
   expect(pl.videoTranscriptHeading.message).toBe("Transkrypcja");
   for (const locale of ["en", "ja", "pl"]) {
     const catalog = messages(locale);
-    for (const key of ["saveVideoNoteToEdgeEver", "videoNoteSaved", "videoTranscriptSaved", "videoPageUnsupported", "videoNotRead"]) {
+    for (const key of ["saveVideoNoteToEdgeEver", "videoNoteSaved", "videoPageUnsupported", "videoNotRead"]) {
       expect(catalog[key].message.length).toBeGreaterThan(0);
     }
   }
-});
-
-test("video summaries call the model directly after preparing context", async () => {
-  await withPage(() => {}, async () => {
-    const paths = [];
-    const model = { provider: "openai-compatible", baseUrl: "https://model.example/v1", apiKey: "model-key", modelId: "local", system: "Summarize", prompt: "Transcript", maxOutputTokens: 1200 };
-    globalThis.fetch = async (url, init) => {
-      paths.push(String(url));
-      if (String(url).endsWith("/video-outline/prepare")) return Response.json(model);
-      expect(String(url)).toBe("https://model.example/v1/chat/completions");
-      expect(new Headers(init.headers).get("Authorization")).toBe("Bearer model-key");
-      expect(init.redirect).toBe("error");
-      const text = JSON.stringify({ tldr: "Summary", sections: [{ start: 0, text: "Opening" }], takeaways: ["One point"] });
-      return new Response(`data: ${JSON.stringify({ choices: [{ delta: { content: text } }] })}\n\ndata: [DONE]\n\n`);
-    };
-    const body = { platform: "youtube", title: "Video", author: "Channel", duration: 60, hasChapters: false, blocks: [{ start: 0, text: "Transcript" }] };
-    const result = await postVideoOutline({ instanceUrl: "https://notes.example", token: "token" }, body);
-    expect(result).toMatchObject({ ok: true, outline: { tldr: "Summary" } });
-    expect(paths).toEqual(["https://notes.example/api/v1/ai/video-outline/prepare", "https://model.example/v1/chat/completions"]);
-  });
+  for (const locale of ["en", "ja", "pl", "zh_CN"]) {
+    const catalog = messages(locale);
+    for (const key of ["videoTranscriptSaved", "videoTranscriptNeedScope", "videoSummaryHeading", "videoTakeawaysHeading", "modelDirectPermission"]) {
+      expect(catalog[key]).toBeUndefined();
+    }
+  }
 });

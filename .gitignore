@@ -4,7 +4,6 @@
 !.env.example
 !.env.local.example
 !.env.android.local.example
-!.env.local-dev.example
 
 node_modules/
 __pycache__/

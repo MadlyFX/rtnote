@@ -19,7 +19,10 @@ const installation = async ({ includeExportIndex = true, includeMemoIdIndex = tr
   const sqlite = new Database(":memory:");
   const migrations = globSync("migrations/*.sql").sort();
   // Start with the existing schema and data, then upgrade it in place.
+  // Migrations that drop tables 0080 adds triggers to run after it, as on a real upgrade.
+  const afterRevision = migrations.filter((file) => file.endsWith("0093_drop_ai_writing_assist.sql"));
   for (const file of migrations.filter((file) => !file.endsWith("0080_backup_revision.sql")
+    && !afterRevision.includes(file)
     && (includeExportIndex || !file.endsWith("0085_export_cursor_index.sql"))
     && (includeMemoIdIndex || !file.endsWith("0086_memo_id_paging_index.sql")))) sqlite.exec(readFileSync(file, "utf8"));
   const directory = mkdtempSync(join(tmpdir(), "edgeever-backup-protocol-"));
@@ -28,6 +31,7 @@ const installation = async ({ includeExportIndex = true, includeMemoIdIndex = tr
   const inbox = sqlite.query("SELECT id FROM notebooks WHERE workspace_id = 'ws_default' AND slug = 'inbox'").get().id;
   const note = await createMemoRecord(storage.db, "ws_default", { notebookId: inbox, title: "Before upgrade", contentMarkdown: "original body", tags: ["backup"] }, auth, "owner");
   sqlite.exec(readFileSync("migrations/0080_backup_revision.sql", "utf8"));
+  for (const file of afterRevision) sqlite.exec(readFileSync(file, "utf8"));
   let activeAuth = auth;
   const app = new Hono();
   app.use("/api/v1/*", async (c, next) => { c.set("auth", activeAuth); await next(); });
@@ -334,7 +338,7 @@ describe("consistent backup reads across a real schema upgrade", () => {
     expect(await response.json()).toMatchObject({ error: { code: "backup_source_changed" } });
   });
 
-  test("covers content, revisions, resources, prompts and deletions in their transaction", async () => {
+  test("covers content, revisions, resources and deletions in their transaction", async () => {
     const db = await installation();
     const changes = [
       () => db.sqlite.query("UPDATE memo_contents SET content_markdown = 'changed' WHERE memo_id = ?").run(db.note.id),
@@ -343,7 +347,6 @@ describe("consistent backup reads across a real schema upgrade", () => {
       () => db.sqlite.query("INSERT INTO resources (id,memo_id,object_key,kind,byte_size) VALUES ('backup-resource',?,'backup-object','attachment',4)").run(db.note.id),
       () => db.sqlite.exec("UPDATE resources SET filename = 'changed.txt' WHERE id = 'backup-resource'"),
       () => db.sqlite.exec("DELETE FROM resources WHERE id = 'backup-resource'"),
-      () => db.sqlite.exec("UPDATE ai_prompt_templates SET description = 'changed' WHERE workspace_id = 'ws_default'"),
       () => db.sqlite.query("UPDATE notebooks SET name = 'Changed inbox' WHERE id = ?").run(db.inbox),
     ];
     for (const mutate of changes) {

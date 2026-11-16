@@ -15,7 +15,7 @@ export const PLUGIN_PERMISSIONS = [
   "templates:write",
   "network",
   "network:public",
-  "ai:generate",
+  "speech:transcribe",
   "storage",
   "secrets",
   "schedules",
@@ -29,6 +29,10 @@ export const PLUGIN_PERMISSIONS = [
 ] as const;
 
 export type PluginPermission = (typeof PLUGIN_PERMISSIONS)[number];
+
+/** Permissions of removed features. Manifests that still list them load; the permission grants nothing. */
+export const RETIRED_PLUGIN_PERMISSIONS = ["ai:generate"] as const;
+const retiredPermissions = new Set<string>(RETIRED_PLUGIN_PERMISSIONS);
 export type ExtensionPlatform = "web" | "desktop" | "android" | "ios";
 
 export interface LocalizedExtensionMetadata {
@@ -514,9 +518,8 @@ export interface PluginPanel {
 
 export interface PluginContext {
   pluginId: string;
-  ai: {
-    status(): Promise<{ configured: boolean; modelName?: string }>;
-    generate(input: { system: string; prompt: string; maxOutputTokens?: number; signal?: AbortSignal }): Promise<{ text: string }>;
+  /** Speech transcription through the user's configured speech service. Requires `speech:transcribe`. */
+  speech: {
     transcribeResource(noteId: string, resourceId: string): Promise<{ text: string; resourceId: string; filename: string }>;
     transcribeMedia(media: Blob, options?: { signal?: AbortSignal }): Promise<{ text: string }>;
   };
@@ -979,7 +982,7 @@ export const parseExtensionManifest = (value: unknown): ExtensionManifest => {
     if (typeof value.entry !== "string" || !value.entry.trim()) throw new Error("Plugin entry is required.");
     if (value.permissions !== undefined && !Array.isArray(value.permissions)) throw new Error("Plugin permissions must be an array.");
     const allowedPermissions = new Set<string>(PLUGIN_PERMISSIONS);
-    const permissions = [...new Set((value.permissions ?? []).map(String))];
+    const permissions = [...new Set((value.permissions ?? []).map(String))].filter((permission) => !retiredPermissions.has(permission));
     const unsupported = permissions.find((permission) => !allowedPermissions.has(permission));
     if (unsupported) throw new Error(`Unsupported plugin permission: ${unsupported}`);
     const networkHosts = value.networkHosts === undefined
@@ -1055,7 +1058,7 @@ const readAdmittedSnapshot = (value: unknown, id: string): MarketplaceEntry["adm
     throw new Error(`Marketplace entry ${id} has an invalid admission snapshot.`);
   }
   const allowedPermissions = new Set<string>(PLUGIN_PERMISSIONS);
-  const permissions = [...new Set(value.permissions.map(String))];
+  const permissions = [...new Set(value.permissions.map(String))].filter((permission) => !retiredPermissions.has(permission));
   const unsupported = permissions.find((permission) => !allowedPermissions.has(permission));
   if (unsupported) throw new Error(`Marketplace entry ${id} has an unsupported admitted permission.`);
   const networkHosts = [...new Set(value.networkHosts.map(String))];

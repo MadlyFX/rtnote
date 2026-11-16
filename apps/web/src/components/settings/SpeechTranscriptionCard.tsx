@@ -1,9 +1,8 @@
 import { useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { type AiTranscriptionSettings, type AiTranscriptionStandard } from "@edgeever/shared";
+import { type TranscriptionSettings, type TranscriptionStandard } from "@edgeever/shared";
 import { AudioLines, CheckCircle2, Loader2, Plus, TriangleAlert } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { aiErrorMessage } from "@/components/settings/ai-provider-options";
 import { SpeechProviderCard } from "@/components/settings/SpeechProviderCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { api } from "@/lib/api";
-import { SpeechProviderReachabilityError } from "@/lib/speech-transcription-error";
+import { SpeechProviderReachabilityError, speechSettingsErrorMessage } from "@/lib/speech-transcription-error";
 import {
   SETTINGS_CARD_HEADER_CLASSNAME,
   SETTINGS_CARD_ICON_CLASSNAME,
@@ -27,7 +26,7 @@ import {
 } from "./settings-ui";
 
 const emptyDraft = {
-  provider: "openai-compatible" as AiTranscriptionStandard,
+  provider: "openai-compatible" as TranscriptionStandard,
   displayName: "",
   baseUrl: "",
   apiKey: "",
@@ -39,7 +38,7 @@ export const SpeechTranscriptionCard = ({ demoMode }: { demoMode: boolean }) => 
   const queryClient = useQueryClient();
   const settingsQuery = useQuery({
     queryKey: ["ai-transcription-settings"],
-    queryFn: api.getAiTranscriptionSettings,
+    queryFn: api.getTranscriptionSettings,
   });
   const [showAdd, setShowAdd] = useState(false);
   const [draft, setDraft] = useState(emptyDraft);
@@ -55,11 +54,11 @@ export const SpeechTranscriptionCard = ({ demoMode }: { demoMode: boolean }) => 
     provider.models.map((model) => ({ ...model, providerName: provider.displayName, providerEnabled: provider.isEnabled })));
   const defaultModelAvailable = !settings?.defaultModelId
     || allModels.some((model) => model.id === settings.defaultModelId && model.providerEnabled);
-  const applySettings = (saved: AiTranscriptionSettings) => {
+  const applySettings = (saved: TranscriptionSettings) => {
     queryClient.setQueryData(["ai-transcription-settings"], saved);
   };
   const createMutation = useMutation({
-    mutationFn: () => api.createAiTranscriptionProvider({
+    mutationFn: () => api.createTranscriptionProvider({
       provider: draft.provider,
       displayName: draft.displayName.trim(),
       baseUrl: draft.baseUrl.trim(),
@@ -90,13 +89,13 @@ export const SpeechTranscriptionCard = ({ demoMode }: { demoMode: boolean }) => 
     },
   });
   const defaultMutation = useMutation({
-    mutationFn: api.updateDefaultAiTranscriptionModel,
+    mutationFn: api.updateDefaultTranscriptionModel,
     onSuccess: applySettings,
   });
   const addDisabledReason = readOnly
     ? t("speechTranscription.demoDisabled")
     : !encryptionConfigured
-      ? t("aiModel.encryptionKeyMissing")
+      ? t("speechTranscription.encryptionKeyMissing")
       : undefined;
   const handleAddDialogChange = (open: boolean) => {
     setShowAdd(open);
@@ -128,14 +127,14 @@ export const SpeechTranscriptionCard = ({ demoMode }: { demoMode: boolean }) => 
           </p>
         ) : settingsQuery.isError ? (
           <p className="text-xs font-medium text-rose-600" role="alert">
-            {aiErrorMessage(settingsQuery.error, t("speechTranscription.failed"), t("aiModel.encryptionKeyMissing"), t("speechTranscription.savedCredentialsUnavailable"))}
+            {speechSettingsErrorMessage(settingsQuery.error, t("speechTranscription.failed"), t("speechTranscription.encryptionKeyMissing"), t("speechTranscription.savedCredentialsUnavailable"))}
           </p>
         ) : (
           <>
             {!encryptionConfigured ? (
               <p className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-800">
                 <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />
-                {t("aiModel.encryptionKeyMissing")}
+                {t("speechTranscription.encryptionKeyMissing")}
               </p>
             ) : null}
             {hasUnavailableCredentials ? (
@@ -173,7 +172,7 @@ export const SpeechTranscriptionCard = ({ demoMode }: { demoMode: boolean }) => 
               ) : null}
               {defaultMutation.isError ? (
                 <p className="text-xs font-medium text-rose-600" role="alert">
-                  {aiErrorMessage(defaultMutation.error, t("speechTranscription.failed"), t("aiModel.encryptionKeyMissing"), t("speechTranscription.savedCredentialsUnavailable"))}
+                  {speechSettingsErrorMessage(defaultMutation.error, t("speechTranscription.failed"), t("speechTranscription.encryptionKeyMissing"), t("speechTranscription.savedCredentialsUnavailable"))}
                 </p>
               ) : null}
             </div>
@@ -246,12 +245,12 @@ export const SpeechTranscriptionCard = ({ demoMode }: { demoMode: boolean }) => 
                       {testMutation.error instanceof SpeechProviderReachabilityError
                         ? t(testMutation.error.platform === "browser"
                           ? "speechTranscription.browserDirectUnavailable" : "speechTranscription.desktopDirectUnavailable")
-                        : aiErrorMessage(testMutation.error, t("speechTranscription.testFailed"), t("aiModel.encryptionKeyMissing"), t("speechTranscription.savedCredentialsUnavailable"))}
+                        : speechSettingsErrorMessage(testMutation.error, t("speechTranscription.testFailed"), t("speechTranscription.encryptionKeyMissing"), t("speechTranscription.savedCredentialsUnavailable"))}
                     </p>
                   ) : null}
                   {createMutation.isError ? (
                     <p className="text-xs font-medium text-rose-600" role="alert">
-                      {aiErrorMessage(createMutation.error, t("speechTranscription.failed"), t("aiModel.encryptionKeyMissing"), t("speechTranscription.savedCredentialsUnavailable"))}
+                      {speechSettingsErrorMessage(createMutation.error, t("speechTranscription.failed"), t("speechTranscription.encryptionKeyMissing"), t("speechTranscription.savedCredentialsUnavailable"))}
                     </p>
                   ) : null}
                   <DialogFooter className="gap-2 sm:space-x-0">
@@ -278,14 +277,14 @@ const SpeechStandardField = ({
   onChange,
   disabled = false,
 }: {
-  value: AiTranscriptionStandard;
-  onChange: (value: AiTranscriptionStandard) => void;
+  value: TranscriptionStandard;
+  onChange: (value: TranscriptionStandard) => void;
   disabled?: boolean;
 }) => {
   const { t } = useTranslation();
   return (
     <Field label={t("speechTranscription.standard")}>
-      <Select value={value} onValueChange={(next) => onChange(next as AiTranscriptionStandard)} disabled={disabled}>
+      <Select value={value} onValueChange={(next) => onChange(next as TranscriptionStandard)} disabled={disabled}>
         <SelectTrigger className="h-9 bg-card text-xs font-normal"><SelectValue /></SelectTrigger>
         <SelectContent>
           <SelectItem value="openai-compatible">{t("speechTranscription.standards.openai-compatible")}</SelectItem>

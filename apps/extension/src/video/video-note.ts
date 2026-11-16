@@ -1,23 +1,12 @@
-import { buildAiDirectProviderRequest, extractAiDirectStreamDelta } from "@edgeever/shared/ai-generation";
-import { consumeProviderEventStream } from "@edgeever/shared/provider-event-stream";
-import { normalizeVideoOutline, parseVideoOutlineModelText } from "@edgeever/shared/video-outline";
-import { normalizeInstanceUrl } from "../extension";
-import { chunkTranscript, formatTimestamp, sectionsFromOutline } from "./transcript";
-import type {
-  OutlineAttempt,
-  VideoCapture,
-  VideoNoteToast,
-  VideoOutline,
-} from "./types";
+import { formatTimestamp, sectionsFromChapters } from "./transcript";
+import type { VideoCapture, VideoNoteToast } from "./types";
 
 export type VideoNoteLabels = {
   source: string;
   platform: string;
   captions: string;
   capturedAt: string;
-  summary: string;
   outline: string;
-  takeaways: string;
   transcript: string;
   coverAlt: string;
   youtube: string;
@@ -76,8 +65,6 @@ const bullet = (capture: VideoCapture, start: number, text: string) =>
 
 export const buildVideoNote = (input: {
   capture: VideoCapture;
-  outline: VideoOutline | null;
-  blocks: { start: number; text: string }[];
   labels: VideoNoteLabels;
   capturedOn: string;
   cover: "placeholder" | "none";
@@ -99,17 +86,9 @@ export const buildVideoNote = (input: {
     lines.push(`![${linkLabel(input.labels.coverAlt)}](/api/v1/resources/${COVER_PLACEHOLDER}/blob)`, "");
   }
 
-  const sections = input.capture.cues.length
-    ? sectionsFromOutline(input.capture.chapters, input.outline, input.blocks)
-    : [];
-  if (input.outline?.tldr && input.capture.cues.length) {
-    lines.push(`## ${plain(input.labels.summary)}`, "", plain(input.outline.tldr), "");
-  }
+  const sections = input.capture.cues.length ? sectionsFromChapters(input.capture.chapters) : [];
   if (sections.length) {
     lines.push(`## ${plain(input.labels.outline)}`, "", ...sections.map((section) => bullet(input.capture, section.start, section.text)), "");
-  }
-  if (input.outline && input.outline.takeaways.length && input.capture.cues.length) {
-    lines.push(`## ${plain(input.labels.takeaways)}`, "", ...input.outline.takeaways.map((item) => `- ${plain(item)}`), "");
   }
   if (!input.capture.cues.length) {
     lines.push(plain(input.labels.noCaptions), "");
@@ -127,111 +106,14 @@ export const buildVideoNote = (input: {
   return { title, markdown: lines.join("\n").replace(/\n{3,}/g, "\n\n").trim() + "\n" };
 };
 
-const usefulOutline = (outline: VideoOutline, hasChapters: boolean) => Boolean(
-  outline.tldr.trim() || outline.takeaways.length || (!hasChapters && outline.sections.length),
-);
-
 export const videoNoteFromCapture = (input: {
   capture: VideoCapture;
-  attempt: OutlineAttempt | null;
   labels: VideoNoteLabels;
   capturedOn: string;
   cover: "placeholder" | "none";
 }) => {
-  const blocks = chunkTranscript(input.capture.cues);
-  let outline: VideoOutline | null = null;
-  let toast: VideoNoteToast = input.capture.cues.length ? "transcript" : "info";
-  if (input.capture.cues.length && input.attempt?.ok && usefulOutline(input.attempt.outline, input.capture.chapters.length > 0)) {
-    outline = input.attempt.outline;
-    toast = "saved";
-  } else if (input.capture.cues.length && input.attempt && !input.attempt.ok) {
-    toast = input.attempt.reason === "forbidden"
-      ? "transcript-scope"
-      : input.attempt.reason === "not_configured"
-        ? "transcript-model"
-        : input.attempt.reason === "too_long"
-          ? "transcript-too-long"
-          : "transcript";
-  }
-  return { ...buildVideoNote({ ...input, outline, blocks }), toast };
-};
-
-export const videoOutlineRequestBody = (capture: VideoCapture) => ({
-  platform: capture.platform,
-  title: videoNoteTitle(capture.title, capture.videoId),
-  author: capture.author.slice(0, 200),
-  duration: Math.max(0, Math.floor(capture.duration)),
-  hasChapters: capture.chapters.length > 0,
-  blocks: chunkTranscript(capture.cues).map((block) => ({
-    start: block.start,
-    text: block.text.slice(0, 8000),
-  })),
-});
-
-const outlineFromJson = (value: unknown): VideoOutline | null => {
-  if (!value || typeof value !== "object") return null;
-  const record = value as { tldr?: unknown; sections?: unknown; takeaways?: unknown };
-  const sections = Array.isArray(record.sections)
-    ? record.sections.flatMap((section) => {
-      if (!section || typeof section !== "object") return [];
-      const item = section as { start?: unknown; text?: unknown };
-      if (typeof item.start !== "number" || typeof item.text !== "string") return [];
-      return [{ start: item.start, text: item.text }];
-    })
-    : [];
-  const takeaways = Array.isArray(record.takeaways)
-    ? record.takeaways.filter((item): item is string => typeof item === "string")
-    : [];
-  return {
-    tldr: typeof record.tldr === "string" ? record.tldr : "",
-    sections,
-    takeaways,
-  };
-};
-
-export const postVideoOutline = async (
-  settings: { instanceUrl: string; token: string },
-  body: ReturnType<typeof videoOutlineRequestBody>,
-): Promise<OutlineAttempt> => {
-  if (!body.blocks.length) return { ok: false, reason: "failed" };
-  try {
-    const response = await fetch(`${normalizeInstanceUrl(settings.instanceUrl)}/api/v1/ai/video-outline/prepare`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${settings.token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-      signal: AbortSignal.timeout(45_000),
-    });
-    const payload = await response.json().catch(() => null) as { error?: { code?: string }; tldr?: unknown } | null;
-    if (response.ok) {
-      const prepared = payload as unknown as import("@edgeever/shared/ai-generation").AiPreparedGeneration;
-      const modelUrl = new URL(prepared.baseUrl);
-      if (!["http:", "https:"].includes(modelUrl.protocol)) return { ok: false, reason: "failed" };
-      const origin = `${modelUrl.protocol}//${modelUrl.hostname}/*`;
-      if (typeof chrome !== "undefined" && chrome.permissions && !await chrome.permissions.contains({ origins: [origin] })) {
-        await chrome.tabs.create({ url: chrome.runtime.getURL("options.html") + `?modelOrigin=${encodeURIComponent(origin)}` });
-        return { ok: false, reason: "forbidden" };
-      }
-      const request = buildAiDirectProviderRequest(prepared);
-      const result = await fetch(request.url, { method: "POST", headers: request.headers, body: request.body,
-        credentials: "omit", redirect: "error", signal: AbortSignal.timeout(45_000) });
-      if (!result.ok || !result.body) return { ok: false, reason: "failed" };
-      let text = "";
-      await consumeProviderEventStream(result.body, value => { text += extractAiDirectStreamDelta(prepared.provider, value).text; });
-      const outline = outlineFromJson(normalizeVideoOutline(parseVideoOutlineModelText(text), { ...body, author: body.author ?? "" }));
-      return outline ? { ok: true, outline } : { ok: false, reason: "invalid" };
-    }
-    const code = payload?.error?.code ?? "";
-    if (response.status === 403) return { ok: false, reason: "forbidden" };
-    if (response.status === 409 || code === "ai_not_configured") return { ok: false, reason: "not_configured" };
-    if (code === "video_outline_too_long") return { ok: false, reason: "too_long" };
-    if (response.status === 422) return { ok: false, reason: "invalid" };
-    return { ok: false, reason: "failed" };
-  } catch {
-    return { ok: false, reason: "failed" };
-  }
+  const toast: VideoNoteToast = input.capture.cues.length ? "saved" : "info";
+  return { ...buildVideoNote(input), toast };
 };
 
 const filenameForCover = (mimeType: string) => {
@@ -246,7 +128,6 @@ export const persistVideoNote = async (input: {
   capture: VideoCapture;
   labels: VideoNoteLabels;
   capturedOn: string;
-  attempt: OutlineAttempt | null;
   createMemo: (body: {
     notebookId: string;
     title: string;
@@ -272,7 +153,6 @@ export const persistVideoNote = async (input: {
   });
   const note = videoNoteFromCapture({
     capture: input.capture,
-    attempt: input.attempt,
     labels: input.labels,
     capturedOn: input.capturedOn,
     cover: withCover ? "placeholder" : "none",
@@ -293,7 +173,6 @@ export const persistVideoNote = async (input: {
   const plainNote = note.markdown.includes(COVER_PLACEHOLDER)
     ? videoNoteFromCapture({
       capture: input.capture,
-      attempt: input.attempt,
       labels: input.labels,
       capturedOn: input.capturedOn,
       cover: "none",

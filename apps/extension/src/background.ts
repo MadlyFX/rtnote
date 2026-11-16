@@ -85,11 +85,9 @@ import { isBilibiliPageRead, readBilibiliVideoInPage } from "./video/read-bilibi
 import { isYouTubePageRead, readYouTubeVideoInPage } from "./video/read-youtube-in-page";
 import {
   persistVideoNote,
-  postVideoOutline,
-  videoOutlineRequestBody,
   type VideoNoteLabels,
 } from "./video/video-note";
-import type { OutlineAttempt, VideoNoteToast } from "./video/types";
+import type { VideoNoteToast } from "./video/types";
 import { youtubeCaptureFromRead, youtubeTargetFromUrl } from "./video/youtube";
 import { t } from "./i18n";
 import { readXiaoyuzhouStateInPage } from "./xiaoyuzhou-clip";
@@ -1574,9 +1572,7 @@ const videoLabels = (): VideoNoteLabels => ({
   platform: t("videoPlatformLabel"),
   captions: t("videoCaptionsLabel"),
   capturedAt: t("videoCapturedAtLabel"),
-  summary: t("videoSummaryHeading"),
   outline: t("videoOutlineHeading"),
-  takeaways: t("videoTakeawaysHeading"),
   transcript: t("videoTranscriptHeading"),
   coverAlt: t("videoCoverAlt"),
   youtube: t("videoPlatformYouTube"),
@@ -1590,10 +1586,6 @@ const videoLabels = (): VideoNoteLabels => ({
 const videoToastMessage = (toast: VideoNoteToast) => {
   switch (toast) {
     case "saved": return t("videoNoteSaved");
-    case "transcript": return t("videoTranscriptSaved");
-    case "transcript-scope": return t("videoTranscriptNeedScope");
-    case "transcript-model": return t("videoTranscriptNeedModel");
-    case "transcript-too-long": return t("videoTranscriptTooLong");
     case "info": return t("videoInfoSaved");
     case "unsupported": return t("videoPageUnsupported");
     default: return t("videoNotRead");
@@ -1648,16 +1640,11 @@ const performVideoSave = async (
 ) => {
   const read = await readVideoCapture(tabId, frameId, pageUrl);
   if (!read.ok) return { created: false, message: videoToastMessage(read.reason) };
-  let attempt: OutlineAttempt | null = null;
-  if (read.capture.cues.length > 0) {
-    attempt = await postVideoOutline(settings, videoOutlineRequestBody(read.capture));
-  }
   const saved = await persistVideoNote({
     notebookId: await notebookForClip(settings),
     capture: read.capture,
     labels: videoLabels(),
     capturedOn: capturedOnDate(),
-    attempt,
     createMemo: (body) => edgeEverRequest(settings, "/api/v1/memos", {
       method: "POST",
       body: JSON.stringify(body),

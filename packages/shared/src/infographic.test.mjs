@@ -3,8 +3,6 @@ import { createDefaultDiagramDocument, parseDiagramDocument, serializeDiagramDoc
 import {
   createDefaultInfographicDocument,
   getInfographicSummary,
-  InfographicAgentRequestSchema,
-  infographicRequestsTimeline,
   parseInfographicDocument,
   serializeInfographicDocument,
 } from "./infographic.ts";
@@ -58,16 +56,6 @@ describe("infographic note format", () => {
     expect(parseInfographicDocument(serializeInfographicDocument(sessioned))).toEqual(sessioned);
     expect(parseInfographicDocument(serializeInfographicDocument({ schemaVersion: 1, syntax: "", activeSessionId: "session empty" }))).toBeNull();
     expect(parseInfographicDocument(serializeInfographicDocument({ ...sessioned, history: [{ ...sessioned.history[1], sessionId: "bad id" }] }))).toBeNull();
-    expect(InfographicAgentRequestSchema.safeParse({ prompt: "修改", currentContent: "", candidates: ["compare-binary-horizontal-badge-card-vs"], history: [{ prompt: "原请求", response: "原回复" }] }).success).toBe(true);
-    expect(InfographicAgentRequestSchema.safeParse({ prompt: "修改", currentContent: "", candidates: [], history: [] }).success).toBe(false);
-  });
-
-  test("recognizes a request to replace a comparison with one company's timeline", () => {
-    expect(infographicRequestsTimeline("给我换成字节的发展历程")).toBe(true);
-    expect(infographicRequestsTimeline("按时间顺序展示字节的发展史")).toBe(true);
-    expect(infographicRequestsTimeline("把字节跳动换成阿里巴巴")).toBe(false);
-    expect(infographicRequestsTimeline("对比腾讯和字节的发展历程")).toBe(false);
-    expect(infographicRequestsTimeline("把标题改成发展历程")).toBe(false);
   });
 
   test("infographic syntax and visual diagram IR keep separate envelopes", () => {

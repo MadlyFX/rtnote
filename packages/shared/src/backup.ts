@@ -1,11 +1,6 @@
 import { z } from "zod";
 import type { TiptapDoc } from "./content";
-import {
-  AI_ACTIONS,
-  AI_PROMPT_PARAMETER_KINDS,
-  AI_PROMPT_RESULT_MODES,
-} from "./ai-assistant";
-import type { AiPromptTemplate, MemoDetail, Notebook, Resource } from "./types";
+import type { MemoDetail, Notebook, Resource } from "./types";
 
 export const EDGEEVER_ZIP_FORMAT = "edgeever-zip";
 export const EDGEEVER_ZIP_FORMAT_VERSION = 2;
@@ -23,6 +18,7 @@ export type JsonBackupManifest = {
     memos: number;
     revisions: number;
     resources: number;
+    /** AI prompt count written by older backups; their prompts are ignored on import. */
     prompts?: number;
   };
 };
@@ -52,8 +48,6 @@ export type JsonBackupMemo = {
   revisions: JsonBackupRevision[];
   resources: JsonBackupResource[];
 };
-
-export type JsonBackupAiPrompt = AiPromptTemplate;
 
 const DateTimeSchema = z.string().datetime();
 
@@ -155,52 +149,6 @@ export const RestoreJsonNotebooksSchema = z.object({
 
 export const RestoreJsonMemosSchema = z.object({
   memos: z.array(JsonBackupMemoSchema).min(1).max(10),
-});
-
-export const JsonBackupAiPromptSchema = z.object({
-  id: z.string().trim().min(1).max(200),
-  origin: z.enum(["default", "custom"]),
-  seedKey: z.enum(AI_ACTIONS.filter((action) => action !== "custom") as [
-    Exclude<(typeof AI_ACTIONS)[number], "custom">,
-    ...Exclude<(typeof AI_ACTIONS)[number], "custom">[],
-  ]).nullable(),
-  action: z.enum(AI_ACTIONS),
-  parameterKind: z.enum(AI_PROMPT_PARAMETER_KINDS),
-  resultMode: z.enum(AI_PROMPT_RESULT_MODES),
-  nameCustomized: z.boolean(),
-  descriptionCustomized: z.boolean(),
-  instructionCustomized: z.boolean(),
-  name: z.string().trim().min(1).max(80),
-  description: z.string().max(200).nullable(),
-  instruction: z.string().trim().min(1).max(2_000),
-  createdAt: DateTimeSchema,
-  updatedAt: DateTimeSchema,
-}).superRefine((prompt, context) => {
-  if (prompt.origin === "default" && !prompt.seedKey) {
-    context.addIssue({
-      code: "custom",
-      path: ["seedKey"],
-      message: "A default prompt must include a seed key.",
-    });
-  }
-  if (prompt.origin === "default" && prompt.seedKey && prompt.action !== prompt.seedKey) {
-    context.addIssue({
-      code: "custom",
-      path: ["action"],
-      message: "A default prompt action must match its seed key.",
-    });
-  }
-  if (prompt.origin === "custom" && (prompt.seedKey !== null || prompt.action !== "custom")) {
-    context.addIssue({
-      code: "custom",
-      path: ["origin"],
-      message: "A custom prompt cannot use factory prompt identity.",
-    });
-  }
-});
-
-export const RestoreJsonAiPromptsSchema = z.object({
-  prompts: z.array(JsonBackupAiPromptSchema).max(100),
 });
 
 export const JsonBackupResourceMetadataSchema = JsonBackupMemoSchema.shape.resources.element;

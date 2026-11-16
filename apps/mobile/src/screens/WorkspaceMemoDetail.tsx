@@ -17,10 +17,9 @@ import { Image as RNImage, KeyboardAvoidingView, Platform, ScrollView, StyleShee
 import { Modal } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { SvgXml } from "react-native-svg";
-import { ActivityIndicator, ChevronDown, ChevronLeft, ChevronUp, Copy, Download, History, MoreHorizontal, Pencil, RotateCcw, Search, Share2, Sparkles, Tag, Trash2, X } from "../components/icons";
+import { ActivityIndicator, ChevronDown, ChevronLeft, ChevronUp, Copy, Download, History, MoreHorizontal, Pencil, RotateCcw, Search, Share2, Tag, Trash2, X } from "../components/icons";
 import { Alert, Pressable, Text, TextInput } from "../components/LocalizedText";
 import LocalTiptapEditor, { type LocalTiptapEditorRef } from "../components/LocalTiptapEditor";
-import { MobileAiAssistantModal } from "../components/MobileAiAssistantModal";
 import MobileNoteImageFontPicker from "../components/MobileNoteImageFontPicker";
 import { getMobileNoteImageFontLabel } from "../lib/note-image-font-options";
 import { MobileResourceActions } from "../components/MobileResourceActions";
@@ -55,7 +54,7 @@ import { beginEditorStartup } from "../lib/startup-performance";
 import type { MobileSyncQueueItem } from "../lib/sync-queue";
 import { getTextSearchMatches, parseTags } from "./workspace-utils";
 import { styles } from "./workspace-styles";
-import { NotebookPickerModal, SmartTagButton, TagPickerModal } from "./WorkspacePickers";
+import { NotebookPickerModal, TagPickerModal } from "./WorkspacePickers";
 
 const ANDROID_SYSTEM_NAVIGATION_FALLBACK = 48;
 const RESOURCE_DATA_URL_CACHE_LIMIT = 32;
@@ -439,7 +438,6 @@ export const MemoDetailModal = ({
   notebookName,
   notebooks,
   onAdoptCloudVersion,
-  onApplyAiDraft,
   onClose,
   onCloseEditor,
   onCopyLocalDraft,
@@ -474,7 +472,6 @@ export const MemoDetailModal = ({
   notebookName: string;
   notebooks: Notebook[];
   onAdoptCloudVersion: (memo: MemoDetail) => void;
-  onApplyAiDraft: (memo: MemoDetail, draft: string, mode: "append" | "replace") => Promise<void>;
   onClose: () => void;
   onCloseEditor: () => void;
   onCopyLocalDraft: (memo: MemoDetail) => void;
@@ -497,7 +494,6 @@ export const MemoDetailModal = ({
   const { resolvedLocale } = useMobileLocale();
   const safeAreaInsets = useSafeAreaInsets();
   const [actionsOpen, setActionsOpen] = useState(false);
-  const [aiAssistantOpen, setAiAssistantOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [bodySearchMatchCount, setBodySearchMatchCount] = useState(0);
@@ -830,7 +826,6 @@ export const MemoDetailModal = ({
     setBodySearchMatchCount(0);
     setActiveMatchIndex(0);
     setImagePreview(null);
-    setAiAssistantOpen(false);
     setViewerNotebookPickerOpen(false);
     setViewerTagsOpen(false);
     safeDomCall(() => viewerRef.current?.search("", -1));
@@ -1372,17 +1367,6 @@ export const MemoDetailModal = ({
                     </Text>
                     <ChevronDown color="#94a3b8" size={14} />
                   </Pressable>
-                  <SmartTagButton
-                    client={client}
-                    contentMarkdown={editor.contentMarkdown}
-                    disabled={editor.saving || editor.uploading}
-                    onChange={(nextTags) => {
-                      editor.setTagsText(nextTags.join(", "));
-                      editor.markDirty();
-                    }}
-                    selectedTags={parseTags(editor.tagsText)}
-                    title={editor.title}
-                  />
                 </View>
                 {editor.draftRestored ? <Text style={styles.richEditorDraftNotice}>已恢复上次未完成的本地草稿</Text> : null}
                 {editor.error ? <Text style={styles.richEditorInlineError}>{editor.error}</Text> : null}
@@ -1511,15 +1495,12 @@ export const MemoDetailModal = ({
             {baseUrl ? (
               <LocalTiptapEditor
                 key={`${memo.id}:${viewerGeneration}`}
-                aiPromptsJson={isEditing ? editor.aiPromptsJson : undefined}
                 autoFocus={isEditing && editingSession?.initialFocus === "body"}
                 baseUrl={baseUrl}
                 content={viewerContent}
                 dom={noteBodyDom}
                 locale={resolvedLocale}
                 mode={isEditing ? "editor" : "viewer"}
-                onAiCancel={isEditing ? editor.cancelSelectionAi : undefined}
-                onAiRequest={isEditing ? editor.requestSelectionAi : undefined}
                 onChange={isEditing ? editor.persistDraft : undefined}
                 onImagePreview={isEditing ? undefined : onImagePreview}
                 onDoublePress={isEditing || locksRichTextEdit ? undefined : async () => {
@@ -1595,13 +1576,6 @@ export const MemoDetailModal = ({
                       onPress={() => closeActionsAndRun(() => onOpenRevisions(memo))}
                     />
                   </>
-                ) : null}
-                {!memo.isDeleted && !locksRichTextEdit ? (
-                  <DetailActionSheetItem
-                    icon={<Sparkles color="#16A06E" size={18} />}
-                    label={getMobileCatalog(resolvedLocale).aiAssistant.title}
-                    onPress={() => closeActionsAndRun(() => setAiAssistantOpen(true))}
-                  />
                 ) : null}
                 <DetailActionSheetItem
                   disabled={!canCopyMemoId}
@@ -1890,14 +1864,6 @@ export const MemoDetailModal = ({
           </Pressable>
           )}
         </Modal>
-        {memo && !memo.isDeleted ? (
-          <MobileAiAssistantModal
-            memo={memo}
-            onApply={(draft, mode) => onApplyAiDraft(memo, draft, mode)}
-            onClose={() => setAiAssistantOpen(false)}
-            visible={aiAssistantOpen}
-          />
-        ) : null}
         <Modal animationType="fade" onRequestClose={() => setImagePreview(null)} transparent visible={Boolean(imagePreview)}>
           <View style={resourceImageStyles.previewBackdrop}>
             {imagePreview ? (

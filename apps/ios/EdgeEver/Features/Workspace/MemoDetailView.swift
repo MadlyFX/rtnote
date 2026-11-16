@@ -41,7 +41,6 @@ struct MemoDetailView: View {
     @State private var showDeleteConfirm = false
     @State private var showMoreMenu = false
     @State private var showNoteIdCopied = false
-    @State private var showAiAssistant = false
     @State private var showNotebookPicker = false
     @State private var resourceTarget: ResourceTarget?
     @State private var imagePreview: (source: String, alt: String)?
@@ -310,13 +309,6 @@ struct MemoDetailView: View {
                 dismissButton: .default(Text(env.preferences.t("确定", en: "OK", pl: "OK")))
             )
         }
-        .sheet(isPresented: $showAiAssistant) {
-            if let memo {
-                AiAssistantSheet(memo: memo) { draft, mode in
-                    try await applyAiDraft(draft, mode: mode, to: memo)
-                }
-            }
-        }
         .sheet(isPresented: $showNotebookPicker) {
             EditNotebookPickerSheet(
                 notebooks: availableNotebooks,
@@ -358,11 +350,6 @@ struct MemoDetailView: View {
             if let memo {
                 if !blocksRichTextEdit(memo) {
                     Button(env.preferences.t("编辑", en: "Edit", pl: "Edytuj")) { onEdit(memo.id, .body) }
-                }
-                if !memo.isDeleted && !isTemporaryMemoId(memo.id) && !blocksRichTextEdit(memo) {
-                    Button(env.preferences.t("AI 笔记助手", en: "AI note assistant", pl: "Asystent AI notatek")) {
-                        showAiAssistant = true
-                    }
                 }
                 Button(
                     memo.isPinned
@@ -1141,58 +1128,6 @@ struct MemoDetailView: View {
         } catch {
             self.error = error.localizedDescription
         }
-    }
-
-    private func applyAiDraft(
-        _ draft: String,
-        mode: AiDraftApplyMode,
-        to sourceMemo: MemoDetail
-    ) async throws {
-        guard let scope = env.session.dataScope else {
-            throw APIError(
-                status: -1,
-                code: "session_unavailable",
-                message: env.preferences.t("登录状态已失效，请重新登录。", en: "Your session has expired. Sign in again.", pl: "Sesja wygasła. Zaloguj się ponownie.")
-            )
-        }
-        let normalizedDraft = draft.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !normalizedDraft.isEmpty else { return }
-        let currentContent = sourceMemo.contentMarkdown.trimmingCharacters(in: .whitespacesAndNewlines)
-        let contentMarkdown = mode == .append && !currentContent.isEmpty
-            ? "\(currentContent)\n\n\(normalizedDraft)"
-            : normalizedDraft
-
-        let editSession = try await env.session.client.createMemoEditSession(memoId: sourceMemo.id)
-        guard
-            editSession.baseRevision == sourceMemo.revision,
-            editSession.baseContentHash == sourceMemo.contentHash
-        else {
-            throw APIError(
-                status: 409,
-                code: "revision_conflict",
-                message: env.preferences.t(
-                    "笔记已在其他设备更新，请刷新后重新生成。",
-                    en: "This note changed on another device. Refresh it and generate again.",
-                    pl: "Ta notatka zmieniła się na innym urządzeniu. Odśwież ją i wygeneruj ponownie."
-                )
-            )
-        }
-
-        let updated = try await env.session.client.updateMemo(
-            id: sourceMemo.id,
-            expectedRevision: sourceMemo.revision,
-            expectedContentHash: sourceMemo.contentHash,
-            editSessionId: editSession.id,
-            notebookId: nil,
-            title: nil,
-            isPinned: nil,
-            contentMarkdown: contentMarkdown,
-            contentJson: nil,
-            tags: nil
-        )
-        try env.mirror.upsertMemo(scope: scope, memo: updated)
-        memo = updated
-        refreshSyncStatus()
     }
 
     private func openInitialShareImageIfReady() {

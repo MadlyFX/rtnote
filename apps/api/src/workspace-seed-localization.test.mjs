@@ -205,7 +205,6 @@ describe("fresh installation", () => {
     await ensureUserWorkspace(db, "usr_owner", "admin", "en-US");
     sqlite.exec(`
       DELETE FROM memo_templates WHERE workspace_id = 'ws_default' AND name = 'Quick Spark';
-      DELETE FROM ai_prompt_templates WHERE workspace_id = 'ws_default';
     `);
     const afterFast = {
       notebooks: notebookNames(sqlite),
@@ -222,8 +221,6 @@ describe("fresh installation", () => {
       note: welcome(sqlite),
       templates: templateNames(sqlite, DEFAULT_WORKSPACE_ID),
     }).toEqual(afterFast);
-    expect(sqlite.query("SELECT COUNT(*) AS count FROM ai_prompt_templates WHERE workspace_id = 'ws_default'").get())
-      .toEqual({ count: 0 });
     expect(pendingWorkspaces(sqlite)).toEqual([]);
   });
 

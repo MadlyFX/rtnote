@@ -2,8 +2,7 @@ import { withFontDeadline } from "@edgeever/shared/font-loader";
 import { FontLoadFeedback } from "./FontLoadFeedback";
 import { createFontLoadState } from "@/lib/font-load-state";
 import { loadPosterFont } from "@/lib/poster-design/fonts";
-import { AI_ASSISTANT_LAUNCHER_POSITION } from "@/lib/ai-assistant-launcher";
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
@@ -23,14 +22,12 @@ import {
   Save,
   ScanLine,
   Shapes,
-  Sparkles,
   Type,
   Undo2,
 } from "lucide-react";
 import { PencilBrush, Textbox, type FabricObject } from "fabric";
 import {
   parsePosterDocument,
-  posterFallbackMarkdown,
   PosterDocumentSchema,
   createPosterDocument,
   resizePosterDocument,
@@ -103,8 +100,6 @@ import { MemoEditorFocusModeButton, MemoEditorTopRowLeading } from "./MemoEditor
 import { MEMO_EDITOR_TOP_ROW_CLASS_NAME, MEMO_EDITOR_METADATA_ROW_CLASS_NAME } from "./MemoEditorChromeDensity";
 import { MemoTitleInput } from "./MemoTitleInput";
 import { IconTooltip } from "./editor/EditorPaneChrome";
-import { AiSidebar, readAiSidebarOpen, writeAiSidebarOpen } from "./ai-sidebar/AiSidebar";
-import { AiSidebarErrorBoundary } from "./ai-sidebar/AiSidebarErrorBoundary";
 import { getNotebookMoveOptions } from "@/lib/app-helpers";
 import { parseTagsText } from "@/lib/utils";
 import { prefersChineseContent } from "@/lib/bilingual-content-locale";
@@ -117,18 +112,13 @@ type Props = {
   memo: MemoDetail;
   repository: EdgeEverRepository;
   readOnly: boolean;
-  companionAvailable?: boolean;
-  beforeCompanionApply?: () => Promise<void>;
-  onCompanionNotesChanged?: () => Promise<void>;
   onSaved: (memo: MemoDetail) => Promise<void>;
   onBackToList: () => void;
-  onOpenCompanionNote?: (id: string, notebookId: string) => void;
+  onOpenNote?: (id: string, notebookId: string) => void;
   notebooks?: Notebook[];
   desktopFocusMode?: boolean;
   onOpenExecutionCenter?: () => void;
   onToggleDesktopFocusMode?: () => void;
-  aiAssistantOpenToken?: number;
-  shortcutSettings?: unknown;
 };
 export default function PosterEditorPane({
   memo,
@@ -136,10 +126,9 @@ export default function PosterEditorPane({
   readOnly,
   onSaved,
   onBackToList,
-  onOpenCompanionNote,
+  onOpenNote,
   notebooks = [], desktopFocusMode = false, onToggleDesktopFocusMode,
-  onOpenExecutionCenter, aiAssistantOpenToken,
-  companionAvailable = false, beforeCompanionApply, onCompanionNotesChanged,
+  onOpenExecutionCenter,
 }: Props) {
   const { t, i18n } = useTranslation();
   const zh = prefersChineseContent(i18n.language);
@@ -150,17 +139,6 @@ export default function PosterEditorPane({
   const [document, setDocument] = useState<PosterDocument>(
     initial ?? createPosterDocument(),
   );
-  const [aiAssistantOpen, setAiAssistantOpen] = useState(readAiSidebarOpen);
-  const setAiSidebarOpen = useCallback((open: boolean) => {
-    setAiAssistantOpen(open);
-    writeAiSidebarOpen(open);
-  }, []);
-  const handledAiToken = useRef(aiAssistantOpenToken);
-  useEffect(() => {
-    if (handledAiToken.current === aiAssistantOpenToken) return;
-    handledAiToken.current = aiAssistantOpenToken;
-    if (!readOnly) setAiSidebarOpen(true);
-  }, [aiAssistantOpenToken, readOnly, setAiSidebarOpen]);
   const notebookOptions = useMemo(() => getNotebookMoveOptions(notebooks), [notebooks]);
   const [mobileNotebookPickerOpen, setMobileNotebookPickerOpen] = useState(false);
   const [notebookUpdatePending, setNotebookUpdatePending] = useState(false);
@@ -1195,7 +1173,7 @@ export default function PosterEditorPane({
         });
         inserted = true;
         await onSavedRef.current(result.memo);
-        onOpenCompanionNote?.(source.id, source.notebookId);
+        onOpenNote?.(source.id, source.notebookId);
       } finally {
         if (!inserted) {
           const latest = await repository.getMemo(source.id).catch(() => null);
@@ -1479,7 +1457,7 @@ export default function PosterEditorPane({
               mobileBackButton={<IconTooltip label={t("poster.back")}><Button className="lg:hidden" variant="ghost" size="icon" aria-label={t("poster.back")} onClick={() => { void (async () => { if (!dirty || await saveRef.current()) onBackToList(); })(); }}><ArrowLeft className="h-4 w-4" /></Button></IconTooltip>}
               titleInput={<MemoTitleInput value={title} onValueChange={setTitle} readOnly={!editable} placeholder={t("poster.name")} ariaLabel={t("poster.title")} />}
             />
-            <MemoEditorMetadataRow rowClassName={MEMO_EDITOR_METADATA_ROW_CLASS_NAME} contentMarkdown={memo.contentMarkdown} disabled={!editable}
+            <MemoEditorMetadataRow rowClassName={MEMO_EDITOR_METADATA_ROW_CLASS_NAME} disabled={!editable}
               mobileNotebookPickerOpen={mobileNotebookPickerOpen} notebookOptions={notebookOptions} notebookUpdatePending={notebookUpdatePending || saving}
               repository={repository} selectedNotebookId={currentMemo.current.notebookId} tagsText={tagsText} title={title}
               onMobileNotebookPickerOpenChange={setMobileNotebookPickerOpen} onTagsChange={setTagsText}
@@ -2175,21 +2153,7 @@ export default function PosterEditorPane({
           </div>
         </DialogContent>
       </Dialog>
-      {!readOnly && !aiAssistantOpen && <IconTooltip side="left" label={t("aiAssistant.open")}>
-        <Button variant="outline" size="icon" data-ai-assistant-launcher="" aria-label={t("aiAssistant.open")}
-          className={`${AI_ASSISTANT_LAUNCHER_POSITION} absolute z-30 size-11 rounded-full border-slate-200 bg-card text-slate-950 shadow-[0_8px_24px_rgba(15,23,42,0.14)]`}
-          onClick={() => setAiSidebarOpen(true)}><Sparkles className="size-5" strokeWidth={1.75} /></Button>
-      </IconTooltip>}
     </div>
-    <AiSidebarErrorBoundary open={aiAssistantOpen} onOpenChange={setAiSidebarOpen}>
-      <AiSidebar open={aiAssistantOpen} onOpenChange={setAiSidebarOpen} companionAvailable={companionAvailable}
-        contentMarkdown={`${posterFallbackMarkdown(document)}\n\nEditable poster canvas: ${document.width} × ${document.height}. Use get_poster and update_poster to edit elements; do not replace the note Markdown.`}
-        selectionMarkdown={selectedIds.length ? `Selected poster element IDs: ${selectedIds.join(", ")}. Preserve elements outside this selection unless the user explicitly asks to change the whole poster.` : undefined}
-        memoId={memo.id} notebookId={memo.notebookId} noteTitle={title}
-        notebookTitle={notebookOptions.find((item) => item.id === memo.notebookId)?.name}
-        beforeCompanionApply={async () => { if (!(await saveRef.current())) throw new Error("save failed"); await beforeCompanionApply?.(); }}
-        onCompanionNotesChanged={onCompanionNotesChanged} onOpenCompanionNote={onOpenCompanionNote} />
-    </AiSidebarErrorBoundary>
     </div>
   );
 }

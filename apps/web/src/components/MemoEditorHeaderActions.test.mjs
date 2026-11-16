@@ -29,11 +29,10 @@ describe("shared memo editor header actions", () => {
     expect(editorSource).toContain("<MemoEditorHeaderActions");
     expect(diagramSource).toContain("<MemoEditorHeaderActions");
     expect(editorSource).toContain("textNoteMenuItems=");
-    expect(editorSource).toContain("data-ai-assistant-launcher");
+    expect(editorSource).not.toContain("data-ai-assistant-launcher");
     expect(editorSource).not.toContain("textNoteActions=");
     expect(diagramSource).not.toContain("textNoteActions=");
-    expect(diagramSource).toContain("data-ai-assistant-launcher");
-    expect(diagramSource).toContain("<AiSidebar");
+    expect(diagramSource).not.toContain("data-ai-assistant-launcher");
     expect(diagramSource).not.toContain("<WeChatIcon");
   });
 
@@ -54,18 +53,14 @@ describe("shared memo editor header actions", () => {
     expect(metadataRowSource).not.toContain("<Maximize2");
   });
 
-  test("opens the same assistant on diagram and table notes", () => {
-    expect(tableSource).toContain("data-ai-assistant-launcher");
-    expect(tableSource).toContain("<AiSidebar");
-    expect(tableSource).not.toContain("infographic=");
-    expect(diagramSource).not.toContain("infographic=");
-    const diagramPane = workspaceSource.slice(workspaceSource.indexOf("<DiagramEditorPane"), workspaceSource.indexOf("<InfographicEditorPane"));
-    const tablePane = workspaceSource.slice(workspaceSource.indexOf("<TableEditorPane"), workspaceSource.indexOf("<EditorPane\n"));
-    expect(diagramPane).toContain("aiAssistantOpenToken={noteAiAssistantOpenToken}");
-    expect(diagramPane).toContain("companionAvailable={authRequired && Boolean(user) && !demoMode}");
-    expect(tablePane).toContain("aiAssistantOpenToken={noteAiAssistantOpenToken}");
-    expect(tablePane).toContain("notebooks={notebooks}");
-    expect(tablePane).toContain("companionAvailable={authRequired && Boolean(user) && !demoMode}");
+  test("no note editor mounts the removed AI assistant", () => {
+    for (const source of [editorSource, diagramSource, tableSource]) {
+      expect(source).not.toContain("data-ai-assistant-launcher");
+      expect(source).not.toContain("<AiSidebar");
+      expect(source).not.toContain("companionAvailable");
+    }
+    expect(workspaceSource).not.toContain("aiAssistantOpenToken");
+    expect(workspaceSource).not.toContain("companionAvailable");
   });
 
   test("leaves sequential note navigation to the memo list", () => {

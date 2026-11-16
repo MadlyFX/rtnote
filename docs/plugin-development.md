@@ -4,7 +4,7 @@
 RTNote provides client plugin and no-code theme extension capabilities. Users can install extensions from the official marketplace, public GitHub repositories, or manifest URLs. Installed extensions sync across Web and desktop platforms with the current workspace and run while RTNote is open; Android and iOS native apps do not run plugins.
 
 > [!NOTE]
-> **Security Model**: Client plugins use a trusted-code model (similar to Obsidian). Enabling a plugin grants it trust to run within the client JavaScript environment and invoke plugin APIs. Capability declarations (`permissions`) in the manifest disclose the functional scope to users and do not enforce a hard sandbox. The same applies to `networkHosts`: it describes intended destinations rather than restricting plugin code. Desktop plugins can also reach login credentials, local data and Agent capabilities through the client bridge. Theme packages are purely declarative JSON and execute no JavaScript.
+> **Security Model**: Client plugins use a trusted-code model (similar to Obsidian). Enabling a plugin grants it trust to run within the client JavaScript environment and invoke plugin APIs. Capability declarations (`permissions`) in the manifest disclose the functional scope to users and do not enforce a hard sandbox. The same applies to `networkHosts`: it describes intended destinations rather than restricting plugin code. Desktop plugins can also reach login credentials and local data through the client bridge. Theme packages are purely declarative JSON and execute no JavaScript.
 
 ---
 
@@ -28,7 +28,7 @@ RTNote provides client plugin and no-code theme extension capabilities. Users ca
   - [10. Network Requests](#10-network-requests)
   - [11. Schedules (Desktop Only)](#11-schedules-desktop-only)
   - [12. Events](#12-events)
-  - [13. AI Capabilities](#13-ai-capabilities)
+  - [13. Speech Transcription](#13-speech-transcription)
 - [Themes (No-Code Extensions)](#themes-no-code-extensions)
 - [Packaging, Distribution & Local Testing](#packaging-distribution--local-testing)
   - [Packaging Rules](#packaging-rules)
@@ -86,7 +86,9 @@ Permissions are declared to transparently inform users of plugin capabilities:
 - **Editor**: `editor:read`, `editor:write`
 - **UI & Interaction**: `ui:commands`, `ui:navigation`, `ui:notices`, `ui:panels`, `ui:embeds`
 - **Storage & System**: `storage`, `secrets`, `network`, `network:public`, `schedules`
-- **AI Capabilities**: `ai:generate`
+- **Speech**: `speech:transcribe`
+
+Manifests from older versions may still list `ai:generate`. They keep loading, but that permission no longer grants anything.
 
 ---
 
@@ -161,7 +163,7 @@ The plugin context object (`context`) exposes these capability interfaces:
 | **`context.network`** | `network`<br>`network:public` | `fetch(url, options)` | Network requests (standard requests or public anonymous read-only) |
 | **`context.schedules`** | `schedules` | `upsert()`, `list()`, `remove()` | Desktop-only persistent scheduled tasks running while RTNote is open |
 | **`context.events`** | *(None)* | `on(event, handler)` | Subscribe to workspace note, tag, template, and sync completion events |
-| **`context.ai`** | `ai:generate` | `status()`, `generate()`, `transcribeResource()`, `transcribeMedia()` | Invoke workspace-configured AI models for text generation & media transcription |
+| **`context.speech`** | `speech:transcribe` | `transcribeResource()`, `transcribeMedia()` | Transcribe audio and video through the user's configured speech service |
 
 ---
 
@@ -631,36 +633,21 @@ context.events.on("workspace.synced", () => { /* Workspace sync completed */ });
 
 ---
 
-### 13. AI Capabilities
+### 13. Speech Transcription
 
-Invoke workspace-configured AI models for text generation and media transcription (credentials are managed securely by the host; plugins never touch user API keys):
+Transcribe audio and video through the speech service the user configured in **Settings → Speech**. RTNote extracts the audio on the client and calls the provider directly. Plugins never see the provider credential, and neither method accepts a media URL.
 
 ```ts
-// 1. Check AI configuration status
-const status = await context.ai.status();
-// { configured: boolean, modelName?: string }
+// 1. Transcribe an audio/video attachment already in a note
+const transcript = await context.speech.transcribeResource(noteId, resourceId);
+// { text: string, resourceId: string, filename: string }
 
-if (status.configured) {
-  // 2. Text generation
-  const result = await context.ai.generate({
-    system: "You are a writing assistant.",
-    prompt: "Refine this paragraph: ...",
-    maxOutputTokens: 2000,
-    signal: abortController.signal
-  });
-  console.log("Output:", result.text);
-
-  // 3. Transcribe audio/video attachments already in the note
-  const transcript = await context.ai.transcribeResource(noteId, resourceId);
-  // { text: string, resourceId: string, filename: string }
-
-  // 4. Transcribe standalone Blob / File held by the plugin
-  const ownMedia = new File([audioBytes], "recording.mp3", { type: "audio/mpeg" });
-  const mediaTranscript = await context.ai.transcribeMedia(ownMedia, {
-    signal: abortController.signal
-  });
-  console.log("Transcription:", mediaTranscript.text);
-}
+// 2. Transcribe a Blob or File held by the plugin
+const ownMedia = new File([audioBytes], "recording.mp3", { type: "audio/mpeg" });
+const mediaTranscript = await context.speech.transcribeMedia(ownMedia, {
+  signal: abortController.signal
+});
+console.log("Transcription:", mediaTranscript.text);
 ```
 
 ---

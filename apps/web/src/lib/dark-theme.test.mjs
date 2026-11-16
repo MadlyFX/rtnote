@@ -54,7 +54,6 @@ describe("dark theme contracts", () => {
   test("components do not add a second dark: color path on top of theme tokens", () => {
     const css = readFileSync(new URL("../styles/globals.css", import.meta.url), "utf8");
     const notebookPane = readFileSync(new URL("../components/NotebookPane.tsx", import.meta.url), "utf8");
-    const companion = readFileSync(new URL("../components/CompanionActionCard.tsx", import.meta.url), "utf8");
     const badge = readFileSync(new URL("../components/ui/badge.tsx", import.meta.url), "utf8");
 
     expect(css).not.toContain('[class~="bg-white"]');
@@ -62,7 +61,6 @@ describe("dark theme contracts", () => {
     expect(css).not.toContain('[class~="text-slate-700"]');
     expect(css).not.toContain("--dark-utility-alpha");
     expect(notebookPane).not.toContain("dark:bg-slate-");
-    expect(companion).not.toContain("dark:text-slate-");
     expect(badge).not.toContain("dark:bg-slate-");
   });
 

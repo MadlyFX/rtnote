@@ -973,88 +973,6 @@ const MCP_TOOL_DEFINITIONS = [
       },
     },
   },
-  {
-    name: "list_ai_instructions",
-    description: "List reusable AI instructions in the authenticated user's workspace, including built-in and custom entries.",
-    inputSchema: {
-      type: "object",
-      additionalProperties: false,
-      properties: {
-        locale: { type: "string", description: "Optional locale such as en-US or zh-CN for unmodified built-in instructions." },
-      },
-    },
-  },
-  {
-    name: "get_ai_instruction",
-    description: "Get one reusable AI instruction by its exact RTNote instruction ID.",
-    inputSchema: {
-      type: "object",
-      required: ["instructionId"],
-      additionalProperties: false,
-      properties: {
-        instructionId: { type: "string", minLength: 1 },
-        locale: { type: "string" },
-      },
-    },
-  },
-  {
-    name: "create_ai_instruction",
-    description: "Create a custom reusable AI instruction in the authenticated user's workspace.",
-    inputSchema: {
-      type: "object",
-      required: ["name", "instruction"],
-      additionalProperties: false,
-      properties: {
-        name: { type: "string", minLength: 1, maxLength: 80 },
-        description: { type: "string", maxLength: 200 },
-        instruction: { type: "string", minLength: 1, maxLength: 2000 },
-        parameterKind: { type: "string", enum: ["none", "target-language", "tone"], default: "none" },
-        resultMode: { type: "string", enum: ["append", "replace", "both"], default: "both" },
-        locale: { type: "string" },
-      },
-    },
-  },
-  {
-    name: "update_ai_instruction",
-    description: "Update the text or execution behavior of a built-in or custom reusable AI instruction.",
-    inputSchema: {
-      type: "object",
-      required: ["instructionId"],
-      additionalProperties: false,
-      properties: {
-        instructionId: { type: "string", minLength: 1 },
-        name: { type: "string", minLength: 1, maxLength: 80 },
-        description: { type: ["string", "null"], maxLength: 200 },
-        instruction: { type: "string", minLength: 1, maxLength: 2000 },
-        parameterKind: { type: "string", enum: ["none", "target-language", "tone"] },
-        resultMode: { type: "string", enum: ["append", "replace", "both"] },
-        locale: { type: "string" },
-      },
-    },
-  },
-  {
-    name: "delete_ai_instruction",
-    description: "Delete a reusable AI instruction. Deleted built-in instructions can be restored later.",
-    inputSchema: {
-      type: "object",
-      required: ["instructionId"],
-      additionalProperties: false,
-      properties: {
-        instructionId: { type: "string", minLength: 1 },
-      },
-    },
-  },
-  {
-    name: "restore_default_ai_instructions",
-    description: "Restore missing built-in AI instructions without overwriting edited instructions or custom entries.",
-    inputSchema: {
-      type: "object",
-      additionalProperties: false,
-      properties: {
-        locale: { type: "string" },
-      },
-    },
-  },
 ];
 
 const READ_ONLY_MCP_TOOLS = new Set([
@@ -1080,8 +998,6 @@ const READ_ONLY_MCP_TOOLS = new Set([
   "get_workspace_stats",
   "list_note_templates",
   "get_note_template",
-  "list_ai_instructions",
-  "get_ai_instruction",
 ]);
 const NON_DESTRUCTIVE_MCP_TOOLS = new Set([
   "create_memo",
@@ -1101,9 +1017,6 @@ const NON_DESTRUCTIVE_MCP_TOOLS = new Set([
   "create_note_template",
   "update_note_template",
   "use_note_template",
-  "create_ai_instruction",
-  "update_ai_instruction",
-  "restore_default_ai_instructions",
 ]);
 const IDEMPOTENT_MCP_TOOLS = new Set([
   "delete_notebook",
@@ -1115,8 +1028,6 @@ const IDEMPOTENT_MCP_TOOLS = new Set([
   "move_notebook",
   "rename_notebook",
   "update_note_template",
-  "update_ai_instruction",
-  "restore_default_ai_instructions",
 ]);
 
 export const MCP_TOOLS = MCP_TOOL_DEFINITIONS.map((tool) => {

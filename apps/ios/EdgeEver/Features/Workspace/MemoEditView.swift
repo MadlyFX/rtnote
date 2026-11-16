@@ -55,18 +55,9 @@ struct MemoEditView: View {
     @State private var showApplyTemplateConfirm = false
     @State private var pendingTemplateSeed: CreateMemoSeed?
     @State private var resourceTarget: ResourceTarget?
-    @State private var aiSelection: AiEditorSelection?
-    @State private var showEmptyAiSelectionAlert = false
-    @State private var aiUndoToken: UUID?
     @State private var didImportSharedImages = false
     @State private var initialShareImportFinished = false
     @State private var shareHandoffStarted = false
-    @State private var isSuggestingTags = false
-    @State private var smartTagsAdded = false
-    @State private var showSmartTagAlert = false
-    @State private var smartTagAlertTitle = ""
-    @State private var smartTagAlertMessage = ""
-    @State private var smartTagTask: Task<Void, Never>?
     @State private var didApplyInitialTitleFocus = false
     @FocusState private var titleFocused: Bool
 
@@ -116,40 +107,6 @@ struct MemoEditView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                 .accessibilityIdentifier("createMemoUploadOverlay")
             }
-
-            if aiUndoToken != nil {
-                VStack {
-                    Spacer()
-                    HStack(spacing: 12) {
-                        Text(env.preferences.t("AI 已更新选中内容。", en: "AI updated the selection.", pl: "AI zaktualizowało zaznaczenie."))
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundStyle(.white)
-                        Spacer(minLength: 0)
-                        Button(env.preferences.t("撤销", en: "Undo", pl: "Cofnij")) {
-                            Task {
-                                guard await SharedTipTapRuntime.editor.undoAiSelectionDraft() else {
-                                    aiUndoToken = nil
-                                    return
-                                }
-                                await pullEditorSnapshotIfPossible()
-                                markDirtyAndScheduleSave()
-                                aiUndoToken = nil
-                            }
-                        }
-                        .font(.system(size: 13, weight: .bold))
-                        .foregroundStyle(Color(red: 0.43, green: 0.91, blue: 0.72))
-                    }
-                    .padding(.horizontal, 14)
-                    .frame(minHeight: 48)
-                    .background(Color(red: 0.06, green: 0.09, blue: 0.16))
-                    .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
-                    .shadow(color: .black.opacity(0.22), radius: 14, y: 6)
-                    .padding(.horizontal, 14)
-                    .padding(.bottom, 12)
-                }
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-                .allowsHitTesting(true)
-            }
         }
         .background(AppTheme.card.ignoresSafeArea())
         .accessibilityIdentifier(CreateMemoChrome.root)
@@ -177,49 +134,6 @@ struct MemoEditView: View {
             TemplatePickerSheet { seed in
                 requestApplyTemplate(seed)
             }
-        }
-        .sheet(item: $aiSelection) { selection in
-            AiAssistantSheet(
-                title: title,
-                selectedMarkdown: selection.markdown.isEmpty ? selection.text : selection.markdown
-            ) { draft, mode in
-                let applied = await SharedTipTapRuntime.editor.applyAiSelectionDraft(
-                    draft,
-                    append: mode == .append
-                )
-                guard applied else {
-                    throw NSError(
-                        domain: "EdgeEverAiSelection",
-                        code: 1,
-                        userInfo: [NSLocalizedDescriptionKey: env.preferences.t(
-                            "选区已失效，请重新选择文本后再试。",
-                            en: "The selection expired. Select the text again and retry.",
-                            pl: "Zaznaczenie wygasło. Zaznacz tekst ponownie i spróbuj jeszcze raz."
-                        )]
-                    )
-                }
-                await pullEditorSnapshotIfPossible()
-                markDirtyAndScheduleSave()
-                presentAiUndo()
-            }
-            .presentationDetents([.large])
-        }
-        .alert(
-            env.preferences.t("请先选择正文", en: "Select text first", pl: "Najpierw zaznacz tekst"),
-            isPresented: $showEmptyAiSelectionAlert
-        ) {
-            Button(env.preferences.t("好的", en: "OK", pl: "OK"), role: .cancel) {}
-        } message: {
-            Text(env.preferences.t(
-                "在正文中选中一段文字，然后再点 AI。",
-                en: "Select some text in the note body, then tap AI again.",
-                pl: "Zaznacz fragment tekstu w treści notatki, a potem ponownie dotknij AI."
-            ))
-        }
-        .alert(smartTagAlertTitle, isPresented: $showSmartTagAlert) {
-            Button(env.preferences.t("好的", en: "OK", pl: "OK"), role: .cancel) {}
-        } message: {
-            Text(smartTagAlertMessage)
         }
         .alert(
             env.preferences.t("应用模板？", en: "Apply template?", pl: "Zastosować szablon?"),
@@ -325,8 +239,6 @@ struct MemoEditView: View {
             Task { await handleDone() }
         }
         .onDisappear {
-            smartTagTask?.cancel()
-            smartTagTask = nil
             viewModel.cancelScheduledSave()
             // Create commit is owned by Back / Done (Android `requestClose` = createMutation).
             // Only flush edit sessions, or create-after-image-materialize if still dirty and
@@ -395,26 +307,6 @@ struct MemoEditView: View {
                     .accessibilityLabel(env.preferences.t("模板", en: "Template", pl: "Szablon"))
                     .accessibilityIdentifier(CreateMemoChrome.template)
                 }
-
-                Button {
-                    Task {
-                        if let selection = await SharedTipTapRuntime.editor.captureAiSelection() {
-                            aiSelection = selection
-                        } else {
-                            showEmptyAiSelectionAlert = true
-                        }
-                    }
-                } label: {
-                    Image(systemName: "sparkles")
-                        .font(.system(size: 15, weight: .bold))
-                        .foregroundStyle(editorReady && !busyChrome ? AppTheme.accentStrong : AppTheme.muted)
-                        .frame(width: 36, height: 36)
-                        .background(AppTheme.accentSoft)
-                        .clipShape(Circle())
-                }
-                .buttonStyle(.plain)
-                .disabled(!editorReady || busyChrome)
-                .accessibilityLabel(env.preferences.t("用 AI 处理选中内容", en: "Use AI on selection", pl: "Użyj AI na zaznaczeniu"))
 
                 Button {
                     Task { await handleDone() }
@@ -517,37 +409,6 @@ struct MemoEditView: View {
                 .buttonStyle(.plain)
                 .accessibilityLabel(env.preferences.t("笔记标签", en: "Tags", pl: "Tagi"))
                 .accessibilityIdentifier(CreateMemoChrome.tags)
-
-                Button {
-                    generateAndApplySmartTags()
-                } label: {
-                    Group {
-                        if isSuggestingTags {
-                            ProgressView()
-                                .controlSize(.small)
-                                .tint(AppTheme.accentStrong)
-                        } else {
-                            Image(systemName: smartTagsAdded ? "checkmark" : "tag.badge.plus")
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundStyle(AppTheme.accentStrong)
-                        }
-                    }
-                    .frame(width: 34, height: 34)
-                    .background(smartTagsAdded ? AppTheme.accentSoft : Color.clear)
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                }
-                .buttonStyle(.plain)
-                .disabled(isSuggestingTags || busyChrome || viewModel.tags.count >= 24
-                    || (title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                        && contentMarkdown.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty))
-                .opacity((busyChrome || viewModel.tags.count >= 24) ? 0.45 : 1)
-                .accessibilityLabel(env.preferences.t(
-                    isSuggestingTags ? "正在生成智能标签" : smartTagsAdded ? "智能标签已添加" : "智能标签",
-                    en: isSuggestingTags ? "Generating smart tags" : smartTagsAdded ? "Smart tags added" : "Smart tags",
-                    pl: isSuggestingTags ? "Generowanie inteligentnych tagów" : smartTagsAdded ? "Dodano inteligentne tagi" : "Inteligentne tagi"
-                ))
-                .accessibilityIdentifier(CreateMemoChrome.smartTags)
-
             }
             .frame(minHeight: 40)
             .accessibilityIdentifier(CreateMemoChrome.metaRow)
@@ -782,72 +643,6 @@ struct MemoEditView: View {
         scheduleSave()
     }
 
-    private func generateAndApplySmartTags() {
-        guard !isSuggestingTags, !busyChrome, viewModel.tags.count < 24 else { return }
-        smartTagTask?.cancel()
-        isSuggestingTags = true
-        smartTagsAdded = false
-        smartTagTask = Task { @MainActor in
-            await pullEditorSnapshotIfPossible()
-            let currentTags = viewModel.tags
-            let input = AiTagSuggestionsInput(
-                title: title,
-                contentMarkdown: contentMarkdown,
-                currentTags: currentTags,
-                locale: env.preferences.apiLocale
-            )
-            do {
-                let response = try await env.session.client.suggestAiTags(input)
-                try Task.checkCancellation()
-                let availableSlots = max(0, 24 - currentTags.count)
-                let additions = Array(response.suggestions
-                    .map(\.name)
-                    .filter { name in
-                        !currentTags.contains { $0.caseInsensitiveCompare(name) == .orderedSame }
-                    }
-                    .prefix(availableSlots))
-                guard !additions.isEmpty else {
-                    isSuggestingTags = false
-                    smartTagAlertTitle = env.preferences.t("智能标签", en: "Smart tags", pl: "Inteligentne tagi")
-                    smartTagAlertMessage = env.preferences.t(
-                        "没有找到适合这篇笔记的新标签。",
-                        en: "No useful new tags were found for this note.",
-                        pl: "Nie znaleziono przydatnych nowych tagów dla tej notatki."
-                    )
-                    showSmartTagAlert = true
-                    smartTagTask = nil
-                    return
-                }
-                tagsText = (currentTags + additions).joined(separator: ", ")
-                markDirtyAndScheduleSave()
-                isSuggestingTags = false
-                smartTagsAdded = true
-                try? await Task.sleep(nanoseconds: 4_000_000_000)
-                guard !Task.isCancelled else { return }
-                smartTagsAdded = false
-                smartTagTask = nil
-            } catch is CancellationError {
-                isSuggestingTags = false
-            } catch let apiError as APIError where apiError.code == "ai_not_configured" {
-                isSuggestingTags = false
-                smartTagAlertTitle = env.preferences.t("智能标签生成失败", en: "Couldn't generate smart tags", pl: "Nie udało się wygenerować inteligentnych tagów")
-                smartTagAlertMessage = env.preferences.t(
-                    "请先在“模型与代理”中配置默认模型。",
-                    en: "Configure a model in Models and agents first.",
-                    pl: "Najpierw skonfiguruj model w sekcji „Modele i agenci”."
-                )
-                showSmartTagAlert = true
-                smartTagTask = nil
-            } catch {
-                isSuggestingTags = false
-                smartTagAlertTitle = env.preferences.t("智能标签生成失败", en: "Couldn't generate smart tags", pl: "Nie udało się wygenerować inteligentnych tagów")
-                smartTagAlertMessage = error.localizedDescription
-                showSmartTagAlert = true
-                smartTagTask = nil
-            }
-        }
-    }
-
     private func requestApplyTemplate(_ seed: CreateMemoSeed) {
         let current = CreateMemoSeed(title: title, contentMarkdown: contentMarkdown, tagsText: tagsText)
         if current.hasContent {
@@ -919,16 +714,6 @@ struct MemoEditView: View {
     private func pullEditorSnapshotIfPossible() async {
         guard let snap = await SharedTipTapRuntime.editor.snapshotContent() else { return }
         viewModel.applyEditorPayload(markdown: snap.markdown, json: snap.json)
-    }
-
-    private func presentAiUndo() {
-        let token = UUID()
-        aiUndoToken = token
-        Task {
-            try? await Task.sleep(nanoseconds: 6_500_000_000)
-            guard !Task.isCancelled, aiUndoToken == token else { return }
-            aiUndoToken = nil
-        }
     }
 
     private func loadInitial() async {
