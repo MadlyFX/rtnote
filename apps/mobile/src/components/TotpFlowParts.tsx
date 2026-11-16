@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { Keyboard, Linking, Share, StyleSheet, View, type StyleProp, type TextStyle } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import { getMobileCatalog, formatMobileCopy, useMobileLocale } from "../lib/mobile-locale";
-import { resolveMobileThemeStyles, useMobileTheme, type MobileResolvedTheme } from "../lib/mobile-theme";
+import { mobileThemeStylesKey, resolveMobileThemeStyles, useMobileTheme, type MobileResolvedTheme } from "../lib/mobile-theme";
 import {
   formatRecoveryCodesText,
   formatTotpManualKey,
@@ -381,11 +381,12 @@ const baseTotpFlowStyles = StyleSheet.create({
 });
 
 let totpStyles = baseTotpFlowStyles;
-let totpFlowStylesTheme: MobileResolvedTheme = "light";
+// Theme plus branding colours the cached styles were resolved for.
+let totpFlowStylesTheme = "light";
 
 const refreshTotpFlowThemeStyles = (theme: MobileResolvedTheme) => {
-  if (totpFlowStylesTheme !== theme) {
+  if (totpFlowStylesTheme !== mobileThemeStylesKey(theme)) {
     totpStyles = resolveMobileThemeStyles(baseTotpFlowStyles, theme);
-    totpFlowStylesTheme = theme;
+    totpFlowStylesTheme = mobileThemeStylesKey(theme);
   }
 };

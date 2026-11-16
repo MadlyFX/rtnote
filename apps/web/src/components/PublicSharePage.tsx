@@ -34,6 +34,9 @@ import { PdfAttachment } from "@/components/editor/PdfAttachment";
 import { FileAttachment } from "@/components/editor/FileAttachment";
 import { VoiceMemoExtension } from "@/components/editor/VoiceMemoNode";
 import { NotebookSiteCodeBlock } from "./NotebookSiteCodeBlock";
+import { BrandedFooter } from "./BrandedFooter";
+import { setPublicBranding } from "@/lib/branding";
+import { BRAND_FONTS } from "@edgeever/shared/branding";
 import { NotebookSiteArticleTools } from "./NotebookSiteArticleTools";
 import { PublicArticleOutline } from "./PublicArticleOutline";
 import { NotebookSiteSearchContext } from "./NotebookSiteSearch";
@@ -278,8 +281,10 @@ export const PublicSharePage = () => {
     robots.content = "noindex,nofollow,noarchive";
     document.head.appendChild(robots);
     if (share) {
+      setPublicBranding(share.branding);
+      const brandName = share.branding?.name ?? (share.showBranding === false ? "" : "RTNote");
       document.title = withEnvironmentTitlePrefix(
-        `${getMemoDisplayTitle(share.title, t("common.untitledMemo"))} · RTNote`,
+        `${getMemoDisplayTitle(share.title, t("common.untitledMemo"))}${brandName ? ` · ${brandName}` : ""}`,
         { development: import.meta.env.DEV, profile: __EDGEEVER_DEVELOPMENT_PROFILE__ },
       );
     } else if (passwordRequired) {
@@ -339,6 +344,8 @@ export const PublicShareArticle = ({
   const publishedBodyFont = parsePublishedNoteBodyFont(share.bodyFont);
   const showUpdatedAt = layout === "site" || share.showUpdatedAt !== false;
   const showBranding = layout === "standalone" && share.showBranding !== false;
+  const branding = share.branding;
+  const brandFont = layout === "standalone" && branding && branding.fonts.body !== "system" ? BRAND_FONTS[branding.fonts.body] : undefined;
 
   useEffect(() => {
     if (publishedBodyFont === undefined) return undefined;
@@ -367,8 +374,9 @@ export const PublicShareArticle = ({
       )}
     >
       <article
+        style={brandFont ? { fontFamily: brandFont } : undefined}
         className={cn(
-          "mx-auto max-w-4xl overflow-hidden",
+          "edgeever-public-page mx-auto max-w-4xl overflow-hidden",
           layout === "standalone" &&
             "rounded-2xl border border-slate-200 bg-card shadow-sm",
         )}
@@ -452,14 +460,18 @@ export const PublicShareArticle = ({
         </div>
         {showBranding ? (
           <footer className="px-5 pb-6 pt-2 text-center text-xs text-slate-500 sm:px-10 sm:pb-8">
-            <a
-              href="https://github.com/MadlyFX/rtnote"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-sm transition-colors hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
-            >
-              {t("sharing.publishedWith")}
-            </a>
+            {branding?.isCustom ? (
+              <BrandedFooter branding={branding} />
+            ) : (
+              <a
+                href="https://github.com/MadlyFX/rtnote"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-sm transition-colors hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+              >
+                {t("sharing.publishedWith")}
+              </a>
+            )}
           </footer>
         ) : null}
       </article>

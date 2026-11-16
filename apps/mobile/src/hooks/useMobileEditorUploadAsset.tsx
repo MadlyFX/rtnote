@@ -93,8 +93,9 @@ const SourceRow = ({
   label: string;
   onPress: () => void;
 }) => {
-  const { resolvedTheme } = useMobileTheme();
-  const styles = useMemo(() => resolveMobileThemeStyles(baseStyles, resolvedTheme), [resolvedTheme]);
+  const { resolvedTheme, themeKey } = useMobileTheme();
+  // themeKey also changes with the server branding colours.
+  const styles = useMemo(() => resolveMobileThemeStyles(baseStyles, resolvedTheme), [resolvedTheme, themeKey]);
   return (
     <Pressable accessibilityRole="button" onPress={onPress} style={styles.sourceRow}>
       <View style={styles.sourceIcon}>{icon}</View>
@@ -112,9 +113,10 @@ const MobileEditorUploadSourcePicker = ({
   onSelect: (source: MobileEditorUploadSource) => void;
   visible: boolean;
 }) => {
-  const { resolvedTheme } = useMobileTheme();
+  const { resolvedTheme, themeKey } = useMobileTheme();
   const insets = useSafeAreaInsets();
-  const styles = useMemo(() => resolveMobileThemeStyles(baseStyles, resolvedTheme), [resolvedTheme]);
+  // themeKey also changes with the server branding colours.
+  const styles = useMemo(() => resolveMobileThemeStyles(baseStyles, resolvedTheme), [resolvedTheme, themeKey]);
   return (
     <Modal animationType="fade" onRequestClose={onClose} transparent visible={visible}>
       <Pressable accessibilityLabel="关闭图片来源选择" onPress={onClose} style={styles.backdrop}>

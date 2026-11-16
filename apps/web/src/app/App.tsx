@@ -20,6 +20,7 @@ import { EVERNOTE_MIGRATION_PATH } from "@/lib/routes";
 import { syncPublishedNoteBodyFont } from "@/lib/published-note-body-font";
 import { getNoteWindowMemoId } from "@/lib/desktop-note-windows";
 import { useBranding } from "@/lib/branding";
+import { useServerBranding } from "@/hooks/useServerBranding";
 import { ApiRequestError, getMfaChallenge } from "@edgeever/client";
 import type { AuthSession, MfaChallenge } from "@edgeever/shared";
 import { twoFactorErrorKey } from "@/components/two-factor/TwoFactorSteps";
@@ -84,6 +85,7 @@ const AuthenticatedWorkspace = ({ siteManagement = false }: { siteManagement?: b
   });
 
   const desktopAccountId = sessionQuery.data?.authenticated ? sessionQuery.data.user?.id ?? null : null;
+  useServerBranding(sessionQuery.data ? Boolean(sessionQuery.data.authenticated) : undefined);
 
   useEffect(() => {
     if (!desktopAccountId) return;

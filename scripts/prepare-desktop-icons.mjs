@@ -15,10 +15,12 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import { assertMacIcnsComplete } from "./desktop-icns.mjs";
+import { readBrandConfig } from "./brand-config.mjs";
 
 const projectRoot = resolve(fileURLToPath(new URL(".", import.meta.url)), "..");
-const sourcePng = join(projectRoot, "assets/brand/rtnote-icon.svg");
-const brandMarkPath = join(projectRoot, "assets/brand/rtnote-mark.svg");
+const brand = readBrandConfig();
+const sourcePng = brand.paths.icon;
+const brandMarkPath = brand.paths.mark;
 const assetsDir = join(projectRoot, "apps/desktop/assets");
 
 /** iconutil expects these exact basenames inside a .iconset directory. */

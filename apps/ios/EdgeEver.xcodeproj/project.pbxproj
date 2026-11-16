@@ -95,6 +95,11 @@
 		FDF0A8FA27796FB9500F97D4 /* ResourceCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A3C0399C910B150A02D06E /* ResourceCache.swift */; };
 		B2E4D8F36CAE5F109D7B3C28 /* PendingVoiceMemoStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F3C7E25B9D4E0F8C6A2B17 /* PendingVoiceMemoStore.swift */; };
 		D406FA158EC07132BF9D5E4A /* VoiceMemoRecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F5E9047DBF6021AE8C4D39 /* VoiceMemoRecorderView.swift */; };
+		CF3BBC34412C41B5E41138EC /* Branding.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB04D3464AFF369505A65F0E /* Branding.swift */; };
+		AB99CEB73484CBF39D86F640 /* BrandingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E243DEA1085FD00F2F7426C /* BrandingStore.swift */; };
+		C77494EBC6DD04A226703F43 /* BrandTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9F40669B71CF33FCA89885B /* BrandTheme.swift */; };
+		17BD88A41F8488E23CD31CC7 /* BrandLogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2A64EFA22C957AAD711BFCB /* BrandLogoView.swift */; };
+		AE18EA7685A582E9C4B7FDCE /* BrandingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E51662F4FDA270770C880BCE /* BrandingTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -221,6 +226,11 @@
 		F50D91D8505FE6446ABD647C /* WorkspaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceView.swift; sourceTree = "<group>"; };
 		F9182F742B06FB1713E27C2A /* ResourceActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResourceActions.swift; sourceTree = "<group>"; };
 		FDEF3A661FA08F338EC96C74 /* LocalMirrorRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalMirrorRepository.swift; sourceTree = "<group>"; };
+		AB04D3464AFF369505A65F0E /* Branding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Branding.swift; sourceTree = "<group>"; };
+		1E243DEA1085FD00F2F7426C /* BrandingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandingStore.swift; sourceTree = "<group>"; };
+		C9F40669B71CF33FCA89885B /* BrandTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandTheme.swift; sourceTree = "<group>"; };
+		D2A64EFA22C957AAD711BFCB /* BrandLogoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandLogoView.swift; sourceTree = "<group>"; };
+		E51662F4FDA270770C880BCE /* BrandingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandingTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -236,6 +246,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		51DB200B366A0C03AA4A7AED /* Branding */ = {
+			isa = PBXGroup;
+			children = (
+				1E243DEA1085FD00F2F7426C /* BrandingStore.swift */,
+			);
+			path = Branding;
+			sourceTree = "<group>";
+		};
 		F5FD408D8668FC264CD6E46D /* Security */ = {
 			isa = PBXGroup;
 			children = (
@@ -382,6 +400,8 @@
 		8A404C1D0F3056A4C32DDE63 /* DesignSystem */ = {
 			isa = PBXGroup;
 			children = (
+				D2A64EFA22C957AAD711BFCB /* BrandLogoView.swift */,
+				C9F40669B71CF33FCA89885B /* BrandTheme.swift */,
 				410470CB94CB0505A3EF5801 /* ChromeParity.swift */,
 				4341E86DEF60272AE37A8704 /* Colors.swift */,
 				2829CE5DF5C15ACF41CC17DA /* EditFabButton.swift */,
@@ -396,6 +416,7 @@
 		8BCFBC0CDC794B02EAD907EC /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				51DB200B366A0C03AA4A7AED /* Branding */,
 				2E86C2538BFD6FD31BF84916 /* Cache */,
 				1161CF1FFAC898B00498D97D /* Database */,
 				B905FCD37DFCE6B112511261 /* Models */,
@@ -475,6 +496,7 @@
 		B905FCD37DFCE6B112511261 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				AB04D3464AFF369505A65F0E /* Branding.swift */,
 				F1F36ACF8073C8A61AE397CD /* MemoTemplates.swift */,
 				C5126510AFB9AFBF7ABADB45 /* Models.swift */,
 				9886D42194377CACC82BD6C8 /* TotpModels.swift */,
@@ -516,6 +538,7 @@
 		F82E0DDA9B1E6FCB6CB7E083 /* EdgeEverTests */ = {
 			isa = PBXGroup;
 			children = (
+				E51662F4FDA270770C880BCE /* BrandingTests.swift */,
 				213837D2B2F025307A5EBB69 /* ChromeParityTests.swift */,
 				4BEF7AFA15A0972ED3475F23 /* EditorBundleTests.swift */,
 				57312B99FFBD9A2186A8C0D0 /* LiveLocalAPITests.swift */,
@@ -675,6 +698,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3E20F8406FE46B5DEDB63E47 /* TotpDecodingTests.swift in Sources */,
+				AE18EA7685A582E9C4B7FDCE /* BrandingTests.swift in Sources */,
 				100A3242D8AA714261236773 /* ChromeParityTests.swift in Sources */,
 				E51CD822863D3494E35ADB27 /* EditorBundleTests.swift in Sources */,
 				F51F6C5ED7C2B0E68DF5A55D /* LiveLocalAPITests.swift in Sources */,
@@ -696,6 +720,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				77C3F06708AC36BF9F6F16EA /* TotpModels.swift in Sources */,
+				CF3BBC34412C41B5E41138EC /* Branding.swift in Sources */,
+				AB99CEB73484CBF39D86F640 /* BrandingStore.swift in Sources */,
+				C77494EBC6DD04A226703F43 /* BrandTheme.swift in Sources */,
+				17BD88A41F8488E23CD31CC7 /* BrandLogoView.swift in Sources */,
 				EFA3767F26DCBD697A3BF043 /* TotpComponents.swift in Sources */,
 				77939EA96FFA56BAEDB4EF99 /* TotpSettingsPanel.swift in Sources */,
 				936D15E0433CE757E5ED8C51 /* ForcedTotpRebindView.swift in Sources */,

@@ -10,6 +10,7 @@ import {
 import { getMfaChallenge } from "@edgeever/client";
 import { PUBLIC_DEMO_INSTANCE_URL, type MfaChallenge } from "@edgeever/shared";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { BrandLogo } from "../components/BrandLogo";
 import { ActivityIndicator, GitHub, LockKeyhole } from "../components/icons";
 import { Pressable, Text, TextInput } from "../components/LocalizedText";
 import {
@@ -19,9 +20,10 @@ import {
   useTwoFactorCopy,
 } from "../components/TotpFlowParts";
 import { formatMobileLoginError } from "../lib/login-error";
+import { useMobileBranding } from "../lib/mobile-branding";
 import { formatMobileCopy, useMobileLocale } from "../lib/mobile-locale";
 import { classifyMfaLoginError, isCompleteTotpCode, isPlausibleRecoveryCode } from "../lib/mobile-totp";
-import { resolveMobileThemeStyles, useMobileTheme, type MobileResolvedTheme } from "../lib/mobile-theme";
+import { mobileThemeStylesKey, resolveMobileThemeStyles, useMobileTheme, type MobileResolvedTheme } from "../lib/mobile-theme";
 import { useSession } from "../lib/session";
 
 const GITHUB_REPOSITORY_URL = "https://github.com/MadlyFX/rtnote";
@@ -29,6 +31,8 @@ const GITHUB_REPOSITORY_URL = "https://github.com/MadlyFX/rtnote";
 export const LoginScreen = () => {
   const { resolvedTheme } = useMobileTheme();
   const { resolvedLocale } = useMobileLocale();
+  const { branding, logoUri } = useMobileBranding();
+  const brandLogoUri = logoUri(resolvedTheme);
   refreshLoginThemeStyles(resolvedTheme);
   const { t: twoFactor } = useTwoFactorCopy();
   const { completeMfaSignIn, signIn } = useSession();
@@ -129,11 +133,17 @@ export const LoginScreen = () => {
         >
           <View style={styles.form}>
             <View style={styles.header}>
-              <View style={styles.logo}>
-                <LockKeyhole color={styles.logoIcon.color} size={22} />
-              </View>
+              <BrandLogo
+                fallback={(
+                  <View style={styles.logo}>
+                    <LockKeyhole color={styles.logoIcon.color} size={22} />
+                  </View>
+                )}
+                size={48}
+                uri={brandLogoUri}
+              />
               <View style={styles.headerText}>
-                <Text style={styles.title}>RTNote</Text>
+                <Text style={styles.title}>{branding.name}</Text>
                 <Text style={styles.subtitle}>连接你的自托管笔记空间</Text>
               </View>
             </View>
@@ -384,11 +394,12 @@ const baseLoginStyles = StyleSheet.create({
 });
 
 let styles = baseLoginStyles;
-let loginStylesTheme: MobileResolvedTheme = "light";
+// Theme plus branding colours the cached styles were resolved for.
+let loginStylesTheme = "light";
 
 const refreshLoginThemeStyles = (theme: MobileResolvedTheme) => {
-  if (loginStylesTheme !== theme) {
+  if (loginStylesTheme !== mobileThemeStylesKey(theme)) {
     styles = resolveMobileThemeStyles(baseLoginStyles, theme);
-    loginStylesTheme = theme;
+    loginStylesTheme = mobileThemeStylesKey(theme);
   }
 };

@@ -3,6 +3,7 @@ import type { TiptapDoc, TiptapNode, TiptapTextNode } from "./content";
 import type { PublicNoteProse } from "./note-prose";
 import { parseMemoLinkHref } from "./note-links";
 import type { NotebookSiteSettings } from "./notebook-site";
+import type { ResolvedBranding } from "./branding";
 import { getImageLink } from "./image-link";
 
 export type MemoShare = {
@@ -16,6 +17,8 @@ export type MemoShare = {
   /** Independent standalone-page controls; both default to visible. */
   showUpdatedAt: boolean;
   showBranding: boolean;
+  /** Notebook whose branding the page uses; null uses the workspace branding. Older servers omit it. */
+  brandingNotebookId?: string | null;
   /** Plaintext is returned only immediately after the owner enables or regenerates a password. */
   password?: string;
   /** UTC instant after which the public link stops working; null never expires. Older servers omit it. */
@@ -58,6 +61,8 @@ export type PublicNotebookShare = {
   name: string;
   notebooks: Array<{ id: string; parentId: string | null; name: string }>;
   memos: Array<{ id: string; notebookId: string; title: string | null }>;
+  /** Instance, workspace and notebook branding combined. Older servers omit it. */
+  branding?: ResolvedBranding;
 };
 
 export type ShareBodyAccess = {
@@ -93,6 +98,8 @@ export type PublicMemoShare = {
   /** Older servers and notebook shares may omit these; omission means visible. */
   showUpdatedAt?: boolean;
   showBranding?: boolean;
+  /** The owner's branding; null when `showBranding` is off. Older servers omit it. */
+  branding?: ResolvedBranding | null;
 };
 
 const RESOURCE_URL_PATTERN =

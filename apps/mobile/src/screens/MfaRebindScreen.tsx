@@ -15,7 +15,7 @@ import {
   useTwoFactorCopy,
 } from "../components/TotpFlowParts";
 import { formatMobileCopy } from "../lib/mobile-locale";
-import { resolveMobileThemeStyles, useMobileTheme, type MobileResolvedTheme } from "../lib/mobile-theme";
+import { mobileThemeStylesKey, resolveMobileThemeStyles, useMobileTheme, type MobileResolvedTheme } from "../lib/mobile-theme";
 import { getTotpErrorKey, isCompleteTotpCode, type TwoFactorCopyKey } from "../lib/mobile-totp";
 import { useSession } from "../lib/session";
 
@@ -193,11 +193,12 @@ const baseRebindStyles = StyleSheet.create({
 });
 
 let styles = baseRebindStyles;
-let rebindStylesTheme: MobileResolvedTheme = "light";
+// Theme plus branding colours the cached styles were resolved for.
+let rebindStylesTheme = "light";
 
 const refreshRebindThemeStyles = (theme: MobileResolvedTheme) => {
-  if (rebindStylesTheme !== theme) {
+  if (rebindStylesTheme !== mobileThemeStylesKey(theme)) {
     styles = resolveMobileThemeStyles(baseRebindStyles, theme);
-    rebindStylesTheme = theme;
+    rebindStylesTheme = mobileThemeStylesKey(theme);
   }
 };

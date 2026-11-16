@@ -1,14 +1,18 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
 import { useColorScheme } from "react-native";
 import { readMobileThemePreference, writeMobileThemePreference, type MobileThemePreference } from "./preferences";
 import {
+  getMobileBrandColorKey,
+  subscribeMobileBrandColors,
   type MobileResolvedTheme,
 } from "./mobile-theme-colors";
-export { resolveMobileThemeColor, resolveMobileThemeStyles, type MobileResolvedTheme } from "./mobile-theme-colors";
+export { mobileThemeStylesKey, resolveMobileThemeColor, resolveMobileThemeStyles, type MobileResolvedTheme } from "./mobile-theme-colors";
 
 type MobileThemeContextValue = {
   preference: MobileThemePreference;
   resolvedTheme: MobileResolvedTheme;
+  /** Changes with the theme and with the server branding colours; use it to cache resolved styles. */
+  themeKey: string;
   setPreference: (preference: MobileThemePreference) => void;
   toggleTheme: () => void;
 };
@@ -31,10 +35,13 @@ export const MobileThemeProvider = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
+  // Branding colours live in the colour layer; a change re-renders every themed screen.
+  const brandColorKey = useSyncExternalStore(subscribeMobileBrandColors, getMobileBrandColorKey, getMobileBrandColorKey);
   const resolvedTheme: MobileResolvedTheme = preference === "system" ? (systemTheme === "dark" ? "dark" : "light") : preference;
   const value = useMemo<MobileThemeContextValue>(() => ({
     preference,
     resolvedTheme,
+    themeKey: brandColorKey ? `${resolvedTheme}|${brandColorKey}` : resolvedTheme,
     setPreference: (nextPreference) => {
       setPreferenceState(nextPreference);
       void writeMobileThemePreference(nextPreference);
@@ -44,7 +51,7 @@ export const MobileThemeProvider = ({ children }: { children: ReactNode }) => {
       setPreferenceState(nextPreference);
       void writeMobileThemePreference(nextPreference);
     },
-  }), [preference, resolvedTheme]);
+  }), [brandColorKey, preference, resolvedTheme]);
 
   return <MobileThemeContext.Provider value={value}>{children}</MobileThemeContext.Provider>;
 };

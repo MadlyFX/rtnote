@@ -3,11 +3,14 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import { prepareDesktopIcons } from "./prepare-desktop-icons.mjs";
+import { readBrandConfig } from "./brand-config.mjs";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const sourcePath = path.join(projectRoot, "assets/brand/rtnote-icon.svg");
-const adaptiveForegroundSourcePath = path.join(projectRoot, "apps/mobile/assets/adaptive-icon-foreground.svg");
-const adaptiveTransparentSourcePath = path.join(projectRoot, "apps/mobile/assets/adaptive-icon-transparent.svg");
+// Sources and the tile colour come from brand.config.json so a rebuild can rebrand every icon.
+const brand = readBrandConfig();
+const sourcePath = brand.paths.icon;
+const adaptiveForegroundSourcePath = brand.paths.adaptiveIconForeground;
+const adaptiveTransparentSourcePath = brand.paths.adaptiveIconTransparent;
 const source = await readFile(sourcePath);
 const adaptiveForegroundSource = await readFile(adaptiveForegroundSourcePath);
 const adaptiveTransparentSource = await readFile(adaptiveTransparentSourcePath);
@@ -17,17 +20,17 @@ await copyFile(sourcePath, path.join(projectRoot, "apps/web/public/favicon.svg")
 const pngTargets = [
   ["apps/web/public/pwa-192x192.png", 192, { preserveAlpha: true }],
   ["apps/web/public/pwa-512x512.png", 512, { preserveAlpha: true }],
-  ["apps/web/public/maskable-icon-512x512.png", 512, { background: "#16a06e" }],
-  ["apps/web/public/apple-touch-icon.png", 180, { background: "#16a06e" }],
-  ["apps/mobile/assets/icon.png", 512, { background: "#16a06e" }],
-  ["apps/ios/EdgeEver/Resources/Assets.xcassets/AppIcon.appiconset/icon.png", 1024, { background: "#16a06e" }],
+  ["apps/web/public/maskable-icon-512x512.png", 512, { background: brand.tileColor }],
+  ["apps/web/public/apple-touch-icon.png", 180, { background: brand.tileColor }],
+  ["apps/mobile/assets/icon.png", 512, { background: brand.tileColor }],
+  ["apps/ios/EdgeEver/Resources/Assets.xcassets/AppIcon.appiconset/icon.png", 1024, { background: brand.tileColor }],
   ["apps/extension/public/icons/icon-16.png", 16, { preserveAlpha: true }],
   ["apps/extension/public/icons/icon-32.png", 32, { preserveAlpha: true }],
   ["apps/extension/public/icons/icon-48.png", 48, { preserveAlpha: true }],
   ["apps/extension/public/icons/icon-128.png", 128, { preserveAlpha: true }],
 ];
 
-const renderPng = async (input, destination, size, { preserveAlpha = false, background = "#16a06e" } = {}) => {
+const renderPng = async (input, destination, size, { preserveAlpha = false, background = brand.tileColor } = {}) => {
   const outputPath = path.join(projectRoot, destination);
   await mkdir(path.dirname(outputPath), { recursive: true });
   const pipeline = sharp(input, { density: 384 }).resize(size, size, {

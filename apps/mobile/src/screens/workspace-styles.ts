@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 import { MEMO_CONTENT_STYLE } from "@edgeever/shared";
 import { MOBILE_UI_METRICS } from "@edgeever/shared/mobile-ui";
-import { resolveMobileThemeStyles, type MobileResolvedTheme } from "../lib/mobile-theme";
+import { mobileThemeStylesKey, resolveMobileThemeStyles, type MobileResolvedTheme } from "../lib/mobile-theme";
 
 const DETAIL_CONTENT_HORIZONTAL_PADDING = 16;
 
@@ -2442,12 +2442,13 @@ const baseWorkspaceStyles = StyleSheet.create({
 });
 
 export let styles = baseWorkspaceStyles;
-let workspaceStylesTheme: MobileResolvedTheme = "light";
+// Theme plus branding colours the cached styles were resolved for.
+let workspaceStylesTheme = "light";
 
 export const refreshWorkspaceThemeStyles = (theme: MobileResolvedTheme) => {
-  if (workspaceStylesTheme === theme) {
+  if (workspaceStylesTheme === mobileThemeStylesKey(theme)) {
     return;
   }
   styles = resolveMobileThemeStyles(baseWorkspaceStyles, theme);
-  workspaceStylesTheme = theme;
+  workspaceStylesTheme = mobileThemeStylesKey(theme);
 };

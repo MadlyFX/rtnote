@@ -1,74 +1,128 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { BRANDING_STORAGE_KEY, DEFAULT_BRANDING, brandForeground, getBranding, installBrandingPreferences, normalizeBrandLogoUrl, replaceBrandTitle, resolveBranding, withAppBrandName, writeBranding } from "./branding.ts";
 
 const originalWindow = globalThis.window;
 const originalDocument = globalThis.document;
 afterEach(() => { globalThis.window = originalWindow; globalThis.document = originalDocument; });
 
+// The module keeps the current branding in memory, so each test loads a fresh copy.
+let loadCount = 0;
+const loadBranding = () => import(`./branding.ts?test=${loadCount++}`);
+
 const storageWindow = () => {
   const values = new Map();
   const target = new EventTarget();
-  target.localStorage = { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) };
+  target.localStorage = {
+    getItem: key => values.get(key) ?? null,
+    setItem: (key, value) => values.set(key, value),
+    removeItem: key => values.delete(key),
+  };
   globalThis.window = target;
   return target;
 };
 
-describe("personal branding", () => {
-  test("corrupt or unavailable storage falls back without breaking startup", () => {
+const fakeDocument = ({ publicBranding } = {}) => {
+  const favicon = { href: "/favicon.svg", getAttribute: () => "/favicon.svg", removeAttribute() {} };
+  const theme = { content: "#0f172a" };
+  const styles = [];
+  globalThis.document = {
+    title: "RTNote",
+    querySelector: selector => selector.includes('rel="icon"') ? favicon : theme,
+    getElementById: id => id === "edgeever-public-branding" && publicBranding !== undefined
+      ? { textContent: JSON.stringify({ branding: publicBranding }) }
+      : styles.find(style => style.id === id) ?? null,
+    createElement: () => ({ id: "", textContent: "" }),
+    head: { appendChild: style => styles.push(style) },
+    documentElement: { classList: { contains: () => false } },
+  };
+  return { favicon, theme, styles };
+};
+
+const custom = { name: "Acme", logoUrl: "/api/public/branding/assets/bra_logo123", colors: { light: { accent: "#2563eb" }, dark: { accent: "#2563eb" } } };
+
+describe("app branding", () => {
+  test("starts from the cache and survives corrupt or blocked storage", async () => {
     const target = storageWindow();
-    target.localStorage.setItem(BRANDING_STORAGE_KEY, "{broken");
-    expect(getBranding()).toEqual(DEFAULT_BRANDING);
+    fakeDocument();
+    target.localStorage.setItem("edgeever.branding.server", "{broken");
+    let branding = await loadBranding();
+    expect(branding.getBranding()).toEqual(branding.DEFAULT_BRANDING);
+    target.localStorage.setItem("edgeever.branding.server", JSON.stringify(custom));
+    branding = await loadBranding();
+    expect(branding.getBranding()).toMatchObject({ name: "Acme", color: "#2563eb" });
     target.localStorage.getItem = () => { throw new Error("blocked"); };
-    expect(getBranding()).toEqual(DEFAULT_BRANDING);
-    expect(resolveBranding({ name: " \n Team  Notes ", color: "#abc" })).toMatchObject({ name: "Team Notes", color: "#aabbcc" });
-    expect(resolveBranding({ name: "x".repeat(100), color: "url(evil)" }).name.length).toBe(48);
+    branding = await loadBranding();
+    expect(branding.getBranding().name).toBe("RTNote");
   });
-  test("unsafe logo protocols and credentials are rejected", () => {
-    for (const url of ["javascript:alert(1)", "http://example.com/a.png", "//example.com/a.png", "https://u:p@example.com/a", "/\\evil.png", "data:image/svg+xml;base64,PHN2Zz4="]) {
-      expect(normalizeBrandLogoUrl(url)).toBe("");
-    }
-    for (const url of ["https://example.com/a.png", "/branding/a.png", "data:image/png;base64,YQ=="]) expect(normalizeBrandLogoUrl(url)).toBe(url);
-    expect(normalizeBrandLogoUrl(`data:image/png;base64,${"A".repeat(350001)}`)).toBe("");
-  });
-  test("saving survives rereads, reset restores defaults, and quota errors do not report success", () => {
+
+  test("server branding updates title, favicon, theme colour and colour tokens", async () => {
     const target = storageWindow();
-    let changes = 0;
-    target.addEventListener("edgeever:branding-changed", () => changes++);
-    const custom = { name: "My Notes", color: "#ffffff", logoUrl: "https://example.com/a.png" };
-    writeBranding(custom);
-    expect(getBranding()).toEqual(custom);
-    writeBranding(DEFAULT_BRANDING);
-    expect(getBranding()).toEqual(DEFAULT_BRANDING);
-    target.localStorage.setItem = () => { throw new Error("quota"); };
-    expect(() => writeBranding(custom)).toThrow("quota");
-    expect(changes).toBe(2);
-  });
-  test("saving and storage events update title, icon, and accent without touching note titles", () => {
-    const target = storageWindow();
-    const favicon = { href: "/favicon.svg", getAttribute: () => "/favicon.svg", removeAttribute() {} };
-    const theme = { content: "#0f172a" };
-    const style = new Map();
-    globalThis.document = { title: "RTNote", querySelector: selector => selector.includes('rel="icon"') ? favicon : theme, documentElement: { style: { setProperty: (key, value) => style.set(key, value) } } };
-    const cleanup = installBrandingPreferences();
-    writeBranding({ name: "My RTNote", color: "#ffffff", logoUrl: "https://example.com/a.png" });
-    expect(document.title).toBe("My RTNote");
-    expect(favicon.href).toBe("https://example.com/a.png");
-    expect(style.get("--brand-green-rgb")).toBe("255 255 255");
-    target.localStorage.setItem(BRANDING_STORAGE_KEY, JSON.stringify({ ...DEFAULT_BRANDING, name: "Another" }));
-    target.dispatchEvent(new Event("storage"));
-    expect(document.title).toBe("Another");
+    const { favicon, theme, styles } = fakeDocument();
+    const branding = await loadBranding();
+    const cleanup = branding.installBrandingPreferences();
+    expect(styles).toHaveLength(0);
+    branding.setAppBranding(custom);
+    expect(document.title).toBe("Acme");
+    expect(favicon.href).toBe("/api/public/branding/assets/bra_logo123");
+    expect(theme.content).toBe("#eef1f4");
+    expect(styles[0].textContent).toContain("--brand-green:#2563eb");
+    expect(JSON.parse(target.localStorage.getItem("edgeever.branding.server")).name).toBe("Acme");
+    branding.setAppBranding(branding.DEFAULT_BRANDING);
+    expect(document.title).toBe("RTNote");
     expect(favicon.href).toBe("/favicon.svg");
-    expect(replaceBrandTitle("A note about RTNote · Another", "Another", "New")).toBe("A note about RTNote · New");
-    expect(replaceBrandTitle("[DEV] RTNote", "RTNote", "My Notes")).toBe("[DEV] My Notes");
+    expect(theme.content).toBe("#0f172a");
+    expect(styles[0].textContent).toBe("");
+    expect(branding.replaceBrandTitle("A note about RTNote · Acme", "Acme", "New")).toBe("A note about RTNote · New");
+    expect(branding.replaceBrandTitle("[DEV] RTNote", "RTNote", "My Notes")).toBe("[DEV] My Notes");
     cleanup();
   });
-  test("accent button text remains readable on light and dark colors", () => {
-    expect(brandForeground("#ffffff")).toBe("#000000");
-    expect(brandForeground("#777777")).toBe("#000000");
-    expect(brandForeground("#747474")).toBe("#FFFFFF");
-    expect(brandForeground("#000000")).toBe("#FFFFFF");
+
+  test("public pages show the server-rendered owner branding and never touch the app cache", async () => {
+    const target = storageWindow();
+    fakeDocument({ publicBranding: { ...custom, name: "Client Co" } });
+    const branding = await loadBranding();
+    expect(branding.getBranding().name).toBe("Client Co");
+    branding.setAppBranding({ name: "Ignored" });
+    expect(branding.getBranding().name).toBe("Client Co");
+    expect(target.localStorage.getItem("edgeever.branding.server")).toBeNull();
+    // Branding hidden by the owner renders as null: the built-in look.
+    fakeDocument({ publicBranding: null });
+    expect((await loadBranding()).getBranding().name).toBe("RTNote");
   });
-  test("names with replacement characters are displayed literally", () => {
-    expect(withAppBrandName("Welcome to RTNote", "$& Notes")).toBe("Welcome to $& Notes");
+});
+
+describe("importing per-browser branding", () => {
+  const overview = (patch = {}) => ({ instance: {}, workspace: {}, effective: {}, instanceEffective: {}, permissions: { instance: false, workspace: true }, notebooks: [], ...patch });
+
+  test("moves name, colour and an uploaded logo into an empty workspace once", async () => {
+    const target = storageWindow();
+    fakeDocument();
+    target.localStorage.setItem("edgeever.branding", JSON.stringify({ name: "My Notes", color: "#FF8800", logoUrl: "data:image/png;base64,iVBORw0KGgo=" }));
+    const branding = await loadBranding();
+    const calls = [];
+    const client = {
+      uploadBrandingAsset: async (blob) => { calls.push(["upload", blob.type, blob.size]); return { asset: { id: "bra_imported1" } }; },
+      updateWorkspaceBranding: async (settings) => { calls.push(["save", settings]); return overview({ workspace: settings }); },
+    };
+    const result = await branding.importLegacyBranding(overview(), client);
+    expect(calls).toEqual([["upload", "image/png", 8], ["save", { name: "My Notes", accent: "#ff8800", logoAssetId: "bra_imported1" }]]);
+    expect(result.workspace.name).toBe("My Notes");
+    expect(target.localStorage.getItem("edgeever.branding")).toBeNull();
+    expect(await branding.importLegacyBranding(overview(), client)).toBeNull();
+  });
+
+  test("never overwrites existing workspace branding and skips the old defaults", async () => {
+    const target = storageWindow();
+    fakeDocument();
+    const branding = await loadBranding();
+    const client = { uploadBrandingAsset: async () => { throw new Error("unexpected"); }, updateWorkspaceBranding: async () => { throw new Error("unexpected"); } };
+    target.localStorage.setItem("edgeever.branding", JSON.stringify({ name: "Mine", color: "#000000" }));
+    expect(await branding.importLegacyBranding(overview({ workspace: { name: "Server" } }), client)).toBeNull();
+    expect(target.localStorage.getItem("edgeever.branding")).toBeNull();
+    target.localStorage.setItem("edgeever.branding", JSON.stringify({ name: "RTNote", color: "#1ba456", logoUrl: "" }));
+    expect(await branding.importLegacyBranding(overview(), client)).toBeNull();
+    // Without permission the legacy value is left for the owner's next visit.
+    target.localStorage.setItem("edgeever.branding", JSON.stringify({ name: "Mine" }));
+    expect(await branding.importLegacyBranding(overview({ permissions: { instance: false, workspace: false } }), client)).toBeNull();
+    expect(target.localStorage.getItem("edgeever.branding")).not.toBeNull();
   });
 });

@@ -19,11 +19,11 @@ export const publicTreeSql = `WITH RECURSIVE tree(id, workspace_id, share_id) AS
 
 export const getNotebookSite = async (db: DatabaseAdapter, token: string) => {
   const row = await db.prepare(`SELECT ns.id, ns.token, ns.site_slug, ns.site_settings_json, ns.password_hash,
-    n.id AS notebook_id, n.name FROM notebook_shares ns
+    ns.workspace_id, n.id AS notebook_id, n.name FROM notebook_shares ns
     JOIN notebooks n ON n.id = ns.notebook_id AND n.workspace_id = ns.workspace_id
     WHERE ns.token = ? AND n.is_deleted = 0`).bind(token).first<{
       id: string; token: string; site_slug: string | null; site_settings_json: string;
-      password_hash: string | null; notebook_id: string; name: string;
+      password_hash: string | null; workspace_id: string; notebook_id: string; name: string;
     }>();
   if (!row) return null;
   const settings: NotebookSiteSettings = readNotebookSiteSettings(row.site_settings_json);

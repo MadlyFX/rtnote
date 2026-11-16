@@ -11,6 +11,7 @@ import { useState, type ReactNode } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { SessionProvider } from "../src/lib/session";
+import { MobileBrandingProvider } from "../src/lib/mobile-branding";
 import { MobileThemeProvider, useMobileTheme } from "../src/lib/mobile-theme";
 import { MobileLocaleProvider } from "../src/lib/mobile-locale";
 import { AppDialogProvider } from "../src/components/AppDialogProvider";
@@ -92,7 +93,9 @@ export default function RootLayout() {
                     }}
                   >
                     <SessionProvider>
-                      <Stack screenOptions={{ headerShown: false }} />
+                      <MobileBrandingProvider>
+                        <Stack screenOptions={{ headerShown: false }} />
+                      </MobileBrandingProvider>
                     </SessionProvider>
                   </PersistQueryClientProvider>
                 </MobileUpdateProvider>

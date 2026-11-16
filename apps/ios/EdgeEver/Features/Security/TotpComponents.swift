@@ -7,7 +7,7 @@ import UIKit
 /// settings flows and the forced rebind screen).
 enum TotpUI {
     /// Accent for TOTP progress, focus and toggles (#059669, AppTheme.accentAction).
-    static let primary = AppTheme.accentAction
+    static var primary: Color { AppTheme.accentAction }
     static let warningBackground = AppTheme.syncErrorBackground
     static let warningBorder = AppTheme.syncErrorBorder
     static let warningTitle = AppTheme.syncErrorTitle

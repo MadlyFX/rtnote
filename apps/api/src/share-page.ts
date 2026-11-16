@@ -2,6 +2,8 @@ import { getMemoDisplayTitle } from "@edgeever/shared/memo-title";
 import { isValidMemoShareSlug } from "@edgeever/shared/share-slug";
 import { PUBLIC_PAGE_HEADERS, PUBLIC_PAGE_ROBOTS } from "@edgeever/shared/public-page-headers";
 import { isMemoShareExpired, recordMemoShareView } from "./memo-share-access";
+import { resolveMemoShareBranding } from "./branding-service";
+import { brandedTitle, brandFooterHtml, brandingHeadMarkup, escapeHtml, stripBrandableHead } from "./public-page-branding";
 import type { DatabaseAdapter } from "./storage-contract";
 
 const SHARE_PAGE_PATH = /^\/share\/([^/]+?)(\.md)?\/?$/;
@@ -15,6 +17,8 @@ type SharePageRow = {
   updated_at: string;
   show_updated_at: number;
   show_branding: number;
+  workspace_id: string;
+  branding_notebook_id: string | null;
 };
 
 export type PublicMemoSharePageTarget = {
@@ -22,14 +26,6 @@ export type PublicMemoSharePageTarget = {
   segment: string;
   markdown: boolean;
 };
-
-const escapeHtml = (text: string) => text.replace(/[&<>"']/g, (char) => ({
-  "&": "&amp;",
-  "<": "&lt;",
-  ">": "&gt;",
-  "\"": "&quot;",
-  "'": "&#39;",
-})[char]!);
 
 /**
  * A public link segment is either the case-sensitive random token or a custom
@@ -75,9 +71,9 @@ const prefersMarkdown = (accept: string | null, markdownPath: boolean) => {
   return !/text\/html/i.test(accept);
 };
 
-const describeNote = (markdown: string) => {
+const describeNote = (markdown: string, brandName: string) => {
   const normalized = markdown.replace(/\s+/g, " ").trim();
-  if (!normalized) return "Read a shared note on RTNote.";
+  if (!normalized) return `Read a shared note on ${brandName}.`;
   return normalized.length > 160 ? `${normalized.slice(0, 160)}…` : normalized;
 };
 
@@ -96,7 +92,8 @@ export const publicShareMarkdown = (title: string | null, body: string) => {
 };
 
 const loadShare = (db: DatabaseAdapter, token: string) => db.prepare(
-  `SELECT m.title, mc.content_markdown, ms.password_hash, ms.expires_at, m.updated_at, ms.show_updated_at, ms.show_branding
+  `SELECT m.title, mc.content_markdown, ms.password_hash, ms.expires_at, m.updated_at, ms.show_updated_at, ms.show_branding,
+          ms.workspace_id, ms.branding_notebook_id
    FROM memo_shares ms
    INNER JOIN memos m ON m.id = ms.memo_id AND m.workspace_id = ms.workspace_id
    INNER JOIN memo_contents mc ON mc.memo_id = m.id
@@ -167,10 +164,15 @@ export const renderPublicMemoSharePage = async (
     return new Response(request.method === "HEAD" ? null : publicShareMarkdown(row.title, body), { status: 200, headers });
   }
 
+  // Unreadable pages (missing, expired, locked) say nothing about the owner.
+  const branding = readable && row
+    ? await resolveMemoShareBranding(db, { workspaceId: row.workspace_id, brandingNotebookId: row.branding_notebook_id, showBranding: row.show_branding !== 0 })
+    : null;
+  const brandName = branding?.name ?? "RTNote";
   const noteTitle = readable ? getMemoDisplayTitle(row?.title, "").replace(/[\r\n]+/g, " ").trim() : "";
   const title = noteTitle || "Shared note";
   const description = readable
-    ? describeNote(body)
+    ? describeNote(body, brandName)
     : expired
       ? "This shared link has expired."
       : locked
@@ -179,15 +181,14 @@ export const renderPublicMemoSharePage = async (
   const updatedTime = readable && row && row.show_updated_at !== 0
     ? `<p lang="en" style="font-size:.75rem;color:#64748b">Updated <time datetime="${escapeHtml(row.updated_at)}">${escapeHtml(new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" }).format(new Date(row.updated_at)))} UTC</time></p>`
     : "";
-  const branding = readable && row && row.show_branding !== 0
-    ? `<footer lang="en" style="margin-top:2rem;font-size:.75rem;text-align:center;color:#64748b"><a href="https://github.com/MadlyFX/rtnote" style="color:inherit">Published with RTNote</a></footer>`
-    : "";
+  const footer = branding ? brandFooterHtml(branding) : "";
   // The page inherits the app shell's language, which says nothing about the note.
   // The note's own title and body are marked as unknown; text generated here is English.
   const article = readable
-    ? `<article id="edgeever-shared-note" style="max-width:44rem;margin:1.5rem auto;padding:0 1rem"><h1 lang="${noteTitle ? "" : "en"}">${escapeHtml(title)}</h1>${updatedTime}<pre lang="" style="white-space:pre-wrap;font:inherit">${escapeHtml(body)}</pre>${branding}</article>`
+    ? `<article id="edgeever-shared-note" style="max-width:44rem;margin:1.5rem auto;padding:0 1rem"><h1 lang="${noteTitle ? "" : "en"}">${escapeHtml(title)}</h1>${updatedTime}<pre lang="" style="white-space:pre-wrap;font:inherit">${escapeHtml(body)}</pre>${footer}</article>`
     : "";
-  const metadata = `<title>${escapeHtml(`${title} · RTNote`)}</title>
+  const pageTitle = readable ? brandedTitle(title, branding) : `${title} · RTNote`;
+  const metadata = `<title>${escapeHtml(pageTitle)}</title>
 <meta name="description" content="${escapeHtml(description)}">
 <meta name="robots" content="${PUBLIC_PAGE_ROBOTS}">
 <link rel="canonical" href="${escapeHtml(canonical)}">
@@ -198,12 +199,13 @@ ${readable ? `<link rel="alternate" type="text/markdown" href="${escapeHtml(mark
 <meta property="og:url" content="${escapeHtml(canonical)}">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="${escapeHtml(title)}">
-<meta name="twitter:description" content="${escapeHtml(description)}">`;
+<meta name="twitter:description" content="${escapeHtml(description)}">
+${readable ? brandingHeadMarkup(branding) : ""}`;
 
   const template = await loadTemplate();
   if (!template.ok) return template;
   const html = injectArticle(
-    (await template.text())
+    stripBrandableHead(await template.text(), readable ? branding : null)
       .replace(/<title\b[^>]*>[\s\S]*?<\/title>/gi, "")
       .replace(/<meta\b[^>]*(?:name|property)=["'](?:description|robots|og:[^"']+|twitter:[^"']+)["'][^>]*>/gi, "")
       .replace(/<link\b[^>]*rel=["'](?:canonical|alternate)["'][^>]*>/gi, "")

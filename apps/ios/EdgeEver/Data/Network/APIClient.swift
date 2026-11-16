@@ -48,6 +48,23 @@ actor APIClient {
         try await request(path: "/api/release")
     }
 
+    // MARK: - Branding
+
+    /// Instance default branding for the sign-in screen (no auth). Older servers answer 404.
+    func getPublicBranding() async throws -> ResolvedBranding {
+        let response: PublicBrandingResponse = try await request(
+            path: "/api/public/branding",
+            notifyUnauthorized: false
+        )
+        return response.branding
+    }
+
+    /// Workspace branding; the app shell shows `effective`. Branding is cosmetic, so a
+    /// 401 here never ends the session on its own; the sync calls decide that.
+    func getBranding() async throws -> WorkspaceBrandingResponse {
+        try await request(path: "/api/v1/branding", notifyUnauthorized: false)
+    }
+
     // MARK: - Auth
 
     /// Password step. When TOTP is enabled the server answers 401 `mfa_required`;

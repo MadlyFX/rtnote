@@ -58,9 +58,10 @@ export const MobileVoiceMemoRecorder = ({
   visible: boolean;
 }) => {
   const { resolvedLocale } = useMobileLocale();
-  const { resolvedTheme } = useMobileTheme();
+  const { resolvedTheme, themeKey } = useMobileTheme();
   const insets = useSafeAreaInsets();
-  const styles = useMemo(() => resolveMobileThemeStyles(baseStyles, resolvedTheme), [resolvedTheme]);
+  // themeKey also changes with the server branding colours.
+  const styles = useMemo(() => resolveMobileThemeStyles(baseStyles, resolvedTheme), [resolvedTheme, themeKey]);
   const copy = getMobileCatalog(resolvedLocale).voiceMemo;
   const [state, dispatch] = useReducer(reduceMobileVoiceMemoRecorder, INITIAL_MOBILE_VOICE_MEMO_RECORDER_STATE);
   const stateRef = useRef(state);

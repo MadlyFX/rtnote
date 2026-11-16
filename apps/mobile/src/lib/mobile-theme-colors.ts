@@ -70,19 +70,66 @@ const palettes: Record<MobileThemeColorUsage, Record<string, string>> = {
   border: borderDarkMap,
 };
 
+/** Light-theme hex (lower case) to replacement, per theme and usage. Built by `buildMobileBrandColorMaps`. */
+export type MobileBrandColorMaps = Record<MobileResolvedTheme, Record<MobileThemeColorUsage, Record<string, string>>>;
+
+let activeBrandMaps: MobileBrandColorMaps | null = null;
+let activeBrandKey = "";
+const brandListeners = new Set<() => void>();
+
+/**
+ * Installs the branding colour substitution every themed style goes through.
+ * `null` restores the stock palette. Returns true when anything changed.
+ */
+export const setMobileBrandColorMaps = (maps: MobileBrandColorMaps | null, key: string) => {
+  const nextKey = maps ? key : "";
+  if (nextKey === activeBrandKey) {
+    return false;
+  }
+  activeBrandMaps = maps;
+  activeBrandKey = nextKey;
+  for (const listener of brandListeners) listener();
+  return true;
+};
+
+export const getMobileBrandColorKey = () => activeBrandKey;
+
+export const subscribeMobileBrandColors = (listener: () => void) => {
+  brandListeners.add(listener);
+  return () => {
+    brandListeners.delete(listener);
+  };
+};
+
+/** Cache key for styles resolved by `resolveMobileThemeStyles`: the theme plus the active branding colours. */
+export const mobileThemeStylesKey = (theme: MobileResolvedTheme) => (activeBrandKey ? `${theme}|${activeBrandKey}` : theme);
+
+/** The stock dark-theme replacement, ignoring branding. */
+export const stockMobileDarkThemeColor = (value: string, usage: MobileThemeColorUsage) =>
+  palettes[usage][value.toLowerCase()] ?? value;
+
 export const resolveMobileThemeColor = (
   value: string | undefined,
   theme: MobileResolvedTheme,
   usage: MobileThemeColorUsage = "foreground"
 ) => {
-  if (theme !== "dark" || typeof value !== "string") {
+  if (typeof value !== "string") {
+    return value;
+  }
+  if (activeBrandMaps) {
+    const branded = activeBrandMaps[theme][usage][value.toLowerCase()];
+    if (branded) {
+      return branded;
+    }
+  }
+  if (theme !== "dark") {
     return value;
   }
   return palettes[usage][value.toLowerCase()] ?? value;
 };
 
 export const resolveMobileThemeStyles = <T extends Record<string, unknown>>(styleSheet: T, theme: MobileResolvedTheme): T => {
-  if (theme === "light") {
+  if (theme === "light" && !activeBrandMaps) {
     return styleSheet;
   }
   return Object.fromEntries(

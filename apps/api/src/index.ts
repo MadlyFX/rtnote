@@ -125,6 +125,8 @@ import { isNotebookSitePagePath, renderNotebookSitePage } from "./notebook-site-
 import { isPublicMemoSharePagePath, renderPublicMemoSharePage } from "./share-page";
 import { registerMemoShareRoutes, registerPublicShareRoutes } from "./share-routes";
 import { registerPublicTableFormRoutes, registerTableFormRoutes } from "./table-form-routes";
+import { registerBrandingRoutes, registerPublicBrandingRoutes } from "./branding-routes";
+import { isWebManifestPath, renderPublicFormPage, renderWebManifest } from "./public-page-branding";
 import {
   deleteStoredObjects,
   getActiveObjectStorageConfig,
@@ -265,6 +267,7 @@ app.get("/api/openapi.json", (c) => c.json(apiProbe));
 registerPublicShareRoutes(app);
 registerPublicNotebookShareRoutes(app);
 registerPublicTableFormRoutes(app);
+registerPublicBrandingRoutes(app);
 
 registerAuthRoutes(app, {
   authenticateRequest: (...args) => authenticateRequest(...args),
@@ -365,6 +368,7 @@ registerWorkspaceExtensionRoutes(app, { isDemoMode: (...args) => isDemoMode(...a
 registerMemoShareRoutes(app);
 registerNotebookShareRoutes(app);
 registerTableFormRoutes(app);
+registerBrandingRoutes(app);
 registerTemplateRoutes(app, {
   createMemoRecord: (...args) => createMemoRecord(...args),
   getMemoDetail: (...args) => getMemoDetail(...args),
@@ -474,6 +478,15 @@ const worker = {
     const loadAppShell = () => env.ASSETS.fetch(new Request(new URL("/", request.url), { method: "GET" }));
     if (isNotebookSitePagePath(pathname)) {
       return (await renderNotebookSitePage(request, createCloudflareStorageAdapter(env).db, loadAppShell))!;
+    }
+    // Branded entry points. Both fall back to the static asset when the
+    // request is not one they render.
+    if (isWebManifestPath(pathname)) {
+      const loadManifest = () => env.ASSETS.fetch(new Request(new URL("/manifest.webmanifest", request.url), { method: "GET" }));
+      return (await renderWebManifest(request, createCloudflareStorageAdapter(env).db, loadManifest)) ?? env.ASSETS.fetch(request);
+    }
+    if (pathname.startsWith("/form/")) {
+      return (await renderPublicFormPage(request, createCloudflareStorageAdapter(env).db, loadAppShell)) ?? env.ASSETS.fetch(request);
     }
     // `/share/*` runs the worker first. Unknown share paths still fall through
     // to the asset shell so a typo does not become a JSON 404.

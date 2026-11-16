@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { setPublicBranding } from "@/lib/branding";
 import { LoaderCircle } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -61,8 +62,9 @@ export const PublicNotebookSharePage = () => {
     existingRobots.forEach((meta) => { meta.content = robots.content; });
     document.head.appendChild(robots);
     const previous = document.title;
+    if (share) setPublicBranding(share.branding);
     document.title = withEnvironmentTitlePrefix(
-      `${note?.title?.trim() || share?.name || t("sharing.notebookTitle")} · RTNote`,
+      `${note?.title?.trim() || share?.name || t("sharing.notebookTitle")} · ${share?.branding?.name ?? "RTNote"}`,
       {
         development: import.meta.env.DEV,
         profile: __EDGEEVER_DEVELOPMENT_PROFILE__,

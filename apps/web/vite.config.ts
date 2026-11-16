@@ -11,6 +11,15 @@ import { localDevelopmentAuth } from "./local-dev-auth";
 import { publicShareMarkdownDev } from "./share-markdown-dev";
 import { resolveAppVersion, resolveReleaseTimestamp } from "./build-metadata";
 
+type BrandConfig = { name: string; shortName: string; description: string; manifestThemeColor: string; manifestBackgroundColor: string };
+const brandConfig = JSON.parse(readFileSync(fileURLToPath(new URL("../../brand.config.json", import.meta.url)), "utf8")) as BrandConfig;
+const escapeHtml = (text: string) => text.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]!);
+/** The page title before any server branding loads is the build's name. */
+const brandIdentityHtml: Plugin = {
+  name: "edgeever-brand-identity-html",
+  transformIndexHtml: (html) => html.replace(/<title>RTNote<\/title>/, () => `<title>${escapeHtml(brandConfig.name)}</title>`),
+};
+
 const readPackageVersion = () => {
   try {
     const packagePath = fileURLToPath(new URL("../../package.json", import.meta.url));
@@ -152,19 +161,21 @@ export default defineConfig({
     publicShareMarkdownDev(),
     developmentServiceWorkerReset,
     react(),
+    brandIdentityHtml,
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: [],
       includeManifestIcons: false,
       manifest: {
-        name: "RTNote",
-        short_name: "RTNote",
-        description: "RTNote: an open-source, rich-text notes workspace you can self-host on Cloudflare or Docker.",
+        // From brand.config.json; the server swaps in instance branding at request time.
+        name: brandConfig.name,
+        short_name: brandConfig.shortName,
+        description: brandConfig.description,
         start_url: "/",
         scope: "/",
         display: "standalone",
-        background_color: "#0f172a",
-        theme_color: "#0f172a",
+        background_color: brandConfig.manifestBackgroundColor,
+        theme_color: brandConfig.manifestThemeColor,
         lang: "en-US",
         categories: ["productivity", "utilities"],
         icons: [
