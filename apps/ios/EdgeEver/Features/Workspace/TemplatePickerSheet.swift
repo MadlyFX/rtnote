@@ -8,6 +8,8 @@ struct CreateChoiceSheet: View {
     var canCreate: Bool
     var onBlank: () -> Void
     var onTemplate: () -> Void
+    /// Creates a note and starts recording a voice memo in it.
+    var onVoiceMemo: (() -> Void)? = nil
 
     var body: some View {
         VStack(spacing: 0) {
@@ -66,13 +68,28 @@ struct CreateChoiceSheet: View {
                     dismiss()
                     onTemplate()
                 }
+                if let onVoiceMemo {
+                    choiceRow(
+                        systemImage: "mic",
+                        title: env.preferences.t("新建语音备忘", en: "New voice memo", ja: "新しいボイスメモ", pl: "Nowa notatka głosowa"),
+                        description: env.preferences.t(
+                            "新建笔记并立即开始录音",
+                            en: "Create a note and start recording",
+                            ja: "ノートを作成してすぐに録音を開始します",
+                            pl: "Utwórz notatkę i od razu zacznij nagrywać"
+                        )
+                    ) {
+                        dismiss()
+                        onVoiceMemo()
+                    }
+                }
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 8)
             .padding(.bottom, 12)
         }
         .background(AppTheme.card)
-        .presentationDetents([.height(280)])
+        .presentationDetents([.height(onVoiceMemo == nil ? 280 : 350)])
         .presentationDragIndicator(.hidden)
         .accessibilityIdentifier("createChoiceSheet")
     }

@@ -8,6 +8,7 @@ export type MobileEditorToolbarActionId =
   | "undo"
   | "redo"
   | "image"
+  | "voiceMemo"
   | "bold"
   | "bulletList"
   | "taskList"
@@ -29,6 +30,7 @@ export const MOBILE_EDITOR_TOOLBAR_ACTIONS = [
   { id: "undo", activeFlag: 0 },
   { id: "redo", activeFlag: 0 },
   { id: "image", activeFlag: 0 },
+  { id: "voiceMemo", activeFlag: 0 },
   { id: "bold", activeFlag: MOBILE_EDITOR_ACTIVE_FLAGS.bold },
   { id: "bulletList", activeFlag: MOBILE_EDITOR_ACTIVE_FLAGS.bulletList },
   { id: "taskList", activeFlag: MOBILE_EDITOR_ACTIVE_FLAGS.taskList },
@@ -50,6 +52,7 @@ const MOBILE_EDITOR_COPY = {
       undo: "撤销",
       redo: "重做",
       image: "上传图片",
+      voiceMemo: "语音备忘",
       bold: "加粗",
       bulletList: "无序列表",
       taskList: "任务清单",
@@ -97,6 +100,7 @@ const MOBILE_EDITOR_COPY = {
       undo: "撤銷",
       redo: "重做",
       image: "上傳圖片",
+      voiceMemo: "語音備忘",
       bold: "加粗",
       bulletList: "無序列表",
       taskList: "任務清單",
@@ -144,6 +148,7 @@ const MOBILE_EDITOR_COPY = {
       undo: "Undo",
       redo: "Redo",
       image: "Upload image",
+      voiceMemo: "Voice memo",
       bold: "Bold",
       bulletList: "Bullet list",
       taskList: "Task list",
@@ -191,6 +196,7 @@ const MOBILE_EDITOR_COPY = {
       undo: "元に戻す",
       redo: "やり直す",
       image: "画像をアップロード",
+      voiceMemo: "ボイスメモ",
       bold: "太字",
       bulletList: "箇条書き",
       taskList: "タスクリスト",
@@ -238,6 +244,7 @@ const MOBILE_EDITOR_COPY = {
       undo: "Cofnij",
       redo: "Ponów",
       image: "Prześlij obraz",
+      voiceMemo: "Notatka głosowa",
       bold: "Pogrubienie",
       bulletList: "Lista punktowana",
       taskList: "Lista zadań",
@@ -285,6 +292,7 @@ const MOBILE_EDITOR_COPY = {
       undo: "Отменить",
       redo: "Повторить",
       image: "Загрузить изображение",
+      voiceMemo: "Голосовая заметка",
       bold: "Полужирный",
       bulletList: "Маркированный список",
       taskList: "Список задач",
@@ -332,6 +340,7 @@ const MOBILE_EDITOR_COPY = {
       undo: "Deshacer",
       redo: "Rehacer",
       image: "Subir imagen",
+      voiceMemo: "Nota de voz",
       bold: "Negrita",
       bulletList: "Lista con viñetas",
       taskList: "Lista de tareas",
@@ -379,6 +388,7 @@ const MOBILE_EDITOR_COPY = {
       undo: "Rückgängig",
       redo: "Wiederholen",
       image: "Bild hochladen",
+      voiceMemo: "Sprachmemo",
       bold: "Fett",
       bulletList: "Aufzählung",
       taskList: "Aufgabenliste",
@@ -426,6 +436,7 @@ const MOBILE_EDITOR_COPY = {
       undo: "Annuler",
       redo: "Rétablir",
       image: "Téléverser une image",
+      voiceMemo: "Mémo vocal",
       bold: "Gras",
       bulletList: "Liste à puces",
       taskList: "Liste de tâches",

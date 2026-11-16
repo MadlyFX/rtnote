@@ -1557,7 +1557,8 @@ html[data-edgeever-extension-theme] .edgeever-memo-divider {
 
 .ProseMirror .edgeever-pdf-viewer a.edgeever-attachment-link,
 .ProseMirror .edgeever-pdf-viewer a[href*="/api/v1/resources/"],
-.ProseMirror .edgeever-file-viewer a[href*="/api/v1/resources/"] {
+.ProseMirror .edgeever-file-viewer a[href*="/api/v1/resources/"],
+.ProseMirror .rtnote-voice-memo-node a[href*="/api/v1/resources/"] {
   max-width: none;
   padding: 0;
   border: 0;
@@ -1568,7 +1569,8 @@ html[data-edgeever-extension-theme] .edgeever-memo-divider {
 
 .ProseMirror .edgeever-pdf-viewer a.edgeever-attachment-link::before,
 .ProseMirror .edgeever-pdf-viewer a[href*="/api/v1/resources/"]::before,
-.ProseMirror .edgeever-file-viewer a[href*="/api/v1/resources/"]::before {
+.ProseMirror .edgeever-file-viewer a[href*="/api/v1/resources/"]::before,
+.ProseMirror .rtnote-voice-memo-node a[href*="/api/v1/resources/"]::before {
   content: none;
 }
 

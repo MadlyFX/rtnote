@@ -2,7 +2,7 @@ import type { TiptapDoc } from "./content";
 import type { DiagramKind, DiagramSummaryPreview } from "./diagram";
 import type { TableSummaryPreview } from "./table";
 
-export type NoteCreateKind = DiagramKind | "infographic" | "table" | "poster";
+export type NoteCreateKind = DiagramKind | "infographic" | "table" | "poster" | "voice-memo";
 
 export type Notebook = {
   id: string;

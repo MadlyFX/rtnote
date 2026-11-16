@@ -35,6 +35,7 @@ import {
 } from "@edgeever/shared";
 import { createEdgeEverMathematics } from "@edgeever/shared/mathematics";
 import { createMobileFormatPanel, getMobileCaptionPlaceholder, type MobileFormatPanel } from "@edgeever/shared/mobile-format-panel";
+import { NATIVE_VOICE_MEMO_CSS, createNativeVoiceMemoExtension } from "@edgeever/shared/native-voice-memo";
 import {
   NEW_IMAGE_WIDTH_PERCENT,
   IMAGE_WIDTH_PRESETS,
@@ -90,6 +91,7 @@ import {
 } from "../lib/mobile-note-search";
 import { planMobileNoteImageRender } from "../lib/mobile-note-image-export";
 import { toProtectedResourceLoadPath } from "../lib/mobile-protected-resources";
+import { completePendingVoiceMemo, findVoiceMemoMimeType, parseVoiceMemoAttrsJson } from "../lib/mobile-voice-memo-editor";
 
 type EditorDoc = TiptapDoc;
 
@@ -101,6 +103,10 @@ export interface LocalTiptapEditorRef extends DOMImperativeFactory {
   completeImageUpload: (uploadId: DOMValue, imageUrl: DOMValue, alt: DOMValue) => void;
   finishImageBatch: (sources: DOMValue) => void;
   appendAttachment: (attachmentUrl: DOMValue, filename: DOMValue, mimeType: DOMValue, byteSize: DOMValue) => void;
+  /** Inserts a voice memo block at the caret (JSON of its attributes). */
+  insertVoiceMemo: (attrsJson: DOMValue) => void;
+  /** Fills in the pending voice memo block with `clientId` once its recording uploaded. */
+  completeVoiceMemo: (clientId: DOMValue, attrsJson: DOMValue) => void;
   removeResource: (targetJson: DOMValue) => void;
   renameResource: (targetJson: DOMValue, filename: DOMValue) => void;
   /** Replace body without remounting the DomWebView (JSON string of TipTap doc). */
@@ -130,6 +136,10 @@ type LocalTiptapEditorSharedProps = {
   autoFocus?: boolean;
   onChange?: (content: EditorDoc) => Promise<void>;
   onPickImage?: () => Promise<void>;
+  /** Opens the native voice memo recorder. */
+  onRecordVoiceMemo?: () => Promise<void>;
+  /** Loads a voice memo's audio as a URL the WebView can play. */
+  onLoadVoiceMemoAudio?: (url: string, mimeType: string) => Promise<string | null>;
   visualDiagramJson?: string;
   visualDiagramNote?: boolean;
   onImagePreview?: (payloadJson: string) => Promise<void>;
@@ -562,6 +572,9 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
   const onImagePreviewRef = useRef(props.mode === "viewer" ? props.onImagePreview : undefined);
   const onDoublePressRef = useRef(props.mode === "viewer" ? props.onDoublePress : undefined);
   const onPickImageRef = useRef(props.mode === "viewer" ? undefined : props.onPickImage);
+  const onRecordVoiceMemoRef = useRef(props.mode === "viewer" ? undefined : props.onRecordVoiceMemo);
+  const onLoadVoiceMemoAudioRef = useRef(props.onLoadVoiceMemoAudio);
+  const editorInstanceRef = useRef<Editor | null>(null);
   const onReadyRef = useRef(props.onReady ?? (async () => undefined));
   const onSearchResultRef = useRef(props.onSearchResult ?? ignoreSearchResult);
   const onReaderScrollRef = useRef(props.onReaderScroll);
@@ -576,6 +589,8 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
   onImagePreviewRef.current = props.mode === "viewer" ? props.onImagePreview : undefined;
   onDoublePressRef.current = props.mode === "viewer" ? props.onDoublePress : undefined;
   onPickImageRef.current = props.mode === "viewer" ? undefined : props.onPickImage;
+  onRecordVoiceMemoRef.current = props.mode === "viewer" ? undefined : props.onRecordVoiceMemo;
+  onLoadVoiceMemoAudioRef.current = props.onLoadVoiceMemoAudio;
   onReadyRef.current = props.onReady ?? (async () => undefined);
   onSearchResultRef.current = props.onSearchResult ?? ignoreSearchResult;
   onReaderScrollRef.current = props.onReaderScroll;
@@ -594,6 +609,17 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
       }
     ),
     [props.baseUrl, props.locale]
+  );
+  const voiceMemoExtension = useMemo(
+    () => createNativeVoiceMemoExtension({
+      getLocale: () => props.locale,
+      resolveAudioUrl: (url) => {
+        const load = onLoadVoiceMemoAudioRef.current;
+        if (!load) return null;
+        return load(url, findVoiceMemoMimeType(editorInstanceRef.current?.state, url));
+      },
+    }),
+    [props.locale]
   );
   const diagramViewer = isViewer && Boolean(props.mode === "viewer" && props.visualDiagramNote);
   const mermaidCodeBlockExtension = useMemo(
@@ -631,6 +657,7 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
         pluginEmbed: false,
         table: { table: { renderWrapper: true } },
         imageCaption: { placeholder: getMobileCaptionPlaceholder(props.locale) },
+        voiceMemo: voiceMemoExtension,
       }),
       EdgeEverLink.configure({ openOnClick: false }),
       NativeAttachmentMetadata,
@@ -690,6 +717,8 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
       }, CHANGE_IDLE_MS);
     },
   });
+
+  editorInstanceRef.current = editor ?? null;
 
   const flush = useCallback(() => {
     if (isViewerRef.current || !editor || editor.isDestroyed || !onChangeRef.current) {
@@ -849,6 +878,20 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
       }],
     }).run();
   }, [editor, props.baseUrl, props.locale]);
+
+  const insertVoiceMemo = useCallback((attrsJsonValue: DOMValue) => {
+    if (!editor || editor.isDestroyed || !editor.isEditable || typeof attrsJsonValue !== "string") return;
+    const attrs = parseVoiceMemoAttrsJson(attrsJsonValue);
+    if (!attrs || (!attrs.url && !attrs.clientId)) return;
+    editor.chain().focus().insertVoiceMemo(attrs).run();
+  }, [editor]);
+
+  const completeVoiceMemo = useCallback((clientIdValue: DOMValue, attrsJsonValue: DOMValue) => {
+    if (!editor || editor.isDestroyed || typeof clientIdValue !== "string" || typeof attrsJsonValue !== "string") return;
+    const attrs = parseVoiceMemoAttrsJson(attrsJsonValue);
+    const tr = attrs ? completePendingVoiceMemo(editor.state, clientIdValue, attrs) : null;
+    if (tr) editor.view.dispatch(tr);
+  }, [editor]);
 
   const renameResource = useCallback((targetJsonValue: DOMValue, filenameValue: DOMValue) => {
     if (!editor || typeof targetJsonValue !== "string" || typeof filenameValue !== "string") return;
@@ -1096,6 +1139,8 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
       completeImageUpload,
       finishImageBatch,
       appendAttachment,
+      insertVoiceMemo,
+      completeVoiceMemo,
       setContent,
       flush,
       focusEnd: () => {
@@ -1112,7 +1157,7 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
       search,
       exportImage,
     }),
-    [appendAttachment, beginImageUpload, cancelImageUpload, completeImageUpload, finishImageBatch, editor, exportImage, flush, isViewer, removeResource, renameResource, replaceAll, search, setContent]
+    [appendAttachment, beginImageUpload, cancelImageUpload, completeImageUpload, completeVoiceMemo, finishImageBatch, editor, exportImage, flush, insertVoiceMemo, isViewer, removeResource, renameResource, replaceAll, search, setContent]
   );
 
   useEffect(() => {
@@ -1313,6 +1358,7 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
     undo: <UndoIcon />,
     redo: <RedoIcon />,
     image: <ImagePlusIcon />,
+    voiceMemo: <MicIcon />,
     bold: <BoldIcon />,
     bulletList: <ListIcon />,
     taskList: <ListTodoIcon />,
@@ -1327,6 +1373,10 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
     undo: () => editor?.chain().focus().undo().run(),
     redo: () => editor?.chain().focus().redo().run(),
     image: () => void insertImage(),
+    voiceMemo: () => {
+      if (isViewer || !editor || !onRecordVoiceMemoRef.current) return;
+      void onRecordVoiceMemoRef.current();
+    },
     bold: () => editor?.chain().focus().toggleBold().run(),
     bulletList: () => editor?.chain().focus().toggleBulletList().run(),
     taskList: () => editor?.chain().focus().toggleTaskList().run(),
@@ -1340,13 +1390,15 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
   return (
     <div className={isViewer ? "edgeever-editor-shell edgeever-viewer-shell" : "edgeever-editor-shell"}>
       <style>{getEditorStyles(props.theme, { viewer: isViewer })}</style>
+      <style>{NATIVE_VOICE_MEMO_CSS}</style>
       {!isViewer ? (
         <div aria-label={getMobileEditorToolbarLabel(props.locale)} className="edgeever-editor-toolbar" role="toolbar">
           {MOBILE_EDITOR_TOOLBAR_ACTIONS.map((action) => (
               <ToolbarButton
                 key={action.id}
                 active={action.id === "format" ? formatPanelOpen : action.activeFlag > 0 && Boolean(toolbarState & action.activeFlag)}
-                disabled={(action.id === "undo" && ((historyState ?? 0) & 1) === 0)
+                disabled={(action.id === "voiceMemo" && !props.onRecordVoiceMemo)
+                  || (action.id === "undo" && ((historyState ?? 0) & 1) === 0)
                   || (action.id === "redo" && ((historyState ?? 0) & 2) === 0)
                   || (action.id === "increaseListIndent"
                     && !editor?.can().chain().focus().sinkListItem(activeListItemType).run())
@@ -1413,6 +1465,14 @@ const ImagePlusIcon = () => (
     <path d="M21 11.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7.5" />
     <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
     <circle cx="9" cy="9" r="2" />
+  </EditorIcon>
+);
+
+const MicIcon = () => (
+  <EditorIcon size={18} strokeWidth={2}>
+    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+    <line x1="12" x2="12" y1="19" y2="22" />
   </EditorIcon>
 );
 

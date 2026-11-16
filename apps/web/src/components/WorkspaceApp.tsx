@@ -143,6 +143,8 @@ import {
   writeDesktopWorkspaceRestoreState,
 } from "@/lib/desktop-workspace-restore";
 import { EditorPaneErrorBoundary, EditorRecoveryPane } from "./EditorPaneErrorBoundary";
+import { VoiceMemoRecordingIndicator } from "./voice-memo/VoiceMemoRecordingIndicator";
+import { createVoiceMemoNoteContent } from "@/lib/voice-memo-recorder";
 import { NoteInSeparateWindowPane } from "./NoteInSeparateWindowPane";
 import { canOpenNoteWindows, noteWindowSyncUpdate, useDetachedMemoIds, type NoteWindowSyncCompletedDetail } from "@/lib/desktop-note-windows";
 import { isMarkdownFile, readMarkdownFile } from "@/lib/markdown-file-import";
@@ -2105,6 +2107,17 @@ export const WorkspaceApp = ({
       createMemoMutation.mutate({ notebookId: targetNotebookId, title: "", contentMarkdown: "", tags: [] });
       return;
     }
+    if (kind === "voice-memo") {
+      // The note opens with a voice memo block that starts recording.
+      createMemoMutation.mutate({
+        notebookId: targetNotebookId,
+        title: t("voiceMemo.name"),
+        contentJson: createVoiceMemoNoteContent(),
+        contentMarkdown: "",
+        tags: [],
+      });
+      return;
+    }
     const seed = createDefaultDiagramDocument(kind, {
       mindMapRoot: t("diagram.seed.mindMapRoot"),
       mindMapCapture: t("diagram.seed.mindMapCapture"),
@@ -3374,6 +3387,7 @@ export const WorkspaceApp = ({
     <WorkspaceMotionProvider>
       <div className="edgeever-workspace-shell flex h-[100dvh] overflow-hidden text-slate-950">
       <DesktopAttachmentWritebacks scope={localDataScope} />
+      <VoiceMemoRecordingIndicator />
       {(wechatImportsInProgress > 0 || sharedFileImportsInProgress > 0) && (
         <div className="pointer-events-none fixed inset-x-0 top-3 z-50 flex justify-center" role="status" aria-live="polite">
           <div className="rounded-full border border-slate-200 bg-card px-4 py-2 text-sm font-medium text-slate-700 shadow-lg">

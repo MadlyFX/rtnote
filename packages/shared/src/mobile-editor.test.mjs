@@ -17,6 +17,7 @@ describe("mobile editor contract", () => {
       "undo",
       "redo",
       "image",
+      "voiceMemo",
       "bold",
       "bulletList",
       "taskList",
@@ -37,6 +38,7 @@ describe("mobile editor contract", () => {
     expect(getMobileEditorToolbarLabel("zh-CN")).toBe("编辑器工具栏");
     expect(getMobileEditorToolbarActionLabel("undo", "zh-CN")).toBe("撤销");
     expect(getMobileEditorToolbarActionLabel("redo", "en-US")).toBe("Redo");
+    expect(getMobileEditorToolbarActionLabel("voiceMemo", "en-US")).toBe("Voice memo");
     expect(getMobileEditorToolbarActionLabel("undo", "ja")).toBe("元に戻す");
     expect(getMobileEditorToolbarActionLabel("bulletList", "en-US")).toBe("Bullet list");
     expect(getMobileEditorToolbarActionLabel("taskList", "zh-CN")).toBe("任务清单");

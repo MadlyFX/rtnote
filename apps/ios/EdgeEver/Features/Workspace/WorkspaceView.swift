@@ -23,10 +23,17 @@ struct MemoCreatePresentation {
         let id = UUID()
         let seed: CreateMemoSeed?
         let sharedImages: [ShareHandoffStore.SharedImage]
+        /// "New voice memo": the editor opens the recorder right away.
+        let startVoiceMemo: Bool
 
-        init(seed: CreateMemoSeed?, sharedImages: [ShareHandoffStore.SharedImage] = []) {
+        init(
+            seed: CreateMemoSeed?,
+            sharedImages: [ShareHandoffStore.SharedImage] = [],
+            startVoiceMemo: Bool = false
+        ) {
             self.seed = seed
             self.sharedImages = sharedImages
+            self.startVoiceMemo = startVoiceMemo
         }
     }
 
@@ -136,6 +143,7 @@ struct WorkspaceView: View {
                     ),
                     initialSharedImages: createPresentation.current?.sharedImages ?? [],
                     finishForIncomingShare: createPresentation.shouldFinishForIncomingShare,
+                    startVoiceMemo: createPresentation.current?.startVoiceMemo ?? false,
                     onCreateFinished: { _ in
                         store.reload(env: env)
                     }
@@ -146,7 +154,8 @@ struct WorkspaceView: View {
                 CreateChoiceSheet(
                     canCreate: !store.notebooks.isEmpty,
                     onBlank: { openCreateNote() },
-                    onTemplate: { openCreateFromTemplate() }
+                    onTemplate: { openCreateFromTemplate() },
+                    onVoiceMemo: { openCreateNote(startVoiceMemo: true) }
                 )
             }
             .sheet(isPresented: $showTemplatePicker) {
@@ -805,10 +814,11 @@ struct WorkspaceView: View {
 
     private func openCreateNote(
         seed: CreateMemoSeed? = nil,
-        sharedImages: [ShareHandoffStore.SharedImage] = []
+        sharedImages: [ShareHandoffStore.SharedImage] = [],
+        startVoiceMemo: Bool = false
     ) {
         guard !store.notebooks.isEmpty else { return }
-        if createPresentation.open(.init(seed: seed, sharedImages: sharedImages)) {
+        if createPresentation.open(.init(seed: seed, sharedImages: sharedImages, startVoiceMemo: startVoiceMemo)) {
             showNewNote = true
         }
     }

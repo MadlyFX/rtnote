@@ -52,6 +52,13 @@ import { createMobileFormatPanel, getMobileCaptionPlaceholder, type MobileFormat
 import { createIosImageGallery } from "./document-nodes";
 import { createImageInsertTransaction, groupUploadedImages, NATIVE_IMAGE_GALLERY_CSS } from "@edgeever/shared/native-image-gallery";
 import { installPhoneImageFillStyle, NEW_IMAGE_WIDTH_PERCENT } from "@edgeever/shared/image-display";
+import { createNativeVoiceMemoExtension, NATIVE_VOICE_MEMO_CSS } from "@edgeever/shared/native-voice-memo";
+import {
+  completeIosVoiceMemo,
+  insertIosVoiceMemo,
+  listIosPendingVoiceMemos,
+  needsNativeAudioLoad,
+} from "./voice-memo-bridge";
 
 const galleryStyle = document.createElement("style");
 galleryStyle.textContent = NATIVE_IMAGE_GALLERY_CSS;
@@ -61,6 +68,10 @@ installPhoneImageFillStyle();
 const detailsStyle = document.createElement("style");
 detailsStyle.textContent = DETAILS_EDITOR_CSS;
 document.head.append(detailsStyle);
+
+const voiceMemoStyle = document.createElement("style");
+voiceMemoStyle.textContent = NATIVE_VOICE_MEMO_CSS;
+document.head.append(voiceMemoStyle);
 
 Graph.registerConnector(MIND_MAP_CONNECTOR_NAME, mindMapConnector, true);
 
@@ -72,6 +83,8 @@ type BridgeMessage =
   | { type: "imagePreview"; source: string; alt: string }
   | { type: "doubleTap" }
   | { type: "pickImage" }
+  | { type: "recordVoiceMemo" }
+  | { type: "loadAudio"; requestId: string; source: string }
   | { type: "searchResult"; count: number; index: number }
   | { type: "readerScroll"; collapsed: boolean }
   | { type: "imageExportFontStatus"; requestId: string; status: "loading" | "fallback" | "ready" }
@@ -244,11 +257,11 @@ function needsNativeHydration(src: string): boolean {
   return false;
 }
 
-function requestResource(source: string): Promise<string | null> {
+function requestResource(source: string, kind: "loadResource" | "loadAudio" = "loadResource"): Promise<string | null> {
   return new Promise((resolve) => {
     const requestId = `r${++resourceSeq}`;
     resourceResolvers.set(requestId, resolve);
-    post({ type: "loadResource", requestId, source });
+    post({ type: kind, requestId, source });
     // Timeout so broken resources don't hang forever.
     setTimeout(() => {
       if (resourceResolvers.delete(requestId)) resolve(null);
@@ -779,6 +792,11 @@ function buildExtensions(placeholder: string) {
       gallery: createIosImageGallery(() => locale),
       pdf: false,
       file: false,
+      // Native loads protected or offline audio and serves it through edgeever-res://.
+      voiceMemo: createNativeVoiceMemoExtension({
+        getLocale: () => locale,
+        resolveAudioUrl: (url) => (needsNativeAudioLoad(url) ? requestResource(url, "loadAudio") : url),
+      }),
       pluginEmbed: false,
       table: { table: { resizable: false } },
       imageCaption: { placeholder: () => getMobileCaptionPlaceholder(locale) },
@@ -1058,6 +1076,11 @@ function setToolbarVisible(visible: boolean) {
       label: "▧+",
       run: () => post({ type: "pickImage" }),
     },
+    {
+      id: "voiceMemo",
+      label: "🎙",
+      run: () => post({ type: "recordVoiceMemo" }),
+    },
     { id: "bold", label: "B", run: () => editor.chain().focus().toggleBold().run() },
     {
       id: "bullet",
@@ -1096,10 +1119,11 @@ function setToolbarVisible(visible: boolean) {
     btn.type = "button";
     btn.textContent = action.label;
     btn.dataset.action = action.id;
-    const labels: Record<string, Record<MobileEditorLocale, string>> = {
+    const labels: Record<string, Partial<Record<MobileEditorLocale, string>>> = {
       undo: { "zh-CN": "撤销", "en-US": "Undo", ja: "元に戻す", pl: "Cofnij", ru: "Отменить" },
       redo: { "zh-CN": "重做", "en-US": "Redo", ja: "やり直す", pl: "Ponów", ru: "Повторить" },
       image: { "zh-CN": "插入图片", "en-US": "Insert image", ja: "画像を挿入", pl: "Wstaw obraz", ru: "Вставить изображение" },
+      voiceMemo: { "zh-CN": "录制语音备忘", "zh-TW": "錄製語音備忘", "en-US": "Record voice memo", ja: "ボイスメモを録音", pl: "Nagraj notatkę głosową", ru: "Записать голосовую заметку", es: "Grabar nota de voz", de: "Sprachmemo aufnehmen", fr: "Enregistrer un mémo vocal" },
       bold: { "zh-CN": "粗体", "en-US": "Bold", ja: "太字", pl: "Pogrubienie", ru: "Полужирный" },
       bullet: { "zh-CN": "项目符号列表", "en-US": "Bullet list", ja: "箇条書き", pl: "Lista punktowana", ru: "Маркированный список" },
       task: { "zh-CN": "任务清单", "en-US": "Task list", ja: "タスクリスト", pl: "Lista zadań", ru: "Список задач" },
@@ -1109,10 +1133,10 @@ function setToolbarVisible(visible: boolean) {
       hr: { "zh-CN": "分隔线", "en-US": "Horizontal rule", ja: "区切り線", pl: "Linia pozioma", ru: "Горизонтальная линия" },
       format: { "zh-CN": "格式", "zh-TW": "格式", "en-US": "Format", ja: "書式", pl: "Formatowanie", ru: "Формат", es: "Formato", de: "Format", fr: "Mise en forme" },
     };
-    btn.setAttribute("aria-label", labels[action.id]?.[locale] ?? action.id);
+    btn.setAttribute("aria-label", labels[action.id]?.[locale] ?? labels[action.id]?.["en-US"] ?? action.id);
     btn.addEventListener("click", () => {
       action.run();
-      if (action.id !== "image" && action.id !== "format") emitChange(editor);
+      if (action.id !== "image" && action.id !== "voiceMemo" && action.id !== "format") emitChange(editor);
       refreshToolbarState();
     });
     toolbarEl.appendChild(btn);
@@ -1334,6 +1358,12 @@ export type EdgeEverEditorAPI = {
   completeImageUpload: (uploadId: string, imageUrl: string, alt: string) => void;
   groupImages: (sources: string[]) => boolean;
   cancelImageUpload: (uploadId: string) => void;
+  /** Inserts a voice memo block from JSON attrs; returns whether it was inserted. */
+  insertVoiceMemo: (attrsJson: string) => boolean;
+  /** Fills in the pending voice memo with `clientId` once its recording is uploaded. */
+  completeVoiceMemo: (clientId: string, attrsJson: string) => boolean;
+  /** JSON array of client ids of voice memos whose recording is not uploaded yet. */
+  listPendingVoiceMemos: () => string;
   search: (query: string, requestedIndex: number) => void;
   exportImage: (request: ImageExportRequest) => void;
 };
@@ -1521,6 +1551,22 @@ const api: EdgeEverEditorAPI = {
     const img = editorEl.querySelector(`img[data-upload-id="${uploadId}"]`);
     img?.remove();
     emitChange(editor);
+  },
+
+  insertVoiceMemo(attrsJson) {
+    const inserted = insertIosVoiceMemo(editor, attrsJson);
+    if (inserted) emitChange(editor);
+    return inserted;
+  },
+
+  completeVoiceMemo(clientId, attrsJson) {
+    const completed = completeIosVoiceMemo(editor, clientId, attrsJson);
+    if (completed) emitChange(editor);
+    return completed;
+  },
+
+  listPendingVoiceMemos() {
+    return JSON.stringify(listIosPendingVoiceMemos(editor));
   },
 
   search(query, requestedIndex) {

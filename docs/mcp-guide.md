@@ -85,6 +85,7 @@ Markdown has no syntax for some formatting, so the generated `contentMarkdown` u
 | Text colour, highlight, font, size | `<span style="color: #c94343; font-family: Georgia, serif; font-size: 18px">text</span>` |
 | Paragraph or heading alignment, line spacing | `<div align="center" style="line-height: 1.5">`, a blank line, the block, a blank line, `</div>` |
 | Image caption | `<figure>`, the `<img>`, then `<figcaption>Caption</figcaption>`, then `</figure>` |
+| Voice memo | `<!-- rtnote-voice-memo {"durationMs":42000,"title":"…"} -->`, a link to the recording, a blank line, the transcript, then `<!-- /rtnote-voice-memo -->`. The JSON holds the file name, type, size, length and title; the transcript is plain text |
 | Merged cells, cell colours and borders, block content in cells, a header column | An HTML `<table>` whose cells hold Markdown between blank lines; other tables stay GFM tables |
 
 Keep these forms intact when you edit Markdown, or send `contentJson` instead.

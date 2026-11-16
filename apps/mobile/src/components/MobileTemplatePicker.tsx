@@ -5,7 +5,7 @@ import { listMemoTemplateGallery } from "@edgeever/shared/memo-template-gallery"
 import { localizeDefaultMemoTemplate } from "@edgeever/shared/memo-template-seeds";
 import type { createEdgeEverClient } from "@edgeever/client";
 import { Modal, Pressable, ScrollView, View } from "react-native";
-import { ActivityIndicator, FileText, LayoutTemplate, X } from "./icons";
+import { ActivityIndicator, FileText, LayoutTemplate, Mic, X } from "./icons";
 import { Text } from "./LocalizedText";
 import {
   galleryEntryToMobileSelectableTemplate,
@@ -14,7 +14,7 @@ import {
   type MobileCreateMemoSeed,
   type MobileSelectableTemplate,
 } from "../lib/mobile-templates";
-import { useMobileLocale } from "../lib/mobile-locale";
+import { getMobileCatalog, useMobileLocale } from "../lib/mobile-locale";
 import { styles } from "../screens/workspace-styles";
 
 type MobileClient = ReturnType<typeof createEdgeEverClient>;
@@ -169,6 +169,7 @@ export const MobileCreateChoiceModal = ({
   onBlank,
   onClose,
   onTemplate,
+  onVoiceMemo,
   visible,
 }: {
   bottomOffset?: number;
@@ -176,9 +177,12 @@ export const MobileCreateChoiceModal = ({
   onBlank: () => void;
   onClose: () => void;
   onTemplate: () => void;
+  /** Creates a note and starts recording a voice memo in it. */
+  onVoiceMemo?: () => void;
   visible: boolean;
 }) => {
-  const { translate } = useMobileLocale();
+  const { resolvedLocale, translate } = useMobileLocale();
+  const voiceMemoCopy = getMobileCatalog(resolvedLocale).voiceMemo;
   return (
     <Modal animationType="fade" onRequestClose={onClose} transparent visible={visible}>
       <Pressable onPress={onClose} style={[styles.actionSheetBackdrop, { paddingBottom: bottomOffset }]}>
@@ -228,6 +232,25 @@ export const MobileCreateChoiceModal = ({
                 <Text style={styles.templateChoiceDescription}>{translate("使用会议纪要、周报等预设结构")}</Text>
               </View>
             </Pressable>
+            {onVoiceMemo ? (
+              <Pressable
+                accessibilityRole="button"
+                disabled={!canCreate}
+                onPress={() => {
+                  onClose();
+                  onVoiceMemo();
+                }}
+                style={[styles.templateChoiceRow, !canCreate && styles.templateChoiceRowDisabled]}
+              >
+                <View style={styles.templateChoiceIcon}>
+                  <Mic color="#0f172a" size={18} />
+                </View>
+                <View style={styles.templateChoiceText}>
+                  <Text style={styles.templateChoiceTitle}>{voiceMemoCopy.newVoiceMemo}</Text>
+                  <Text style={styles.templateChoiceDescription}>{voiceMemoCopy.settingsDescription}</Text>
+                </View>
+              </Pressable>
+            ) : null}
           </View>
         </Pressable>
       </Pressable>

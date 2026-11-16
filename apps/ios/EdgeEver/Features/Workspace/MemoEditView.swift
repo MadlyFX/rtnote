@@ -15,6 +15,12 @@ enum MemoEditMode: Equatable {
     case edit(memoId: String)
 }
 
+/// Lets voice memo uploads that outlive an editor know whether it is still on screen.
+/// Only read and written on the main thread.
+private final class EditorPresenceGate {
+    var isActive = true
+}
+
 enum MemoEditInitialFocus: Hashable {
     case body
     case title
@@ -30,6 +36,8 @@ struct MemoEditView: View {
     var initialFocus: MemoEditInitialFocus = .body
     var initialSharedImages: [ShareHandoffStore.SharedImage] = []
     var finishForIncomingShare = false
+    /// "New voice memo": open the recorder as soon as the editor is ready.
+    var startVoiceMemo = false
     /// When set (edit-from-detail), close by popping to the list under the cover first —
     /// never `dismiss()` onto a still-pushed detail page.
     var onLeaveToList: (() -> Void)? = nil
@@ -59,6 +67,13 @@ struct MemoEditView: View {
     @State private var initialShareImportFinished = false
     @State private var shareHandoffStarted = false
     @State private var didApplyInitialTitleFocus = false
+    @State private var showVoiceMemoRecorder = false
+    @State private var voiceMemoNotice: String?
+    @State private var didAutoStartVoiceMemo = false
+    @State private var didRetryPendingVoiceMemos = false
+    @State private var uploadingVoiceMemoIds: Set<String> = []
+    @State private var presenceGate = EditorPresenceGate()
+    @Environment(\.scenePhase) private var scenePhase
     @FocusState private var titleFocused: Bool
 
     private var title: String { get { viewModel.title } nonmutating set { viewModel.title = newValue } }
@@ -193,6 +208,20 @@ struct MemoEditView: View {
             }
             .ignoresSafeArea()
         }
+        .sheet(isPresented: $showVoiceMemoRecorder) {
+            VoiceMemoRecorderSheet(
+                maxMinutes: env.preferences.voiceMemoMaxMinutes,
+                filenamePrefix: env.preferences.t("语音备忘", en: "Voice memo", ja: "ボイスメモ", pl: "Notatka głosowa")
+            ) { recording in
+                Task { await handleVoiceMemoRecording(recording) }
+            }
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.hidden)
+        }
+        .onChange(of: scenePhase) { _, phase in
+            guard phase == .active, editorReady else { return }
+            Task { await uploadPendingVoiceMemos() }
+        }
         .alert(
             env.preferences.t("无法使用相机", en: "Unable to use camera", pl: "Nie można użyć aparatu"),
             isPresented: $showCameraAccessAlert
@@ -238,7 +267,11 @@ struct MemoEditView: View {
             shareHandoffStarted = true
             Task { await handleDone() }
         }
+        .onAppear {
+            presenceGate.isActive = true
+        }
         .onDisappear {
+            presenceGate.isActive = false
             viewModel.cancelScheduledSave()
             // Create commit is owned by Back / Done (Android `requestClose` = createMutation).
             // Only flush edit sessions, or create-after-image-materialize if still dirty and
@@ -453,6 +486,16 @@ struct MemoEditView: View {
                             error = nil
                             showImageSourcePicker = true
                         },
+                        onRecordVoiceMemo: {
+                            guard !isUploading, !showVoiceMemoRecorder else { return }
+                            UIApplication.shared.sendAction(
+                                #selector(UIResponder.resignFirstResponder),
+                                to: nil,
+                                from: nil,
+                                for: nil
+                            )
+                            showVoiceMemoRecorder = true
+                        },
                         onSearchResult: nil,
                         onBodyReady: {
                             // Do not focusEnd here — bodyReady also fires on typing re-binds.
@@ -460,6 +503,14 @@ struct MemoEditView: View {
                             editorReady = true
                             if initialFocus == .title {
                                 focusTitleOnce()
+                            }
+                            if startVoiceMemo, !didAutoStartVoiceMemo {
+                                didAutoStartVoiceMemo = true
+                                showVoiceMemoRecorder = true
+                            }
+                            if !didRetryPendingVoiceMemos {
+                                didRetryPendingVoiceMemos = true
+                                Task { await uploadPendingVoiceMemos() }
                             }
                         },
                         schemaVersion: viewModel.schemaVersion
@@ -496,6 +547,13 @@ struct MemoEditView: View {
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(AppTheme.danger)
                     .padding(.top, 8)
+            }
+            if let voiceMemoNotice {
+                Text(voiceMemoNotice)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(AppTheme.secondary)
+                    .padding(.top, 8)
+                    .accessibilityIdentifier("voiceMemoNotice")
             }
         }
         .padding(.horizontal, 12)
@@ -1135,6 +1193,141 @@ struct MemoEditView: View {
             NSLog("MemoEditView insertImageData failed: %@", error ?? "unknown")
         }
         return succeeded
+    }
+
+    // MARK: - Voice memos
+
+    /// Keep the recording on the device, insert its block, then try to upload it.
+    private func handleVoiceMemoRecording(_ recording: VoiceMemoRecording) async {
+        let entry = PendingVoiceMemo(
+            clientId: recording.clientId,
+            filename: recording.filename,
+            mimeType: recording.mimeType,
+            byteSize: recording.byteSize,
+            durationMs: recording.durationMs,
+            createdAt: Date()
+        )
+        PendingVoiceMemoStore.shared.add(entry)
+        let inserted = await SharedTipTapRuntime.editor.insertVoiceMemo(attrs: [
+            "clientId": entry.clientId,
+            "filename": entry.filename,
+            "mimeType": entry.mimeType,
+            "byteSize": entry.byteSize,
+            "durationMs": entry.durationMs,
+        ])
+        guard inserted else {
+            // The file stays in Application Support; tell the user instead of dropping it.
+            voiceMemoNotice = env.preferences.t(
+                "录音已保存在此设备上，但无法插入笔记。",
+                en: "The recording is saved on this device but could not be added to the note.",
+                ja: "録音はこの端末に保存されましたが、ノートに追加できませんでした。",
+                pl: "Nagranie zapisano na tym urządzeniu, ale nie udało się dodać go do notatki."
+            )
+            return
+        }
+        let limit = env.preferences.voiceMemoMaxMinutes
+        voiceMemoNotice = recording.reachedLimit
+            ? env.preferences.t(
+                "录音已在 \(limit) 分钟上限处停止。",
+                en: "Recording stopped at the \(limit)-minute limit.",
+                ja: "\(limit) 分の上限で録音を停止しました。",
+                pl: "Nagrywanie zatrzymano po osiągnięciu limitu \(limit) min."
+            )
+            : nil
+        await pullEditorSnapshotIfPossible()
+        editGeneration &+= 1
+        isDirty = true
+        await drainPendingSave()
+        await uploadPendingVoiceMemo(clientId: entry.clientId)
+    }
+
+    /// Retry recordings whose blocks are in this note but not uploaded yet.
+    private func uploadPendingVoiceMemos() async {
+        for entry in PendingVoiceMemoStore.shared.entries(referencedBy: contentJSON) {
+            await uploadPendingVoiceMemo(clientId: entry.clientId)
+        }
+    }
+
+    /// Upload one pending recording and write its URL into the block. Failures keep the
+    /// file and the pending block; the next open of this note (or return to the app) retries.
+    private func uploadPendingVoiceMemo(clientId: String) async {
+        let store = PendingVoiceMemoStore.shared
+        guard !uploadingVoiceMemoIds.contains(clientId), var entry = store.entry(clientId: clientId) else { return }
+        uploadingVoiceMemoIds.insert(clientId)
+        defer { uploadingVoiceMemoIds.remove(clientId) }
+        let gate = presenceGate
+        let savedOffline = env.preferences.t(
+            "录音已保存在此设备上，恢复联网后打开此笔记即可上传。",
+            en: "The recording is saved on this device. It uploads when you open this note online.",
+            ja: "録音はこの端末に保存されました。オンラインでこのノートを開くとアップロードされます。",
+            pl: "Nagranie zapisano na tym urządzeniu. Zostanie przesłane po otwarciu tej notatki online."
+        )
+        do {
+            if entry.uploadedURL == nil {
+                guard let fileURL = try? VoiceMemoFiles.fileURL(clientId: clientId),
+                      FileManager.default.fileExists(atPath: fileURL.path)
+                else {
+                    NSLog("MemoEditView voice memo: file missing for %@", clientId)
+                    return
+                }
+                guard let serverId = try await voiceMemoUploadMemoId() else {
+                    if gate.isActive { voiceMemoNotice = savedOffline }
+                    return
+                }
+                let resource = try await env.session.client.uploadMemoResource(
+                    memoId: serverId,
+                    filename: entry.filename,
+                    mimeType: entry.mimeType,
+                    fileURL: fileURL
+                )
+                let baseURL = env.session.session.flatMap { URL(string: $0.baseUrl) }
+                let src = resource.url.contains("/api/v1/resources/")
+                    ? ResourceCache.normalizeProtectedResourcePath(resource.url, baseURL: baseURL)
+                    : "/api/v1/resources/\(resource.id)/blob"
+                store.markUploaded(clientId: clientId, url: src, byteSize: resource.byteSize)
+                // Play straight from the local copy, online or not.
+                if let data = try? Data(contentsOf: fileURL) {
+                    await SharedTipTapRuntime.editor.seedAudioResource(id: resource.id, data: data, mimeType: entry.mimeType)
+                }
+                entry = store.entry(clientId: clientId) ?? entry
+            }
+            // A closed editor must not write into whatever note the shared editor shows now.
+            guard gate.isActive, let url = entry.uploadedURL else { return }
+            let completed = await SharedTipTapRuntime.editor.completeVoiceMemo(clientId: clientId, attrs: [
+                "url": url,
+                "filename": entry.filename,
+                "mimeType": entry.mimeType,
+                "byteSize": entry.uploadedByteSize ?? entry.byteSize,
+                "durationMs": entry.durationMs,
+            ])
+            guard completed else { return }
+            store.remove(clientId: clientId)
+            if voiceMemoNotice == savedOffline { voiceMemoNotice = nil }
+            await pullEditorSnapshotIfPossible()
+            editGeneration &+= 1
+            isDirty = true
+            await drainPendingSave()
+        } catch {
+            NSLog("MemoEditView voice memo upload failed: %@", String(describing: error))
+            if gate.isActive { voiceMemoNotice = savedOffline }
+        }
+    }
+
+    /// Server memo id for a voice memo upload, or nil while the note exists only on this device.
+    /// A new note is created on the server (throws offline, losing nothing). A `local:` note is
+    /// never passed to `materializeForImage`, which cancels its queued create before going online.
+    private func voiceMemoUploadMemoId() async throws -> String? {
+        if let memoId, !memoId.hasPrefix("local:") { return memoId }
+        guard let localId = memoId else { return try await materializeForImage() }
+        guard let scope = env.session.dataScope else { return nil }
+        await env.runSyncCycle()
+        if let resolved = try? env.mirror.resolveMemo(scope: scope, id: localId), !resolved.id.hasPrefix("local:") {
+            memoId = resolved.id
+            expectedRevision = resolved.revision
+            expectedContentHash = resolved.contentHash
+            return resolved.id
+        }
+        return nil
     }
 
     private func importInitialSharedImagesIfNeeded() async {

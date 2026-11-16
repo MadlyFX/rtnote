@@ -21,6 +21,7 @@ import {
   List,
   ListOrdered,
   ListTodo,
+  Mic,
   Pilcrow,
   Quote,
   Sigma,
@@ -58,6 +59,7 @@ export type SlashCommandId =
   | "current-time"
   | "current-date-time"
   | "attachment"
+  | "voice-memo"
   | "note-link"
   | "external-link";
 
@@ -77,6 +79,7 @@ export type SlashCommandActions = {
   openExternalLinkPicker: () => void;
   openNoteLinkPicker: () => void;
   openMathFormula: (kind: "inline" | "block", range?: { from: number; to: number }) => void;
+  insertVoiceMemo: () => void;
 };
 
 export type SlashCommandItem = {
@@ -123,6 +126,7 @@ export const createSlashCommandItems = (labels: SlashCommandLabels): SlashComman
   { id: "inline-math", command: "math", group: "insert", icon: Sigma, label: labels.items["inline-math"], keywords: ["latex", "formula", "katex", "公式", "数学", "数式"] },
   { id: "block-math", command: "equation", group: "insert", icon: Sigma, label: labels.items["block-math"], keywords: ["latex", "formula", "display", "katex", "块级公式", "独立公式", "数式"] },
   { id: "attachment", command: "upload", group: "insert", icon: FileUp, label: labels.items.attachment, keywords: ["file", "attachment", "文件", "上传", "附件"] },
+  { id: "voice-memo", command: "voice", group: "insert", icon: Mic, label: labels.items["voice-memo"], keywords: ["audio", "record", "recording", "memo", "voice", "录音", "语音", "音声", "録音"] },
   { id: "note-link", command: "note", group: "insert", icon: Link, label: labels.items["note-link"], keywords: ["link", "memo", "笔记", "引用"] },
   { id: "external-link", command: "link", group: "insert", icon: Link, label: labels.items["external-link"], keywords: ["url", "web", "链接", "网址"] },
 ];
@@ -260,6 +264,10 @@ const runSlashCommand = ({
     case "attachment":
       chain.run();
       window.requestAnimationFrame(actions.openAttachmentPicker);
+      break;
+    case "voice-memo":
+      chain.run();
+      window.requestAnimationFrame(actions.insertVoiceMemo);
       break;
     case "note-link":
       chain.run();

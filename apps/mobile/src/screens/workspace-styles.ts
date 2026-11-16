@@ -211,6 +211,34 @@ const baseWorkspaceStyles = StyleSheet.create({
     minHeight: 40,
     paddingHorizontal: 12,
   },
+  voiceMemoDurationRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  voiceMemoDurationChip: {
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+    borderColor: "#e2e8f0",
+    borderRadius: 8,
+    borderWidth: 1,
+    justifyContent: "center",
+    minHeight: 40,
+    minWidth: 64,
+    paddingHorizontal: 12,
+  },
+  voiceMemoDurationChipActive: {
+    backgroundColor: "#ecfdf5",
+    borderColor: "#16A06E",
+  },
+  voiceMemoDurationChipText: {
+    color: "#0f172a",
+    fontSize: 14,
+  },
+  voiceMemoDurationChipTextActive: {
+    color: "#047857",
+    fontWeight: "700",
+  },
   settingsSelectText: {
     color: "#0f172a",
     flex: 1,

@@ -106,7 +106,10 @@ targets:
           NSAllowsArbitraryLoadsInWebContent: true
         NSPhotoLibraryUsageDescription: RTNote needs photo library access to insert images into notes.
         NSCameraUsageDescription: RTNote needs camera access to take photos and insert them into notes.
-        NSMicrophoneUsageDescription: RTNote only uses the microphone if content inside a note explicitly requests it.
+        NSMicrophoneUsageDescription: RTNote uses the microphone to record voice memos into your notes.
+        # Voice memo recording continues while the screen is locked.
+        UIBackgroundModes:
+          - audio
     entitlements:
       path: EdgeEver/Resources/EdgeEver.entitlements
       properties:

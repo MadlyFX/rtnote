@@ -15,6 +15,8 @@
     "./image-display": "./src/image-display.ts",
     "./image-gallery-editing": "./src/image-gallery-editing.ts",
     "./native-image-gallery": "./src/native-image-gallery.ts",
+    "./native-voice-memo": "./src/native-voice-memo.ts",
+    "./voice-memo-names": "./src/voice-memo-names.ts",
     "./i18n": "./src/i18n/index.ts",
     "./i18n/error-screens-en-US": "./src/i18n/error-screens-en-US.ts",
     "./i18n/en-US": "./src/i18n/en-US.ts",

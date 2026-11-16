@@ -8,6 +8,7 @@ export * from "./text-formatting";
 export * from "./block-formatting-markdown";
 export * from "./rich-table-markdown";
 export * from "./image-figure";
+export * from "./voice-memo";
 export * from "./image-alignment";
 export * from "./public-demo";
 export * from "./attachment-kind";
