@@ -5,6 +5,7 @@ import { addIssue, basename, dirname, ImportSources, normalPath, stem } from "./
 import { importTime, mimeFromName, readMarkdownMetadata, prepareImportNote } from "./metadata";
 import { findImportReferences } from "./references";
 import { readEnex, type EnexNote } from "./evernote";
+import { readDocx, readDocxPart } from "./docx";
 
 type RawItem = { key: string; entryKey: string; title: string; props: Record<string, string> };
 const readRaw = (text: string) => {
@@ -31,12 +32,13 @@ export class NoteImportSession {
   private prepared?: ImportDocument;
   private staged = new Set<string>();
   private nextNote = 0;
+  private docxCache?: { key: string; blob: Blob };
   constructor(readonly format: ImportFormat, files: ImportFile[], readonly index: ImportIndex, id: string = crypto.randomUUID()) {
     this.id = id;
     this.sources = new ImportSources(files, index);
   }
   private async notebook(path: string) {
-    path ||= this.format === "obsidian" ? "Obsidian" : "Joplin";
+    path ||= this.format === "obsidian" ? "Obsidian" : this.format === "docx" ? "Word" : "Joplin";
     let current = "";
     for (const name of path.split("/")) {
       const parent = current;
@@ -53,6 +55,36 @@ export class NoteImportSession {
     await prepareImportNote(this.index, note);
     await this.index.put("note", note.key, note);
     await this.index.put("alias", `note:${note.entryKey}`, note.key);
+  }
+  /** The current .docx is kept as one Blob so ZIP members are not re-inflated per image. */
+  private async docxBlob(entry: SourceEntry, signal?: AbortSignal) {
+    if (this.docxCache?.key === entry.key) return this.docxCache.blob;
+    const blob = await this.sources.blob(entry, signal);
+    this.docxCache = { key: entry.key, blob };
+    return blob;
+  }
+  private async scanDocx(entry: SourceEntry, signal?: AbortSignal) {
+    const name = basename(entry.path);
+    // Word's owner files ("~$name.docx") are lock files, not documents.
+    if (name.startsWith("~$")) { await this.index.put("alias", `used:${entry.key}`, true); return; }
+    if (/\.doc$/i.test(name)) { await addIssue(this.index, "docFormat", entry.path); await this.index.put("alias", `used:${entry.key}`, true); return; }
+    if (!/\.docx$/i.test(name)) return;
+    await this.index.put("alias", `used:${entry.key}`, true);
+    try {
+      const docx = await readDocx(await this.docxBlob(entry, signal));
+      const resources: ImportResource[] = docx.images.map(image => ({
+        key: `${entry.key}#${image.part}`, entryKey: entry.key, docxPart: image.part,
+        filename: image.filename, mimeType: image.mimeType, byteSize: image.byteSize,
+      }));
+      if (docx.skipped.length) await addIssue(this.index, "docxSkippedContent", entry.path, "warning", docx.skipped.join(", "));
+      await this.saveNote({
+        key: "", path: entry.path, entryKey: entry.key, notebookKey: await this.notebook(dirname(entry.path)),
+        title: stem(entry.path), tags: [], createdAt: docx.createdAt, updatedAt: docx.updatedAt, resources,
+      });
+    } catch (error) {
+      signal?.throwIfAborted();
+      await addIssue(this.index, "invalidDocx", entry.path, "error", error instanceof Error ? error.message : String(error));
+    }
   }
   private async rawBinaryId(entry: SourceEntry) {
     const id = /^([0-9a-f]{32})(?:\.[^.]+)?$/i.exec(basename(entry.path))?.[1];
@@ -87,6 +119,8 @@ export class NoteImportSession {
               await this.saveNote(note);
             }
           } catch (error) { signal?.throwIfAborted(); await addIssue(this.index, "invalidEnex", entry.path, "error", String(error)); }
+        } else if (this.format === "docx") {
+          await this.scanDocx(entry, signal);
         } else if (/\.(?:md|markdown)$/i.test(entry.path)) {
           if (this.format === "joplin") {
             if (!await this.rawBinaryId(entry)) await this.indexRaw(entry, signal);
@@ -115,7 +149,7 @@ export class NoteImportSession {
           await this.saveNote({ key: "", path: entry.path, entryKey: entry.key, notebookKey: await this.notebook(dirname(entry.path)), resources: [], ...meta });
         }
       }
-      if (this.format !== "evernote") {
+      if (this.format === "obsidian" || this.format === "joplin") {
         for await (const note of indexItems<ImportNote>(this.index, "note")) {
           signal?.throwIfAborted();
           const doc = await this.readNote(note.key, signal);
@@ -143,7 +177,8 @@ export class NoteImportSession {
       }
       if (!await this.index.count("note")) await addIssue(this.index, "noNotes", "");
       if (this.format !== "evernote") for await (const entry of indexItems<SourceEntry>(this.index, "entry")) {
-        if (!/\.(?:md|markdown)$/i.test(entry.path) && !await this.index.get("alias", `used:${entry.key}`)) await addIssue(this.index, "unusedResource", entry.path, "warning");
+        const noteFile = this.format !== "docx" && /\.(?:md|markdown)$/i.test(entry.path);
+        if (!noteFile && !await this.index.get("alias", `used:${entry.key}`)) await addIssue(this.index, "unusedResource", entry.path, "warning");
       }
     } catch (error) {
       signal?.throwIfAborted();
@@ -280,6 +315,10 @@ export class NoteImportSession {
       this.prepared = { note: { ...note, resources: note.resources.map(res => ({ ...res, chunks: raw!.resources.find(item => item.key === res.key)?.chunks ?? 0 })) }, contentMarkdown: "", enml: raw.content };
       return this.prepared;
     }
+    if (this.format === "docx") {
+      const docx = await readDocx(await this.docxBlob(entry, signal));
+      return { note, contentMarkdown: "", contentJson: docx.doc };
+    }
     const text = await this.sources.text(entry, signal);
     return { note, contentMarkdown: note.raw ? readRaw(text)!.body : text };
   }
@@ -289,7 +328,8 @@ export class NoteImportSession {
       const entry = await this.index.get<SourceEntry>("entry", resource.entryKey!);
       if (!entry) throw new Error("missingResource");
       let chunk = new Uint8Array(IMPORT_CHUNK_BYTES), used = 0, number = 0;
-      for await (const bytes of this.sources.bytes(entry, signal)) {
+      const source = resource.docxPart ? readDocxPart(await this.docxBlob(entry, signal), resource.docxPart, signal) : this.sources.bytes(entry, signal);
+      for await (const bytes of source) {
         let at = 0;
         while (at < bytes.length) {
           const length = Math.min(chunk.length - used, bytes.length - at);
@@ -322,7 +362,7 @@ export class NoteImportSession {
   }
   async finishReading() {
     for (const reader of this.enexReaders.values()) await reader.iterator.return(undefined).catch(() => {});
-    this.enexReaders.clear(); this.prepared = undefined; this.staged.clear();
+    this.enexReaders.clear(); this.prepared = undefined; this.staged.clear(); this.docxCache = undefined;
     await this.index.clearKind("chunk");
   }
   async close() {

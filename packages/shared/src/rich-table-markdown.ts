@@ -2,6 +2,7 @@ import { Extension, mergeAttributes } from "@tiptap/core";
 import type { JSONContent, MarkdownLexerConfiguration, MarkdownParseHelpers, MarkdownRendererHelpers, MarkdownToken } from "@tiptap/core";
 import { normalizeTextColor, TEXT_COLORS } from "./text-colors";
 import { hasBlockFormatting } from "./block-formatting-markdown";
+import { CELL_BORDER_NONE, normalizeCellBorder } from "./table-cell-style";
 
 /**
  * GFM tables hold one line of inline text per cell and nothing else. Tables
@@ -21,18 +22,7 @@ import { hasBlockFormatting } from "./block-formatting-markdown";
  */
 export const HTML_TABLE_TOKEN = "rtnoteHtmlTable";
 
-export const CELL_BORDER_NONE = "none";
-
-export type TableCellStyle = {
-  backgroundColor: string | null;
-  borderColor: string | null;
-};
-
-/** A border is either hidden (`none`) or a hex colour. */
-export const normalizeCellBorder = (value: unknown): string | null => {
-  if (typeof value === "string" && value.trim().toLowerCase() === CELL_BORDER_NONE) return CELL_BORDER_NONE;
-  return normalizeTextColor(value);
-};
+export { CELL_BORDER_NONE, normalizeCellBorder, type TableCellStyle } from "./table-cell-style";
 
 export const cellStyleDeclarations = (attrs: Record<string, unknown> | undefined) => {
   const background = normalizeTextColor(attrs?.backgroundColor);

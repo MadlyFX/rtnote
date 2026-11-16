@@ -1,6 +1,6 @@
 export const noteImportEnUS = {
   "title": "Import from other apps",
-  "description": "Import notes and attachments from Evernote, Obsidian, or Joplin, preserving folders and attachments.",
+  "description": "Import notes and attachments from Evernote, Obsidian, Joplin or Word documents, preserving folders and attachments.",
   "open": "Start import",
   "viewProgress": "View import progress",
   "source": "Source app",
@@ -50,7 +50,21 @@ export const noteImportEnUS = {
     "noteLink": "The original inter-note reference is kept without conversion.",
     "missingResource": "The referenced local attachment is missing.",
     "ambiguousResource": "More than one file matches this attachment reference.",
-    "invalidArchive": "The archive cannot be read completely."
+    "invalidArchive": "The archive cannot be read completely.",
+    "invalidDocx": "This is not a readable Word document. Save password-protected files without a password first.",
+    "docFormat": "Save .doc files as .docx in Word, then import them.",
+    "docxSkippedContent": "Some content in this document is not imported"
+  },
+  "docxContent": {
+    "textBox": "text boxes",
+    "footnote": "footnotes",
+    "endnote": "endnotes",
+    "equation": "equations",
+    "chart": "charts",
+    "embeddedObject": "embedded objects",
+    "linkedImage": "linked images",
+    "drawing": "shapes and drawings",
+    "unsupportedImage": "EMF, WMF or TIFF images"
   },
   "errors": {
     "preflightErrors": "Fix the preflight errors before importing.",
@@ -75,7 +89,7 @@ export const noteImportEnUS = {
 
 export const noteImportZhCN = {
   "title": "从其他应用导入",
-  "description": "导入 Evernote、Obsidian 或 Joplin 的笔记与附件，保留目录结构与媒体资源。",
+  "description": "导入 Evernote、Obsidian、Joplin 的笔记或 Word 文档，保留目录结构与媒体资源。",
   "open": "开始导入",
   "viewProgress": "查看导入进度",
   "source": "来源应用",
@@ -125,7 +139,21 @@ export const noteImportZhCN = {
     "noteLink": "保留原有笔记间引用，本次不转换。",
     "missingResource": "找不到正文引用的本地附件。",
     "ambiguousResource": "该附件引用匹配多个文件，无法确定目标。",
-    "invalidArchive": "无法完整读取归档。"
+    "invalidArchive": "无法完整读取归档。",
+    "invalidDocx": "这不是可读取的 Word 文档。受密码保护的文件请先取消密码再导入。",
+    "docFormat": "请先在 Word 中将 .doc 另存为 .docx，再导入。",
+    "docxSkippedContent": "此文档中的部分内容不会导入"
+  },
+  "docxContent": {
+    "textBox": "文本框",
+    "footnote": "脚注",
+    "endnote": "尾注",
+    "equation": "公式",
+    "chart": "图表",
+    "embeddedObject": "嵌入对象",
+    "linkedImage": "链接的图片",
+    "drawing": "形状和绘图",
+    "unsupportedImage": "EMF、WMF 或 TIFF 图片"
   },
   "errors": {
     "preflightErrors": "请先修正预检错误。",
@@ -150,7 +178,7 @@ export const noteImportZhCN = {
 
 export const noteImportJa = {
   "title": "他のアプリからインポート",
-  "description": "Evernote・Obsidian・Joplin のノートと添付ファイルをインポートします。",
+  "description": "Evernote・Obsidian・Joplin のノートや Word 文書と添付ファイルをインポートします。",
   "open": "インポートを開始",
   "viewProgress": "進捗を表示",
   "source": "移行元のアプリ",
@@ -200,7 +228,21 @@ export const noteImportJa = {
     "noteLink": "ノート間の参照は変換せず元のまま保持します。",
     "missingResource": "参照先のローカル添付ファイルがありません。",
     "ambiguousResource": "参照先に一致するファイルが複数あります。",
-    "invalidArchive": "アーカイブを完全に読み取れません。"
+    "invalidArchive": "アーカイブを完全に読み取れません。",
+    "invalidDocx": "読み取れる Word 文書ではありません。パスワードで保護されたファイルは、パスワードを解除して保存してからインポートしてください。",
+    "docFormat": ".doc ファイルは Word で .docx として保存してからインポートしてください。",
+    "docxSkippedContent": "この文書の一部の内容はインポートされません"
+  },
+  "docxContent": {
+    "textBox": "テキスト ボックス",
+    "footnote": "脚注",
+    "endnote": "文末脚注",
+    "equation": "数式",
+    "chart": "グラフ",
+    "embeddedObject": "埋め込みオブジェクト",
+    "linkedImage": "リンクされた画像",
+    "drawing": "図形と描画",
+    "unsupportedImage": "EMF・WMF・TIFF 画像"
   },
   "errors": {
     "preflightErrors": "事前確認のエラーを修正してください。",
@@ -225,7 +267,7 @@ export const noteImportJa = {
 
 export const noteImportPl = {
   "title": "Import z innych aplikacji",
-  "description": "Importuj notatki i załączniki z Evernote, Obsidian lub Joplin.",
+  "description": "Importuj notatki i załączniki z Evernote, Obsidian, Joplin lub dokumentów Word.",
   "open": "Rozpocznij import",
   "viewProgress": "Pokaż postęp importu",
   "source": "Aplikacja źródłowa",
@@ -275,7 +317,21 @@ export const noteImportPl = {
     "noteLink": "Zachowano oryginalne odwołanie między notatkami bez konwersji.",
     "missingResource": "Brak wskazanego lokalnego załącznika.",
     "ambiguousResource": "Do odwołania pasuje więcej niż jeden plik.",
-    "invalidArchive": "Nie można odczytać całego archiwum."
+    "invalidArchive": "Nie można odczytać całego archiwum.",
+    "invalidDocx": "To nie jest czytelny dokument Word. Pliki chronione hasłem zapisz najpierw bez hasła.",
+    "docFormat": "Zapisz pliki .doc w programie Word jako .docx, a następnie je zaimportuj.",
+    "docxSkippedContent": "Część zawartości tego dokumentu nie zostanie zaimportowana"
+  },
+  "docxContent": {
+    "textBox": "pola tekstowe",
+    "footnote": "przypisy dolne",
+    "endnote": "przypisy końcowe",
+    "equation": "równania",
+    "chart": "wykresy",
+    "embeddedObject": "obiekty osadzone",
+    "linkedImage": "połączone obrazy",
+    "drawing": "kształty i rysunki",
+    "unsupportedImage": "obrazy EMF, WMF lub TIFF"
   },
   "errors": {
     "preflightErrors": "Najpierw popraw błędy skanowania.",
@@ -300,7 +356,7 @@ export const noteImportPl = {
 
 export const noteImportRu = {
   "title": "Импорт из других приложений",
-  "description": "Импортируйте заметки и вложения из Evernote, Obsidian или Joplin.",
+  "description": "Импортируйте заметки и вложения из Evernote, Obsidian, Joplin или документов Word.",
   "open": "Начать импорт",
   "viewProgress": "Показать ход импорта",
   "source": "Исходное приложение",
@@ -350,7 +406,21 @@ export const noteImportRu = {
     "noteLink": "Исходная ссылка между заметками сохранена без преобразования.",
     "missingResource": "Не найдено локальное вложение по ссылке.",
     "ambiguousResource": "Ссылке соответствует несколько файлов.",
-    "invalidArchive": "Не удалось полностью прочитать архив."
+    "invalidArchive": "Не удалось полностью прочитать архив.",
+    "invalidDocx": "Это не читаемый документ Word. Файлы, защищённые паролем, сначала сохраните без пароля.",
+    "docFormat": "Сохраните файлы .doc в Word в формате .docx, затем импортируйте их.",
+    "docxSkippedContent": "Часть содержимого этого документа не будет импортирована"
+  },
+  "docxContent": {
+    "textBox": "надписи",
+    "footnote": "сноски",
+    "endnote": "концевые сноски",
+    "equation": "формулы",
+    "chart": "диаграммы",
+    "embeddedObject": "внедрённые объекты",
+    "linkedImage": "связанные изображения",
+    "drawing": "фигуры и рисунки",
+    "unsupportedImage": "изображения EMF, WMF или TIFF"
   },
   "errors": {
     "preflightErrors": "Сначала исправьте ошибки проверки.",
@@ -376,7 +446,7 @@ export const noteImportRu = {
 
 export const noteImportZhTW = {
   "title": "從其他應用匯入",
-  "description": "匯入 Evernote、Obsidian 或 Joplin 的筆記與附件，保留目錄結構與媒體資源。",
+  "description": "匯入 Evernote、Obsidian、Joplin 的筆記或 Word 文件，保留目錄結構與媒體資源。",
   "open": "開始匯入",
   "viewProgress": "檢視匯入進度",
   "source": "來源應用",
@@ -426,7 +496,21 @@ export const noteImportZhTW = {
     "noteLink": "保留原有筆記間引用，本次不轉換。",
     "missingResource": "找不到正文引用的本地附件。",
     "ambiguousResource": "該附件引用匹配多個檔案，無法確定目標。",
-    "invalidArchive": "無法完整讀取歸檔。"
+    "invalidArchive": "無法完整讀取歸檔。",
+    "invalidDocx": "這不是可讀取的 Word 文件。受密碼保護的檔案請先移除密碼再匯入。",
+    "docFormat": "請先在 Word 中將 .doc 另存為 .docx，再匯入。",
+    "docxSkippedContent": "此文件中的部分內容不會匯入"
+  },
+  "docxContent": {
+    "textBox": "文字方塊",
+    "footnote": "註腳",
+    "endnote": "章節附註",
+    "equation": "方程式",
+    "chart": "圖表",
+    "embeddedObject": "內嵌物件",
+    "linkedImage": "連結的圖片",
+    "drawing": "圖形與繪圖",
+    "unsupportedImage": "EMF、WMF 或 TIFF 圖片"
   },
   "errors": {
     "preflightErrors": "請先修正預檢錯誤。",
@@ -451,7 +535,7 @@ export const noteImportZhTW = {
 
 export const noteImportEs = {
   "title": "Importar desde otras aplicaciones",
-  "description": "Importa notas y archivos adjuntos desde Evernote, Obsidian o Joplin, conservando las carpetas y los adjuntos.",
+  "description": "Importa notas y archivos adjuntos desde Evernote, Obsidian, Joplin o documentos de Word, conservando las carpetas y los adjuntos.",
   "open": "Iniciar importación",
   "viewProgress": "Ver progreso de la importación",
   "source": "Aplicación de origen",
@@ -501,7 +585,21 @@ export const noteImportEs = {
     "noteLink": "La referencia original entre notas se conserva sin conversión.",
     "missingResource": "Falta el archivo adjunto local al que se hace referencia.",
     "ambiguousResource": "Más de un archivo coincide con esta referencia de adjunto.",
-    "invalidArchive": "No se puede leer el archivo por completo."
+    "invalidArchive": "No se puede leer el archivo por completo.",
+    "invalidDocx": "No es un documento de Word legible. Guarda primero sin contraseña los archivos protegidos.",
+    "docFormat": "Guarda los archivos .doc como .docx en Word y luego impórtalos.",
+    "docxSkippedContent": "Parte del contenido de este documento no se importará"
+  },
+  "docxContent": {
+    "textBox": "cuadros de texto",
+    "footnote": "notas al pie",
+    "endnote": "notas al final",
+    "equation": "ecuaciones",
+    "chart": "gráficos",
+    "embeddedObject": "objetos incrustados",
+    "linkedImage": "imágenes vinculadas",
+    "drawing": "formas y dibujos",
+    "unsupportedImage": "imágenes EMF, WMF o TIFF"
   },
   "errors": {
     "preflightErrors": "Corrige los errores de comprobación previa antes de importar.",
@@ -526,7 +624,7 @@ export const noteImportEs = {
 
 export const noteImportDe = {
   "title": "Aus anderen Apps importieren",
-  "description": "Notizen und Anhänge aus Evernote, Obsidian oder Joplin importieren, inklusive Beibehaltung von Ordnern und Anhängen.",
+  "description": "Notizen und Anhänge aus Evernote, Obsidian, Joplin oder Word-Dokumenten importieren, inklusive Beibehaltung von Ordnern und Anhängen.",
   "open": "Import starten",
   "viewProgress": "Importfortschritt anzeigen",
   "source": "Quell-App",
@@ -576,7 +674,21 @@ export const noteImportDe = {
     "noteLink": "Der ursprüngliche Querverweis zwischen Notizen bleibt ohne Konvertierung erhalten.",
     "missingResource": "Der referenzierte lokale Anhang fehlt.",
     "ambiguousResource": "Mehr als eine Datei entspricht diesem Anhangsverweis.",
-    "invalidArchive": "Das Archiv kann nicht vollständig gelesen werden."
+    "invalidArchive": "Das Archiv kann nicht vollständig gelesen werden.",
+    "invalidDocx": "Dies ist kein lesbares Word-Dokument. Speichern Sie kennwortgeschützte Dateien zuerst ohne Kennwort.",
+    "docFormat": "Speichern Sie .doc-Dateien in Word als .docx und importieren Sie sie dann.",
+    "docxSkippedContent": "Ein Teil des Inhalts dieses Dokuments wird nicht importiert"
+  },
+  "docxContent": {
+    "textBox": "Textfelder",
+    "footnote": "Fußnoten",
+    "endnote": "Endnoten",
+    "equation": "Formeln",
+    "chart": "Diagramme",
+    "embeddedObject": "eingebettete Objekte",
+    "linkedImage": "verknüpfte Bilder",
+    "drawing": "Formen und Zeichnungen",
+    "unsupportedImage": "EMF-, WMF- oder TIFF-Bilder"
   },
   "errors": {
     "preflightErrors": "Behebe die Vorprüfungsfehler vor dem Importieren.",
@@ -601,7 +713,7 @@ export const noteImportDe = {
 
 export const noteImportFr = {
   "title": "Importer depuis d'autres applications",
-  "description": "Importez vos notes et pièces jointes depuis Evernote, Obsidian ou Joplin, en conservant les dossiers et les pièces jointes.",
+  "description": "Importez vos notes et pièces jointes depuis Evernote, Obsidian, Joplin ou des documents Word, en conservant les dossiers et les pièces jointes.",
   "open": "Démarrer l'importation",
   "viewProgress": "Afficher la progression de l'importation",
   "source": "Application source",
@@ -651,7 +763,21 @@ export const noteImportFr = {
     "noteLink": "La référence interne d'origine entre les notes est conservée sans conversion.",
     "missingResource": "La pièce jointe locale référencée est introuvable.",
     "ambiguousResource": "Plusieurs fichiers correspondent à cette référence de pièce jointe.",
-    "invalidArchive": "Impossible de lire l'archive dans sa totalité."
+    "invalidArchive": "Impossible de lire l'archive dans sa totalité.",
+    "invalidDocx": "Ce n'est pas un document Word lisible. Enregistrez d'abord les fichiers protégés sans mot de passe.",
+    "docFormat": "Enregistrez les fichiers .doc au format .docx dans Word, puis importez-les.",
+    "docxSkippedContent": "Une partie du contenu de ce document ne sera pas importée"
+  },
+  "docxContent": {
+    "textBox": "zones de texte",
+    "footnote": "notes de bas de page",
+    "endnote": "notes de fin",
+    "equation": "équations",
+    "chart": "graphiques",
+    "embeddedObject": "objets incorporés",
+    "linkedImage": "images liées",
+    "drawing": "formes et dessins",
+    "unsupportedImage": "images EMF, WMF ou TIFF"
   },
   "errors": {
     "preflightErrors": "Corrigez les erreurs préalables avant de lancer l'importation.",
