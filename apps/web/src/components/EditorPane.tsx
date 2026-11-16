@@ -277,6 +277,7 @@ import {
 } from "./editor/useEditorResourceActions";
 import { insertTranscriptAfterAttachment, removeAttachmentAt, renameAttachmentAt } from "./editor/attachment-editor-range";
 import { AttachmentTranscriptContext, type AttachmentTranscript, type AttachmentTranscriptContextValue } from "./editor/AttachmentTranscriptContext";
+import { VoiceMemoEditorContext, VoiceMemoExtension, insertVoiceMemoAndRecord, type VoiceMemoEditorContextValue } from "./editor/VoiceMemoNode";
 import {
   createLocalEditSession,
   focusMobilePlainTextElement,
@@ -705,6 +706,7 @@ const RichEditorPane = ({
       "current-time": "",
       "current-date-time": "",
       attachment: "",
+      "voice-memo": "",
       "note-link": "",
       "external-link": "",
     },
@@ -739,6 +741,7 @@ const RichEditorPane = ({
       "current-time": t("slashMenu.items.currentTime"),
       "current-date-time": t("slashMenu.items.currentDateTime"),
       attachment: t("editorToolbar.attachment"),
+      "voice-memo": t("voiceMemo.insert"),
       "note-link": t("editorToolbar.noteLink"),
       "external-link": t("editorToolbar.externalLink"),
     },
@@ -750,6 +753,10 @@ const RichEditorPane = ({
       openExternalLinkPicker: () => openExternalLinkDialogRef.current(),
       openNoteLinkPicker: () => setNoteLinkPickerOpen(true),
       openMathFormula: (kind, range) => openMathFormulaRef.current(kind, range),
+      insertVoiceMemo: () => {
+        const activeEditor = editorRef.current;
+        if (activeEditor) insertVoiceMemoAndRecord(activeEditor);
+      },
     };
   }
   const slashCommandExtensionRef = useRef<ReturnType<typeof createSlashCommandExtension> | null>(null);
@@ -1224,6 +1231,7 @@ const RichEditorPane = ({
         gallery: EditableImageGallery,
         pdf: PdfAttachment,
         file: FileAttachment,
+        voiceMemo: VoiceMemoExtension,
         pluginEmbed: pluginEmbedExtension,
         table: { table: { renderWrapper: true, resizable: true } },
         imageCaption: { placeholder: t("editor.imageCaptionPlaceholder") },
@@ -3240,6 +3248,35 @@ const RichEditorPane = ({
   }), [attachmentTranscript, dismissAttachmentTranscript, editor?.isEditable, effectiveReadOnly,
     insertAttachmentTranscript, memo?.id, retryAttachmentTranscript, useMarkdownSourceEditor, useMobilePlainTextEditor]);
 
+  const voiceMemoContext = useMemo<VoiceMemoEditorContextValue>(() => ({
+    memoId: memo?.id ?? null,
+    upload: async (targetMemoId, file) => {
+      // Desktop may give a new note its durable ID while the file is staged; keep them together.
+      const resumeDesktopSync = isDesktopResourceRuntime()
+        ? await (await import("@/lib/desktop-sync")).pauseDesktopSyncForImport()
+        : null;
+      try {
+        const resource = await uploadEditorResource(targetMemoId, file, false);
+        void queryClient.invalidateQueries({ queryKey: ["resources"] });
+        return resource;
+      } finally {
+        resumeDesktopSync?.();
+      }
+    },
+    transcribe: async (targetMemoId, resourceId, signal, onProgress) => {
+      const { transcribeNoteResource } = await import("@/lib/transcribe-note-resource");
+      try {
+        return (await transcribeNoteResource(targetMemoId, resourceId, signal, onProgress)).text;
+      } catch (error) {
+        if (error instanceof SpeechProviderReachabilityError) {
+          throw new Error(t(error.platform === "browser"
+            ? "speechTranscription.browserDirectUnavailable" : "speechTranscription.desktopDirectUnavailable"));
+        }
+        throw error;
+      }
+    },
+  }), [memo?.id, queryClient, t, uploadEditorResource]);
+
   const showResourceCopyNotice = useCallback((status: "copied" | "error") => {
     if (resourceCopyNoticeTimerRef.current !== null) window.clearTimeout(resourceCopyNoticeTimerRef.current);
     setResourceCopyNotice(status);
@@ -4271,6 +4308,9 @@ const RichEditorPane = ({
             onMarkdownModeChange={handleMarkdownModeChange}
             markdownModeShortcut={shortcutSettings.toggleEditorMode}
             onPickAttachment={() => fileInputRef.current?.click()}
+            onInsertVoiceMemo={() => {
+              if (editor) insertVoiceMemoAndRecord(editor);
+            }}
             onPickExternalLink={openExternalLinkDialog}
             externalLinkActive={externalLinkActive}
             onPickNoteLink={() => setNoteLinkPickerOpen(true)}
@@ -4448,7 +4488,9 @@ const RichEditorPane = ({
                 ) : null}
                 <EditorTableContextMenu editor={editor} readOnly={effectiveReadOnly}>
                   <AttachmentTranscriptContext.Provider value={attachmentTranscriptContext}>
-                    <EditorContent editor={editor} />
+                    <VoiceMemoEditorContext.Provider value={voiceMemoContext}>
+                      <EditorContent editor={editor} />
+                    </VoiceMemoEditorContext.Provider>
                   </AttachmentTranscriptContext.Provider>
                 </EditorTableContextMenu>
               </div>

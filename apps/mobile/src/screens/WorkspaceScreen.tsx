@@ -21,12 +21,15 @@ import { Alert, Pressable, Text } from "../components/LocalizedText";
 import { ApiRequestError } from "@edgeever/client";
 import { DEFAULT_MEMO_TITLE, getNotebookScopeIds, hasDiagramDocumentMarker, type MemoDetail, type MemoSummary, type Notebook } from "@edgeever/shared";
 import { MOBILE_UI_METRICS } from "@edgeever/shared/mobile-ui";
+import { DEFAULT_VOICE_MEMO_MAX_DURATION_MINUTES, type VoiceMemoMaxDurationMinutes } from "@edgeever/shared/voice-memo-names";
 import { clearMobileMemoDraft, readMobileMemoDraft, type MobileMemoDraft } from "../lib/mobile-drafts";
 import {
   readMobileImageCompressionEnabled,
+  readMobileVoiceMemoMaxDuration,
   readMobileShowDescendantNotes,
   readMobileMemoListDensity,
   writeMobileImageCompressionEnabled,
+  writeMobileVoiceMemoMaxDuration,
   saveMobileShowDescendantNotes,
   writeMobileMemoListDensity,
   type MobileMemoListDensity,
@@ -152,6 +155,7 @@ export const WorkspaceScreen = ({
   const [memoSortMode, setMemoSortMode] = useState<MemoSortMode>("updated-desc");
   const [memoListDensity, setMemoListDensity] = useState<MobileMemoListDensity>("preview");
   const [imageCompressionEnabled, setImageCompressionEnabled] = useState(true);
+  const [voiceMemoMaxDuration, setVoiceMemoMaxDuration] = useState<VoiceMemoMaxDurationMinutes>(DEFAULT_VOICE_MEMO_MAX_DURATION_MINUTES);
   // Null until the stored value loads, so lists never flash the wrong notebook scope.
   const [showDescendantNotes, setShowDescendantNotes] = useState<boolean | null>(null);
   const [showDescendantNotesSaveFailed, setShowDescendantNotesSaveFailed] = useState(false);
@@ -161,6 +165,7 @@ export const WorkspaceScreen = ({
   const [createOpen, setCreateOpen] = useState(false);
   const [finishCreateForIncomingShare, setFinishCreateForIncomingShare] = useState(false);
   const [createSeed, setCreateSeed] = useState<MobileCreateMemoSeed | null>(null);
+  const [createWithVoiceMemo, setCreateWithVoiceMemo] = useState(false);
   const [createChoiceOpen, setCreateChoiceOpen] = useState(false);
   const [templatePickerOpen, setTemplatePickerOpen] = useState(false);
   const [incomingClipDraft, setIncomingClipDraft] = useState<MobileWebClipDraft | null>(null);
@@ -527,8 +532,9 @@ export const WorkspaceScreen = ({
       ? activeNotebookId
       : defaultMemoNotebookId;
   const canCreateMemo = memoView !== "trash" && Boolean(createMemoNotebookId);
-  const openCreateMemo = useCallback((seed: MobileCreateMemoSeed | null = null) => {
+  const openCreateMemo = useCallback((seed: MobileCreateMemoSeed | null = null, options: { voiceMemo?: boolean } = {}) => {
     beginEditorStartup();
+    setCreateWithVoiceMemo(Boolean(options.voiceMemo));
     // Drop detail / selection so no other DomWebView stays mounted under the editor.
     // Multiple WebViews make Android IME attach to the wrong (often read-only) view.
     setSelectedMemoId(null);
@@ -551,6 +557,7 @@ export const WorkspaceScreen = ({
     beginEditorStartup();
     setSelectedMemoId(null);
     setCreateSeed(null);
+    setCreateWithVoiceMemo(false);
     setIncomingClipDraft(draft);
     setActiveView("notes");
     setMemoView("notebook");
@@ -761,6 +768,11 @@ export const WorkspaceScreen = ({
         setImageCompressionEnabled(enabled);
       }
     });
+    readMobileVoiceMemoMaxDuration().then((minutes) => {
+      if (mounted) {
+        setVoiceMemoMaxDuration(minutes);
+      }
+    });
     readMobileShowDescendantNotes().then((enabled) => {
       if (mounted) {
         setShowDescendantNotes(enabled);
@@ -798,6 +810,11 @@ export const WorkspaceScreen = ({
   const handleImageCompressionChange = (enabled: boolean) => {
     setImageCompressionEnabled(enabled);
     void writeMobileImageCompressionEnabled(enabled);
+  };
+
+  const handleVoiceMemoMaxDurationChange = (minutes: VoiceMemoMaxDurationMinutes) => {
+    setVoiceMemoMaxDuration(minutes);
+    void writeMobileVoiceMemoMaxDuration(minutes);
   };
 
   const handleShowDescendantNotesChange = async (enabled: boolean) => {
@@ -1217,6 +1234,7 @@ export const WorkspaceScreen = ({
         onCreated={() => {
           setFinishCreateForIncomingShare(false);
           setCreateOpen(false);
+          setCreateWithVoiceMemo(false);
           setIncomingClipDraft(null);
           setIncomingShareImages([]);
           setCreateSeed(null);
@@ -1227,11 +1245,13 @@ export const WorkspaceScreen = ({
         onDismiss={() => {
           setFinishCreateForIncomingShare(false);
           setCreateOpen(false);
+          setCreateWithVoiceMemo(false);
           setIncomingClipDraft(null);
           setIncomingShareImages([]);
           setCreateSeed(null);
         }}
         onQueued={runForcedSync}
+        startWithVoiceMemo={createWithVoiceMemo}
         syncQueueScope={syncQueueScope}
       />
     );
@@ -1304,6 +1324,8 @@ export const WorkspaceScreen = ({
           showDescendantNotesSaveFailed={showDescendantNotesSaveFailed}
           onShowDescendantNotesChange={(enabled) => void handleShowDescendantNotesChange(enabled)}
           onSignOut={signOut}
+          onVoiceMemoMaxDurationChange={handleVoiceMemoMaxDurationChange}
+          voiceMemoMaxDuration={voiceMemoMaxDuration}
         />
       ) : null}
 
@@ -1417,6 +1439,7 @@ export const WorkspaceScreen = ({
         onBlank={() => openCreateMemo()}
         onClose={() => setCreateChoiceOpen(false)}
         onTemplate={openCreateFromTemplate}
+        onVoiceMemo={() => openCreateMemo(null, { voiceMemo: true })}
         visible={createChoiceOpen}
       />
 

@@ -7,6 +7,7 @@ import { MERGE_DIVIDER_NODE_TYPE } from "./merge-divider";
 import { DEFAULT_MEMO_TITLE } from "./memo-title";
 import { PDF_ATTACHMENT_NODE_TYPE, upgradeStandalonePdfLinks } from "./pdf-attachment";
 import { FILE_ATTACHMENT_NODE_TYPE, upgradeStandaloneFileLinks } from "./file-attachment";
+import { VOICE_MEMO_NODE_TYPE, voiceMemoSearchText } from "./voice-memo";
 import {
   BLOCK_MATH_NODE_TYPE,
   createEdgeEverMarkdownMathematics,
@@ -225,6 +226,7 @@ export const resolveMemoContentDoc = (
     docContainsNodeType(currentDoc, INLINE_MATH_NODE_TYPE)
     || docContainsNodeType(currentDoc, PDF_ATTACHMENT_NODE_TYPE)
     || docContainsNodeType(currentDoc, FILE_ATTACHMENT_NODE_TYPE)
+    || docContainsNodeType(currentDoc, VOICE_MEMO_NODE_TYPE)
     || docContainsNodeType(currentDoc, EMPTY_EXTERNAL_LINK_NODE_TYPE)
     || docContainsNodeType(currentDoc, "details")
   ) {
@@ -327,6 +329,11 @@ export const docToText = (doc: unknown): string => {
     if (current.type === PDF_ATTACHMENT_NODE_TYPE || current.type === FILE_ATTACHMENT_NODE_TYPE) {
       const label = getStringAttr(current.attrs, "label");
       if (label) pieces.push(label);
+    }
+
+    if (current.type === VOICE_MEMO_NODE_TYPE) {
+      const text = voiceMemoSearchText(current.attrs);
+      if (text) pieces.push(text);
     }
 
     if (current.type === BLOCK_MATH_NODE_TYPE || current.type === INLINE_MATH_NODE_TYPE) {

@@ -151,6 +151,20 @@ final class PreferencesStore {
         didSet { defaults.set(listDensity.rawValue, forKey: Keys.density) }
     }
 
+    /// Voice memo recordings stop automatically at this length (minutes); see shared
+    /// `VOICE_MEMO_MAX_DURATION_OPTIONS`.
+    var voiceMemoMaxMinutes: Int {
+        didSet { defaults.set(voiceMemoMaxMinutes, forKey: Keys.voiceMemoMaxMinutes) }
+    }
+
+    static let voiceMemoMaxMinuteOptions = [5, 15, 30, 60, 120]
+    static let defaultVoiceMemoMaxMinutes = 30
+
+    static func normalizedVoiceMemoMaxMinutes(_ value: Int?) -> Int {
+        guard let value, voiceMemoMaxMinuteOptions.contains(value) else { return defaultVoiceMemoMaxMinutes }
+        return value
+    }
+
     var noteImageShare: NoteImageSharePreferences {
         didSet {
             if let data = try? JSONEncoder().encode(noteImageShare) {
@@ -171,6 +185,7 @@ final class PreferencesStore {
         self.useCompression = defaults.object(forKey: Keys.compression) as? Bool ?? true
         self.showDescendantNotes = defaults.object(forKey: Keys.showDescendantNotes) as? Bool ?? true
         self.theme = defaults.string(forKey: Keys.theme) ?? "system"
+        self.voiceMemoMaxMinutes = Self.normalizedVoiceMemoMaxMinutes(defaults.object(forKey: Keys.voiceMemoMaxMinutes) as? Int)
         let densityRaw = defaults.string(forKey: Keys.density) ?? ListDensity.preview.rawValue
         // Migrate legacy "comfortable" → preview
         if densityRaw == "comfortable" {
@@ -233,5 +248,6 @@ final class PreferencesStore {
         static let showDescendantNotes = "edgeever.ios.showDescendantNotes"
         static let theme = "edgeever.ios.theme"
         static let density = "edgeever.ios.listDensity"
+        static let voiceMemoMaxMinutes = "edgeever.ios.voiceMemoMaxMinutes"
     }
 }

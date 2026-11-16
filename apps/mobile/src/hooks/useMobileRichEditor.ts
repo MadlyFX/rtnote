@@ -34,6 +34,7 @@ import {
 } from "./mobile-editor-save-chrome";
 import { useMobileEditorResourceActions } from "./useMobileEditorResourceActions";
 import { useMobileEditorUploadAsset } from "./useMobileEditorUploadAsset";
+import { useMobileVoiceMemo } from "./useMobileVoiceMemo";
 import {
   createOnceProtectedResourceFailureNotifier,
   type ProtectedResourceLoadFailure,
@@ -432,6 +433,31 @@ export const useMobileRichEditor = ({
     token: session?.token,
   });
 
+  const voiceMemoBusyRef = useRef(0);
+  const {
+    loadVoiceMemoAudio,
+    openRecorder: recordVoiceMemo,
+    voiceMemoRecorder,
+  } = useMobileVoiceMemo({
+    baseUrl: session?.baseUrl ?? baseUrl,
+    client,
+    editorRef,
+    getDoc: () => contentJsonRef.current,
+    onBusyChange: (busy) => {
+      // Closing waits for an upload that is about to change the note.
+      voiceMemoBusyRef.current += busy ? 1 : -1;
+      const anyBusy = voiceMemoBusyRef.current > 0;
+      uploadingRef.current = anyBusy;
+      setUploading(anyBusy);
+    },
+    ready: active && ready,
+    resolveUploadMemoId: async () => {
+      const currentMemo = memoBaseRef.current;
+      return currentMemo && !currentMemo.id.startsWith("local:") ? currentMemo.id : null;
+    },
+    token: session?.token,
+  });
+
   useEffect(() => {
     const currentMemo = memoBaseRef.current;
     if (!active || !currentMemo || !dirty) {
@@ -483,6 +509,7 @@ export const useMobileRichEditor = ({
     draftRestored,
     error,
     loadEditorResource,
+    loadVoiceMemoAudio,
     markDirty,
     notebookId,
     notebookLabel,
@@ -490,6 +517,7 @@ export const useMobileRichEditor = ({
     persistDraft,
     pickAndUploadImage,
     ready,
+    recordVoiceMemo,
     renameResource,
     requestClose,
     resourceTarget,
@@ -509,6 +537,7 @@ export const useMobileRichEditor = ({
     title,
     uploadSourcePicker,
     uploading,
+    voiceMemoRecorder,
   };
 };
 

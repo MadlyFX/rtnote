@@ -359,8 +359,47 @@ struct SettingsView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 // List density lives in list-options sheet (Android NotesActionsModal), not here.
+
+                preferenceBlock(
+                    title: env.preferences.t("最长录音时长", en: "Maximum recording length", ja: "最大録音時間", pl: "Maksymalna długość nagrania"),
+                    description: env.preferences.t(
+                        "语音备忘达到此时长后会自动停止录音，以节省存储空间。",
+                        en: "Voice memos stop recording automatically at this length to save storage.",
+                        ja: "ストレージを節約するため、ボイスメモはこの長さで録音を自動停止します。",
+                        pl: "Notatki głosowe przestają się nagrywać po tym czasie, aby oszczędzać miejsce."
+                    ),
+                    showTopBorder: true
+                ) {
+                    Menu {
+                        ForEach(PreferencesStore.voiceMemoMaxMinuteOptions, id: \.self) { minutes in
+                            Button(voiceMemoMinutesLabel(minutes)) { env.preferences.voiceMemoMaxMinutes = minutes }
+                        }
+                    } label: {
+                        HStack {
+                            Text(voiceMemoMinutesLabel(env.preferences.voiceMemoMaxMinutes))
+                                .font(.system(size: 14))
+                                .foregroundStyle(AppTheme.title)
+                            Spacer()
+                            Image(systemName: "chevron.down")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(AppTheme.secondary)
+                        }
+                        .padding(.horizontal, 12)
+                        .frame(minHeight: 40)
+                        .background(AppTheme.card)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8).stroke(AppTheme.border, lineWidth: 1)
+                        )
+                    }
+                    .accessibilityLabel(env.preferences.t("最长录音时长", en: "Maximum recording length", ja: "最大録音時間", pl: "Maksymalna długość nagrania"))
+                }
             }
         }
+    }
+
+    private func voiceMemoMinutesLabel(_ minutes: Int) -> String {
+        env.preferences.t("\(minutes) 分钟", en: "\(minutes) minutes", ja: "\(minutes) 分", pl: "\(minutes) min")
     }
 
     private var accountContent: some View {

@@ -3,11 +3,12 @@ import * as Clipboard from "expo-clipboard";
 import Constants from "expo-constants";
 import type { InstanceHealth } from "@edgeever/client";
 import { buildGitHubFeedbackUrl, formatClientDisplaySize, isClientAheadOfInstance, toDevicePixelScreenSize, type AuthUser } from "@edgeever/shared";
+import { VOICE_MEMO_MAX_DURATION_OPTIONS, type VoiceMemoMaxDurationMinutes } from "@edgeever/shared/voice-memo-names";
 import { useQuery } from "@tanstack/react-query";
 import { BackHandler, Dimensions, KeyboardAvoidingView, Linking, Modal, PixelRatio, Platform, ScrollView, Switch, View } from "react-native";
 import { Activity, ActivityIndicator, Check, ChevronDown, ChevronLeft, ChevronRight, Cloud, Copy, ExternalLink, Image as ImageIcon, Info, LogOut, MessageSquare, MonitorSmartphone, Moon, RefreshCw, ShieldCheck, SlidersHorizontal, Sun, UserRound } from "../components/icons";
 import { Pressable, Text } from "../components/LocalizedText";
-import { useMobileLocale, getMobileCatalog, type MobileLocale } from "../lib/mobile-locale";
+import { formatMobileCopy, useMobileLocale, getMobileCatalog, type MobileLocale } from "../lib/mobile-locale";
 import { useMobileTheme } from "../lib/mobile-theme";
 import { useMobileUpdate } from "../lib/mobile-update";
 import type { MobileLocalePreference } from "../lib/preferences";
@@ -100,8 +101,10 @@ export const SettingsView = ({
   onLocalePreferenceChange,
   onShowDescendantNotesChange,
   onSignOut,
+  onVoiceMemoMaxDurationChange,
   showDescendantNotes,
   showDescendantNotesSaveFailed,
+  voiceMemoMaxDuration,
 }: {
   currentUser: AuthUser | null;
   imageCompressionEnabled: boolean;
@@ -111,11 +114,14 @@ export const SettingsView = ({
   onLocalePreferenceChange: (locale: MobileLocaleMode) => void;
   onShowDescendantNotesChange: (enabled: boolean) => void;
   onSignOut: () => void;
+  onVoiceMemoMaxDurationChange: (minutes: VoiceMemoMaxDurationMinutes) => void;
   showDescendantNotes: boolean;
   showDescendantNotesSaveFailed: boolean;
+  voiceMemoMaxDuration: VoiceMemoMaxDurationMinutes;
 }) => {
   const { resolvedTheme, toggleTheme } = useMobileTheme();
-  const { translate } = useMobileLocale();
+  const { resolvedLocale, translate } = useMobileLocale();
+  const voiceMemoCopy = getMobileCatalog(resolvedLocale).voiceMemo;
   const { hasUpdate } = useMobileUpdate();
   const { client, session } = useSession();
   const [activeTab, setActiveTab] = useState<SettingsTab | null>(null);
@@ -245,6 +251,32 @@ export const SettingsView = ({
                 </View>
                 <View style={styles.settingsSwitchStart}>
                   <Switch accessibilityLabel={translate("是否在父笔记本中显示子笔记本中的笔记")} onValueChange={onShowDescendantNotesChange} value={showDescendantNotes} />
+                </View>
+              </View>
+            </View>
+            <View style={styles.settingsContentRow}>
+              <View style={styles.preferenceStack}>
+                <View style={styles.preferenceText}>
+                  <Text style={styles.settingsRowTitle}>{voiceMemoCopy.maxDuration}</Text>
+                  <Text style={styles.settingsRowDescription}>{voiceMemoCopy.maxDurationHint}</Text>
+                </View>
+                <View accessibilityLabel={voiceMemoCopy.maxDuration} accessibilityRole="radiogroup" style={styles.voiceMemoDurationRow}>
+                  {VOICE_MEMO_MAX_DURATION_OPTIONS.map((minutes) => {
+                    const selected = minutes === voiceMemoMaxDuration;
+                    return (
+                      <Pressable
+                        accessibilityRole="radio"
+                        accessibilityState={{ checked: selected }}
+                        key={minutes}
+                        onPress={() => onVoiceMemoMaxDurationChange(minutes)}
+                        style={[styles.voiceMemoDurationChip, selected && styles.voiceMemoDurationChipActive]}
+                      >
+                        <Text style={[styles.voiceMemoDurationChipText, selected && styles.voiceMemoDurationChipTextActive]}>
+                          {formatMobileCopy(voiceMemoCopy.minutes, { count: minutes })}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
                 </View>
               </View>
             </View>

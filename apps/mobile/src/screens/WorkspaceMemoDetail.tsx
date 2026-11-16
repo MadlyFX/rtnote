@@ -1510,6 +1510,8 @@ export const MemoDetailModal = ({
                 onImageExportEvent={handleImageExportEvent}
                 onLoadResource={isEditing ? editor.loadEditorResource : loadViewerResource}
                 onPickImage={isEditing ? editor.pickAndUploadImage : undefined}
+                onRecordVoiceMemo={isEditing ? editor.recordVoiceMemo : undefined}
+                onLoadVoiceMemoAudio={editor.loadVoiceMemoAudio}
                 onReady={async () => {
                   viewerRef.current = domViewerRef.current;
                   setViewerReady(Boolean(viewerRef.current));
@@ -1978,6 +1980,7 @@ export const MemoDetailModal = ({
               visible={editor.tagPickerOpen}
             />
             {editor.uploadSourcePicker}
+            {editor.voiceMemoRecorder}
           </>
         ) : (
           <>

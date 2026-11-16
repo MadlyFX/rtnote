@@ -510,3 +510,19 @@
 .edgeever-print-content figure[data-type="image-figure"][data-image-align="center"] > figcaption { text-align: center; }
 .edgeever-print-content figure[data-type="image-figure"][data-image-align="right"] > figcaption { text-align: right; }
 .edgeever-print-content figure[data-type="image-figure"] > figcaption:empty { display: none; }
+
+/* Voice memos print their title, file and transcript; the player has nothing to print. */
+.edgeever-print-content .rtnote-voice-memo {
+  margin: 1em 0;
+  padding: 0.75em 1em;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  break-inside: avoid;
+}
+.edgeever-print-content .rtnote-voice-memo-title { margin: 0 0 0.25em; font-weight: 600; }
+.edgeever-print-content .rtnote-voice-memo-file { margin: 0; color: #64748b; font-size: 0.9em; }
+.edgeever-print-content .rtnote-voice-memo audio { display: block; width: 100%; margin-top: 0.5em; }
+.edgeever-print-content .rtnote-voice-memo-transcript { margin: 0.5em 0 0; white-space: pre-wrap; }
+@media print {
+  .edgeever-print-content .rtnote-voice-memo audio { display: none; }
+}

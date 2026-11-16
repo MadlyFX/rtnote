@@ -34,6 +34,7 @@ const labels = {
     "current-time": "当前时间",
     "current-date-time": "当前日期和时间",
     attachment: "上传附件",
+    "voice-memo": "语音备忘",
     "note-link": "引用笔记",
     "external-link": "插入超链接",
   },
@@ -46,7 +47,7 @@ describe("slash command menu", () => {
     const unfilteredItems = filterSlashCommandItems(items, "");
     const heading6Index = unfilteredItems.findIndex((item) => item.id === "heading-6");
 
-    expect(unfilteredItems).toHaveLength(23);
+    expect(unfilteredItems).toHaveLength(24);
     expect(unfilteredItems.slice(heading6Index + 1, heading6Index + 4).map((item) => item.id)).toEqual([
       "current-date",
       "current-time",
@@ -86,6 +87,7 @@ describe("slash command menu", () => {
       "math",
       "equation",
       "upload",
+      "voice",
       "note",
       "link",
     ]);
@@ -97,6 +99,8 @@ describe("slash command menu", () => {
     expect(filterSlashCommandItems(items, "task").map((item) => item.id)).toEqual(["task-list"]);
     expect(filterSlashCommandItems(items, "公式").map((item) => item.id)).toEqual(["inline-math", "block-math"]);
     expect(filterSlashCommandItems(items, "equation").map((item) => item.id)).toEqual(["block-math"]);
+    expect(filterSlashCommandItems(items, "record").map((item) => item.id)).toEqual(["voice-memo"]);
+    expect(filterSlashCommandItems(items, "录音").map((item) => item.id)).toEqual(["voice-memo"]);
   });
 
   test("formats local date and time as stable static text", () => {

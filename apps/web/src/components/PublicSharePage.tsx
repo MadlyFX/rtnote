@@ -32,6 +32,7 @@ import { applyEditorBodyFontPreference } from "@/lib/editor-body-font";
 import { createEdgeEverMathematics } from "@edgeever/shared/mathematics";
 import { PdfAttachment } from "@/components/editor/PdfAttachment";
 import { FileAttachment } from "@/components/editor/FileAttachment";
+import { VoiceMemoExtension } from "@/components/editor/VoiceMemoNode";
 import { NotebookSiteCodeBlock } from "./NotebookSiteCodeBlock";
 import { NotebookSiteArticleTools } from "./NotebookSiteArticleTools";
 import { PublicArticleOutline } from "./PublicArticleOutline";
@@ -104,6 +105,7 @@ const SharedRichText = ({ content, site = false }: { content: PublicMemoShare["c
         image: SharedImage.configure({ allowBase64: false, inline: false }),
         pdf: PdfAttachment,
         file: FileAttachment,
+        voiceMemo: VoiceMemoExtension,
         table: { table: { renderWrapper: true } },
       }),
       (site ? SiteCodeBlock : EdgeEverCodeBlock).configure({ lowlight: codeBlockLowlight, defaultLanguage: "plaintext" }),

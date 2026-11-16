@@ -51,6 +51,7 @@ import {
 } from "../lib/mobile-web-clip";
 import { useMobileEditorResourceActions } from "../hooks/useMobileEditorResourceActions";
 import { useMobileEditorUploadAsset } from "../hooks/useMobileEditorUploadAsset";
+import { useMobileVoiceMemo } from "../hooks/useMobileVoiceMemo";
 import { parseTags } from "./workspace-utils";
 import { createOptimisticMemo, type MobileMemoUpdatePayload } from "./workspace-memo-cache";
 import { styles } from "./workspace-styles";
@@ -152,6 +153,7 @@ export const CreateMemoModal = ({
   notebooks,
   onCreated,
   onQueued,
+  startWithVoiceMemo = false,
   syncQueueScope,
 }: {
   baseUrl: string;
@@ -166,6 +168,8 @@ export const CreateMemoModal = ({
   onCreated: (memo: MemoDetail) => void;
   onDismiss: () => void;
   onQueued: () => void | Promise<void>;
+  /** Open the voice memo recorder as soon as the editor is ready ("New voice memo"). */
+  startWithVoiceMemo?: boolean;
   syncQueueScope: string;
 }) => {
   const sessionState = useSession();
@@ -649,6 +653,30 @@ export const CreateMemoModal = ({
     };
   }, [clearFocusTimers]);
 
+  const voiceMemoAutoStartedRef = useRef(false);
+  const {
+    loadVoiceMemoAudio,
+    openRecorder: recordVoiceMemo,
+    voiceMemoRecorder,
+  } = useMobileVoiceMemo({
+    baseUrl: session?.baseUrl ?? baseUrl,
+    client,
+    editorRef,
+    getDoc: () => contentJsonRef.current,
+    onBusyChange: (busy) => setImageOperation(busy ? "uploading" : "idle"),
+    ready: editorReady,
+    reportRetryBusy: true,
+    // Uploads need a server note; offline, the memo waits as a pending block.
+    resolveUploadMemoId: async () => (await materializeMemoForImage().catch(() => null))?.id ?? null,
+    token: session?.token,
+  });
+
+  useEffect(() => {
+    if (!startWithVoiceMemo || !editorReady || voiceMemoAutoStartedRef.current) return;
+    voiceMemoAutoStartedRef.current = true;
+    void recordVoiceMemo();
+  }, [editorReady, recordVoiceMemo, startWithVoiceMemo]);
+
   const canMutateEditorResource = useCallback(() => Boolean(materializedMemoRef.current), []);
   const {
     deleteResource,
@@ -694,7 +722,9 @@ export const CreateMemoModal = ({
       }}
       onResourcePress={selectResource}
       onLoadResource={loadEditorResource}
+      onLoadVoiceMemoAudio={loadVoiceMemoAudio}
       onPickImage={pickAndUploadImage}
+      onRecordVoiceMemo={recordVoiceMemo}
       onReady={async (elapsedMs) => {
         setEditorReady(true);
         recordEditorStartup(elapsedMs);
@@ -707,7 +737,7 @@ export const CreateMemoModal = ({
       locale={resolvedLocale}
       theme={resolvedTheme}
     />
-  ) : null, [baseUrl, draftLoaded, editorStartup.attempt, loadEditorResource, pushBodyToEditor, resolvedLocale, resolvedTheme, scheduleBodyKeyboard, selectResource]);
+  ) : null, [baseUrl, draftLoaded, editorStartup.attempt, loadEditorResource, loadVoiceMemoAudio, pushBodyToEditor, recordVoiceMemo, resolvedLocale, resolvedTheme, scheduleBodyKeyboard, selectResource]);
 
   return (
     <SafeAreaView edges={["top", "left", "right", "bottom"]} style={styles.createMemoSafeArea}>
@@ -821,6 +851,7 @@ export const CreateMemoModal = ({
         visible={templatePickerOpen}
       />
       {uploadSourcePicker}
+      {voiceMemoRecorder}
     </SafeAreaView>
   );
 };

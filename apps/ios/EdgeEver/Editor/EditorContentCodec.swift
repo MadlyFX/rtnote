@@ -3,6 +3,9 @@ import Foundation
 // MARK: - TipTap content helpers (native Markdown serializer is recovery-only)
 
 enum EditorContentCodec {
+    /// Shared `VOICE_MEMO_NODE_TYPE`.
+    static let voiceMemoNodeType = "rtnoteVoiceMemo"
+
     /// TipTap's Markdown extension is authoritative because it understands the complete
     /// registered schema (tables, nested/ordered lists, code languages, links and images).
     /// The native serializer remains only as a recovery path for an absent bridge payload.
@@ -90,6 +93,12 @@ enum EditorContentCodec {
             if let type = dict["type"] as? String, type == "text", let text = dict["text"] as? String, !text.isEmpty {
                 parts.append(text)
             }
+            if dict["type"] as? String == Self.voiceMemoNodeType {
+                let attrs = dict["attrs"] as? [String: Any] ?? [:]
+                for key in ["title", "transcript"] {
+                    if let text = attrs[key] as? String, !text.isEmpty { parts.append(text) }
+                }
+            }
             if let content = dict["content"] as? [Any] {
                 for child in content { collectText(child, into: &parts) }
             }
@@ -135,6 +144,16 @@ enum EditorContentCodec {
                         if !caption.isEmpty { lines.append(caption) }
                     }
                 }
+            case Self.voiceMemoNodeType:
+                // Recovery only; TipTap's own Markdown (with metadata) is preferred.
+                let attrs = dict["attrs"] as? [String: Any] ?? [:]
+                let url = attrs["url"] as? String ?? ""
+                guard !url.isEmpty else { break }
+                let title = (attrs["title"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+                let label = title.isEmpty ? (attrs["filename"] as? String ?? "Voice memo") : title
+                lines.append("[\(label)](\(url))")
+                let transcript = (attrs["transcript"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+                if !transcript.isEmpty { lines.append(transcript) }
             case "bulletList", "orderedList", "taskList":
                 if let items = dict["content"] as? [Any] {
                     for item in items {
