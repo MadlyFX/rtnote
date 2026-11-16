@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { ApiRequestError } from "@edgeever/client";
 import { useQuery } from "@tanstack/react-query";
 import type { Notebook } from "@edgeever/shared";
 import {
@@ -15,7 +14,6 @@ import {
   Plus,
   Search,
   Tag,
-  TagPlus,
   X,
 } from "../components/icons";
 import {
@@ -25,10 +23,9 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Alert, Pressable, Text, TextInput } from "../components/LocalizedText";
+import { Pressable, Text, TextInput } from "../components/LocalizedText";
 import { useMobileLocale } from "../lib/mobile-locale";
 import { listLocalTags } from "../lib/local-mirror";
-import { useSession } from "../lib/session";
 import {
   filterCollapsedNotebookOptions,
   filterNotebookOptions,
@@ -315,102 +312,6 @@ export const NotebookPickerModal = ({
         </Pressable>
       </Pressable>
     </Modal>
-  );
-};
-
-export const SmartTagButton = ({
-  client,
-  contentMarkdown,
-  disabled = false,
-  onChange,
-  selectedTags,
-  title,
-}: {
-  client: ReturnType<typeof useSession>["client"];
-  contentMarkdown: string;
-  disabled?: boolean;
-  onChange: (tags: string[]) => void;
-  selectedTags: string[];
-  title: string;
-}) => {
-  const { resolvedLocale, translate } = useMobileLocale();
-  const [status, setStatus] = useState<"idle" | "loading" | "success">("idle");
-  const controllerRef = useRef<AbortController | null>(null);
-  const feedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const unavailable = disabled || !client || selectedTags.length >= 24 || (!title.trim() && !contentMarkdown.trim());
-
-  useEffect(() => () => {
-    controllerRef.current?.abort();
-    if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
-  }, []);
-
-  const generateAndApplyTags = async () => {
-    if (unavailable || !client) return;
-    controllerRef.current?.abort();
-    if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
-    const controller = new AbortController();
-    controllerRef.current = controller;
-    setStatus("loading");
-    try {
-      const selectedTagKeys = new Set(selectedTags.map((tag) => tag.toLocaleLowerCase()));
-      const result = await client.suggestAiTags({
-        title,
-        contentMarkdown,
-        currentTags: selectedTags,
-        locale: resolvedLocale,
-      }, controller.signal);
-      const additions = result.suggestions
-        .filter((suggestion) => !selectedTagKeys.has(suggestion.name.toLocaleLowerCase()))
-        .slice(0, Math.max(0, 24 - selectedTags.length))
-        .map((suggestion) => suggestion.name);
-      if (additions.length === 0) {
-        setStatus("idle");
-        Alert.alert(translate("智能标签"), translate("没有找到适合这篇笔记的新标签。"));
-        return;
-      }
-      onChange(Array.from(new Set([...selectedTags, ...additions])).slice(0, 24));
-      setStatus("success");
-      feedbackTimerRef.current = setTimeout(() => {
-        setStatus("idle");
-        feedbackTimerRef.current = null;
-      }, 4000);
-    } catch (error) {
-      if (controller.signal.aborted) return;
-      setStatus("idle");
-      Alert.alert(
-        translate("智能标签生成失败"),
-        error instanceof ApiRequestError && error.code === "ai_not_configured"
-          ? translate("请先在“模型与代理”中配置默认模型。")
-          : error instanceof Error
-            ? error.message
-            : translate("AI 标签建议生成失败。")
-      );
-    } finally {
-      if (controllerRef.current === controller) controllerRef.current = null;
-    }
-  };
-
-  const accessibilityLabel = status === "loading"
-    ? translate("正在生成智能标签")
-    : status === "success"
-      ? translate("智能标签已添加")
-      : translate("智能标签");
-
-  return (
-    <Pressable
-      accessibilityLabel={accessibilityLabel}
-      accessibilityRole="button"
-      accessibilityState={{ disabled: unavailable || status === "loading" }}
-      disabled={unavailable || status === "loading"}
-      onPress={() => void generateAndApplyTags()}
-      style={[styles.smartTagButton, status === "success" && styles.smartTagButtonSuccess, unavailable && styles.buttonDisabled]}
-    >
-      {status === "loading"
-        ? <ActivityIndicator color="#047857" size="small" />
-        : status === "success"
-          ? <Check color="#047857" size={17} />
-          : <TagPlus color="#047857" size={18} />}
-    </Pressable>
   );
 };
 

@@ -57,9 +57,9 @@ describe("API request errors", () => {
 
   test("reports an oversized body as payload too large", async () => {
     const environment = await createEnvironment();
-    const oversized = JSON.stringify({ prompt: "x".repeat(450_000) });
+    const oversized = JSON.stringify({ url: `https://example.org/${"x".repeat(450_000)}` });
 
-    for (const path of ["/api/v1/plugins/ai/generate", "/api/v1/companion/turns"]) {
+    for (const path of ["/api/v1/plugins/network/fetch"]) {
       const response = await request(environment, path, jsonPost(oversized));
       expect({ path, status: response.status }).toEqual({ path, status: 413 });
       expect(await response.json()).toEqual({

@@ -21,7 +21,6 @@ export type ShortcutAction =
   | "openQuickSwitcher"
   | "openPreviousMemo"
   | "openNextMemo"
-  | "openAiAssistant"
   | "saveAndSync"
   | "toggleReadingProtection"
   | "toggleEditorMode"
@@ -209,7 +208,6 @@ export const getShortcutActionOptions = (
   { value: "openQuickSwitcher", label: t("shortcuts.actions.openQuickSwitcher.label") },
   { value: "openPreviousMemo", label: t("shortcuts.actions.openPreviousMemo.label") },
   { value: "openNextMemo", label: t("shortcuts.actions.openNextMemo.label") },
-  { value: "openAiAssistant", label: t("shortcuts.actions.openAiAssistant.label") },
   { value: "saveAndSync", label: t("shortcuts.actions.saveAndSync.label") },
   { value: "toggleReadingProtection", label: t("shortcuts.actions.toggleReadingProtection.label") },
   { value: "toggleEditorMode", label: t("shortcuts.actions.toggleEditorMode.label") },
@@ -228,7 +226,6 @@ export const DEFAULT_SHORTCUT_SETTINGS: ShortcutSettings = {
   openQuickSwitcher: { key: "o", ctrlOrMeta: true, shift: false, alt: false },
   openPreviousMemo: { key: "[", ctrlOrMeta: true, shift: false, alt: false },
   openNextMemo: { key: "]", ctrlOrMeta: true, shift: false, alt: false },
-  openAiAssistant: { key: "j", ctrlOrMeta: true, shift: false, alt: false },
   saveAndSync: { key: "s", ctrlOrMeta: true, shift: false, alt: false },
   toggleReadingProtection: { key: "e", ctrlOrMeta: true, shift: false, alt: false },
   toggleEditorMode: { key: "/", ctrlOrMeta: true, shift: false, alt: false },
@@ -267,7 +264,6 @@ const SHORTCUT_ACTION_VALUES: ShortcutAction[] = [
   "openQuickSwitcher",
   "openPreviousMemo",
   "openNextMemo",
-  "openAiAssistant",
   "saveAndSync",
   "toggleReadingProtection",
   "toggleEditorMode",

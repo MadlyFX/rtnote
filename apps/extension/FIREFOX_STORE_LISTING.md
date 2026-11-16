@@ -36,7 +36,7 @@ Before using the extension, enter your RTNote instance URL and API token in the 
 - `browsingActivity`: the current page URL is included in the note created by the user.
 - `websiteContent`: the selected text, extracted article body, image file, or video page the user chooses is included in the note created by the user.
 
-The project maintainers do not receive or retain this data. Instance settings are stored in the browser's local extension storage. Page content goes only to the RTNote instance the user configured. When the token includes `ai:generate` and the workspace has a default model, that instance sends the caption text to the configured model provider. The extension does not send the page or its audio to any other third party.
+The project maintainers do not receive or retain this data. Instance settings are stored in the browser's local extension storage. Page content goes only to the RTNote instance the user configured. The extension does not send the page or its audio to any other third party.
 
 ## Reviewer notes
 

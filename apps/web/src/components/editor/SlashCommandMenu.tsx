@@ -5,7 +5,6 @@ import { PluginKey } from "@tiptap/pm/state";
 import Suggestion, { type SuggestionKeyDownProps, type SuggestionProps } from "@tiptap/suggestion";
 import {
   BetweenHorizontalStart,
-  Bot,
   Braces,
   CalendarClock,
   CalendarDays,
@@ -38,7 +37,6 @@ import {
 } from "@/components/ui/command";
 
 export type SlashCommandId =
-  | "ai"
   | "paragraph"
   | "heading-1"
   | "heading-2"
@@ -63,7 +61,7 @@ export type SlashCommandId =
   | "note-link"
   | "external-link";
 
-type SlashCommandGroup = "suggested" | "basic" | "insert";
+type SlashCommandGroup = "basic" | "insert";
 type SlashCommandIcon = ComponentType<{ className?: string }>;
 
 export type SlashCommandLabels = {
@@ -75,7 +73,6 @@ export type SlashCommandLabels = {
 };
 
 export type SlashCommandActions = {
-  openAi: () => void;
   openAttachmentPicker: () => void;
   openExternalLinkPicker: () => void;
   openNoteLinkPicker: () => void;
@@ -105,7 +102,6 @@ export const formatCurrentDateTime = (date: Date) =>
   `${formatCurrentDate(date)} ${formatCurrentTime(date)}`;
 
 export const createSlashCommandItems = (labels: SlashCommandLabels): SlashCommandItem[] => [
-  { id: "ai", command: "ai", group: "suggested", icon: Bot, label: labels.items.ai, keywords: ["assistant", "人工智能", "智能", "写作"] },
   { id: "paragraph", command: "text", group: "basic", icon: Pilcrow, label: labels.items.paragraph, keywords: ["paragraph", "正文", "文本"] },
   { id: "heading-1", command: "h1", group: "basic", icon: Heading1, label: labels.items["heading-1"], keywords: ["heading", "标题"] },
   { id: "heading-2", command: "h2", group: "basic", icon: Heading2, label: labels.items["heading-2"], keywords: ["heading", "标题"] },
@@ -146,7 +142,7 @@ export type SlashCommandMenuHandle = {
   onKeyDown: (props: SuggestionKeyDownProps) => boolean;
 };
 
-const GROUP_ORDER: SlashCommandGroup[] = ["suggested", "basic", "insert"];
+const GROUP_ORDER: SlashCommandGroup[] = ["basic", "insert"];
 
 export const SlashCommandMenu = forwardRef<SlashCommandMenuHandle, SlashCommandMenuProps>(
   ({ command, items, labels }, ref) => {
@@ -235,10 +231,6 @@ const runSlashCommand = ({
 }) => {
   const chain = editor.chain().focus().deleteRange(range);
   switch (item.id) {
-    case "ai":
-      chain.run();
-      window.requestAnimationFrame(actions.openAi);
-      break;
     case "paragraph": chain.setParagraph().run(); break;
     case "heading-1": chain.setHeading({ level: 1 }).run(); break;
     case "heading-2": chain.setHeading({ level: 2 }).run(); break;

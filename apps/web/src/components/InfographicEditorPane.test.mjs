@@ -28,16 +28,11 @@ describe("infographic editor header", () => {
     expect(source).not.toContain("formatDateTime(memo.updatedAt)");
   });
 
-  test("gives the preview the editor column and sends generation through the sidebar", () => {
+  test("gives the preview the editor column and keeps saved AI turns without showing an assistant", () => {
     expect(source).not.toContain("lg:grid-cols-[minmax(300px,34%)_1fr]");
-    expect(source).not.toContain('t("infographic.historyTitle")');
-    expect(source).not.toContain('id="infographic-prompt"');
-    expect(source).toContain("data-ai-assistant-launcher");
-    expect(source).toContain("<AiSidebar");
-    expect(source).toContain("infographic={infographicAssistant}");
-    expect(source).toContain("nextInfographicNoteTitle");
-    expect(source).toContain("infographicSessionHistory");
-    expect(source).toContain("onCreateSession");
+    expect(source).not.toContain("data-ai-assistant-launcher");
+    expect(source).not.toContain("<AiSidebar");
+    expect(source).toContain("...(history.length ? { history } : {})");
     expect(source).toContain("activeSessionId");
     expect(source).toContain("edgeever-infographic-preview");
   });

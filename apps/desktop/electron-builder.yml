@@ -30,7 +30,7 @@ files:
   - build/zip.js.LICENSE
   - package.json
   # Apply to application code and production dependencies. Keep executable JS,
-  # npm commands (including test.js), node-gyp, schemas and license notices.
+  # schemas and license notices.
   - "!**/*.{test,spec}.{js,cjs,mjs,ts,cts,mts}"
   - "!**/{test,tests,__tests__,__mocks__}/**"
   - "!**/*.map"

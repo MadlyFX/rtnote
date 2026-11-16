@@ -78,21 +78,6 @@ contextBridge.exposeInMainWorld("edgeeverDesktop", Object.freeze({
     ipcRenderer.on("desktop:ai-direct-chunk", listener);
     return () => ipcRenderer.removeListener("desktop:ai-direct-chunk", listener);
   },
-  listAcpAdapters: () => ipcRenderer.invoke("desktop:acp-list"),
-  chooseAcpAdapterPath: () => ipcRenderer.invoke("desktop:acp-choose-path", "antigravity"),
-  probeAcpAdapter: (input) => ipcRenderer.invoke("desktop:acp-probe", input),
-  installAcpAdapter: (id) => ipcRenderer.invoke("desktop:acp-install", id),
-  authenticateAcpAdapter: (input) => ipcRenderer.invoke("desktop:acp-authenticate", input),
-  cancelAcpAuthentication: (id) => ipcRenderer.invoke("desktop:acp-cancel-auth", id),
-  reopenAcpLoginPage: (id) => ipcRenderer.invoke("desktop:acp-reopen-login", id),
-  prepareAcp: (input) => ipcRenderer.invoke("desktop:acp-prepare", input),
-  promptAcp: (input) => ipcRenderer.invoke("desktop:acp-prompt", input),
-  cancelAcp: (requestId) => ipcRenderer.invoke("desktop:acp-cancel", requestId),
-  onAcpEvent: (callback) => {
-    const listener = (_event, payload) => callback(payload);
-    ipcRenderer.on("desktop:acp-event", listener);
-    return () => ipcRenderer.removeListener("desktop:acp-event", listener);
-  },
   clearLocalData: () => ipcRenderer.invoke("desktop:clear-local-data"),
   recordRendererError: (details) => ipcRenderer.invoke("desktop:record-renderer-error", details),
   openRendererIssue: (details) => ipcRenderer.invoke("desktop:open-renderer-issue", details),

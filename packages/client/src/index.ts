@@ -1,24 +1,8 @@
 import type { ImportMemosInput, ImportMemosResponse } from "@edgeever/shared/note-import/types";
 import type { NotebookUpdateInput } from "@edgeever/shared";
-import {
-  parsePreparedAiGeneration,
-  streamDirectAiGeneration,
-} from "./ai-direct-stream";
-import type { AiRunRequest } from "./ai-long-generation";
-import { throwIfAborted } from "./abort-signal";
 
 import { createPluginCapabilities } from './plugin-capabilities';
 import type {
-  CompanionMemory,
-  CompanionDiscoverySettings,
-  CompanionDiscoverySettingsInput,
-  CompanionDiscoveryItem,
-  CompanionAction,
-  CompanionTurn,
-  CompanionTurnInput,
-  CompanionTurnResume,
-  CompanionEvent,
-  CompanionToolExecuteResult,
   ApiToken,
   AuthSession,
   LoginInput,
@@ -36,7 +20,6 @@ import type {
   CreatedApiToken,
   JsonBackupMemo,
   JsonBackupNotebook,
-  JsonBackupAiPrompt,
   JsonBackupRevision,
   MemoDetail,
   MemoEditSession,
@@ -70,26 +53,12 @@ import type {
   PublicMemoShare,
   TagSummary,
   TiptapDoc,
-  AiSettings,
-  AiTranscriptionSettings,
-  AiProvider,
-  AiTranscriptionStandard,
-  AiPromptTemplate,
-  AiPromptTemplateCreateInput,
-  AiModelConfigUpdateInput,
-  AiModelCapabilities,
-  AiModelCapabilityLimits,
-  AiPromptTemplateUpdateInput,
-  AiStreamEvent,
-  AiGenerateInput,
-  InfographicAgentEvent,
-  InfographicAgentRequest,
-  AiTagSuggestionsRequestInput,
+  TranscriptionSettings,
+  TranscriptionStandard,
   SyncBootstrapResponse,
   SyncChange,
   SyncChangesResponse,
   DeploymentMetadata,
-  PluginAiGenerateRequest,
   PluginPublicFetchRequest,
   PluginPublicFetchResponse,
 } from "@edgeever/shared";
@@ -105,13 +74,9 @@ export type EdgeEverClientOptions = {
   baseUrl?: string | (() => string);
   token?: string | null | (() => string | null | undefined);
   fetch?: typeof fetch;
-  /** @deprecated All AI generation now uses client-direct transport. */
-  directAiGeneration?: boolean;
-  /** @deprecated Use allowAiServerFallback for browser transports. */
-  tryDirectAiGeneration?: boolean;
-  /** Web only: retry initial network/CORS failures through the instance. */
-  allowAiServerFallback?: boolean;
-  /** Used only for the model provider request; defaults to `fetch`. */
+  /** Web only: retry initial network/CORS failures to the speech service through the instance. */
+  allowSpeechServerFallback?: boolean;
+  /** Used only for the speech service request; defaults to `fetch`. */
   providerFetch?: typeof fetch;
   beforeRequest?: (context: EdgeEverClientRequestContext) => void | Promise<void>;
   shouldAttachToken?: (path: string) => boolean;
@@ -304,8 +269,9 @@ export type JsonBackupPage = MarkdownExportPage & {
   revisions: JsonBackupRevision[];
 };
 
-export type AiProviderCreatePayload = {
-  provider: AiProvider;
+
+export type TranscriptionProviderCreatePayload = {
+  provider: TranscriptionStandard;
   displayName: string;
   baseUrl: string;
   apiKey: string;
@@ -313,25 +279,8 @@ export type AiProviderCreatePayload = {
   initialModelId?: string;
 };
 
-export type AiProviderUpdatePayload = {
-  provider: AiProvider;
-  displayName: string;
-  baseUrl: string;
-  apiKey?: string;
-  isEnabled: boolean;
-};
-
-export type AiTranscriptionProviderCreatePayload = {
-  provider: AiTranscriptionStandard;
-  displayName: string;
-  baseUrl: string;
-  apiKey: string;
-  isEnabled: boolean;
-  initialModelId?: string;
-};
-
-export type AiTranscriptionProviderUpdatePayload = {
-  provider: AiTranscriptionStandard;
+export type TranscriptionProviderUpdatePayload = {
+  provider: TranscriptionStandard;
   displayName: string;
   baseUrl: string;
   apiKey?: string;
@@ -397,9 +346,9 @@ export const createEdgeEverClient = (options: EdgeEverClientOptions = {}) => {
   const getFetch = () => options.fetch ?? globalThis.fetch;
   const providerFetch = (): typeof fetch => async (url, init) => {
     const directFetch = options.providerFetch ?? getFetch();
-    if (!options.allowAiServerFallback) return directFetch(url, { ...init, credentials: "omit", redirect: "error" });
-    const { fetchAiWithServerFallback } = await import("./ai-provider-relay");
-    return fetchAiWithServerFallback(url, init, directFetch, async target => {
+    if (!options.allowSpeechServerFallback) return directFetch(url, { ...init, credentials: "omit", redirect: "error" });
+    const { fetchWithServerFallback } = await import("./speech-provider-relay");
+    return fetchWithServerFallback(url, init, directFetch, async target => {
       const { response } = await send("/api/v1/ai/provider-relay", {
         method: "POST",
         headers: {
@@ -700,98 +649,13 @@ export const createEdgeEverClient = (options: EdgeEverClientOptions = {}) => {
     return createResourceMultipartSink(upload);
   };
 
-  const runPreparedCompanion = async (
-    prepared: import("@edgeever/shared").CompanionPreparedTurn,
-    streamOptions: { signal?: AbortSignal; onEvent: (event: CompanionEvent) => void },
-  ) => {
-    const { streamDirectCompanion } = await import("./companion-direct-stream");
-    const turnId = prepared.turn.id;
-    await streamDirectCompanion(prepared, {
-      fetch: providerFetch(),
-      signal: streamOptions.signal,
-      onEvent: streamOptions.onEvent,
-      executeTool: (body) => request<CompanionToolExecuteResult>(
-        `/api/v1/companion/turns/${encodeURIComponent(turnId)}/tools`,
-        { method: "POST", body: JSON.stringify(body), signal: streamOptions.signal },
-      ),
-      checkpoint: (body) => request(
-        `/api/v1/companion/turns/${encodeURIComponent(turnId)}/checkpoint`,
-        { method: "POST", body: JSON.stringify(body), signal: streamOptions.signal },
-      ),
-      complete: (body) => request<{ turn: CompanionTurn }>(
-        `/api/v1/companion/turns/${encodeURIComponent(turnId)}/complete`,
-        { method: "POST", body: JSON.stringify(body), signal: streamOptions.signal },
-      ),
-    });
-  };
-
-  const directAiUnavailable = () => new ApiRequestError(
-    "This instance does not support direct AI preparation. Update the instance before using AI.",
-    409,
-    "ai_direct_unavailable",
-  );
-
-  const runCompanionDirect = async (
-    preparePath: string,
-    payload: unknown,
-    streamOptions: { signal?: AbortSignal; onEvent: (event: CompanionEvent) => void },
-  ) => {
-    throwIfAborted(streamOptions.signal);
-    const { context, response } = await send(preparePath, {
-      method: "POST", body: JSON.stringify(payload), signal: streamOptions.signal,
-    });
-    if (response.status === 404 || response.status === 410) throw directAiUnavailable();
-    if (!response.ok) await throwRequestError(context, response);
-    const { parsePreparedCompanion } = await import("./companion-direct-stream");
-    const prepared = parsePreparedCompanion(await response.json());
-    if (!prepared) throw new ApiRequestError("The companion prepare response is invalid", 502, "companion_failed");
-    await runPreparedCompanion(prepared, streamOptions);
-  };
-
-  const runDirectAi = async <T, P>(args: {
-    signal?: AbortSignal;
-    prepare: () => Promise<P | null>;
-    run: (prepared: P) => Promise<T>;
-  }): Promise<T> => {
-    throwIfAborted(args.signal);
-    const prepared = await args.prepare();
-    if (prepared == null) throw directAiUnavailable();
-    throwIfAborted(args.signal);
-    return args.run(prepared);
-  };
 
   const pluginCapabilities = createPluginCapabilities(request, requestPluginPublic);
 
   return {
-    fetchAiProvider: providerFetch(),
+    fetchSpeechProvider: providerFetch(),
     getInstanceHealth: () => request<InstanceHealth>("/api/health"),
     ...pluginCapabilities,
-    pluginAi: {
-      status: pluginCapabilities.pluginAi.status,
-      generate: async (input: PluginAiGenerateRequest & { signal?: AbortSignal }) => {
-        const { signal, ...payload } = input;
-        return runDirectAi({
-          signal,
-          prepare: async () => {
-            const { context, response } = await send("/api/v1/plugins/ai/generate/prepare", {
-              method: "POST", body: JSON.stringify(payload), signal,
-            });
-            if (response.ok) {
-              const { parsePreparedAiText } = await import("./ai-direct-generate");
-              const prepared = parsePreparedAiText(await response.json());
-              if (!prepared) throw new ApiRequestError("The AI prepare response is invalid", 502, "plugin_ai_failed");
-              return prepared;
-            }
-            if (response.status !== 404) await throwRequestError(context, response);
-            return null;
-          },
-          run: async (prepared) => {
-            const { generateDirectAiText } = await import("./ai-direct-generate");
-            return { text: await generateDirectAiText(prepared, { fetch: providerFetch(), signal }) };
-          },
-        });
-      },
-    },
 
     getInstanceRelease: () => request<InstanceRelease>("/api/release"),
 
@@ -963,45 +827,40 @@ export const createEdgeEverClient = (options: EdgeEverClientOptions = {}) => {
       body: JSON.stringify(payload),
     }),
 
-    getAiSettings: (locale?: string) => {
-      const search = locale ? `?locale=${encodeURIComponent(locale)}` : "";
-      return request<AiSettings>(`/api/v1/ai/settings${search}`);
-    },
+    getTranscriptionSettings: () =>
+      request<TranscriptionSettings>("/api/v1/ai/transcription-settings"),
 
-    getAiTranscriptionSettings: () =>
-      request<AiTranscriptionSettings>("/api/v1/ai/transcription-settings"),
-
-    createAiTranscriptionProvider: (payload: AiTranscriptionProviderCreatePayload) =>
-      request<AiTranscriptionSettings>("/api/v1/ai/transcription-providers", {
+    createTranscriptionProvider: (payload: TranscriptionProviderCreatePayload) =>
+      request<TranscriptionSettings>("/api/v1/ai/transcription-providers", {
         method: "POST",
         body: JSON.stringify(payload),
       }),
 
-    updateAiTranscriptionProvider: (providerId: string, payload: AiTranscriptionProviderUpdatePayload) =>
-      request<AiTranscriptionSettings>(`/api/v1/ai/transcription-providers/${encodeURIComponent(providerId)}`, {
+    updateTranscriptionProvider: (providerId: string, payload: TranscriptionProviderUpdatePayload) =>
+      request<TranscriptionSettings>(`/api/v1/ai/transcription-providers/${encodeURIComponent(providerId)}`, {
         method: "PUT",
         body: JSON.stringify(payload),
       }),
 
-    deleteAiTranscriptionProvider: (providerId: string) =>
-      request<AiTranscriptionSettings>(`/api/v1/ai/transcription-providers/${encodeURIComponent(providerId)}`, {
+    deleteTranscriptionProvider: (providerId: string) =>
+      request<TranscriptionSettings>(`/api/v1/ai/transcription-providers/${encodeURIComponent(providerId)}`, {
         method: "DELETE",
       }),
 
-    addAiTranscriptionModel: (providerId: string, payload: { modelId: string; displayName?: string }) =>
-      request<AiTranscriptionSettings>(`/api/v1/ai/transcription-providers/${encodeURIComponent(providerId)}/models`, {
+    addTranscriptionModel: (providerId: string, payload: { modelId: string; displayName?: string }) =>
+      request<TranscriptionSettings>(`/api/v1/ai/transcription-providers/${encodeURIComponent(providerId)}/models`, {
         method: "POST",
         body: JSON.stringify(payload),
       }),
 
-    deleteAiTranscriptionModel: (providerId: string, modelConfigId: string) =>
-      request<AiTranscriptionSettings>(
+    deleteTranscriptionModel: (providerId: string, modelConfigId: string) =>
+      request<TranscriptionSettings>(
         `/api/v1/ai/transcription-providers/${encodeURIComponent(providerId)}/models/${encodeURIComponent(modelConfigId)}`,
         { method: "DELETE" },
       ),
 
-    updateDefaultAiTranscriptionModel: (modelConfigId: string | null) =>
-      request<AiTranscriptionSettings>("/api/v1/ai/transcription-default-model", {
+    updateDefaultTranscriptionModel: (modelConfigId: string | null) =>
+      request<TranscriptionSettings>("/api/v1/ai/transcription-default-model", {
         method: "PUT",
         body: JSON.stringify({ modelConfigId }),
       }),
@@ -1012,268 +871,11 @@ export const createEdgeEverClient = (options: EdgeEverClientOptions = {}) => {
         { method: "POST", signal },
       ),
 
-    getAiTranscriptionDirectCredential: (providerId: string, signal?: AbortSignal) =>
+    getTranscriptionDirectCredential: (providerId: string, signal?: AbortSignal) =>
       request<{ apiKey: string }>(
         `/api/v1/ai/transcription-providers/${encodeURIComponent(providerId)}/direct-credential`,
         { method: "POST", signal },
       ),
-
-    createAiProvider: (payload: AiProviderCreatePayload) =>
-      request<AiSettings>("/api/v1/ai/providers", {
-        method: "POST",
-        body: JSON.stringify(payload),
-      }),
-
-    updateAiProvider: (providerConfigId: string, payload: AiProviderUpdatePayload) =>
-      request<AiSettings>(`/api/v1/ai/providers/${encodeURIComponent(providerConfigId)}`, {
-        method: "PUT",
-        body: JSON.stringify(payload),
-      }),
-
-    deleteAiProvider: (providerConfigId: string) =>
-      request<AiSettings>(`/api/v1/ai/providers/${encodeURIComponent(providerConfigId)}`, {
-        method: "DELETE",
-      }),
-
-    testAiProvider: async (providerConfigId: string, payload: { modelId: string; provider?: AiProvider; baseUrl?: string; apiKey?: string }) => {
-      const prepared = await request<import("@edgeever/shared").AiPreparedTextGeneration>(`/api/v1/ai/providers/${encodeURIComponent(providerConfigId)}/direct-credential`, { method: "POST", body: JSON.stringify(payload) });
-      const { generateDirectAiText } = await import("./ai-direct-generate");
-      const text = await generateDirectAiText({ ...prepared, system: "Follow the user instruction exactly.", prompt: "Reply with only: OK", maxOutputTokens: 16 }, { fetch: providerFetch(), signal: AbortSignal.timeout(20_000) });
-      return { ok: true, response: text.trim() };
-    },
-    discoverAiProviderModels: async (providerConfigId: string) => {
-      const prepared = await request<{ provider: AiProvider; baseUrl: string; apiKey: string }>(`/api/v1/ai/providers/${encodeURIComponent(providerConfigId)}/direct-credential`, { method: "POST", body: "{}" });
-      const { discoverAiModels } = await import("./ai-provider-direct");
-      return { models: await discoverAiModels(prepared, providerFetch()) };
-    },
-
-    addAiModel: (providerConfigId: string, payload: { modelId: string; displayName?: string }) =>
-      request<AiSettings>(`/api/v1/ai/providers/${encodeURIComponent(providerConfigId)}/models`, {
-        method: "POST",
-        body: JSON.stringify(payload),
-      }),
-
-    /** Omitted fields keep their value; `null` restores the default budget. */
-    updateAiModel: (providerConfigId: string, modelConfigId: string, payload: AiModelConfigUpdateInput) =>
-      request<AiSettings>(`/api/v1/ai/providers/${encodeURIComponent(providerConfigId)}/models/${encodeURIComponent(modelConfigId)}`, {
-        method: "PATCH",
-        body: JSON.stringify(payload),
-      }),
-
-    deleteAiModel: (providerConfigId: string, modelConfigId: string) =>
-      request<AiSettings>(`/api/v1/ai/providers/${encodeURIComponent(providerConfigId)}/models/${encodeURIComponent(modelConfigId)}`, {
-        method: "DELETE",
-      }),
-
-    updateDefaultAiModel: (modelConfigId: string | null) =>
-      request<AiSettings>("/api/v1/ai/default-model", {
-        method: "PUT",
-        body: JSON.stringify({ modelConfigId }),
-      }),
-
-    listAiPrompts: (locale?: string) => {
-      const search = locale ? `?locale=${encodeURIComponent(locale)}` : "";
-      return request<{ prompts: AiPromptTemplate[] }>(`/api/v1/ai/prompts${search}`);
-    },
-
-    createAiPrompt: (payload: AiPromptTemplateCreateInput) =>
-      request<{ prompt: AiPromptTemplate }>("/api/v1/ai/prompts", {
-        method: "POST",
-        body: JSON.stringify(payload),
-      }),
-
-    updateAiPrompt: (
-      promptId: string,
-      payload: AiPromptTemplateUpdateInput,
-    ) =>
-      request<{ prompt: AiPromptTemplate }>(`/api/v1/ai/prompts/${encodeURIComponent(promptId)}`, {
-        method: "PATCH",
-        body: JSON.stringify(payload),
-      }),
-
-    deleteAiPrompt: (promptId: string) =>
-      request<{ ok: true }>(`/api/v1/ai/prompts/${encodeURIComponent(promptId)}`, {
-        method: "DELETE",
-      }),
-
-    restoreDefaultAiPrompts: (locale?: string) => {
-      const search = locale ? `?locale=${encodeURIComponent(locale)}` : "";
-      return request<{ prompts: AiPromptTemplate[]; restoredCount: number }>(`/api/v1/ai/prompts/restore-defaults${search}`, {
-        method: "POST",
-        body: JSON.stringify({}),
-      });
-    },
-
-    suggestAiTags: (payload: AiTagSuggestionsRequestInput, signal?: AbortSignal) =>
-      runDirectAi({
-        signal,
-        prepare: async () => {
-          const { context, response } = await send("/api/v1/ai/tag-suggestions/prepare", {
-            method: "POST", body: JSON.stringify(payload), signal,
-          });
-          if (response.ok) {
-            const { parsePreparedTagSuggestions } = await import("./ai-direct-generate");
-            const prepared = parsePreparedTagSuggestions(await response.json());
-            if (!prepared) throw new ApiRequestError("The AI prepare response is invalid", 502, "ai_tag_suggestions_failed");
-            return prepared;
-          }
-          if (response.status !== 404) await throwRequestError(context, response);
-          return null;
-        },
-        run: async (prepared) => {
-          const { generateDirectAiText, suggestionsFromDirectText } = await import("./ai-direct-generate");
-          const text = await generateDirectAiText(prepared, { fetch: providerFetch(), signal });
-          return { suggestions: suggestionsFromDirectText(text, prepared) };
-        },
-      }),
-
-    listCompanionMemories: () => request<{ memories: CompanionMemory[] }>("/api/v1/companion/memories"),
-    getCompanionDiscoverySettings: () => request<{ settings: CompanionDiscoverySettings }>("/api/v1/companion/discovery/settings"),
-    saveCompanionDiscoverySettings: (input: CompanionDiscoverySettingsInput) => request<{ settings: CompanionDiscoverySettings }>("/api/v1/companion/discovery/settings", { method: "PUT", body: JSON.stringify(input) }),
-    listCompanionDiscoveries: () => request<{ items: CompanionDiscoveryItem[] }>("/api/v1/companion/discovery"),
-    checkCompanionDiscoveries: (locale: string, signal?: AbortSignal) =>
-      runDirectAi({
-        signal,
-        prepare: async () => {
-          const { context, response } = await send(
-            `/api/v1/companion/discovery/check/prepare?locale=${encodeURIComponent(locale)}`,
-            { method: "POST", body: "{}", signal },
-          );
-          if (response.ok) {
-            const { parsePreparedDiscovery } = await import("./ai-direct-generate");
-            const prepared = parsePreparedDiscovery(await response.json());
-            if (!prepared) throw new ApiRequestError("The companion prepare response is invalid", 502, "companion_failed");
-            return prepared;
-          }
-          if (response.status !== 404) await throwRequestError(context, response);
-          return null;
-        },
-        run: async (prepared) => {
-          if (prepared.quiet) return { items: prepared.items };
-          const { generateDirectDiscoveryOutput } = await import("./ai-direct-generate");
-          const output = await generateDirectDiscoveryOutput(prepared, { fetch: providerFetch(), signal });
-          return request<{ items: CompanionDiscoveryItem[] }>("/api/v1/companion/discovery/check/complete", {
-            method: "POST", body: JSON.stringify({ turnId: prepared.turnId, output }), signal,
-          });
-        },
-      }),
-    acknowledgeCompanionDiscovery: (id: string, dismiss = false) => request<{ ok: true }>(`/api/v1/companion/discovery/${encodeURIComponent(id)}/${dismiss ? "dismiss" : "seen"}`, { method: "POST", body: "{}" }),
-    rememberCompanionDiscoveryFeedback: (id: string) => request<{ ok: true }>(`/api/v1/companion/discovery/${encodeURIComponent(id)}/feedback`, { method: "POST", body: "{}" }),
-    listCompanionActions: () => request<{ actions: CompanionAction[] }>("/api/v1/companion/actions"),
-    applyCompanionAction: (id: string) => request<{ action: CompanionAction }>(`/api/v1/companion/actions/${encodeURIComponent(id)}/apply`, { method: "POST", body: "{}" }),
-    dismissCompanionAction: (id: string) => request<{ action: CompanionAction }>(`/api/v1/companion/actions/${encodeURIComponent(id)}/dismiss`, { method: "POST", body: "{}" }),
-    saveCompanionMemory: (content: string, sourceTurnId?: string) => request<{ memory: CompanionMemory }>("/api/v1/companion/memories", {
-      method: "POST", body: JSON.stringify({ content, sourceTurnId }),
-    }),
-    updateCompanionMemory: (memory: CompanionMemory, content: string) => request<{ memory: CompanionMemory }>(`/api/v1/companion/memories/${encodeURIComponent(memory.id)}`, {
-      method: "PATCH", body: JSON.stringify({ content, version: memory.version }),
-    }),
-    forgetCompanionMemory: (memory: CompanionMemory) => request<{ ok: true }>(`/api/v1/companion/memories/${encodeURIComponent(memory.id)}?version=${memory.version}`, { method: "DELETE" }),
-    listCompanionTurns: () => request<{ turns: CompanionTurn[] }>("/api/v1/companion/turns"),
-    getCompanionTurn: (id: string) => request<{ turn: CompanionTurn }>(`/api/v1/companion/turns/${encodeURIComponent(id)}`),
-    cancelCompanionTurn: (id: string) => request<{ ok: true }>(`/api/v1/companion/turns/${encodeURIComponent(id)}/cancel`, { method: "POST", body: "{}" }),
-    resumeCompanionTurn: async (id: string, payload: CompanionTurnResume = {}, options: { signal?: AbortSignal; onEvent: (event: CompanionEvent) => void }) => {
-      await runCompanionDirect(`/api/v1/companion/turns/${encodeURIComponent(id)}/resume/prepare`, payload, options);
-    },
-    clearCompanionHistory: () => request<{ ok: true }>("/api/v1/companion/history", { method: "DELETE" }),
-    uploadCompanionAttachment: (attachment: { filename: string; mediaType: string; base64Data: string }) =>
-      request<{ attachment: { id: string; filename: string; mediaType: string; byteLength: number; expiresAt: string } }>(
-        "/api/v1/companion/attachments",
-        { method: "POST", body: JSON.stringify(attachment) },
-      ),
-    exportCompanion: () => request<{ version: 2; controls: { useMemory: boolean; learningEnabled: boolean }; exportedAt: string; memories: CompanionMemory[]; turns: CompanionTurn[]; actions: CompanionAction[] }>("/api/v1/companion/export"),
-    importCompanionMemories: (memories: { content: string; kind?: "explicit" | "inferred" }[], controls?: { useMemory: boolean; learningEnabled: boolean }) => request<{ memories: CompanionMemory[] }>("/api/v1/companion/import-memories", {
-      method: "POST", body: JSON.stringify({ version: 2, memories, controls }),
-    }),
-    streamCompanion: async (payload: CompanionTurnInput, streamOptions: { signal?: AbortSignal; onEvent: (event: CompanionEvent) => void }) => {
-      await runCompanionDirect("/api/v1/companion/turns/prepare", payload, streamOptions);
-    },
-
-    streamInfographicAgent: async (payload: InfographicAgentRequest, streamOptions: { signal?: AbortSignal; onEvent: (event: InfographicAgentEvent) => void }) => {
-      const prepared = await request<import("@edgeever/shared").AiPreparedTextGeneration>("/api/v1/ai/infographic-agent/prepare", {
-        method: "POST", body: JSON.stringify(payload), signal: streamOptions.signal,
-      });
-      const { runInfographicAgent } = await import("./infographic-direct");
-      const { createClientAiModel } = await import("./ai-model");
-      await runInfographicAgent({ input: payload, model: createClientAiModel({ ...prepared, fetch: providerFetch() }),
-        signal: streamOptions.signal ?? new AbortController().signal, onEvent: streamOptions.onEvent });
-    },
-
-    streamAiGeneration: async (payload: AiGenerateInput, streamOptions: { signal?: AbortSignal; onEvent: (event: AiStreamEvent) => void }) => {
-      throwIfAborted(streamOptions.signal);
-      const prepare = async (run: AiRunRequest = { segmentation: {} }) => {
-        const { context, response } = await send("/api/v1/ai/generate/prepare", {
-          // This client can send a request without an output limit when none is known, and can run
-          // a long task in parts or continue a cut-off result (#652).
-          method: "POST", body: JSON.stringify({ ...payload, ...run, allowUnboundedOutput: true }), signal: streamOptions.signal,
-        });
-        if (response.status === 404 || response.status === 410) throw directAiUnavailable();
-        if (!response.ok) await throwRequestError(context, response);
-        const parsed = parsePreparedAiGeneration(await response.json());
-        if (!parsed) throw new ApiRequestError("The AI prepare response is invalid", 502, "ai_generation_failed");
-        return parsed;
-      };
-      let prepared = await prepare();
-      // Reporting and detecting are separate: a fresh cache is not read again, but a limit learned
-      // from a provider error is still reported so a cached value that is too high gets corrected.
-      const target = prepared.capabilityTarget;
-      const report = (limits: AiModelCapabilityLimits) => target
-        ? request(`/api/v1/ai/providers/${encodeURIComponent(target.providerConfigId)}/models/${encodeURIComponent(target.modelConfigId)}/capabilities`, {
-          method: "PUT",
-          body: JSON.stringify({
-            provider: prepared.provider,
-            modelId: prepared.modelId,
-            baseUrl: prepared.baseUrl,
-            configVersion: target.configVersion,
-            ...limits,
-          }),
-        }).then(() => true, () => false)
-        : Promise.resolve(false);
-      if (target && prepared.detectCapabilities) {
-        // The instance has no fresh limits for this model: read them from the provider once,
-        // save them for every client, and prepare again so this request already uses them.
-        const { detectAiModelCapabilities } = await import("./ai-model-capabilities-direct");
-        const limits = await detectAiModelCapabilities(prepared, providerFetch(), streamOptions.signal);
-        const hasLimits = Boolean(limits && (limits.maxOutputTokens || limits.maxInputTokens || limits.contextWindowTokens));
-        if (limits && await report(limits) && hasLimits) prepared = await prepare();
-      }
-      const { runAiLongGeneration } = await import("./ai-long-generation");
-      await runAiLongGeneration({
-        first: prepared,
-        prepare,
-        signal: streamOptions.signal,
-        onEvent: streamOptions.onEvent,
-        stream: (next, onEvent) => streamDirectAiGeneration(next, payload.attachments, {
-          fetch: providerFetch(),
-          signal: streamOptions.signal,
-          // The run reports one start for all of its requests.
-          onEvent: (event) => { if (event.type !== "start") onEvent(event); },
-          onOutputLimit: async (maxOutputTokens) => {
-            if (!target) return;
-            await report({ maxOutputTokens, maxInputTokens: null, contextWindowTokens: null, source: "provider-error" });
-          },
-        }),
-      });
-    },
-
-    /** Read a saved model's limits from its provider and store them on the instance (#652). */
-    detectAiModelCapabilities: async (providerConfigId: string, modelConfigId: string, modelId: string, signal?: AbortSignal) => {
-      const credential = await request<{ provider: AiProvider; baseUrl: string; apiKey: string; configVersion: string }>(
-        `/api/v1/ai/providers/${encodeURIComponent(providerConfigId)}/direct-credential`,
-        { method: "POST", body: JSON.stringify({ modelId }), signal },
-      );
-      const { detectAiModelCapabilities } = await import("./ai-model-capabilities-direct");
-      const limits = await detectAiModelCapabilities({ ...credential, modelId }, providerFetch(), signal);
-      if (!limits) return null;
-      return request<{ detectedCapabilities: AiModelCapabilities | null }>(
-        `/api/v1/ai/providers/${encodeURIComponent(providerConfigId)}/models/${encodeURIComponent(modelConfigId)}/capabilities`,
-        {
-          method: "PUT",
-          body: JSON.stringify({ provider: credential.provider, modelId, baseUrl: credential.baseUrl, configVersion: credential.configVersion, ...limits }),
-          signal,
-        },
-      );
-    },
 
     listUsers: () => request<ListUsersResponse>("/api/v1/users"),
 
@@ -1741,12 +1343,6 @@ export const createEdgeEverClient = (options: EdgeEverClientOptions = {}) => {
       request<{ ok: true }>("/api/v1/restores/json/memos", {
         method: "POST",
         body: JSON.stringify({ memos }),
-      }),
-
-    restoreJsonAiPrompts: (prompts: JsonBackupAiPrompt[]) =>
-      request<{ ok: true }>("/api/v1/restores/json/ai-prompts", {
-        method: "POST",
-        body: JSON.stringify({ prompts }),
       }),
 
     createJsonResourceRestoreSink,

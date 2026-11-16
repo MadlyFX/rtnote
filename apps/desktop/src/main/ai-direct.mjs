@@ -1,65 +1,62 @@
-const MAX_BODY_BYTES = 12 * 1024 * 1024;
+// Native transport for speech transcription. The renderer cannot reach the
+// user's speech provider directly because of CORS, so the main process sends
+// one multipart POST to an `/audio/transcriptions` endpoint and streams the
+// response back. Nothing else (chat completions, model discovery) is allowed.
 const MAX_AUDIO_REQUEST_BYTES = 25_000_000;
 const MAX_CONCURRENT = 2;
+const FORBIDDEN_HEADERS = ["host", "connection", "transfer-encoding", "content-length", "upgrade", "proxy-authorization"];
 
-// AI endpoints are user-configured and may be on the client's private network.
+// Speech endpoints are user-configured and may be on the client's private network.
 // Keep this separate from the public-only policy used by plugin requests.
 export const validateAiProviderUrl = (value) => {
   const url = new URL(value);
   if (!["http:", "https:"].includes(url.protocol) || url.username || url.password || url.hash) {
-    throw new Error("AI provider requests must use HTTP or HTTPS without URL credentials or fragments.");
+    throw new Error("Speech provider requests must use HTTP or HTTPS without URL credentials or fragments.");
   }
   return url;
 };
+
+export const isTranscriptionUrl = (url) => url.pathname.endsWith("/audio/transcriptions");
 
 export const createAiDirectRuntime = ({ fetchImpl = globalThis.fetch, maxConcurrent = MAX_CONCURRENT } = {}) => {
   const active = new Map();
   return {
     async open(requestId, input, { onData, onEnd, onError }) {
       if (typeof requestId !== "string" || requestId.length < 8 || requestId.length > 80) {
-        throw new Error("Invalid AI provider request.");
+        throw new Error("Invalid speech transcription request.");
       }
-      if (!input || typeof input !== "object") throw new Error("Invalid AI provider request.");
-      const method = input.method ?? "POST";
-      if (method !== "POST" && !(method === "GET" && new URL(input.url).pathname.endsWith("/models"))) throw new Error("AI provider requests must use POST, or GET for model discovery.");
-      const binaryBody = input.bodyBytes instanceof Uint8Array
+      if (!input || typeof input !== "object") throw new Error("Invalid speech transcription request.");
+      if ((input.method ?? "POST") !== "POST") throw new Error("Speech transcription requests must use POST.");
+      const url = validateAiProviderUrl(input.url);
+      if (!isTranscriptionUrl(url)) throw new Error("Only speech transcription endpoints are allowed.");
+      // The renderer always sends an empty text body next to the audio bytes.
+      if (input.body != null && input.body !== "") throw new Error("Speech transcription requests must send multipart audio.");
+      const bodyBytes = input.bodyBytes instanceof Uint8Array
         ? input.bodyBytes
         : input.bodyBytes instanceof ArrayBuffer ? new Uint8Array(input.bodyBytes) : null;
-      if (input.bodyBytes != null && !binaryBody) {
-        throw new Error("Invalid binary AI provider request body.");
-      }
-      if (binaryBody
-        ? binaryBody.byteLength > MAX_AUDIO_REQUEST_BYTES
-        : typeof input.body !== "string" || Buffer.byteLength(input.body) > MAX_BODY_BYTES) {
-        throw new Error("AI provider request body is too large.");
-      }
-      const url = validateAiProviderUrl(input.url);
+      if (!bodyBytes) throw new Error("Speech transcription requests must send multipart audio.");
+      if (bodyBytes.byteLength > MAX_AUDIO_REQUEST_BYTES) throw new Error("Speech transcription request body is too large.");
       const headers = {};
       if (input.headers && typeof input.headers === "object") {
         for (const [key, value] of Object.entries(input.headers)) {
           if (typeof key !== "string" || typeof value !== "string" || /[\r\n\0]/.test(key) || /[\r\n\0]/.test(value)) {
-            throw new Error("Invalid AI provider header.");
+            throw new Error("Invalid speech transcription header.");
           }
-          if (["host", "connection", "transfer-encoding", "content-length", "upgrade", "proxy-authorization"].includes(key.toLowerCase())) {
-            throw new Error("Invalid AI provider header.");
-          }
+          if (FORBIDDEN_HEADERS.includes(key.toLowerCase())) throw new Error("Invalid speech transcription header.");
           headers[key] = value;
         }
       }
-      if (binaryBody && (
-        !url.pathname.endsWith("/audio/transcriptions")
-        || !Object.entries(headers).some(([key, value]) => key.toLowerCase() === "content-type" && /^multipart\/form-data;\s*boundary=/i.test(value))
-      )) {
-        throw new Error("Binary AI requests must be multipart speech transcriptions.");
+      if (!Object.entries(headers).some(([key, value]) => key.toLowerCase() === "content-type" && /^multipart\/form-data;\s*boundary=/i.test(value))) {
+        throw new Error("Speech transcription requests must send multipart audio.");
       }
-      if (active.size >= maxConcurrent || active.has(requestId)) throw new Error("Too many AI provider requests.");
+      if (active.size >= maxConcurrent || active.has(requestId)) throw new Error("Too many speech transcription requests.");
       const controller = new AbortController();
       active.set(requestId, controller);
       try {
         const response = await fetchImpl(url.href, {
-          method,
+          method: "POST",
           headers,
-          body: method === "GET" ? undefined : binaryBody ?? input.body,
+          body: bodyBytes,
           redirect: "error",
           signal: controller.signal,
         });
@@ -95,7 +92,7 @@ export const createAiDirectRuntime = ({ fetchImpl = globalThis.fetch, maxConcurr
     cancel(requestId) {
       const controller = active.get(requestId);
       if (!controller) return false;
-      controller.abort(new Error("AI provider request cancelled"));
+      controller.abort(new Error("Speech transcription request cancelled"));
       active.delete(requestId);
       return true;
     },

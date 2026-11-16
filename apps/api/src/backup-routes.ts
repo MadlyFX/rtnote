@@ -19,7 +19,6 @@ import { AppError } from "./app-error";
 import { isoNow, parseJsonArray } from "./entity-utils";
 import { apiError, badRequest, conflict, notFound } from "./http-errors";
 import { resolveObjectStorage } from "./object-storage";
-import { AI_PROMPT_SELECT_COLUMNS, mapAiPromptTemplateRow, type AiPromptTemplateRow } from "./ai-prompt-service";
 import { mapNotebook, notebookSelectSql, type NotebookRow } from "./notebook-service";
 import {
   MAX_ATTACHMENT_UPLOAD_BYTES,
@@ -146,7 +145,6 @@ type BackupStateRow = {
   memos: number;
   revisions: number;
   resources: number;
-  prompts: number;
 };
 
 // Page checks need only the transactional revision. Recounting every table here
@@ -161,8 +159,7 @@ const readBackupState = (database: DatabaseAdapter, workspaceId: string) => data
      (SELECT COUNT(*) FROM notebooks WHERE workspace_id = w.id AND is_deleted = 0) AS notebooks,
      (SELECT COUNT(*) FROM memos WHERE workspace_id = w.id AND is_deleted = 0) AS memos,
      (SELECT COUNT(*) FROM memo_revisions r JOIN memos m ON m.id = r.memo_id WHERE m.workspace_id = w.id AND m.is_deleted = 0) AS revisions,
-     (SELECT COUNT(*) FROM resources r JOIN memos m ON m.id = r.memo_id WHERE m.workspace_id = w.id AND m.is_deleted = 0 AND r.is_deleted = 0) AS resources,
-     (SELECT COUNT(*) FROM ai_prompt_templates WHERE workspace_id = w.id) AS prompts
+     (SELECT COUNT(*) FROM resources r JOIN memos m ON m.id = r.memo_id WHERE m.workspace_id = w.id AND m.is_deleted = 0 AND r.is_deleted = 0) AS resources
    FROM workspaces w WHERE w.id = ?`,
 ).bind(workspaceId).first<BackupStateRow>();
 
@@ -281,7 +278,7 @@ export const registerBackupRoutes = (
   app.get("/api/v1/backups/state", async (context) => {
     const denied = requireScopes(context, "read:memos", "read:resources");
     if (denied) return denied;
-    // The aggregate includes private AI prompts, just like their existing route.
+    // Backup state is limited to interactive users.
     const userDenied = requireUser(context);
     if (userDenied) return userDenied;
     context.header("Cache-Control", "private, no-store");
@@ -294,7 +291,7 @@ export const registerBackupRoutes = (
       workspaceId,
       identity: state.identity,
       backupRevision: state.backup_revision,
-      counts: { notebooks: state.notebooks, memos: state.memos, revisions: state.revisions, resources: state.resources, prompts: state.prompts },
+      counts: { notebooks: state.notebooks, memos: state.memos, revisions: state.revisions, resources: state.resources, prompts: 0 },
     });
   });
 
@@ -311,6 +308,8 @@ export const registerBackupRoutes = (
     if (kind === "prompts") {
       const promptDenied = requireUser(context);
       if (promptDenied) return promptDenied;
+      // AI prompts were removed. Older desktop backups still ask for them.
+      return context.json({ prompts: [], nextCursor: null });
     }
     const identity = context.req.query("identity");
     const revision = context.req.query("revision");
@@ -334,18 +333,12 @@ export const registerBackupRoutes = (
       const selected = rows.results.slice(0, limit);
       ids = rows.results.map((row) => row.id);
       result = { memos: selected.map(dependencies.mapMemoDetail), ...await readBackupRelations(database, selected.map((row) => row.id)) };
-    } else if (kind === "notebooks") {
+    } else {
       const rows = await database.prepare(notebookSelectSql(
         `WHERE n.workspace_id = ? AND n.is_deleted = 0 AND n.id > ? GROUP BY n.id ORDER BY n.id ASC LIMIT ?`,
       )).bind(workspaceId, after, limit + 1).all<NotebookRow>();
       ids = rows.results.map((row) => row.id);
       result = { notebooks: rows.results.slice(0, limit).map(mapNotebook) };
-    } else {
-      const rows = await database.prepare(
-        `SELECT ${AI_PROMPT_SELECT_COLUMNS} FROM ai_prompt_templates WHERE workspace_id = ? AND id > ? ORDER BY id ASC LIMIT ?`,
-      ).bind(workspaceId, after, limit + 1).all<AiPromptTemplateRow>();
-      ids = rows.results.map((row) => row.id);
-      result = { prompts: rows.results.slice(0, limit).map((row) => mapAiPromptTemplateRow(row, context.req.header("Accept-Language"))) };
     }
     if (!await unchanged()) return changed();
     return context.json({ ...result, nextCursor: ids.length > limit ? ids[limit - 1] : null });

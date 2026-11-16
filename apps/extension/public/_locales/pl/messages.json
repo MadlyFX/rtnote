@@ -486,18 +486,6 @@
   "videoNoteSaved": {
     "message": "Zapisano notatkę z wideo."
   },
-  "videoTranscriptSaved": {
-    "message": "Zapisano napisy. Nie utworzono podsumowania."
-  },
-  "videoTranscriptNeedScope": {
-    "message": "Zapisano napisy. Nie utworzono podsumowania. W ustawieniach dodaj do tokena zakres ai:generate i wybierz domyślny model."
-  },
-  "videoTranscriptNeedModel": {
-    "message": "Zapisano napisy. Nie utworzono podsumowania. Najpierw wybierz domyślny model."
-  },
-  "videoTranscriptTooLong": {
-    "message": "Zapisano napisy. To wideo jest za długie, aby je podsumować."
-  },
   "videoInfoSaved": {
     "message": "Zapisano informacje o wideo."
   },
@@ -519,14 +507,8 @@
   "videoCapturedAtLabel": {
     "message": "Zapisano"
   },
-  "videoSummaryHeading": {
-    "message": "Podsumowanie"
-  },
   "videoOutlineHeading": {
     "message": "Konspekt"
-  },
-  "videoTakeawaysHeading": {
-    "message": "Najważniejsze wnioski"
   },
   "videoTranscriptHeading": {
     "message": "Transkrypcja"
@@ -770,23 +752,6 @@
   },
   "pageCaptureRestrictedHint": {
     "message": "Dostępny jest tylko ograniczony podgląd. Uzyskaj pełny dostęp na stronie i odśwież ją lub zaznacz widoczny fragment do zapisania."
-  },
-  "modelDirectPermission": {
-    "message": "Video summaries need direct access to $HOST$. Grant access, then clip the video again.",
-    "placeholders": {
-      "host": {
-        "content": "$1"
-      }
-    }
-  },
-  "modelDirectAllow": {
-    "message": "Allow model access"
-  },
-  "modelDirectReady": {
-    "message": "Access granted. Please clip the video again."
-  },
-  "modelDirectDenied": {
-    "message": "Model access was not granted."
   },
   "regionSelect": {
     "message": "Wybierz obszar"

@@ -27,22 +27,8 @@ export interface VideoCapture {
   thumbnail?: { bytes: Uint8Array; mimeType: string };
 }
 
-export interface VideoOutline {
-  tldr: string;
-  sections: { start: number; text: string }[];
-  takeaways: string[];
-}
-
-export type OutlineAttempt =
-  | { ok: true; outline: VideoOutline }
-  | { ok: false; reason: "forbidden" | "not_configured" | "too_long" | "invalid" | "failed" };
-
 export type VideoNoteToast =
   | "saved"
-  | "transcript"
-  | "transcript-scope"
-  | "transcript-model"
-  | "transcript-too-long"
   | "info"
   | "unsupported"
   | "not-found";

@@ -9,7 +9,7 @@ This delivery includes scheduled backups, manual runs, encryption, and decryptio
 
 ## 1. Backup coverage
 
-The source is the current account's **synchronized knowledge base** on the current instance. It includes undeleted notes, notebook hierarchy, tags, archive and pin states, existing revisions, AI prompts, and active attachments associated with those notes. Both structured content and readable Markdown copies are preserved.
+The source is the current account's **synchronized knowledge base** on the current instance. It includes undeleted notes, notebook hierarchy, tags, archive and pin states, existing revisions, and active attachments associated with those notes. Both structured content and readable Markdown copies are preserved.
 
 This delivery excludes:
 
@@ -48,7 +48,7 @@ Backup settings sit below status and are initially collapsed. The local archive 
 - **The Web settings UI** handles configuration, progress, and restore confirmation. It does not receive saved passwords or transfer complete archives over IPC.
 - **A shared archive module** owns platform-neutral formats, validation, and ZIP operations. File pickers, browser downloads, Node file streams, and OS credentials stay in their respective adapters.
 
-Reuse existing main-process lifecycle and resume events. Do not register backups as AI scheduled tasks or implement a second ZIP format in the Rust sidecar.
+Reuse existing main-process lifecycle and resume events. Do not implement a second ZIP format in the Rust sidecar.
 
 ### 3.2 Scheduling rules
 
@@ -70,7 +70,7 @@ Capture the instance URL, account, workspace, session credential, configuration,
 
 ## 4. Consistent server reads
 
-The existing `/api/v1/backups/json` route uses `OFFSET` pagination. Deletions during an export can skip later records. The existing synchronization cursor covers only some entities, so it cannot represent a complete backup revision that also includes resources and prompts.
+The existing `/api/v1/backups/json` route uses `OFFSET` pagination. Deletions during an export can skip later records. The existing synchronization cursor covers only some entities, so it cannot represent a complete backup revision that also includes resources.
 
 Use **workspace revision checks with cursor pagination**. Users can continue editing, but a task becomes a successful backup only when no relevant data changes during the export. Do not hold a transaction across requests or maintain server-side archives or persistent backup jobs.
 
@@ -78,7 +78,7 @@ Use **workspace revision checks with cursor pagination**. Users can continue edi
 
 Add `backup_revision`, defaulting to 0, to `workspaces` through a new numbered SQL migration. Database triggers increment the owning workspace's revision on backup-related inserts, updates, and deletes in the same transaction as the original write.
 
-Coverage includes `notebooks`, `memos`, `memo_contents`, `memo_revisions`, `resources`, and `ai_prompt_templates`. Tables without a workspace field resolve ownership through their note. Resolve ownership before deletion, and cover both affected sides when relationships move. Restore operations, bulk deletion, and background revision cleanup must also advance the revision.
+Coverage includes `notebooks`, `memos`, `memo_contents`, `memo_revisions`, and `resources`. Tables without a workspace field resolve ownership through their note. Resolve ownership before deletion, and cover both affected sides when relationships move. Restore operations, bulk deletion, and background revision cleanup must also advance the revision.
 
 This revision answers only whether data changed. It is not a note count and does not reuse or alter the synchronization cursor. Transmit the database revision as a decimal string in the API.
 
@@ -87,7 +87,7 @@ This revision answers only whether data changed. It is not a note count and does
 Introduce a backup read protocol while preserving the old endpoints, parameters, and usage conditions:
 
 1. `GET /api/v1/backups/state` returns the protocol version, current user and workspace, workspace identity, `backupRevision`, and in-scope entity counts.
-2. `GET /api/v1/backups/data` accepts a `kind`, cursor, and the workspace identity and revision from step 1. It pages through notebooks, prompts, or notes. Note pages include their revisions and attachment metadata. Use stable-ID cursor pagination, not offsets.
+2. `GET /api/v1/backups/data` accepts a `kind`, cursor, and the workspace identity and revision from step 1. It pages through notebooks or notes. The `prompts` kind remains for older desktop clients and always returns an empty list. Note pages include their revisions and attachment metadata. Use stable-ID cursor pagination, not offsets.
 3. Check identity and revision before and after each page. A mismatch returns `backup_source_changed` and fails the entire task. After downloading the attachments, call the state endpoint again for a final comparison.
 
 New endpoints preserve the existing backup authentication and access checks. The server resolves the workspace from the authenticated session; clients cannot select another user's workspace. Disable caching for state and export responses. Revision checks must read the database's primary write view rather than a lagging replica.
@@ -103,7 +103,7 @@ This choice adds revision-update overhead to data writes. A continuously changin
 Ordinary archives retain the existing `edgeever-zip` `formatVersion: 2` layout:
 
 - `manifest.json` records the format, app version, export time, and entity counts, retaining `includesTrash: false`.
-- `notebooks.json` and `prompts.json` hold the hierarchy and prompts.
+- `notebooks.json` holds the hierarchy. An empty `prompts.json` is still written for older readers.
 - `memos/<id>.json` holds notes, revisions, and resource metadata.
 - `notes/` holds notebook-organized Markdown and attachments addressed by relative paths.
 
@@ -175,7 +175,7 @@ Report only “Local backup complete.” Upload completion, conflict copies, and
 2. Decrypt as a stream to an app-private temporary directory. Only after final GCM authentication may parsing and restore begin. Use `0700` directories and `0600` files on Unix, and the current user's private application-data directory with appropriate ACLs on Windows. Plaintext staging stays outside synchronized folders.
 3. Scan the complete ZIP and validate its format, entry paths, CRCs, entity counts, relationships, attachment lengths, and digests. Authentication failure reports “Unable to decrypt: the password is incorrect or the file is damaged.” Report unknown versions separately.
 4. Show the target instance, account, and import counts. Explain that matching IDs are overwritten and unrelated data is preserved, then wait for confirmation.
-5. Reuse existing prompt, notebook, note, and attachment restore APIs, preserving IDs and workspace access boundaries. Reject a page before writing if a revision ID belongs to another note; same-ID/same-note restore remains repeatable. Refresh the workspace after every part succeeds.
+5. Reuse existing notebook, note, and attachment restore APIs, preserving IDs and workspace access boundaries. AI prompts in older archives are ignored. Reject a page before writing if a revision ID belongs to another note; same-ID/same-note restore remains repeatable. Refresh the workspace after every part succeeds.
 
 GCM stream output is not trusted until final authentication. Never write records to the database while decryption remains unauthenticated. [Node.js authenticated-decryption documentation](https://nodejs.org/api/crypto.html#decipherupdatedata-inputencoding-outputencoding)
 
@@ -212,9 +212,9 @@ Use the smallest sufficient checks for these behaviors, reusing existing backup 
 
 | Scenario | Required observation |
 | --- | --- |
-| Plain and encrypted disaster recovery | With the original instance unavailable, restore through the actual desktop UI into a fresh instance; verify in-scope note structure, revisions, prompts, and attachments, then open content and files |
+| Plain and encrypted disaster recovery | With the original instance unavailable, restore through the actual desktop UI into a fresh instance; verify in-scope note structure, revisions, and attachments, then open content and files |
 | Upgrade from the previous version | Editing, sync, deletion, and restore still work after upgrading a real old database; ZIP v1/v2 import works and existing callers need no new parameters |
-| Concurrent source changes | Note insertion/deletion, prompt edits, revision cleanup, and attachment changes during export fail the task without rotating old backups; stable data succeeds |
+| Concurrent source changes | Note insertion/deletion, revision cleanup, and attachment changes during export fail the task without rotating old backups; stable data succeeds |
 | Background lifecycle | Closing Settings, hiding in the tray, renderer reload, and sleep/resume do not duplicate runs; app exit cancels and missed intervals produce one catch-up run |
 | Account and destination isolation | Account/instance switching causes no mixed data or late success; retention preserves other accounts, devices, manual files, and previous directories |
 | Passwords and damaged files | Wrong passwords, modified headers/ciphertext, truncation, and unknown suites produce no restore writes; secure-storage failure produces no plaintext backup |

@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { MCP_TOOLS } from "./mcp-tools";
-import { assertOpenAiCompatibleToolSchema, COMPANION_MCP_TOOLS } from "./companion-tool-catalog";
+
+const names = (tools) => tools.map((tool) => tool.name);
 
 describe("MCP tool catalog", () => {
   test("keeps tool names unique and schemas object-shaped", () => {
@@ -12,19 +13,6 @@ describe("MCP tool catalog", () => {
       expect(tool.inputSchema.type).toBe("object");
       expect(tool.outputSchema).toEqual({ type: "object" });
       expect(tool.annotations.openWorldHint).toBe(false);
-    }
-  });
-
-  test("keeps Agent tool JSON schemas compatible with OpenAI-style function calling", () => {
-    expect(COMPANION_MCP_TOOLS.length).toBeGreaterThan(20);
-    expect(() => assertOpenAiCompatibleToolSchema({ type: "object", oneOf: [] }, "bad_tool"))
-      .toThrow(/oneOf/);
-    expect(() => assertOpenAiCompatibleToolSchema({ type: "object", anyOf: [] }, "bad_tool"))
-      .toThrow(/anyOf/);
-    expect(() => assertOpenAiCompatibleToolSchema({ properties: { op: { const: "add_node" } } }, "bad_tool"))
-      .toThrow(/const/);
-    for (const tool of COMPANION_MCP_TOOLS) {
-      expect(() => assertOpenAiCompatibleToolSchema(tool.inputSchema, tool.name)).not.toThrow();
     }
   });
 
@@ -53,7 +41,6 @@ describe("MCP tool catalog", () => {
     });
     expect(byName.get("create_infographic_memo")?.inputSchema.properties.template.enum).toContain("chart-pie-donut-plain-text");
     expect(byName.get("create_poster_memo")?.annotations).toMatchObject({ readOnlyHint: false, destructiveHint: false, idempotentHint: false });
-    expect(COMPANION_MCP_TOOLS.some(tool => tool.name === "create_poster_memo")).toBe(true);
     expect(byName.get("create_diagram_memo")?.annotations).toMatchObject({
       readOnlyHint: false,
       destructiveHint: false,
@@ -128,11 +115,7 @@ describe("MCP tool catalog", () => {
       readOnlyHint: false,
       destructiveHint: true,
     });
-    expect(byName.get("restore_default_ai_instructions")?.annotations).toMatchObject({
-      readOnlyHint: false,
-      destructiveHint: false,
-      idempotentHint: true,
-    });
+    expect(names(MCP_TOOLS).filter((name) => name.includes("ai_instruction"))).toEqual([]);
     expect(byName.get("search_memos")?.inputSchema.properties.createdAfter.format).toBeUndefined();
     expect(byName.get("search_memos")?.description).toContain("createdAfter");
   });

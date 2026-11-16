@@ -15,7 +15,7 @@ import {
   type AudioCodec,
   type OutputFormat,
 } from "mediabunny";
-import { api, directProviderFetch } from "./api";
+import { api, speechProviderFetch } from "./api";
 import { SpeechProviderReachabilityError } from "./speech-transcription-error";
 import { prefersChineseContent } from "./bilingual-content-locale";
 
@@ -164,7 +164,7 @@ export async function transcribeNoteResource(
   const text = await transcribePreparedAudioParts(
     target,
     extractAudioParts(size, readRange, signal),
-    directProviderFetch,
+    speechProviderFetch,
     signal,
     onProgress,
   );
@@ -175,8 +175,8 @@ export async function transcribeMediaBlob(
   media: Blob,
   signal?: AbortSignal,
   transport: {
-    getSettings?: typeof api.getAiTranscriptionSettings;
-    getCredential?: typeof api.getAiTranscriptionDirectCredential;
+    getSettings?: typeof api.getTranscriptionSettings;
+    getCredential?: typeof api.getTranscriptionDirectCredential;
     providerFetch?: typeof fetch;
   } = {},
 ): Promise<{ text: string }> {
@@ -185,7 +185,7 @@ export async function transcribeMediaBlob(
     throw new Error("The media is unavailable or exceeds the 1 GiB limit.");
   }
   signal?.throwIfAborted();
-  const settings = await (transport.getSettings ?? api.getAiTranscriptionSettings)();
+  const settings = await (transport.getSettings ?? api.getTranscriptionSettings)();
   signal?.throwIfAborted();
   const provider = settings.providers.find((item) => item.isEnabled
     && item.models.some((model) => model.id === settings.defaultModelId));
@@ -193,14 +193,14 @@ export async function transcribeMediaBlob(
   if (!settings.enabled || !provider || !model || !provider.hasApiKey) {
     throw new Error("No speech recognition model is enabled.");
   }
-  const { apiKey } = await (transport.getCredential ?? api.getAiTranscriptionDirectCredential)(provider.id, signal);
+  const { apiKey } = await (transport.getCredential ?? api.getTranscriptionDirectCredential)(provider.id, signal);
   signal?.throwIfAborted();
   const readRange = async (start: number, end: number) =>
     new Uint8Array(await media.slice(start, end).arrayBuffer());
   const text = await transcribePreparedAudioParts(
     { baseUrl: provider.baseUrl.trim().replace(/\/+$/, ""), modelId: model.modelId, apiKey },
     extractAudioParts(media.size, readRange, signal),
-    transport.providerFetch ?? directProviderFetch,
+    transport.providerFetch ?? speechProviderFetch,
     signal,
   );
   return { text };
@@ -272,7 +272,7 @@ export async function testSpeechService(
   return transcribePreparedAudioParts(
     { ...target, baseUrl: target.baseUrl.trim().replace(/\/+$/, ""), modelId: target.modelId.trim() },
     parts(),
-    transport.providerFetch ?? directProviderFetch,
+    transport.providerFetch ?? speechProviderFetch,
     signal,
     undefined,
     30_000,

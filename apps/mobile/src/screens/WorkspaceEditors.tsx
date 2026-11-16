@@ -51,11 +51,10 @@ import {
 } from "../lib/mobile-web-clip";
 import { useMobileEditorResourceActions } from "../hooks/useMobileEditorResourceActions";
 import { useMobileEditorUploadAsset } from "../hooks/useMobileEditorUploadAsset";
-import { useMobileSelectionAi } from "../hooks/useMobileSelectionAi";
 import { parseTags } from "./workspace-utils";
 import { createOptimisticMemo, type MobileMemoUpdatePayload } from "./workspace-memo-cache";
 import { styles } from "./workspace-styles";
-import { NotebookPickerModal, SmartTagButton, TagPickerModal } from "./WorkspacePickers";
+import { NotebookPickerModal, TagPickerModal } from "./WorkspacePickers";
 import {
   type MobileResourceTarget,
 } from "../lib/mobile-attachments";
@@ -226,13 +225,6 @@ export const CreateMemoModal = ({
   tagsTextRef.current = tagsText;
   targetNotebookIdRef.current = targetNotebookId;
   imageOperationRef.current = imageOperation;
-
-  const { aiPromptsJson, cancelSelectionAi, requestSelectionAi } = useMobileSelectionAi({
-    client,
-    editorRef,
-    resolvedLocale,
-    titleRef,
-  });
 
   const focusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const keyboardTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -681,7 +673,6 @@ export const CreateMemoModal = ({
   const editorElement = useMemo(() => draftLoaded && baseUrl ? (
     <LocalTiptapEditor
       autoFocus
-      aiPromptsJson={aiPromptsJson}
       baseUrl={baseUrl}
       content={contentJsonRef.current}
       dom={{
@@ -701,8 +692,6 @@ export const CreateMemoModal = ({
         flushResolverRef.current?.();
         flushResolverRef.current = null;
       }}
-      onAiCancel={cancelSelectionAi}
-      onAiRequest={requestSelectionAi}
       onResourcePress={selectResource}
       onLoadResource={loadEditorResource}
       onPickImage={pickAndUploadImage}
@@ -718,7 +707,7 @@ export const CreateMemoModal = ({
       locale={resolvedLocale}
       theme={resolvedTheme}
     />
-  ) : null, [aiPromptsJson, baseUrl, cancelSelectionAi, draftLoaded, editorStartup.attempt, loadEditorResource, pushBodyToEditor, requestSelectionAi, resolvedLocale, resolvedTheme, scheduleBodyKeyboard, selectResource]);
+  ) : null, [baseUrl, draftLoaded, editorStartup.attempt, loadEditorResource, pushBodyToEditor, resolvedLocale, resolvedTheme, scheduleBodyKeyboard, selectResource]);
 
   return (
     <SafeAreaView edges={["top", "left", "right", "bottom"]} style={styles.createMemoSafeArea}>
@@ -775,16 +764,6 @@ export const CreateMemoModal = ({
             </Text>
             <ChevronDown color="#94a3b8" size={14} />
           </Pressable>
-          <SmartTagButton
-            client={client}
-            contentMarkdown={contentMarkdown}
-            onChange={(nextTags) => {
-              setTagsText(nextTags.join(", "));
-              markDirty();
-            }}
-            selectedTags={parseTags(tagsText)}
-            title={title}
-          />
         </View>
 
         <View style={styles.createMemoEditorFrame}>
@@ -1030,13 +1009,6 @@ export const RichEditorModal = ({
   };
 
   const flushEditor = () => flushMobileEditor(editorRef, flushResolverRef);
-  const { aiPromptsJson, cancelSelectionAi, requestSelectionAi } = useMobileSelectionAi({
-    client,
-    editorRef,
-    resolvedLocale,
-    titleRef,
-  });
-
   const requestClose = async () => {
     if (uploadingRef.current) {
       return;
@@ -1133,7 +1105,6 @@ export const RichEditorModal = ({
     () => memo && baseUrl ? (
       <LocalTiptapEditor
         autoFocus={initialFocus === "body"}
-        aiPromptsJson={aiPromptsJson}
         baseUrl={baseUrl}
         content={contentJsonRef.current}
         dom={{
@@ -1145,8 +1116,6 @@ export const RichEditorModal = ({
           style: styles.richEditorWebView,
         }}
         onChange={persistDraft}
-        onAiCancel={cancelSelectionAi}
-        onAiRequest={requestSelectionAi}
         onResourcePress={selectResource}
         onLoadResource={loadEditorResource}
         onPickImage={pickAndUploadImage}
@@ -1172,7 +1141,7 @@ export const RichEditorModal = ({
         theme={resolvedTheme}
       />
     ) : null,
-    [aiPromptsJson, baseUrl, cancelSelectionAi, editorStartup.attempt, initialFocus, loadEditorResource, memo?.id, requestSelectionAi, resolvedLocale, resolvedTheme, selectResource]
+    [baseUrl, editorStartup.attempt, initialFocus, loadEditorResource, memo?.id, resolvedLocale, resolvedTheme, selectResource]
   );
 
   useEffect(() => {
@@ -1262,17 +1231,6 @@ export const RichEditorModal = ({
                 </Text>
                 <ChevronDown color="#94a3b8" size={14} />
               </Pressable>
-              <SmartTagButton
-                client={client}
-                contentMarkdown={contentMarkdownRef.current}
-                disabled={saving || uploading}
-                onChange={(nextTags) => {
-                  setTagsText(nextTags.join(", "));
-                  markAutosaveDirty();
-                }}
-                selectedTags={parseTags(tagsText)}
-                title={title}
-              />
             </View>
             {draftRestored ? <Text style={styles.richEditorDraftNotice}>已恢复上次未完成的本地草稿</Text> : null}
             <View style={styles.richEditorFrame}>

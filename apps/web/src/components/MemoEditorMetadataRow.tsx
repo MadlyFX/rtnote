@@ -9,7 +9,6 @@ import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type MemoEditorMetadataRowProps = {
-  contentMarkdown: string;
   disabled: boolean;
   mobileNotebookPickerOpen: boolean;
   notebookOptions: NotebookMoveOption[];
@@ -27,7 +26,6 @@ type MemoEditorMetadataRowProps = {
 };
 
 export const MemoEditorMetadataRow = ({
-  contentMarkdown,
   disabled,
   mobileNotebookPickerOpen,
   notebookOptions,
@@ -149,10 +147,8 @@ export const MemoEditorMetadataRow = ({
           </Select>
         </div>
         <EditorTagPicker
-          contentMarkdown={contentMarkdown}
           disabled={disabled}
           loadTags={() => repository.listTags()}
-          title={title}
           value={tagsText}
           onChange={onTagsChange}
         />

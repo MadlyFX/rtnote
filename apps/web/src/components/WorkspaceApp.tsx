@@ -170,7 +170,6 @@ const EvernoteImportGuidePane = lazy(() =>
 const TagsPane = lazy(() => import("./TagsPane").then((module) => ({ default: module.TagsPane })));
 import type { TemplatePayload } from "@/lib/template-center";
 const TemplatesPane = lazy(() => import("./TemplatesPane").then((module) => ({ default: module.TemplatesPane })));
-const AiPromptsPane = lazy(() => import("./AiPromptsPane").then((module) => ({ default: module.AiPromptsPane })));
 const ExecutionCenterPane = lazy(() =>
   import("./execution/ExecutionCenterPane").then((module) => ({ default: module.ExecutionCenterPane }))
 );
@@ -203,7 +202,6 @@ export const WorkspaceApp = ({
     navigateSettings: navigateWorkspaceSettings,
     navigatePlugins: navigateWorkspacePlugins,
     navigateTemplates: navigateWorkspaceTemplates,
-    navigateAiPrompts: navigateWorkspaceAiPrompts,
     navigateExecutionCenter: navigateWorkspaceExecutionCenter,
   } = useWorkspaceRoute();
   const localDataScope = useMemo(
@@ -214,7 +212,6 @@ export const WorkspaceApp = ({
   const isInitialSettingsRoute = route.isSettings;
   const isInitialPluginsRoute = route.isPlugins;
   const isInitialTemplatesRoute = route.isTemplates;
-  const isInitialAiPromptsRoute = route.isAiPrompts;
   const isInitialExecutionCenterRoute = route.isExecutionCenter;
   const isInitialMobileEditorReturn = Boolean(route.mobileEditorReturnMemoId);
   const isTrashRoute = route.isTrash;
@@ -226,7 +223,7 @@ export const WorkspaceApp = ({
       ? readDesktopWorkspaceRestoreState()
       : null
   ));
-  const [activePane, setActivePane] = useState<Pane>(() => ((isInitialSettingsRoute || isInitialPluginsRoute || isInitialTemplatesRoute || isInitialAiPromptsRoute || isInitialExecutionCenterRoute) && !isInitialMobileEditorReturn ? "editor" : "memos"));
+  const [activePane, setActivePane] = useState<Pane>(() => ((isInitialSettingsRoute || isInitialPluginsRoute || isInitialTemplatesRoute || isInitialExecutionCenterRoute) && !isInitialMobileEditorReturn ? "editor" : "memos"));
   const [memoView, setMemoView] = useState<MemoView>(() => (
     isTrashRoute ? "trash" : desktopWorkspaceRestore?.memoView ?? "notebook"
   ));
@@ -304,7 +301,6 @@ export const WorkspaceApp = ({
   const pluginHost = useMemo(() => new EdgeEverPluginHost({
     repository,
     scope: localDataScope,
-    aiAdapter: api.pluginAi,
     publicNetworkAdapter: pluginPublicNetworkAdapter,
     onNotice: (message) => setAppNoticeDialog({ title: t("plugins.noticeTitle"), description: message }),
     scheduleAdapter: pluginScheduleAdapter,
@@ -537,16 +533,14 @@ export const WorkspaceApp = ({
     shortcutSettings,
   } = useWorkspacePreferences();
   const { noteProse, updateNoteProse } = useNoteProse();
-  const [rightView, setRightView] = useState<"editor" | "settings" | "plugins" | "assets" | "tags" | "templates" | "ai-prompts" | "execution-center" | "evernote-migration">(() =>
+  const [rightView, setRightView] = useState<"editor" | "settings" | "plugins" | "assets" | "tags" | "templates" | "execution-center" | "evernote-migration">(() =>
     isInitialSettingsRoute
       ? "settings"
       : isInitialPluginsRoute
         ? "plugins"
       : isInitialTemplatesRoute
         ? "templates"
-        : isInitialAiPromptsRoute
-          ? "ai-prompts"
-          : isInitialExecutionCenterRoute
+        : isInitialExecutionCenterRoute
             ? "execution-center"
           : "editor"
   );
@@ -555,7 +549,7 @@ export const WorkspaceApp = ({
   const [mobileBottomNavActive, setMobileBottomNavActive] = useState<MobileBottomNavItem>(() =>
     isInitialSettingsRoute && !isInitialMobileEditorReturn
       ? "settings"
-      : isInitialTemplatesRoute || isInitialAiPromptsRoute
+      : isInitialTemplatesRoute
         ? "templates"
         : "home"
   );
@@ -564,7 +558,6 @@ export const WorkspaceApp = ({
   const [quickSwitcherQuery, setQuickSwitcherQuery] = useState("");
   const [noteSearchFocusToken, setNoteSearchFocusToken] = useState(0);
   const [noteReplaceFocusToken, setNoteReplaceFocusToken] = useState(0);
-  const [noteAiAssistantOpenToken, setNoteAiAssistantOpenToken] = useState(0);
   const [noteSaveAndSyncToken, setNoteSaveAndSyncToken] = useState(0);
   const [noteReadingProtectionToggleToken, setNoteReadingProtectionToggleToken] = useState(0);
   const [noteEditorModeToggleToken, setNoteEditorModeToggleToken] = useState(0);
@@ -957,14 +950,6 @@ export const WorkspaceApp = ({
       return;
     }
 
-    if (route.isAiPrompts) {
-      skipNextHomeRouteSyncRef.current = false;
-      setRightView("ai-prompts");
-      setMobileBottomNavActive("templates");
-      setActivePane("editor");
-      return;
-    }
-
     if (route.isExecutionCenter) {
       skipNextHomeRouteSyncRef.current = false;
       setRightView("execution-center");
@@ -981,7 +966,7 @@ export const WorkspaceApp = ({
     setMemoView(isTrashRoute ? "trash" : "notebook");
     setRightView("editor");
     setMobileBottomNavActive("home");
-  }, [isTrashRoute, route.isSettings, route.isPlugins, route.isTemplates, route.isAiPrompts, route.isExecutionCenter]);
+  }, [isTrashRoute, route.isSettings, route.isPlugins, route.isTemplates, route.isExecutionCenter]);
 
   useEffect(() => {
     if (window.edgeeverDesktop?.isAvailable) {
@@ -2731,14 +2716,6 @@ export const WorkspaceApp = ({
     setActivePane("editor");
   };
 
-  const handleOpenAiPrompts = () => {
-    clearHiddenMobileSearch();
-    navigateWorkspaceAiPrompts();
-    setRightView("ai-prompts");
-    setMobileBottomNavActive("templates");
-    setActivePane("editor");
-  };
-
   const handleOpenSettings = () => {
     clearHiddenMobileSearch();
     navigateWorkspaceSettings();
@@ -2780,12 +2757,6 @@ export const WorkspaceApp = ({
 
   const handleCloseTemplates = () => {
     setTemplatesOpen(false);
-    navigateWorkspaceHome();
-    setRightView("editor");
-    setMobileBottomNavActive("home");
-  };
-
-  const handleCloseAiPrompts = () => {
     navigateWorkspaceHome();
     setRightView("editor");
     setMobileBottomNavActive("home");
@@ -3089,8 +3060,7 @@ export const WorkspaceApp = ({
       );
 
       if (
-        action === "openAiAssistant"
-        || action === "saveAndSync"
+        action === "saveAndSync"
         || action === "toggleReadingProtection"
         || action === "toggleEditorMode"
         || action === "toggleOutline"
@@ -3107,9 +3077,7 @@ export const WorkspaceApp = ({
           return;
         }
 
-        if (action === "openAiAssistant") {
-          setNoteAiAssistantOpenToken((value) => value + 1);
-        } else if (action === "saveAndSync") {
+        if (action === "saveAndSync") {
           setNoteSaveAndSyncToken((value) => value + 1);
         } else if (action === "toggleReadingProtection") {
           setNoteReadingProtectionToggleToken((value) => value + 1);
@@ -3382,8 +3350,6 @@ export const WorkspaceApp = ({
           ? t("workspace.loading.tags")
         : rightView === "templates"
           ? t("templates.title")
-        : rightView === "ai-prompts"
-          ? t("aiPrompts.title")
         : rightView === "execution-center"
           ? t("executionHistory.centerTitle")
         : rightView === "evernote-migration"
@@ -3720,7 +3686,6 @@ export const WorkspaceApp = ({
                     onOpenExecutionCenter={handleOpenExecutionCenter}
                     onClose={handleCloseSettings}
                     onOpenTemplates={handleOpenTemplates}
-                    onOpenAiPrompts={handleOpenAiPrompts}
                     onOpenMemo={handleOpenPluginNote}
                     imageCompressionEnabled={imageCompressionEnabled}
                     onImageCompressionChange={setImageCompressionEnabled}
@@ -3761,8 +3726,6 @@ export const WorkspaceApp = ({
                     }}
                     onOpenExecutionCenter={handleOpenExecutionCenter}
                   />
-                  ) : rightView === "ai-prompts" ? (
-                    <AiPromptsPane key={localDataScope} onClose={handleCloseAiPrompts} onOpenExecutionCenter={handleOpenExecutionCenter} />
                   ) : rightView === "execution-center" ? (
                     <ExecutionCenterPane currentDeviceId={scheduledTaskDeviceId} onClose={handleCloseExecutionCenter} />
                   ) : rightView === "evernote-migration" ? (
@@ -3825,18 +3788,6 @@ export const WorkspaceApp = ({
                           onSaveAsTemplate={handleSaveAsTemplate}
                           onToggleDesktopFocusMode={toggleDesktopFocusMode}
                           onOpenExecutionCenter={handleOpenExecutionCenter}
-                          aiAssistantOpenToken={noteAiAssistantOpenToken}
-                          shortcutSettings={shortcutSettings}
-                          companionAvailable={authRequired && Boolean(user) && !demoMode}
-                          beforeCompanionApply={async () => {
-                            const { assertCompanionChangesSynced } = await import("@/lib/companion-actions");
-                            await assertCompanionChangesSynced(localDataScope);
-                          }}
-                          onCompanionNotesChanged={async () => {
-                            const result = await refreshWorkspaceFromServer("manual");
-                            if ("skipped" in result && result.skipped) throw new Error("Workspace refresh was skipped.");
-                          }}
-                          onOpenCompanionNote={handleOpenPluginNote}
                         />
                       ) : selectedMemo && selectedPosterNote ? (
                         <PosterEditorPane
@@ -3853,18 +3804,7 @@ export const WorkspaceApp = ({
                           }}
                           onOpenExecutionCenter={handleOpenExecutionCenter}
                           onToggleDesktopFocusMode={toggleDesktopFocusMode}
-                          aiAssistantOpenToken={noteAiAssistantOpenToken}
-                          shortcutSettings={shortcutSettings}
-                          companionAvailable={authRequired && Boolean(user) && !demoMode}
-                          beforeCompanionApply={async () => {
-                            const { assertCompanionChangesSynced } = await import("@/lib/companion-actions");
-                            await assertCompanionChangesSynced(localDataScope);
-                          }}
-                          onCompanionNotesChanged={async () => {
-                            const result = await refreshWorkspaceFromServer("manual");
-                            if ("skipped" in result && result.skipped) throw new Error("Workspace refresh was skipped.");
-                          }}
-                          onOpenCompanionNote={handleOpenPluginNote}
+                          onOpenNote={handleOpenPluginNote}
                           onSaved={async (memo) => {
                             await putLocalMemo(localDataScope, memo);
                             cacheMemoDetail(queryClient, memo, memoView);
@@ -3888,18 +3828,6 @@ export const WorkspaceApp = ({
                           }}
                           onOpenExecutionCenter={handleOpenExecutionCenter}
                           onToggleDesktopFocusMode={toggleDesktopFocusMode}
-                          aiAssistantOpenToken={noteAiAssistantOpenToken}
-                          shortcutSettings={shortcutSettings}
-                          companionAvailable={authRequired && Boolean(user) && !demoMode}
-                          beforeCompanionApply={async () => {
-                            const { assertCompanionChangesSynced } = await import("@/lib/companion-actions");
-                            await assertCompanionChangesSynced(localDataScope);
-                          }}
-                          onCompanionNotesChanged={async () => {
-                            const result = await refreshWorkspaceFromServer("manual");
-                            if ("skipped" in result && result.skipped) throw new Error("Workspace refresh was skipped.");
-                          }}
-                          onOpenCompanionNote={handleOpenPluginNote}
                           onSaved={async (memo) => {
                             await putLocalMemo(localDataScope, memo);
                             cacheMemoDetail(queryClient, memo, memoView);
@@ -3914,21 +3842,8 @@ export const WorkspaceApp = ({
                         <TableEditorPane
                           key={selectedMemo.id}
                           memo={selectedMemo}
-                          notebooks={notebooks}
                           repository={repository}
                           readOnly={clientBelowMinimum || memoView === "trash" || selectedMemo.isDeleted}
-                          aiAssistantOpenToken={noteAiAssistantOpenToken}
-                          shortcutSettings={shortcutSettings}
-                          companionAvailable={authRequired && Boolean(user) && !demoMode}
-                          beforeCompanionApply={async () => {
-                            const { assertCompanionChangesSynced } = await import("@/lib/companion-actions");
-                            await assertCompanionChangesSynced(localDataScope);
-                          }}
-                          onCompanionNotesChanged={async () => {
-                            const result = await refreshWorkspaceFromServer("manual");
-                            if ("skipped" in result && result.skipped) throw new Error("Workspace refresh was skipped.");
-                          }}
-                          onOpenCompanionNote={handleOpenPluginNote}
                           onBackToList={() => {
                             clearPendingCreatedMemo();
                             setActivePane("memos");
@@ -3954,20 +3869,8 @@ export const WorkspaceApp = ({
                       onOpenExecutionCenter={handleOpenExecutionCenter}
                       memo={selectedMemo}
                       repository={repository}
-                      localDataScope={localDataScope}
                       pluginHost={pluginHost}
                       pluginNavigationRequest={pluginNavigationRequest}
-                    onOpenAiPrompts={handleOpenAiPrompts}
-                    companionAvailable={authRequired && Boolean(user) && !demoMode}
-                    beforeCompanionApply={async () => {
-                      const { assertCompanionChangesSynced } = await import("@/lib/companion-actions");
-                      await assertCompanionChangesSynced(localDataScope);
-                    }}
-                    onCompanionNotesChanged={async () => {
-                      const result = await refreshWorkspaceFromServer("manual");
-                      if ("skipped" in result && result.skipped) throw new Error("Workspace refresh was skipped.");
-                    }}
-                    onOpenCompanionNote={handleOpenPluginNote}
                     desktopFocusMode={desktopFocusModeActive}
                     onToggleDesktopFocusMode={toggleDesktopFocusMode}
                     noteProse={noteProse}
@@ -3978,7 +3881,6 @@ export const WorkspaceApp = ({
                     contentSearchQuery={search}
                     searchFocusToken={noteSearchFocusToken}
                     replaceFocusToken={noteReplaceFocusToken}
-                    aiAssistantOpenToken={noteAiAssistantOpenToken}
                     saveAndSyncToken={noteSaveAndSyncToken}
                     readingProtectionToggleToken={noteReadingProtectionToggleToken}
                     editorModeToggleToken={noteEditorModeToggleToken}

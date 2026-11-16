@@ -17,9 +17,7 @@ export const REQUIRED_TABLES = [
   "memo_search_documents",
   "memo_tags",
   "maintenance_leases",
-  "ai_provider_configs",
-  "ai_models",
-  "ai_workspace_settings",
+  "ai_transcription_providers",
 ];
 
 export const buildSchemaVerificationSql = () =>

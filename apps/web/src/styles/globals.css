@@ -153,78 +153,6 @@
   margin-inline: auto;
 }
 
-.edgeever-infographic-chat-response :is(p, ul, ol, blockquote, pre) {
-  margin-block: 0.35em;
-}
-
-.edgeever-infographic-chat-response :is(ul, ol) {
-  padding-inline-start: 1.25rem;
-}
-
-.edgeever-infographic-chat-response ul {
-  list-style: disc;
-}
-
-.edgeever-infographic-chat-response ol {
-  list-style: decimal;
-}
-
-.edgeever-infographic-chat-response pre {
-  overflow-x: auto;
-}
-
-.ai-sidebar-message [data-streamdown="table-wrapper"] {
-  margin-block: 0.65rem;
-  gap: 0.125rem;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background-color: transparent;
-}
-
-.ai-sidebar-message [data-streamdown="table-wrapper"] > div:has(> [data-streamdown="table"]) {
-  border-color: hsl(var(--border) / 0.65);
-  background-color: hsl(var(--card));
-}
-
-.ai-sidebar-message [data-streamdown="table-header"] {
-  background-color: hsl(var(--muted) / 0.55);
-}
-
-.ai-sidebar-message [data-streamdown="table-body"] {
-  background-color: hsl(var(--card));
-}
-
-.ai-sidebar-message [data-streamdown="table"] > *,
-.ai-sidebar-message [data-streamdown="table-body"] > * {
-  border-color: hsl(var(--border) / 0.65);
-}
-
-.ai-sidebar-message [data-streamdown="table-wrapper"] > div:first-child:not(:last-child) {
-  min-height: 1.5rem;
-}
-
-.ai-sidebar-message [data-streamdown="table-wrapper"] > div:first-child:not(:last-child) button {
-  opacity: 0.75;
-}
-
-.ai-sidebar-message [data-streamdown="table-wrapper"] > div:first-child:not(:last-child) button:is(:hover, :focus-visible) {
-  opacity: 1;
-}
-
-.ai-sidebar-message [data-streamdown="table-wrapper"] button:focus-visible {
-  outline: 2px solid hsl(var(--ring));
-  outline-offset: 2px;
-  border-radius: 0.25rem;
-}
-
-.ai-sidebar-message [data-streamdown="table"] :is(th, td) {
-  padding: 0.3rem 0.5rem;
-  font-size: 0.75rem;
-  line-height: 1.45;
-  white-space: normal;
-}
-
 @keyframes edgeever-token-created {
   0% {
     opacity: 0;
@@ -2557,48 +2485,6 @@ html[data-edgeever-extension-theme] .edgeever-memo-divider {
   word-break: break-word;
   overflow-wrap: break-word;
   font-feature-settings: "chws" 1;
-}
-.companion-markdown.markdown-content > :first-child {
-  margin-top: 0;
-}
-.companion-markdown.markdown-content > :last-child {
-  margin-bottom: 0;
-}
-.companion-markdown.markdown-content h1,
-.companion-markdown.markdown-content h2,
-.companion-markdown.markdown-content h3,
-.companion-markdown.markdown-content h4,
-.companion-markdown.markdown-content h5,
-.companion-markdown.markdown-content h6 {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  line-height: 1.4;
-  margin-top: 0.7rem;
-  margin-bottom: 0.2rem;
-  padding: 0;
-  border: none;
-}
-.companion-markdown.markdown-content h1:first-child,
-.companion-markdown.markdown-content h2:first-child,
-.companion-markdown.markdown-content h3:first-child,
-.companion-markdown.markdown-content h4:first-child,
-.companion-markdown.markdown-content h5:first-child,
-.companion-markdown.markdown-content h6:first-child {
-  margin-top: 0;
-}
-.companion-markdown.markdown-content p {
-  margin: 0.4rem 0;
-}
-.companion-markdown.markdown-content ul,
-.companion-markdown.markdown-content ol {
-  margin: 0.25rem 0 0.45rem;
-  padding-left: 1.15rem;
-}
-.companion-markdown.markdown-content li {
-  margin: 0.12rem 0;
-}
-.companion-markdown.markdown-content hr {
-  margin: 0.75rem 0;
 }
 .markdown-content h1 {
   font-size: 1.5rem;

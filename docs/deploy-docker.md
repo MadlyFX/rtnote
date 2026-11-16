@@ -63,7 +63,7 @@ Common environment variables:
 | `EDGE_EVER_AUTH_PASSWORD_HASH`         | none    | PBKDF2 hash alternative to the plaintext bootstrap password |
 | `EDGE_EVER_SESSION_TTL_DAYS`           | `400`   | Login session lifetime                                      |
 | `EDGE_EVER_IDLE_TIMEOUT_SECONDS`       | `120`   | Bun streaming idle timeout, from 10 to 255 seconds          |
-| `EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY` | persisted on `/data` | Optional independent AI credential encryption key. If unset, Docker stores the authentication secret or a generated key in `/data/edgeever-secrets.json`. |
+| `EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY` | persisted on `/data` | Optional independent encryption key for speech service credentials and two-factor secrets. If unset, Docker stores the authentication secret or a generated key in `/data/edgeever-secrets.json`. |
 | `EDGE_EVER_COMMUNITY_REGISTRY_URL` | unset | Optional HTTPS URL of the signed community plugin catalog. Leave it unset to show only the built-in official plugins. |
 
 For secrets, append `_FILE` to a supported variable and point it at a Docker
@@ -112,7 +112,7 @@ of the `/data` volume for complete instance recovery:
 3. Start the service with `docker compose start edgeever`.
 
 Docker persists the credential-encryption root in `/data/edgeever-secrets.json`,
-so a complete `/data` volume backup can decrypt saved AI and object-storage
+so a complete `/data` volume backup can decrypt saved speech service and object-storage
 credentials after a container rebuild. Keep any explicit
 `EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY` in a separate secret backup if you
 manage secrets outside the volume. Cloudflare deployments still require the

@@ -7,7 +7,6 @@ import { Editor } from "@tiptap/core";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import CodeBlock from "@tiptap/extension-code-block";
-import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
 import { NodeSelection } from "@tiptap/pm/state";
 import mermaid from "mermaid";
 import { toCanvas } from "html-to-image";
@@ -978,133 +977,8 @@ function handleResourcePointer(event: Event, kind: "click" | "contextmenu"): boo
   editorEl.addEventListener("touchcancel", clear, { passive: true });
 })();
 
-const LITERAL_DOLLAR_PLACEHOLDER = "\uE000edgeever-dollar\uE001";
-
-const protectLiteralDollarPairs = (value: unknown): unknown => {
-  if (!value || typeof value !== "object") return value;
-  const node = value as { type?: unknown; text?: unknown; content?: unknown };
-  if (node.type === "text" && typeof node.text === "string") {
-    const dollarCount = Array.from(node.text).filter((character) => character === "$").length;
-    return dollarCount >= 2
-      ? { ...node, text: node.text.replaceAll("$", LITERAL_DOLLAR_PLACEHOLDER) }
-      : value;
-  }
-  return Array.isArray(node.content)
-    ? { ...node, content: node.content.map(protectLiteralDollarPairs) }
-    : value;
-};
-
 const serializeEditorMarkdown = (ed: Editor) => {
   return docToMarkdown(restoreNativeEditorContent(ed.getJSON() as TiptapDoc));
-};
-
-let pendingAiSelection: { from: number; to: number; isInline: boolean; documentFingerprint: string } | null = null;
-
-const serializeSelectionMarkdown = (ed: Editor, from: number, to: number) => {
-  const manager = (ed.storage as { markdown?: { manager?: { serialize?: (doc: unknown) => string } } })
-    .markdown?.manager;
-  const content = ed.state.doc.slice(from, to).content.toJSON();
-  if (manager?.serialize) {
-    return manager
-      .serialize(protectLiteralDollarPairs({ type: "doc", content }))
-      .replaceAll(LITERAL_DOLLAR_PLACEHOLDER, "\\$");
-  }
-  return ed.state.doc.textBetween(from, to, "\n\n");
-};
-
-type AiSelectionContext = {
-  from: number;
-  to: number;
-  isInline: boolean;
-  markdown: string;
-  text: string;
-};
-
-type ParsedMarkdownNode = {
-  type?: string;
-  text?: string;
-  content?: ParsedMarkdownNode[];
-  [key: string]: unknown;
-};
-
-const AI_INLINE_SENTINEL = "edgeever-inline-sentinel";
-
-const serializeInlineSelectionMarkdown = (ed: Editor, content: unknown[], fallback: string) => {
-  const manager = (ed.storage as { markdown?: { manager?: { serialize?: (doc: unknown) => string } } })
-    .markdown?.manager;
-  if (!manager?.serialize) return fallback;
-  return manager
-    .serialize(protectLiteralDollarPairs({ type: "doc", content: [{ type: "paragraph", content }] }))
-    .replaceAll(LITERAL_DOLLAR_PLACEHOLDER, "\\$");
-};
-
-const getAiSelectionContext = (ed: Editor): AiSelectionContext | null => {
-  const selection = ed.state.selection;
-  if (selection.empty || selection.from >= selection.to) return null;
-
-  const selectedTextblocks: Array<{
-    node: ProseMirrorNode;
-    contentFrom: number;
-    contentTo: number;
-    from: number;
-    to: number;
-  }> = [];
-  ed.state.doc.nodesBetween(selection.from, selection.to, (node, pos) => {
-    if (!node.isTextblock) return true;
-    const contentFrom = pos + 1;
-    const contentTo = contentFrom + node.content.size;
-    const from = Math.max(selection.from, contentFrom);
-    const to = Math.min(selection.to, contentTo);
-    if (to > from) selectedTextblocks.push({ node, contentFrom, contentTo, from, to });
-    return false;
-  });
-
-  if (selectedTextblocks.length === 1) {
-    const block = selectedTextblocks[0];
-    const selectedBlock = block.node.cut(
-      block.from - block.contentFrom,
-      block.to - block.contentFrom,
-    ).toJSON() as { content?: unknown[] };
-    const text = ed.state.doc.textBetween(block.from, block.to, "\n");
-    const markdown = serializeInlineSelectionMarkdown(ed, selectedBlock.content ?? [], text).trim();
-    return markdown
-      ? { from: block.from, to: block.to, isInline: true, markdown, text }
-      : null;
-  }
-
-  const markdown = serializeSelectionMarkdown(ed, selection.from, selection.to).trim();
-  return markdown
-    ? {
-        from: selection.from,
-        to: selection.to,
-        isInline: false,
-        markdown,
-        text: ed.state.doc.textBetween(selection.from, selection.to, "\n\n"),
-      }
-    : null;
-};
-
-const parseAiSelectionReplacement = (ed: Editor, draft: string, isInline: boolean): unknown[] => {
-  const manager = (ed.storage as { markdown?: { manager?: { parse?: (value: string) => { content?: unknown[] } } } })
-    .markdown?.manager;
-  const normalizedDraft = draft.trim();
-  const blockContent = manager?.parse?.(normalizedDraft).content ?? [{ type: "text", text: normalizedDraft }];
-  if (!isInline) return blockContent;
-
-  const inlineDraft = normalizedDraft.replace(/\s*\n+\s*/g, " ");
-  const inlineContent = manager?.parse?.(`${AI_INLINE_SENTINEL}${inlineDraft}`).content;
-  const paragraph = inlineContent?.length === 1 ? inlineContent[0] as ParsedMarkdownNode : null;
-  const paragraphContent = paragraph?.type === "paragraph" ? paragraph.content ?? [] : [];
-  const firstNode = paragraphContent[0];
-  if (firstNode?.type !== "text" || typeof firstNode.text !== "string" || !firstNode.text.startsWith(AI_INLINE_SENTINEL)) {
-    return [{ type: "text", text: inlineDraft }];
-  }
-
-  const firstText = firstNode.text.slice(AI_INLINE_SENTINEL.length);
-  return [
-    ...(firstText ? [{ ...firstNode, text: firstText }] : []),
-    ...paragraphContent.slice(1),
-  ];
 };
 
 function emitChange(ed: Editor) {
@@ -1453,9 +1327,6 @@ export type EdgeEverEditorAPI = {
   resolveResource: (requestId: string, dataUrl: string | null) => void;
   getMarkdown: () => string;
   getDocument: () => string;
-  captureSelection: () => string | null;
-  applySelectionDraft: (markdown: string, mode: "append" | "replace") => boolean;
-  undo: () => boolean;
   focusEnd: () => void;
   flush: () => void;
   exec: (actionId: string) => void;
@@ -1580,60 +1451,6 @@ const api: EdgeEverEditorAPI = {
 
   getDocument() {
     return JSON.stringify(restoreNativeEditorContent(editor.getJSON() as TiptapDoc));
-  },
-
-  captureSelection() {
-    const context = getAiSelectionContext(editor);
-    if (!context) {
-      pendingAiSelection = null;
-      return null;
-    }
-    pendingAiSelection = {
-      from: context.from,
-      to: context.to,
-      isInline: context.isInline,
-      documentFingerprint: JSON.stringify(editor.getJSON()),
-    };
-    return JSON.stringify({
-      from: context.from,
-      to: context.to,
-      markdown: context.markdown,
-      text: context.text,
-    });
-  },
-
-  applySelectionDraft(markdown, applyMode) {
-    const range = pendingAiSelection;
-    if (!range || !markdown.trim()) return false;
-    if (JSON.stringify(editor.getJSON()) !== range.documentFingerprint) {
-      pendingAiSelection = null;
-      return false;
-    }
-    const docSize = editor.state.doc.content.size;
-    const from = Math.min(Math.max(range.from, 0), docSize);
-    const to = Math.min(Math.max(range.to, from), docSize);
-    try {
-      const manager = (editor.storage as { markdown?: { manager?: { parse?: (value: string) => { content?: unknown[] } } } })
-        .markdown?.manager;
-      const parsed = manager?.parse?.(markdown);
-      const content = applyMode === "replace"
-        ? parseAiSelectionReplacement(editor, markdown, range.isInline)
-        : parsed?.content ?? markdown;
-      const insertRange = applyMode === "append" ? { from: to, to } : { from, to };
-      editor.chain().focus().insertContentAt(insertRange, content as never).run();
-      pendingAiSelection = null;
-      emitChange(editor);
-      return true;
-    } catch {
-      return false;
-    }
-  },
-
-  undo() {
-    if (!editor.can().undo()) return false;
-    const changed = editor.commands.undo();
-    if (changed) emitChange(editor);
-    return changed;
   },
 
   focusEnd() {

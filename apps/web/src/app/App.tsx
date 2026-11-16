@@ -179,23 +179,10 @@ const AuthenticatedWorkspace = ({ siteManagement = false }: { siteManagement?: b
   };
 
   const logoutMutation = useMutation({
-    mutationFn: async () => {
-      // Stop AI drafts being generated before the session ends, so none is saved afterwards (#652).
-      const drafts = await import("@/lib/ai-body-draft-store");
-      drafts.cancelAiBodyDraftRuns();
-      return api.logout();
-    },
+    mutationFn: () => api.logout(),
     onSuccess: async () => {
-      // Unapplied AI drafts hold note text and results; remove this account's drafts on this instance.
-      const userId = sessionQuery.data?.user?.id;
-      if (userId) {
-        const [drafts, mirror, paths] = await Promise.all([
-          import("@/lib/ai-body-draft-store"), import("@/lib/local-mirror"), import("@/lib/app-page-path"),
-        ]);
-        await drafts.discardAiBodyDraftsForSignOut(
-          mirror.createLocalDataScope(paths.getPersistentDataScopeOrigin(window.location.origin), userId),
-        ).catch(() => undefined);
-      }
+      // Data the retired AI assistant left on this device can hold note text.
+      await import("@/lib/legacy-ai-cleanup").then(({ removeLegacyAiData }) => removeLegacyAiData()).catch(() => undefined);
       clearCachedDesktopSession();
       queryClient.clear();
       queryClient.setQueryData<AuthSession>(["auth", "session"], {
@@ -353,7 +340,6 @@ export const App = () => {
           <Route path="/plugins" element={<AuthenticatedWorkspace />} />
           <Route path="/plugins/:pluginId" element={<AuthenticatedWorkspace />} />
           <Route path="/templates" element={<AuthenticatedWorkspace />} />
-          <Route path="/ai-prompts" element={<AuthenticatedWorkspace />} />
           <Route path="/execution-center" element={<AuthenticatedWorkspace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

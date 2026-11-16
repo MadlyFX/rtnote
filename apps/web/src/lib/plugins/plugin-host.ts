@@ -208,7 +208,6 @@ export interface PluginHostSnapshot {
 interface PluginHostOptions {
   repository: EdgeEverRepository;
   scope: string;
-  aiAdapter?: Pick<PluginContext['ai'], 'status' | 'generate'>;
   publicNetworkAdapter?: {
     fetchPublic(input: { url: string; method: 'GET' | 'HEAD'; headers: Record<string, string> }, options?: { signal?: AbortSignal }): Promise<{ status: number; statusText: string; url: string; headers: Record<string, string>; body: ArrayBuffer }>;
   };
@@ -456,7 +455,6 @@ const normalizePanelState = (state: PluginPanelOpenOptions["state"] | undefined)
 };
 
 export class EdgeEverPluginHost {
-  private readonly aiAdapter?: PluginHostOptions['aiAdapter'];
   private readonly publicNetworkAdapter?: PluginHostOptions['publicNetworkAdapter'];
   private readonly repository: EdgeEverRepository;
   private readonly scope: string;
@@ -494,7 +492,6 @@ export class EdgeEverPluginHost {
   }
 
   constructor(options: PluginHostOptions) {
-    this.aiAdapter = options.aiAdapter;
     this.publicNetworkAdapter = options.publicNetworkAdapter;
     this.repository = options.repository;
     this.scope = options.scope;
@@ -1136,20 +1133,9 @@ export class EdgeEverPluginHost {
     };
     return {
       pluginId: manifest.id,
-      ai: {
-        status: async () => {
-          assertPermission(manifest, 'ai:generate'); lifetime.signal.throwIfAborted();
-          if (!this.aiAdapter) return { configured: false };
-          const result = await this.aiAdapter.status(); lifetime.signal.throwIfAborted(); return result;
-        },
-        generate: async input => {
-          assertPermission(manifest, 'ai:generate'); lifetime.signal.throwIfAborted();
-          if (!this.aiAdapter) throw new Error('AI generation is unavailable in this host.');
-          const signal = AbortSignal.any([lifetime.signal, ...(input.signal ? [input.signal] : [])]);
-          const result = await this.aiAdapter.generate({ ...input, signal }); signal.throwIfAborted(); return result;
-        },
+      speech: {
         transcribeResource: async (noteId, resourceId) => {
-          assertPermission(manifest, 'ai:generate');
+          assertPermission(manifest, 'speech:transcribe');
           assertPermission(manifest, 'resources:read');
           lifetime.signal.throwIfAborted();
           const { transcribeNoteResource } = await import("@/lib/transcribe-note-resource");
@@ -1158,7 +1144,7 @@ export class EdgeEverPluginHost {
           return result;
         },
         transcribeMedia: async (media, options) => {
-          assertPermission(manifest, 'ai:generate');
+          assertPermission(manifest, 'speech:transcribe');
           lifetime.signal.throwIfAborted();
           const signal = AbortSignal.any([lifetime.signal, ...(options?.signal ? [options.signal] : [])]);
           const { transcribeMediaBlob } = await import("@/lib/transcribe-note-resource");

@@ -3,8 +3,6 @@ import { applyPosterEdits, compilePosterMemo, posterCapabilities } from "./mcp-p
 import { resolveObjectStorage } from "./object-storage";
 import { hasPosterDocumentMarker, parsePosterDocument, serializePosterDocument } from "@edgeever/shared";
 import {
-  AiPromptTemplateCreateSchema,
-  AiPromptTemplateUpdateSchema,
   TemplateCreateSchema,
   TemplateUpdateSchema,
   compileInfographicNote,
@@ -38,7 +36,7 @@ import {
   type MemoUpdateInput,
   type TableDocument,
 } from "@edgeever/shared";
-import { audit, auditStatement } from "./audit";
+import { audit } from "./audit";
 import type { AppContext, AuditActor, AuthContext, Bindings } from "./api-context";
 import { AppError } from "./app-error";
 import { isDemoModeEnabled } from "./demo-mode";
@@ -96,12 +94,6 @@ import {
     normalizeFilename,
   } from "./resource-service";
 import { assertScope, getActorLabel, getAuditActor } from "./request-auth";
-import { restoreMissingDefaultAiPrompts } from "./ai-prompt-seed";
-import {
-  getAiPromptTemplateRow,
-  listAiPromptTemplates,
-  mapAiPromptTemplateRow,
-} from "./ai-prompt-service";
 import { getMemoTemplate, listMemoTemplates } from "./template-routes";
 import {
   listTagSummaries,
@@ -213,7 +205,7 @@ const parseMcpInput = <T>(schema: McpInputSchema<T>, input: unknown): T => {
 
 const assertMcpMutationAllowed = (environment: Bindings) => {
   if (isDemoModeEnabled(environment.EDGE_EVER_DEMO_MODE)) {
-    throw new AppError("forbidden", "Templates and AI instructions cannot be changed in demo mode.", 403);
+    throw new AppError("forbidden", "Templates cannot be changed in demo mode.", 403);
   }
 };
 
@@ -1166,125 +1158,6 @@ export const callMcpTool = async (
       const actor = getAuditActor(c);
       await audit(c.env.storage.db, actor.actorType, actor.actorId, "template.use", "template", templateId, { memoId: memo.id });
       return { memo };
-    }
-    case "list_ai_instructions": {
-      assertScope(auth, "read:memos");
-      return {
-        instructions: await listAiPromptTemplates(
-          c.env.storage.db,
-          auth.workspaceId,
-          getOptionalString(args.locale),
-        ),
-      };
-    }
-    case "get_ai_instruction": {
-      assertScope(auth, "read:memos");
-      const row = await getAiPromptTemplateRow(
-        c.env.storage.db,
-        auth.workspaceId,
-        getRequiredString(args.instructionId, "instructionId"),
-      );
-      if (!row) throw new AppError("not_found", "AI instruction not found", 404);
-      return { instruction: mapAiPromptTemplateRow(row, getOptionalString(args.locale)) };
-    }
-    case "create_ai_instruction": {
-      assertScope(auth, "write:memos");
-      assertMcpMutationAllowed(c.env);
-      const input = parseMcpInput(AiPromptTemplateCreateSchema, args);
-      const id = createId("aiprompt");
-      const now = isoNow();
-      const actor = getAuditActor(c);
-      await c.env.storage.db.batch([
-        c.env.storage.db.prepare(
-          `INSERT INTO ai_prompt_templates (
-             id, workspace_id, seed_key, action, parameter_kind, result_mode,
-             name, description, instruction,
-             name_customized, description_customized, instruction_customized,
-             created_at, updated_at
-           ) VALUES (?, ?, NULL, 'custom', ?, ?, ?, ?, ?, 1, 1, 1, ?, ?)`,
-        ).bind(
-          id,
-          auth.workspaceId,
-          input.parameterKind,
-          input.resultMode,
-          input.name.trim(),
-          input.description?.trim() || null,
-          input.instruction.trim(),
-          now,
-          now,
-        ),
-        auditStatement(c.env.storage.db, actor.actorType, actor.actorId, "ai_prompt.create", "ai_prompt", id, {}),
-      ]);
-      const row = await getAiPromptTemplateRow(c.env.storage.db, auth.workspaceId, id);
-      return { instruction: mapAiPromptTemplateRow(row!, getOptionalString(args.locale)) };
-    }
-    case "update_ai_instruction": {
-      assertScope(auth, "write:memos");
-      assertMcpMutationAllowed(c.env);
-      const instructionId = getRequiredString(args.instructionId, "instructionId");
-      const input = parseMcpInput(AiPromptTemplateUpdateSchema, args);
-      const current = await getAiPromptTemplateRow(c.env.storage.db, auth.workspaceId, instructionId);
-      if (!current) throw new AppError("not_found", "AI instruction not found", 404);
-
-      const now = isoNow();
-      const actor = getAuditActor(c);
-      await c.env.storage.db.batch([
-        c.env.storage.db.prepare(
-          `UPDATE ai_prompt_templates
-           SET name = ?, description = ?, instruction = ?,
-               parameter_kind = ?, result_mode = ?,
-               name_customized = ?, description_customized = ?, instruction_customized = ?,
-               updated_at = ?
-           WHERE id = ? AND workspace_id = ?`,
-        ).bind(
-          input.name?.trim() ?? current.name,
-          input.description !== undefined ? input.description?.trim() || null : current.description,
-          input.instruction?.trim() ?? current.instruction,
-          input.parameterKind ?? current.parameter_kind,
-          input.resultMode ?? current.result_mode,
-          input.name !== undefined ? 1 : current.name_customized,
-          input.description !== undefined ? 1 : current.description_customized,
-          input.instruction !== undefined ? 1 : current.instruction_customized,
-          now,
-          instructionId,
-          auth.workspaceId,
-        ),
-        auditStatement(c.env.storage.db, actor.actorType, actor.actorId, "ai_prompt.update", "ai_prompt", instructionId, {}),
-      ]);
-      const row = await getAiPromptTemplateRow(c.env.storage.db, auth.workspaceId, instructionId);
-      return { instruction: mapAiPromptTemplateRow(row!, getOptionalString(args.locale)) };
-    }
-    case "delete_ai_instruction": {
-      assertScope(auth, "write:memos");
-      assertMcpMutationAllowed(c.env);
-      const instructionId = getRequiredString(args.instructionId, "instructionId");
-      const current = await getAiPromptTemplateRow(c.env.storage.db, auth.workspaceId, instructionId);
-      if (!current) throw new AppError("not_found", "AI instruction not found", 404);
-      const actor = getAuditActor(c);
-      await c.env.storage.db.batch([
-        c.env.storage.db.prepare(
-          `DELETE FROM ai_prompt_templates WHERE id = ? AND workspace_id = ?`,
-        ).bind(instructionId, auth.workspaceId),
-        auditStatement(c.env.storage.db, actor.actorType, actor.actorId, "ai_prompt.delete", "ai_prompt", instructionId, {}),
-      ]);
-      return { ok: true };
-    }
-    case "restore_default_ai_instructions": {
-      assertScope(auth, "write:memos");
-      assertMcpMutationAllowed(c.env);
-      const result = await restoreMissingDefaultAiPrompts(c.env.storage.db, auth.workspaceId);
-      if (result.restoredCount > 0) {
-        const actor = getAuditActor(c);
-        await audit(c.env.storage.db, actor.actorType, actor.actorId, "ai_prompt.restore_defaults", "workspace", auth.workspaceId, result);
-      }
-      return {
-        ...result,
-        instructions: await listAiPromptTemplates(
-          c.env.storage.db,
-          auth.workspaceId,
-          getOptionalString(args.locale),
-        ),
-      };
     }
     default:
       throw new Error(`Unknown tool: ${name}`);

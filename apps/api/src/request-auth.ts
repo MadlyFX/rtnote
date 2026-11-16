@@ -11,8 +11,11 @@ export const ALL_TOKEN_SCOPES = [
   "write:resources",
   "read:tags",
   "write:tags",
-  "ai:generate",
 ] as const;
+
+// Retired with AI writing assist. Tokens that already hold it keep working; new
+// requests that still ask for it (from older clients) have it dropped quietly.
+const RETIRED_TOKEN_SCOPES = new Set(["ai:generate"]);
 
 export type TokenScope = (typeof ALL_TOKEN_SCOPES)[number];
 
@@ -74,6 +77,7 @@ export const isTokenScope = (scope: string): scope is TokenScope =>
   (ALL_TOKEN_SCOPES as readonly string[]).includes(scope);
 
 export const normalizeTokenScopes = (scopes: string[]) => {
-  const normalized = Array.from(new Set(scopes.map((scope) => scope.trim()).filter(Boolean)));
+  const normalized = Array.from(new Set(scopes.map((scope) => scope.trim()).filter(Boolean)))
+    .filter((scope) => !RETIRED_TOKEN_SCOPES.has(scope));
   return normalized.some((scope) => !isTokenScope(scope)) ? null : normalized as TokenScope[];
 };

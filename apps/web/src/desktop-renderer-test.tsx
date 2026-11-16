@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { EditorContent, useEditor } from "@tiptap/react";
-import { BubbleMenu } from "@tiptap/react/menus";
+import { BubbleMenu, type BubbleMenuProps } from "@tiptap/react/menus";
 import StarterKit from "@tiptap/starter-kit";
 import { Button } from "@/components/ui/button";
-import { useAiBubbleMenu } from "@/components/editor/useAiBubbleMenu";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,9 +19,12 @@ import {
 } from "@/components/ui/select";
 import { loadPluginMarketplace } from "@/lib/plugins/plugin-marketplace";
 
+// Stable references: BubbleMenu dispatches an options-update transaction whenever these change.
+const bubbleMenuShouldShow: NonNullable<BubbleMenuProps["shouldShow"]> = ({ state }) => !state.selection.empty;
+const bubbleMenuOptions: NonNullable<BubbleMenuProps["options"]> = { placement: "top" };
+
 const BubbleMenuTransactionRegression = () => {
   const [transactionCount, setTransactionCount] = useState(0);
-  const aiBubbleMenu = useAiBubbleMenu();
   const editor = useEditor({
     extensions: [StarterKit],
     content: "<p>Bubble menu regression</p>",
@@ -50,8 +52,8 @@ const BubbleMenuTransactionRegression = () => {
     >
       <BubbleMenu
         editor={editor}
-        shouldShow={aiBubbleMenu.shouldShow}
-        options={aiBubbleMenu.options}
+        shouldShow={bubbleMenuShouldShow}
+        options={bubbleMenuOptions}
       >
         <span>Selection action</span>
       </BubbleMenu>

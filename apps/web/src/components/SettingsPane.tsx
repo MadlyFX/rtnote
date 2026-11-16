@@ -12,7 +12,6 @@ import {
   Share2,
   Shield,
   SlidersHorizontal,
-  Sparkles,
   User,
   Users,
   Wrench,
@@ -39,16 +38,13 @@ import type { NoteImportController } from "@/lib/note-import/controller";
 import { FeedbackLink } from "./settings/FeedbackLink";
 import { SystemInfoPanel } from "./settings/SystemInfoPanel";
 import { McpConfigCard } from "./settings/McpConfigCard";
-import { AiSpaceShortcutSettingsItem } from "./settings/AiSpaceShortcutSettingsItem";
 import { PreferenceCard } from "./settings/PreferenceCard";
 import { ShortcutSettingsItem } from "./settings/ShortcutSettingsItem";
 import { PasswordCard } from "./settings/PasswordCard";
 import { TwoFactorCard } from "./settings/TwoFactorCard";
 import { UserManagementCard } from "./settings/UserManagementCard";
 import { ObjectStorageCard } from "./settings/ObjectStorageCard";
-import { AiModelCard } from "./settings/AiModelCard";
 import { SpeechTranscriptionCard } from "./settings/SpeechTranscriptionCard";
-import { DesktopAcpAgentCard } from "./settings/DesktopAcpAgentCard";
 import { ThemeToggle } from "./ThemeToggle";
 import type { AuthUser } from "@edgeever/shared";
 import { contentEnterMotion } from "@/lib/motion";
@@ -64,7 +60,6 @@ const subscribeViewport = (callback: () => void) => {
 interface SettingsPaneProps {
   onClose: () => void;
   onOpenTemplates: () => void;
-  onOpenAiPrompts: () => void;
   imageCompressionEnabled: boolean;
   onImageCompressionChange: (enabled: boolean) => void;
   shortcutSettings: ShortcutSettings;
@@ -90,7 +85,7 @@ const SettingsGroup = ({ children }: { children: ReactNode }) => (
   </div>
 );
 
-type TabKey = "general" | "reading" | "editing" | "shortcuts" | "users" | "data" | "ai" | "mcp" | "speech" | "sharing" | "advanced" | "account" | "system";
+type TabKey = "general" | "reading" | "editing" | "shortcuts" | "users" | "data" | "mcp" | "speech" | "sharing" | "advanced" | "account" | "system";
 
 interface TabItem {
   key: TabKey;
@@ -102,7 +97,6 @@ interface TabItem {
 export const SettingsPane = ({
   onClose,
   onOpenTemplates,
-  onOpenAiPrompts,
   imageCompressionEnabled,
   onImageCompressionChange,
   shortcutSettings,
@@ -148,11 +142,6 @@ export const SettingsPane = ({
       key: "shortcuts",
       label: t("settings.tabs.shortcuts"),
       icon: Keyboard,
-    },
-    {
-      key: "ai",
-      label: t("settings.tabs.ai"),
-      icon: Sparkles,
     },
     {
       key: "mcp",
@@ -261,7 +250,6 @@ export const SettingsPane = ({
       case "shortcuts":
         return (
           <div className="grid gap-6">
-            <AiSpaceShortcutSettingsItem />
             <ShortcutSettingsItem
               shortcutSettings={shortcutSettings}
               onShortcutSettingsChange={onShortcutSettingsChange}
@@ -299,13 +287,6 @@ export const SettingsPane = ({
         );
       case "sharing":
         return <ShareManagementCard userId={user?.id ?? null} onOpenMemo={onOpenMemo} />;
-      case "ai":
-        return (
-          <SettingsGroup>
-            <DesktopAcpAgentCard />
-            <AiModelCard />
-          </SettingsGroup>
-        );
       case "speech":
         return (
           <SettingsGroup>
@@ -440,19 +421,6 @@ export const SettingsPane = ({
                       <LayoutTemplate className="h-4 w-4 text-slate-700" />
                     </div>
                     <span className="text-xs font-normal leading-5 text-slate-800">{t("nav.templates")}</span>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-slate-400" />
-                </button>
-                <button
-                  type="button"
-                  onClick={onOpenAiPrompts}
-                  className="flex w-full items-center justify-between gap-4 border-t border-slate-100 p-4 text-left transition-colors hover:bg-slate-50/50"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100">
-                      <Sparkles className="h-4 w-4 text-slate-700" />
-                    </div>
-                    <span className="text-xs font-normal leading-5 text-slate-800">{t("nav.prompts")}</span>
                   </div>
                   <ChevronRight className="h-4 w-4 text-slate-400" />
                 </button>

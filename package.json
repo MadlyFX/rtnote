@@ -10,8 +10,8 @@
   ],
   "scripts": {
     "test": "bun run test:bulk && bun run test:integration",
-    "test:bulk": "bun test --path-ignore-patterns='tests/e2e/**' --path-ignore-patterns='apps/ios/build/**' --path-ignore-patterns='apps/mobile/ios/**' --path-ignore-patterns='apps/api/src/companion-learning.test.mjs' --path-ignore-patterns='apps/api/src/resource-upload-integration.test.mjs' --path-ignore-patterns='apps/desktop/src/main/workbuddy-auth.test.mjs' --path-ignore-patterns='apps/desktop/src/main/acp-cleanup.test.mjs'",
-    "test:integration": "bun test apps/api/src/companion-learning.test.mjs apps/api/src/resource-upload-integration.test.mjs && bun test --cwd apps/desktop src/main/workbuddy-auth.test.mjs src/main/acp-cleanup.test.mjs",
+    "test:bulk": "bun test --path-ignore-patterns='tests/e2e/**' --path-ignore-patterns='apps/ios/build/**' --path-ignore-patterns='apps/mobile/ios/**' --path-ignore-patterns='apps/api/src/resource-upload-integration.test.mjs'",
+    "test:integration": "bun test apps/api/src/resource-upload-integration.test.mjs",
     "dev": "bun run dev:local",
     "dev:api": "bun run dev:api:local",
     "dev:local": "bun scripts/local-dev.mjs start local",
@@ -66,7 +66,7 @@
     "test:webdav": "bun tests/desktop-webdav-backup.integration.mjs",
     "test:desktop:backup-network": "bun apps/desktop/scripts/build-backup-worker.mjs && bun test ./apps/desktop/src/backup/tests/electron-network.integration.mjs",
     "test:desktop:sidecar": "bun scripts/test-desktop-sidecar.mjs && bun run test:plugin-sync",
-    "test:desktop": "bun test apps/desktop/src/main --path-ignore-patterns='apps/desktop/src/main/{acp-cleanup,acp-adapter-manager,acp-host,workbuddy-auth,antigravity-proxy,acp-mcp-bridge}.test.mjs' apps/web/src/lib/api.test.mjs apps/web/src/lib/app-page-path.test.mjs apps/web/src/lib/clipboard.test.mjs apps/web/src/lib/desktop-renderer-ready.test.mjs apps/web/src/lib/desktop-workspace-restore.test.mjs apps/web/src/lib/desktop-repository.test.mjs apps/web/src/lib/desktop-resources.test.mjs apps/web/src/lib/desktop-acp.test.mjs apps/web/src/lib/desktop-sync.test.mjs apps/web/src/lib/local-mirror.test.mjs apps/web/src/lib/repository.test.mjs apps/web/src/lib/runtime.test.mjs apps/web/src/lib/picgo.test.mjs apps/web/src/lib/screenshot-import.test.mjs apps/web/src/lib/wechat-chat-import.test.mjs apps/web/src/lib/shared-file-import.test.mjs apps/web/src/lib/sync-queue.test.mjs && bun test --cwd apps/desktop src/main/acp-cleanup.test.mjs src/main/acp-adapter-manager.test.mjs src/main/acp-host.test.mjs src/main/workbuddy-auth.test.mjs src/main/antigravity-proxy.test.mjs src/main/acp-mcp-bridge.test.mjs && bun run test:desktop:sidecar",
+    "test:desktop": "bun test apps/desktop/src/main apps/web/src/lib/api.test.mjs apps/web/src/lib/app-page-path.test.mjs apps/web/src/lib/clipboard.test.mjs apps/web/src/lib/desktop-renderer-ready.test.mjs apps/web/src/lib/desktop-workspace-restore.test.mjs apps/web/src/lib/desktop-repository.test.mjs apps/web/src/lib/desktop-resources.test.mjs apps/web/src/lib/desktop-sync.test.mjs apps/web/src/lib/local-mirror.test.mjs apps/web/src/lib/repository.test.mjs apps/web/src/lib/runtime.test.mjs apps/web/src/lib/picgo.test.mjs apps/web/src/lib/screenshot-import.test.mjs apps/web/src/lib/wechat-chat-import.test.mjs apps/web/src/lib/shared-file-import.test.mjs apps/web/src/lib/sync-queue.test.mjs && bun run test:desktop:sidecar",
     "verify:desktop-renderer": "bun scripts/verify-desktop-renderer.mjs",
     "verify:note-print": "node tests/note-print.integration.mjs",
     "verify:renderer-origin-migration": "bun run --cwd apps/desktop verify-origin-migration",
@@ -100,8 +100,7 @@
     "deploy:worker": "bun scripts/run-wrangler.mjs deploy",
     "deploy:cloudflare-builds": "EDGE_EVER_USE_EXISTING_AUTH_SECRET=true bun run deploy:ci",
     "deploy:verify": "bun scripts/verify-deployment.mjs",
-    "deploy:builds:setup": "bun scripts/cloudflare-workers-builds.mjs setup",
-    "verify:acp-npm-upgrade": "bun scripts/verify-acp-npm-upgrade.mjs"
+    "deploy:builds:setup": "bun scripts/cloudflare-workers-builds.mjs setup"
   },
   "cloudflare": {
     "bindings": {
@@ -120,9 +119,6 @@
     }
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "4.0.78",
-    "@ai-sdk/google": "4.0.93",
-    "@ai-sdk/openai-compatible": "3.0.67",
     "@aws-sdk/client-s3": "^3.1095.0",
     "@edgeever/plugin-api": "workspace:*",
     "@edgeever/shared": "workspace:*",
@@ -154,7 +150,6 @@
     "@tiptap/suggestion": "3.31.4",
     "@tiptap/y-tiptap": "3.0.9",
     "@zip.js/zip.js": "2.24.0",
-    "ai": "7.0.137",
     "aws4fetch": "^1.0.20",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",

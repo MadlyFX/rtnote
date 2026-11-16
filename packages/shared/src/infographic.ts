@@ -1,8 +1,6 @@
 import { Base64 } from "js-base64";
-import { z } from "zod";
 
 export const INFOGRAPHIC_SCHEMA_VERSION = 1 as const;
-export const INFOGRAPHIC_AGENT_SOURCE_MAX_LENGTH = 100_000;
 const MARKER = "edgeever-infographic-v1";
 const COMMENT = /<!--\s*edgeever-infographic-v1:([A-Za-z0-9_-]+)\s*-->/;
 const SESSION_ID = /^[A-Za-z0-9_-]{1,80}$/;
@@ -27,32 +25,6 @@ export type InfographicConversationTurn = {
   error?: string;
   undoneAt?: string;
   sessionId?: string;
-};
-
-export const InfographicAgentRequestSchema = z.object({
-  prompt: z.string().trim().min(1).max(1000),
-  locale: z.string().trim().min(2).max(35).optional(),
-  currentTemplate: z.string().regex(/^[a-z0-9-]+$/).max(120).optional(),
-  currentContent: z.string().max(INFOGRAPHIC_AGENT_SOURCE_MAX_LENGTH).default(""),
-  candidates: z.array(z.string().regex(/^[a-z0-9-]+$/).max(120)).min(1).max(50),
-  history: z.array(z.object({ prompt: z.string().max(1000), response: z.string().max(2000) })).max(12).default([]),
-});
-
-export type InfographicAgentRequest = z.infer<typeof InfographicAgentRequestSchema>;
-export type InfographicAgentEvent =
-  | { type: "start" }
-  | { type: "text-delta"; text: string }
-  | { type: "proposal"; template: string; data: Record<string, unknown>; explanation: string }
-  | { type: "question"; question: string }
-  | { type: "finish" }
-  | { type: "error"; message: string };
-
-// Only force a timeline for a clear request to replace the graphic's subject/structure.
-// Mentioning a timeline in a comparison or asking to edit its label is insufficient.
-export const infographicRequestsTimeline = (prompt: string) => {
-  if (!/(发展历程|发展史|历史沿革|成长历程|时间线|时间轴|里程碑|timeline|chronolog)/i.test(prompt)) return false;
-  if (/(对比|比较|差异|\bvs\b|补充|增加|添加|加上|加入|标题|文案|文字|不要|别|无需)/i.test(prompt)) return false;
-  return /(?:换成|改成|改为|做成|生成|展示|画|制作|呈现|按时间顺序)/i.test(prompt) || prompt.trim().length <= 24;
 };
 
 export const createDefaultInfographicDocument = (): InfographicDocument => ({
