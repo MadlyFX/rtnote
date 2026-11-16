@@ -14,9 +14,9 @@ import { alignedImageToHtml, parseImageAlignment, readImageHtml } from "./image-
  * invalid document. The normalizer below then unwraps a figure that lost its
  * caption and turns an orphaned caption into a paragraph.
  */
-export const IMAGE_FIGURE_NODE_TYPE = "imageFigure";
-export const IMAGE_CAPTION_NODE_TYPE = "imageCaption";
-export const IMAGE_FIGURE_TOKEN = "rtnoteImageFigure";
+import { IMAGE_CAPTION_NODE_TYPE, IMAGE_FIGURE_NODE_TYPE, IMAGE_FIGURE_TOKEN } from "./image-figure-names";
+
+export { IMAGE_CAPTION_NODE_TYPE, IMAGE_FIGURE_NODE_TYPE, IMAGE_FIGURE_TOKEN } from "./image-figure-names";
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {

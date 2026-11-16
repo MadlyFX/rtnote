@@ -6,7 +6,7 @@ RTNote supports importing notes from other products directly. Two methods are av
 
 ---
 
-## 1. Native One-Click Import (Evernote / Obsidian / Joplin)
+## 1. Native One-Click Import (Evernote / Obsidian / Joplin / Word)
 
 Operate directly in RTNote Web or Desktop without CLI commands or MCP setup.
 
@@ -31,6 +31,11 @@ Select your source platform in the dialog, then drag and drop or browse files:
 - **Joplin**:
   - In the desktop client, go to **File → Export all** and export as a **.jex** file (or RAW / Markdown directory).
   - Drag and drop the `.jex` file or a directory zipped as `.zip`. Embedded resource attachments are resolved automatically.
+- **Word**:
+  - Select one or more `.docx` files, a folder of them, or a `.zip`. Each document becomes a note named after the file; folders become notebooks.
+  - Formatting is kept as rich text: headings, bold/italic/underline/strike, fonts and sizes, text colour and highlight, alignment and line spacing, lists, links, tables with merged cells, cell shading and borders, and images with their captions. Images are uploaded as note attachments.
+  - The document's own default font, size and spacing become RTNote's defaults, so only formatting that differs from them is kept. Exact line spacing, lettered or roman numbering (imported as numbers) and floating image positions are simplified.
+  - Text boxes, footnotes, endnotes, equations, charts, embedded objects, linked images and EMF/WMF/TIFF images are not imported; the preflight lists them per document. Save `.doc` files as `.docx` in Word first, and remove passwords from protected documents.
 
 ### Step 3: Confirm Import and Verify
 

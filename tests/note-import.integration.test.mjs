@@ -1065,3 +1065,64 @@ describe("real desktop-app exports", () => {
     await session.close();
   });
 });
+
+describe("Word documents through the real API", () => {
+  const docx = async (name) => new File([await readFile(new URL(`./fixtures/note-import/docx/${name}`, import.meta.url))], name);
+  const walk = (node, out = []) => { out.push(node); for (const child of node.content ?? []) walk(child, out); return out; };
+
+  test("a formatted DOCX with a merged-cell table and a captioned image becomes a rich-text note", async () => {
+    const { client, db } = await target();
+    const session = new NoteImportSession("docx", [{ path: "Briefs/Project brief.docx", file: await docx("sample.docx") }], new MemoryImportIndex());
+    expect(await session.scan()).toMatchObject({ notebooks: 1, notes: 1, resources: 1, errors: 0 });
+    const result = await executeNoteImport({ reader: session, index: session.index, client, convertEnml: convertImportEnml });
+    expect(result).toMatchObject({ completed: 1, failed: 0, resources: 1 });
+    const [state] = await session.index.page("result");
+    const { memo } = await client.getMemo(state.memo.id);
+
+    expect(memo.title).toBe("Project brief");
+    expect(memo.createdAt).toBe("2025-03-04T05:06:07.000Z");
+    expect(memo.updatedAt).toBe("2025-04-05T06:07:08.000Z");
+    expect(db.query("SELECT schema_version FROM memo_contents WHERE memo_id = ?").get(memo.id).schema_version).toBe(2);
+
+    const nodes = walk(memo.contentJson);
+    const figure = nodes.find(node => node.type === "imageFigure");
+    const url = state.urls[`Briefs/Project brief.docx#word/media/image1.png`];
+    expect(figure.content[0].attrs).toMatchObject({ src: url, alt: "Blue gradient", width: 50, alignment: "center" });
+    expect(walk(figure.content[1]).filter(node => node.type === "text").map(node => node.text).join("")).toBe("Figure 1: Revenue by region");
+    expect(nodes.find(node => node.type === "tableHeader" && node.attrs.colspan === 2).attrs.backgroundColor).toBe("#fce9e7");
+    expect(nodes.find(node => node.type === "tableCell" && node.attrs.rowspan === 2)).toBeDefined();
+    expect(nodes.find(node => node.type === "paragraph" && node.attrs?.textAlign === "justify").attrs.lineHeight).toBe("1.5");
+    expect(nodes.find(node => node.marks?.some(mark => mark.attrs?.fontSize === "19px"))?.text).toBe("Georgia 14pt");
+    expect(JSON.stringify(memo.contentJson)).not.toContain("docx-resource:");
+
+    // Markdown is derived from the JSON on the server, for export, sharing and MCP.
+    expect(memo.contentMarkdown).toBe(docToMarkdown(memo.contentJson));
+    expect(memo.contentMarkdown).toContain(`<img src="${url}"`);
+    expect(memo.contentMarkdown).toContain('<th colspan="2" colwidth="160,160" style="background-color: #fce9e7">');
+
+    const original = await readFile(new URL("./fixtures/note-import/docx/sample.docx", import.meta.url));
+    const reader = new ZipReader(new BlobReader(new Blob([original])));
+    const entry = (await reader.getEntries()).find(item => item.filename === "word/media/image1.png");
+    const bytes = new Uint8Array(await entry.getData(new Uint8ArrayWriter()));
+    await reader.close();
+    expect(new Uint8Array(await (await client.getResourceBlob(url)).arrayBuffer())).toEqual(bytes);
+
+    // A retry in the same task does not create the note again.
+    const repeated = await executeNoteImport({ reader: session, index: session.index, client, convertEnml: convertImportEnml });
+    expect(repeated).toMatchObject({ completed: 1, failed: 0 });
+    expect(db.query("SELECT COUNT(*) AS n FROM memo_import_sources").get().n).toBe(1);
+    await session.close();
+  });
+
+  test("a server without DOCX support is reported before any write", async () => {
+    const { client, db } = await target();
+    const session = new NoteImportSession("docx", [{ path: "table.docx", file: await docx("table.docx") }], new MemoryImportIndex());
+    await session.scan();
+    const count = () => db.query("SELECT (SELECT COUNT(*) FROM memos) AS memos, (SELECT COUNT(*) FROM notebooks) AS notebooks").get();
+    const before = count();
+    const older = { ...client, getImportCapabilities: async () => ({ ...(await client.getImportCapabilities()), formats: ["evernote", "obsidian", "joplin"] }) };
+    await expect(executeNoteImport({ reader: session, index: session.index, client: older, convertEnml: convertImportEnml })).rejects.toThrow("unsupportedImportServer");
+    expect(count()).toEqual(before);
+    await session.close();
+  });
+});

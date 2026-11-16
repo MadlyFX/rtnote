@@ -1,5 +1,5 @@
 import { useRef, useState, type DragEvent } from "react";
-import { CheckCircle2, ExternalLink, FileUp, Folder, LoaderCircle, TriangleAlert, Upload } from "lucide-react";
+import { CheckCircle2, ExternalLink, FileText, FileUp, Folder, LoaderCircle, TriangleAlert, Upload, type LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import evernoteLogo from "@/assets/import-logos/evernote.svg?url";
 import joplinLogo from "@/assets/import-logos/joplin.svg?url";
@@ -29,7 +29,20 @@ const importSources = {
     logo: joplinLogo,
     formatHint: ".jex · RAW · .zip",
   },
-} satisfies Record<ImportFormat, { label: string; logo: string; formatHint: string }>;
+  // A generic document icon: product logos are not used for file formats.
+  docx: {
+    label: "Word",
+    icon: FileText,
+    formatHint: ".docx · .zip",
+  },
+} satisfies Record<ImportFormat, { label: string; formatHint: string } & ({ logo: string } | { icon: LucideIcon })>;
+
+const acceptedFiles: Record<ImportFormat, string> = {
+  evernote: ".enex,.zip,.notes",
+  obsidian: ".zip",
+  joplin: ".zip,.jex",
+  docx: ".docx,.zip,.doc",
+};
 
 export const ThirdPartyImportDialog = ({ controller, state, onOpenMemo }: { controller: NoteImportController; state: NoteImportSnapshot; onOpenMemo: (memoId: string, notebookId: string) => void }) => {
   const { t } = useTranslation();
@@ -160,6 +173,14 @@ export const ThirdPartyImportDialog = ({ controller, state, onOpenMemo }: { cont
       defaultValue: issue.code,
       count: issue.code === "ignoredTags" ? Number(issue.detail) : undefined,
     });
+  const issueDetail = (issue: ImportIssue) => {
+    if (!issue.detail || issue.code === "ignoredTags") return "";
+    // Word content kinds are stored as keys and shown in the reader's language.
+    const detail = issue.code === "docxSkippedContent"
+      ? issue.detail.split(", ").map(kind => t(`noteImport.docxContent.${kind}`, { defaultValue: kind })).join(", ")
+      : issue.detail;
+    return ` · ${detail}`;
+  };
   const foldersByKey = new Map(state.folders.map(folder => [folder.key, folder]));
   const folderDepth = (key: string): number => {
     const parent = foldersByKey.get(key)?.parentKey;
@@ -200,13 +221,14 @@ export const ThirdPartyImportDialog = ({ controller, state, onOpenMemo }: { cont
                 <ToggleGroup
                   type="single"
                   aria-labelledby="note-import-source"
-                  className="grid grid-cols-1 gap-2.5 sm:grid-cols-3"
+                  className="grid grid-cols-1 gap-2.5 sm:grid-cols-2"
                   value={state.format}
                   onValueChange={value => {
                     if (value) controller.setFormat(value as ImportFormat);
                   }}
                 >
-                  {Object.entries(importSources).map(([format, { label, logo, formatHint }]) => {
+                  {Object.entries(importSources).map(([format, source]) => {
+                    const { label, formatHint } = source;
                     const active = state.format === format;
                     return (
                       <ToggleGroupItem
@@ -221,7 +243,9 @@ export const ThirdPartyImportDialog = ({ controller, state, onOpenMemo }: { cont
                       >
                         <div className="flex w-full items-center justify-between gap-1.5">
                           <div className="flex items-center gap-2 min-w-0">
-                            <img src={logo} alt="" className="size-4 shrink-0 object-contain" />
+                            {"logo" in source
+                              ? <img src={source.logo} alt="" className="size-4 shrink-0 object-contain" />
+                              : <source.icon aria-hidden="true" className="size-4 shrink-0 text-primary" />}
                             <span className="truncate text-xs font-medium text-foreground">{label}</span>
                           </div>
                           {active ? <span className="size-1.5 shrink-0 rounded-full bg-primary" /> : null}
@@ -285,7 +309,9 @@ export const ThirdPartyImportDialog = ({ controller, state, onOpenMemo }: { cont
                       ? ".enex · .zip"
                       : state.format === "obsidian"
                         ? "Vault · .zip"
-                        : ".jex · RAW · .zip"}
+                        : state.format === "docx"
+                          ? ".docx · .zip"
+                          : ".jex · RAW · .zip"}
                   </span>
                 </div>
               </div>
@@ -298,7 +324,7 @@ export const ThirdPartyImportDialog = ({ controller, state, onOpenMemo }: { cont
             multiple
             className="hidden"
             data-testid="note-import-files"
-            accept={state.format === "evernote" ? ".enex,.zip,.notes" : state.format === "joplin" ? ".zip,.jex" : ".zip"}
+            accept={acceptedFiles[state.format]}
             onChange={event => selectFiles(event.currentTarget, false)}
           />
           <input
@@ -410,7 +436,7 @@ export const ThirdPartyImportDialog = ({ controller, state, onOpenMemo }: { cont
                     </p>
                     <p className="break-all font-mono text-[11px] text-muted-foreground/80">
                       {issue.path}
-                      {issue.detail && issue.code !== "ignoredTags" ? ` · ${issue.detail}` : ""}
+                      {issueDetail(issue)}
                     </p>
                   </li>
                 ))}

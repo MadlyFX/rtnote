@@ -1,9 +1,10 @@
 import type { createEdgeEverClient } from "@edgeever/client";
-import { DEFAULT_MEMO_TITLE, type MemoDetail } from "@edgeever/shared";
+import { DEFAULT_MEMO_TITLE, docToMarkdown, type MemoDetail, type TiptapDoc } from "@edgeever/shared";
 import type { ImportIndex, ImportNotebook, ImportNote, ImportNoteResult, ImportReader, ImportRunResult, ImportIssue } from "@edgeever/shared/note-import/types";
 import { indexItems } from "../../../../../packages/shared/src/note-import/index-store";
 import { findImportReferences, rewriteImportMarkdown } from "../../../../../packages/shared/src/note-import/references";
 import { resourceLinkToMarkdown } from "../../../../../packages/shared/src/resource-links";
+import { rewriteDocxImageSources } from "../../../../../packages/shared/src/note-import/docx-resources";
 
 export type ImportProgress = { phase: "folders" | "notes" | "resources" | "refresh"; path: string; completed: number; total: number; unit?: "bytes" };
 type ImportClient = Pick<ReturnType<typeof createEdgeEverClient>, "getImportCapabilities" | "listNotebooks" | "createNotebook" | "importMemos" | "uploadMemoResourceParts" | "getMemo" | "createMemoEditSession" | "updateMemo">;
@@ -29,6 +30,8 @@ export const executeNoteImport = async (input: {
   signal?.throwIfAborted();
   const capabilities = await client.getImportCapabilities();
   if (capabilities.protocolVersion !== 1) throw new Error("unsupportedImportServer");
+  // Servers older than a source format reject it; say so before any write.
+  if (Array.isArray(capabilities.formats) && !capabilities.formats.includes(reader.format)) throw new Error("unsupportedImportServer");
   if (input.parentId && !(await client.listNotebooks()).notebooks.some(nb => nb.id === input.parentId)) throw new Error("missingParent");
   const createdParent = await index.get<{ id: string | null }>("folderResult", "__destination");
   if (createdParent && createdParent.id !== (input.parentId ?? null)) throw new Error("destinationChanged");
@@ -75,7 +78,8 @@ export const executeNoteImport = async (input: {
         signal?.throwIfAborted();
         const doc = await reader.readNote(descriptor.key, signal);
         note = doc.note;
-        let original = doc.enml !== undefined ? input.convertEnml(doc.enml, note.resources) : doc.contentMarkdown;
+        // Rich-text sources create an empty note and commit their JSON once resources have URLs.
+        let original = doc.contentJson !== undefined ? "" : doc.enml !== undefined ? input.convertEnml(doc.enml, note.resources) : doc.contentMarkdown;
         if (doc.enml !== undefined) {
           for (const resource of note.resources) if (!original.includes(`evernote-resource:${resource.hash}`)) {
             original += `\n\n${resourceLinkToMarkdown(resource.filename.replace(/[\r\n]+/g, " "), `evernote-resource:${resource.hash}`)}`;
@@ -125,15 +129,23 @@ export const executeNoteImport = async (input: {
           await index.put("result", note.key, state); uploadCompleting = false;
         }
         signal?.throwIfAborted();
-        const references = doc.enml !== undefined ? findImportReferences(original).map(ref => ({ ...ref, resourceKey: note.resources.find(resource => `evernote-resource:${resource.hash}` === ref.href)?.key })) : note.references ?? [];
-        const markdown = rewriteImportMarkdown(original, references, state.urls);
+        let contentJson: TiptapDoc | undefined;
+        let markdown: string;
+        if (doc.contentJson !== undefined) {
+          contentJson = rewriteDocxImageSources(doc.contentJson, note.resources, state.urls);
+          // The server derives the same Markdown from the JSON; it identifies an unconfirmed commit.
+          markdown = docToMarkdown(contentJson);
+        } else {
+          const references = doc.enml !== undefined ? findImportReferences(original).map(ref => ({ ...ref, resourceKey: note.resources.find(resource => `evernote-resource:${resource.hash}` === ref.href)?.key })) : note.references ?? [];
+          markdown = rewriteImportMarkdown(original, references, state.urls);
+        }
         if (markdown !== current.contentMarkdown) {
           const { editSession } = await client.createMemoEditSession(state.memo.id);
           if (editSession.baseRevision !== state.memo.revision || editSession.baseContentHash !== state.memo.contentHash) throw conflict();
           state.intendedMarkdown = markdown;
           await index.put("result", note.key, state);
           finalAttempted = true;
-          const updated = await client.updateMemo(state.memo.id, { contentMarkdown: markdown, expectedRevision: state.memo.revision, expectedContentHash: state.memo.contentHash, editSessionId: editSession.id, createdAt: state.memo.createdAt, updatedAt: state.memo.updatedAt });
+          const updated = await client.updateMemo(state.memo.id, { ...(contentJson ? { contentJson } : { contentMarkdown: markdown }), expectedRevision: state.memo.revision, expectedContentHash: state.memo.contentHash, editSessionId: editSession.id, createdAt: state.memo.createdAt, updatedAt: state.memo.updatedAt });
           state.memo = memoBaseline(updated.memo);
         }
         state.complete = true; state.error = undefined; state.uncertain = false; state.intendedMarkdown = undefined;
