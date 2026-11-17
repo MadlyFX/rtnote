@@ -86,7 +86,7 @@ final class BrandingTests: XCTestCase {
     }
 
     func testCacheRoundTrip() throws {
-        let original = try decode(#"{"name":"Acme","colors":{"light":{"accent":"#2563eb"}}}"#)
+        let original = try decode(##"{"name":"Acme","colors":{"light":{"accent":"#2563eb"}}}"##)
         let data = try JSONEncoder().encode(original)
         XCTAssertEqual(try JSONDecoder().decode(ResolvedBranding.self, from: data), original)
     }
@@ -129,7 +129,7 @@ final class BrandingTests: XCTestCase {
     }
 
     func testCustomAccentDerivesPalette() throws {
-        let branding = try decode(#"{"colors":{"light":{"accent":"#2563eb"},"dark":{"accent":"#60a5fa"}}}"#)
+        let branding = try decode(##"{"colors":{"light":{"accent":"#2563eb"},"dark":{"accent":"#60a5fa"}}}"##)
         let palette = AccentPalette.forBranding(branding)
         XCTAssertTrue(palette.isCustom)
         XCTAssertEqual(palette.accent, HexPair(0x2563EB, 0x60A5FA))
@@ -165,7 +165,7 @@ final class BrandingTests: XCTestCase {
         let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
         defer { defaults.removePersistentDomain(forName: suite) }
 
-        let cachedBranding = try decode(#"{"name":"Acme","colors":{"light":{"accent":"#2563eb"}}}"#)
+        let cachedBranding = try decode(##"{"name":"Acme","colors":{"light":{"accent":"#2563eb"}}}"##)
         struct Cached: Encodable { var baseUrl: String; var branding: ResolvedBranding }
         defaults.set(
             try JSONEncoder().encode(Cached(baseUrl: "https://notes.example", branding: cachedBranding)),
