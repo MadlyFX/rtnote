@@ -56,5 +56,5 @@ User-visible text always says RTNote.
 
 ## Brand
 
-- Logo source: `assets/brand/rtnote-icon.svg` (tile) and `assets/brand/rtnote-mark.svg` (glyph, `#07130B`). Tile colour `#16A06E`.
+- Logo source: `assets/brand/rtnote-icon.svg` (tile) and `assets/brand/rtnote-mark.svg` (monochrome glyph, `#24160A`). Tile colour `#F26B1D`, note `#FFC629`, ink `#24160A`.
 - After changing the logo, run `bun run prepare:brand:icons` to regenerate every platform's icons.

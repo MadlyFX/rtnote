@@ -17,17 +17,17 @@ await copyFile(sourcePath, path.join(projectRoot, "apps/web/public/favicon.svg")
 const pngTargets = [
   ["apps/web/public/pwa-192x192.png", 192, { preserveAlpha: true }],
   ["apps/web/public/pwa-512x512.png", 512, { preserveAlpha: true }],
-  ["apps/web/public/maskable-icon-512x512.png", 512, { background: "#16a06e" }],
-  ["apps/web/public/apple-touch-icon.png", 180, { background: "#16a06e" }],
-  ["apps/mobile/assets/icon.png", 512, { background: "#16a06e" }],
-  ["apps/ios/EdgeEver/Resources/Assets.xcassets/AppIcon.appiconset/icon.png", 1024, { background: "#16a06e" }],
+  ["apps/web/public/maskable-icon-512x512.png", 512, { background: "#f26b1d" }],
+  ["apps/web/public/apple-touch-icon.png", 180, { background: "#f26b1d" }],
+  ["apps/mobile/assets/icon.png", 512, { background: "#f26b1d" }],
+  ["apps/ios/EdgeEver/Resources/Assets.xcassets/AppIcon.appiconset/icon.png", 1024, { background: "#f26b1d" }],
   ["apps/extension/public/icons/icon-16.png", 16, { preserveAlpha: true }],
   ["apps/extension/public/icons/icon-32.png", 32, { preserveAlpha: true }],
   ["apps/extension/public/icons/icon-48.png", 48, { preserveAlpha: true }],
   ["apps/extension/public/icons/icon-128.png", 128, { preserveAlpha: true }],
 ];
 
-const renderPng = async (input, destination, size, { preserveAlpha = false, background = "#16a06e" } = {}) => {
+const renderPng = async (input, destination, size, { preserveAlpha = false, background = "#f26b1d" } = {}) => {
   const outputPath = path.join(projectRoot, destination);
   await mkdir(path.dirname(outputPath), { recursive: true });
   const pipeline = sharp(input, { density: 384 }).resize(size, size, {
