@@ -18,8 +18,8 @@ describe("normalized memo tag migration", () => {
     expect(sqlite.query(
       `SELECT name, normalized_name FROM memo_tags WHERE memo_id = 'memo_welcome' ORDER BY name`,
     ).all()).toEqual([
-      { name: "Demo", normalized_name: "demo" },
       { name: "Database", normalized_name: "database" },
+      { name: "Demo", normalized_name: "demo" },
     ]);
 
     sqlite.query(`UPDATE memos SET tags_json = '["Updated"]' WHERE id = 'memo_welcome'`).run();
