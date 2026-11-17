@@ -4,7 +4,7 @@ import {
   type CreateEdgeEverDocumentExtensionsOptions,
 } from "./document-extensions";
 import { MERGE_DIVIDER_NODE_TYPE } from "./merge-divider";
-import { DEFAULT_MEMO_TITLE } from "./memo-title";
+import { isDefaultMemoTitle } from "./memo-title";
 import { PDF_ATTACHMENT_NODE_TYPE, upgradeStandalonePdfLinks } from "./pdf-attachment";
 import { FILE_ATTACHMENT_NODE_TYPE, upgradeStandaloneFileLinks } from "./file-attachment";
 import { VOICE_MEMO_NODE_TYPE, voiceMemoSearchText } from "./voice-memo";
@@ -80,7 +80,13 @@ export type TiptapDoc = {
   content: TiptapNode[];
 };
 
-export { DEFAULT_MEMO_TITLE, getMemoDisplayTitle } from "./memo-title";
+export {
+  DEFAULT_MEMO_TITLE,
+  LEGACY_DEFAULT_MEMO_TITLES,
+  getMemoDisplayTitle,
+  isDefaultMemoTitle,
+  normalizeLegacyMemoTitle,
+} from "./memo-title";
 
 export const resolveMergedMemoTitle = (
   inputTitle: string | null | undefined,
@@ -94,7 +100,7 @@ export const resolveMergedMemoTitle = (
 
   const customTitle = sourceMemos
     .map((memo) => memo.title?.trim())
-    .find((title): title is string => Boolean(title && title !== DEFAULT_MEMO_TITLE));
+    .find((title): title is string => Boolean(title && !isDefaultMemoTitle(title)));
   return customTitle ?? `合并笔记 ${date.toLocaleDateString("zh-CN")}`;
 };
 
