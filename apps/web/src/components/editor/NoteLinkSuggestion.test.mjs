@@ -10,16 +10,16 @@ import {
 } from "./NoteLinkSuggestion.tsx";
 
 const labels = {
-  menu: "引用笔记",
-  empty: "没有找到可引用的笔记",
-  close: "关闭引用笔记",
-  untitled: "无标题笔记",
+  menu: "Link a note",
+  empty: "No notes to link",
+  close: "Close note links",
+  untitled: "Untitled note",
 };
 
 const memo = (overrides) => ({
   id: "memo-1",
-  title: "项目笔记",
-  excerpt: "项目摘要",
+  title: "Project note",
+  excerpt: "Project summary",
   isDeleted: false,
   ...overrides,
 });
@@ -46,13 +46,15 @@ describe("note link suggestion", () => {
   };
 
   test("does not open for @ embedded in passwords, emails, or ordinary text", () => {
-    for (const text of ["secret+@F(", "user@example.com", "文字@笔记", "hello@"]) {
+    // "text@note" in Chinese, escaped: CJK has no spaces, so an @ glued to it is ordinary text.
+    const cjkText = "\u6587\u5b57@\u7b14\u8bb0";
+    for (const text of ["secret+@F(", "user@example.com", cjkText, "hello@"]) {
       expect(suggestionFor([{ type: "text", text }]).active).toBe(false);
     }
   });
 
   test("opens at paragraph starts and after whitespace, including multiword queries", () => {
-    for (const [text, query] of [["@", ""], ["@项目", "项目"], ["参考 @项目 笔记", "项目 笔记"], ["参考\t@项目", "项目"], ["参考\u3000@项目", "项目"]]) {
+    for (const [text, query] of [["@", ""], ["@Project", "Project"], ["See @Project note", "Project note"], ["See\t@Project", "Project"], ["See\u3000@Project", "Project"]]) {
       const suggestion = suggestionFor([{ type: "text", text }]);
       expect(suggestion.active).toBe(true);
       expect(suggestion.query).toBe(query);
@@ -65,16 +67,16 @@ describe("note link suggestion", () => {
       { type: "text", text: "@F(", marks: [{ type: "bold" }] },
     ]).active).toBe(false);
     expect(suggestionFor([
-      { type: "text", text: "参考 " },
-      { type: "text", text: "@项目", marks: [{ type: "bold" }] },
+      { type: "text", text: "See " },
+      { type: "text", text: "@Project", marks: [{ type: "bold" }] },
     ]).active).toBe(true);
   });
 
   test("opens after a hard break but not immediately after inline code", () => {
     expect(suggestionFor([
-      { type: "text", text: "参考" },
+      { type: "text", text: "See" },
       { type: "hardBreak" },
-      { type: "text", text: "@项目" },
+      { type: "text", text: "@Project" },
     ]).active).toBe(true);
     expect(suggestionFor([
       { type: "text", text: "user", marks: [{ type: "code" }] },
@@ -96,7 +98,7 @@ describe("note link suggestion", () => {
       extensions: [StarterKit],
       content: {
         type: "doc",
-        content: [{ type: "paragraph", content: [{ type: "text", text: "@项目" }] }],
+        content: [{ type: "paragraph", content: [{ type: "text", text: "@Project" }] }],
       },
     });
 
@@ -104,7 +106,7 @@ describe("note link suggestion", () => {
       editor,
       item: memo({ id: "target" }),
       labels,
-      range: { from: 1, to: 4 },
+      range: { from: 1, to: 9 },
     });
 
     expect(editor.getJSON().content[0].content).toEqual([{
@@ -119,7 +121,7 @@ describe("note link suggestion", () => {
           title: null,
         },
       }],
-      text: "项目笔记",
+      text: "Project note",
     }]);
     editor.destroy();
   });
@@ -141,7 +143,7 @@ describe("note link suggestion", () => {
       range: { from: 1, to: 2 },
     });
 
-    expect(editor.getText()).toBe("无标题笔记");
+    expect(editor.getText()).toBe("Untitled note");
     editor.destroy();
   });
 });

@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { ui } from "./fixtures/ui-labels";
 
 // Defaults from getDefaultShortcutSettings: Linux adds Shift to the title
 // shortcut because Ctrl+Alt+T opens a terminal there.
@@ -19,10 +20,10 @@ const openNote = async (page: Page, title: string, memoId: string) => {
   const item = page.locator(`[data-memo-id="${memoId}"]`).locator("button").first();
   // Startup can restore the last notebook after the first click, so retry until the note is open.
   await expect(async () => {
-    await page.getByRole("button", { name: "全部笔记", exact: true }).click();
-    await page.getByPlaceholder("搜索笔记").fill(title);
+    await page.getByRole("button", { name: ui.notebookPane.allMemos, exact: true }).click();
+    await page.getByPlaceholder(ui.memoList.searchPlaceholder).fill(title);
     await item.click({ timeout: 3_000 });
-    await expect(page.getByRole("textbox", { name: "无标题笔记" })).toHaveValue(title, { timeout: 3_000 });
+    await expect(page.getByRole("textbox", { name: ui.common.untitledMemo })).toHaveValue(title, { timeout: 3_000 });
   }).toPass({ timeout: 30_000 });
 };
 
@@ -51,8 +52,8 @@ for (const { platform, modifier, title: titleShortcut, body: bodyShortcut } of p
 
       try {
         await openNote(page, title, memo.id);
-        const search = page.getByPlaceholder("搜索笔记");
-        const titleInput = page.getByRole("textbox", { name: "无标题笔记" });
+        const search = page.getByPlaceholder(ui.memoList.searchPlaceholder);
+        const titleInput = page.getByRole("textbox", { name: ui.common.untitledMemo });
         const rich = page.locator(".ProseMirror[contenteditable='true']");
         const source = page.locator(".cm-content");
         await expect(rich).toContainText("First paragraph for focus.");
@@ -92,7 +93,7 @@ for (const { platform, modifier, title: titleShortcut, body: bodyShortcut } of p
 
         // A blocking dialog keeps focus.
         await page.keyboard.press(`${modifier}+o`);
-        const switcher = page.getByPlaceholder("搜索笔记标题或内容…");
+        const switcher = page.getByPlaceholder(ui.quickSwitcher.placeholder);
         await expect(switcher).toBeFocused();
         await page.keyboard.press(titleShortcut);
         await expect(switcher).toBeFocused();

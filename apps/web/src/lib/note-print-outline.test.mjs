@@ -23,12 +23,16 @@ const outlineTitles = (pdf) => {
   return titles;
 };
 
+// "Expressiveness" in Chinese, escaped so the source stays English: outline titles
+// outside Latin-1 must survive PDF text-string encoding.
+const CJK_TITLE = "\u8868\u8fbe\u529b";
+
 describe("print PDF outline", () => {
   test("nests body headings under the note title and records where they sit", () => {
     const { document } = parseHTML("<!doctype html><body></body>");
     document.body.innerHTML = `
-      <div class="pagedjs_page"><h1>欢迎使用 RTNote</h1><h2>概览</h2><h2>海报</h2><h3>排版定制</h3></div>
-      <div class="pagedjs_page"><h2 data-split-from="1">海报</h2><h2>表达力</h2></div>
+      <div class="pagedjs_page"><h1>Welcome to RTNote</h1><h2>Overview</h2><h2>Posters</h2><h3>Custom layout</h3></div>
+      <div class="pagedjs_page"><h2 data-split-from="1">Posters</h2><h2>Expressiveness</h2></div>
     `;
     for (const page of document.querySelectorAll(".pagedjs_page")) page.getBoundingClientRect = rect(0, 1000);
     const headings = [...document.querySelectorAll("h1, h2, h3")];
@@ -40,18 +44,18 @@ describe("print PDF outline", () => {
 
     expect(collectPrintOutline(document)).toEqual([
       {
-        title: "欢迎使用 RTNote",
+        title: "Welcome to RTNote",
         pageIndex: 0,
         topRatio: 0.04,
         children: [
-          { title: "概览", pageIndex: 0, topRatio: 0.2, children: [] },
+          { title: "Overview", pageIndex: 0, topRatio: 0.2, children: [] },
           {
-            title: "海报",
+            title: "Posters",
             pageIndex: 0,
             topRatio: 0.4,
-            children: [{ title: "排版定制", pageIndex: 0, topRatio: 0.46, children: [] }],
+            children: [{ title: "Custom layout", pageIndex: 0, topRatio: 0.46, children: [] }],
           },
-          { title: "表达力", pageIndex: 1, topRatio: 0.08, children: [] },
+          { title: "Expressiveness", pageIndex: 1, topRatio: 0.08, children: [] },
         ],
       },
     ]);
@@ -62,13 +66,13 @@ describe("print PDF outline", () => {
     pdf.addPage([100, 200]);
     pdf.addPage([100, 200]);
     addPdfOutline(pdf, [{
-      title: "欢迎使用 RTNote",
+      title: "Welcome to RTNote",
       pageIndex: 0,
       topRatio: 0,
-      children: [{ title: "表达力", pageIndex: 1, topRatio: 0.25, children: [] }],
+      children: [{ title: CJK_TITLE, pageIndex: 1, topRatio: 0.25, children: [] }],
     }]);
     const saved = await PDFDocument.load(await pdf.save());
-    expect(outlineTitles(saved)).toEqual(["欢迎使用 RTNote", "表达力"]);
+    expect(outlineTitles(saved)).toEqual(["Welcome to RTNote", CJK_TITLE]);
     const outlines = saved.context.lookup(saved.catalog.get(PDFName.of("Outlines")));
     expect(outlines.get(PDFName.of("Count")).asNumber()).toBe(2);
   });

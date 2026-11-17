@@ -4,6 +4,7 @@ import {
   type CreateEdgeEverDocumentExtensionsOptions,
 } from "./document-extensions";
 import { MERGE_DIVIDER_NODE_TYPE } from "./merge-divider";
+import { ATTACHMENT_TEXT_PREFIX, LEGACY_ATTACHMENT_PREFIXES } from "./edgeever-legacy-values";
 import { isDefaultMemoTitle } from "./memo-title";
 import { PDF_ATTACHMENT_NODE_TYPE, upgradeStandalonePdfLinks } from "./pdf-attachment";
 import { FILE_ATTACHMENT_NODE_TYPE, upgradeStandaloneFileLinks } from "./file-attachment";
@@ -101,7 +102,7 @@ export const resolveMergedMemoTitle = (
   const customTitle = sourceMemos
     .map((memo) => memo.title?.trim())
     .find((title): title is string => Boolean(title && !isDefaultMemoTitle(title)));
-  return customTitle ?? `合并笔记 ${date.toLocaleDateString("zh-CN")}`;
+  return customTitle ?? `Merged note ${date.toLocaleDateString("en-US")}`;
 };
 
 export const emptyDoc = (): TiptapDoc => ({
@@ -265,7 +266,15 @@ export const resolveMemoContentDoc = (
     : currentDoc;
 };
 
-const LEGACY_ATTACHMENT_PATTERN = /^(附件：|Attachment:\s*)(.+?)\s+(\/api\/v1\/resources\/\S+|https?:\/\/\S+)$/;
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+// The first clients wrote attachments as plain text: a prefix, the file name and its URL.
+const LEGACY_ATTACHMENT_PATTERN = new RegExp(
+  `^(${[
+    ...LEGACY_ATTACHMENT_PREFIXES.map(escapeRegExp),
+    `${escapeRegExp(ATTACHMENT_TEXT_PREFIX.trim())}\\s*`,
+  ].join("|")})(.+?)\\s+(/api/v1/resources/\\S+|https?://\\S+)$`,
+);
 
 const isTiptapTextNode = (node: TiptapNode | TiptapTextNode): node is TiptapTextNode =>
   node.type === "text" && "text" in node;
@@ -488,7 +497,7 @@ const stripEditorOnlyNodes = (doc: unknown): unknown => {
     return {
       type: "blockquote",
       content: [
-        { type: "paragraph", content: [{ type: "text", text: label ? `[${label}]` : "[主题化组件]" }] },
+        { type: "paragraph", content: [{ type: "text", text: label ? `[${label}]` : "[Themed block]" }] },
         ...content.map(stripEditorOnlyNodes),
       ],
     };

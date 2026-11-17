@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { templatesRegExp, ui } from "./fixtures/ui-labels";
 
 const readSource = async (page: Page) =>
   (await page.locator(".cm-content .cm-line").allTextContents()).join("\n");
@@ -42,8 +43,8 @@ for (const { platform, modifier } of [
 
         try {
           await page.goto("/");
-          await page.getByRole("button", { name: "全部笔记", exact: true }).click();
-          await page.getByPlaceholder("搜索笔记").fill(title);
+          await page.getByRole("button", { name: ui.notebookPane.allMemos, exact: true }).click();
+          await page.getByPlaceholder(ui.memoList.searchPlaceholder).fill(title);
           await page.locator(`[data-memo-id="${memo.id}"]`).locator("button").first().click();
           const rich = page.locator(".ProseMirror[contenteditable='true']");
           const source = page.locator(".cm-content");
@@ -76,7 +77,7 @@ for (const { platform, modifier } of [
           }
 
           await page.keyboard.press(`${modifier}+s`);
-          await expect(page.getByRole("status", { name: /^已同步/ })).toBeVisible();
+          await expect(page.getByRole("status", { name: templatesRegExp(ui.editor.saveState.saved) })).toBeVisible();
           const saved = await (await page.request.get(`/api/v1/memos/${memo.id}`)).json() as {
             memo: { contentMarkdown: string; revision: number };
           };

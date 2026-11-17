@@ -1,6 +1,9 @@
 import type { NodeViewRenderer } from "@tiptap/core";
 import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
 import type { MobileEditorLocale } from "./mobile-editor";
+import { NATIVE_VOICE_MEMO_COPY_JA } from "./native-voice-memo.ja";
+import { NATIVE_VOICE_MEMO_COPY_ZH_CN } from "./native-voice-memo.zh-CN";
+import { NATIVE_VOICE_MEMO_COPY_ZH_TW } from "./native-voice-memo.zh-TW";
 import { VoiceMemo, readVoiceMemoAttrs } from "./voice-memo";
 import { VOICE_MEMO_NODE_TYPE, formatVoiceMemoDuration } from "./voice-memo-names";
 
@@ -25,9 +28,9 @@ export type NativeVoiceMemoCopy = {
 
 const NATIVE_VOICE_MEMO_COPY: Record<MobileEditorLocale, NativeVoiceMemoCopy> = {
   "en-US": { play: "Play", pause: "Pause", seek: "Playback position", playerLabel: "Voice memo player", titlePlaceholder: "Add a title", transcript: "Transcript", noRecording: "No recording yet.", saving: "Saving the recording…", unavailable: "This recording cannot be played on this device." },
-  "zh-CN": { play: "播放", pause: "暂停", seek: "播放进度", playerLabel: "语音备忘播放器", titlePlaceholder: "添加标题", transcript: "转写文本", noRecording: "还没有录音。", saving: "正在保存录音…", unavailable: "当前设备无法播放此录音。" },
-  "zh-TW": { play: "播放", pause: "暫停", seek: "播放進度", playerLabel: "語音備忘播放器", titlePlaceholder: "新增標題", transcript: "轉寫文字", noRecording: "還沒有錄音。", saving: "正在儲存錄音…", unavailable: "目前裝置無法播放此錄音。" },
-  ja: { play: "再生", pause: "一時停止", seek: "再生位置", playerLabel: "ボイスメモプレーヤー", titlePlaceholder: "タイトルを追加", transcript: "文字起こし", noRecording: "まだ録音がありません。", saving: "録音を保存しています…", unavailable: "この端末ではこの録音を再生できません。" },
+  "zh-CN": NATIVE_VOICE_MEMO_COPY_ZH_CN,
+  "zh-TW": NATIVE_VOICE_MEMO_COPY_ZH_TW,
+  ja: NATIVE_VOICE_MEMO_COPY_JA,
   pl: { play: "Odtwórz", pause: "Wstrzymaj", seek: "Pozycja odtwarzania", playerLabel: "Odtwarzacz notatki głosowej", titlePlaceholder: "Dodaj tytuł", transcript: "Transkrypcja", noRecording: "Brak nagrania.", saving: "Zapisywanie nagrania…", unavailable: "Tego nagrania nie można odtworzyć na tym urządzeniu." },
   ru: { play: "Воспроизвести", pause: "Пауза", seek: "Позиция воспроизведения", playerLabel: "Проигрыватель голосовой заметки", titlePlaceholder: "Добавить заголовок", transcript: "Расшифровка", noRecording: "Записи пока нет.", saving: "Сохранение записи…", unavailable: "Эту запись нельзя воспроизвести на этом устройстве." },
   es: { play: "Reproducir", pause: "Pausar", seek: "Posición de reproducción", playerLabel: "Reproductor de nota de voz", titlePlaceholder: "Añadir un título", transcript: "Transcripción", noRecording: "Todavía no hay grabación.", saving: "Guardando la grabación…", unavailable: "Esta grabación no se puede reproducir en este dispositivo." },

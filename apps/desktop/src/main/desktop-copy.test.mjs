@@ -7,6 +7,7 @@ import {
   formatDesktopCopy,
   resolveDesktopLocale,
 } from "./desktop-copy.mjs";
+import { dialogCopy as jaDialogCopy } from "./desktop-copy.ja.mjs";
 
 const english = desktopDialogCopyByLocale["en-US"];
 const placeholders = (text) => (text.match(/\{\w+\}/g) ?? []).sort();
@@ -57,7 +58,7 @@ describe("resolveDesktopLocale", () => {
     expect(resolveDesktopLocale("es-ES")).toBe("es");
     expect(resolveDesktopLocale("de-DE")).toBe("de");
     expect(resolveDesktopLocale("fr-FR")).toBe("fr");
-    expect(desktopDialogCopy("ja-JP").reload).toBe("再読み込み");
+    expect(desktopDialogCopy("ja-JP")).toBe(jaDialogCopy);
     expect(desktopDialogCopy("fr-FR").reload).toBe("Recharger");
   });
 });

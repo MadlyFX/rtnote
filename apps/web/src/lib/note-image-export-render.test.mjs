@@ -226,13 +226,14 @@ describe("createNoteImage", () => {
   test("replaces characters that would invalidate the SVG while preserving Unicode text", async () => {
     await mod.createNoteImage({
       ...baseOptions,
-      bodyHtml: "<p data-label=\"a\u000Cb\">中文\u000B😀\uD800 end</p>",
+      // "Chinese" in Chinese, escaped: CJK text must survive the SVG cleanup.
+      bodyHtml: "<p data-label=\"a\u000Cb\">\u4e2d\u6587\u000B😀\uD800 end</p>",
       title: "Title\u001F with emoji 😀",
       showTitle: true,
     });
 
     expect(serializedSnapshot).toContain('data-label="a�b"');
-    expect(serializedSnapshot).toContain("中文�😀� end");
+    expect(serializedSnapshot).toContain("\u4e2d\u6587�😀� end");
     expect(serializedSnapshot).toContain("Title� with emoji 😀");
   });
 

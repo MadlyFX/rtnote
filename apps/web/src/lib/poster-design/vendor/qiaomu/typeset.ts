@@ -14,7 +14,11 @@ export interface Pair { title: string[]; body: string[]; zh: string }
 
 // The default font library comes first everywhere, so a fresh install looks exactly like the design; system faces only catch
 // the moment before the library has landed.
-const BODY = ['思源黑体', 'PingFang SC', 'Microsoft YaHei'];
+// Family names as the font catalog registers them (Source Han Sans / Serif).
+export const SOURCE_HAN_SANS = '思源黑体';
+export const SOURCE_HAN_SERIF = '思源宋体';
+export const SOURCE_HAN_SANS_HEAVY = '思源黑体 Heavy';
+const BODY = [SOURCE_HAN_SANS, 'PingFang SC', 'Microsoft YaHei'];
 export const MOODS: Record<Mood, Pair> = {
   heavy: { zh: '稳重有力', title: ['思源黑体 Heavy', '阿里巴巴普惠体 Heavy', 'PingFang SC'], body: BODY },
   punch: { zh: '冲击抓眼', title: ['优设标题黑', '阿里妈妈数黑体', '抖音美好体', '思源黑体 Heavy'], body: BODY },
@@ -60,7 +64,7 @@ const MOOD_OF: Record<string, Mood> = {
 export const moodOf = (templateId: string | undefined): Mood => MOOD_OF[templateId ?? ''] ?? 'heavy';
 
 /** Faces that ship a real bold. Everything else in the lists is single-weight and must not be faux-bolded. */
-// Library faces are one weight per family (思源黑体 / Bold / Heavy are separate families), so only system faces get a real bold.
+// Library faces are one weight per family (Source Han Sans regular / Bold / Heavy are separate families), so only system faces get a real bold.
 const HAS_BOLD = new Set(['PingFang SC', 'Songti SC', 'Microsoft YaHei', 'MiSans', '鸿蒙黑体', '阿里巴巴普惠体']);
 
 export interface Resolved { title?: string; body?: string; titleBold: boolean; /** Best title/body families that are not installed yet. */ missing: string[] }

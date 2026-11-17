@@ -21,43 +21,43 @@ enum TotpUI {
         switch api.code {
         case "invalid_totp_code":
             return prefs.t(
-                "验证码不正确或已使用。请等待下一个验证码后重试。",
-                en: "The code is incorrect or was already used. Wait for the next code and try again.",
+                "The code is incorrect or was already used. Wait for the next code and try again.",
+                zh: "验证码不正确或已使用。请等待下一个验证码后重试。",
                 ja: "コードが正しくないか、すでに使用されています。次のコードを待ってからもう一度お試しください。",
                 pl: "Kod jest nieprawidłowy lub został już użyty. Poczekaj na następny kod i spróbuj ponownie."
             )
         case "invalid_recovery_code":
             return prefs.t(
-                "恢复码无效或已使用。",
-                en: "The recovery code is incorrect or was already used.",
+                "The recovery code is incorrect or was already used.",
+                zh: "恢复码无效或已使用。",
                 ja: "リカバリーコードが正しくないか、すでに使用されています。",
                 pl: "Kod odzyskiwania jest nieprawidłowy lub został już użyty."
             )
         case "mfa_challenge_expired":
             return prefs.t(
-                "验证已过期，请重新输入密码。",
-                en: "This verification has expired. Enter your password again.",
+                "This verification has expired. Enter your password again.",
+                zh: "验证已过期，请重新输入密码。",
                 ja: "確認の有効期限が切れました。もう一度パスワードを入力してください。",
                 pl: "Weryfikacja wygasła. Wpisz hasło ponownie."
             )
         case "totp_unavailable":
             return prefs.t(
-                "服务器无法读取验证器密钥，请改用恢复码。",
-                en: "The server can't read your authenticator secret. Use a recovery code instead.",
+                "The server can't read your authenticator secret. Use a recovery code instead.",
+                zh: "服务器无法读取验证器密钥，请改用恢复码。",
                 ja: "サーバーが認証アプリのシークレットを読み取れません。リカバリーコードを使用してください。",
                 pl: "Serwer nie może odczytać sekretu aplikacji uwierzytelniającej. Użyj kodu odzyskiwania."
             )
         case "invalid_current_password":
             return prefs.t(
-                "当前密码不正确。",
-                en: "The current password is incorrect.",
+                "The current password is incorrect.",
+                zh: "当前密码不正确。",
                 ja: "現在のパスワードが正しくありません。",
                 pl: "Bieżące hasło jest nieprawidłowe."
             )
         case "totp_setup_expired", "recovery_codes_expired":
             return prefs.t(
-                "本次设置已过期，请重新开始。",
-                en: "This setup has expired. Start again.",
+                "This setup has expired. Start again.",
+                zh: "本次设置已过期，请重新开始。",
                 ja: "この設定は期限切れです。最初からやり直してください。",
                 pl: "Ta konfiguracja wygasła. Zacznij od nowa."
             )
@@ -71,23 +71,23 @@ enum TotpUI {
         }
         if api.status == 429 {
             let base = prefs.t(
-                "尝试次数过多，请稍后再试。",
-                en: "Too many attempts. Try again later.",
+                "Too many attempts. Try again later.",
+                zh: "尝试次数过多，请稍后再试。",
                 ja: "試行回数が多すぎます。しばらくしてからお試しください。",
                 pl: "Zbyt wiele prób. Spróbuj ponownie później."
             )
             guard let seconds = api.retryAfterSeconds, seconds > 0 else { return base }
             let minutes = max(1, Int((Double(seconds) / 60).rounded(.up)))
             return base + " " + prefs.t(
-                "（约 \(minutes) 分钟后）",
-                en: "(about \(minutes) min)",
+                "(about \(minutes) min)",
+                zh: "（约 \(minutes) 分钟后）",
                 ja: "（約 \(minutes) 分後）",
                 pl: "(ok. \(minutes) min)"
             )
         }
         return prefs.t(
-            "操作失败，请重试。",
-            en: "Something went wrong. Try again.",
+            "Something went wrong. Try again.",
+            zh: "操作失败，请重试。",
             ja: "問題が発生しました。もう一度お試しください。",
             pl: "Coś poszło nie tak. Spróbuj ponownie."
         )
@@ -97,15 +97,15 @@ enum TotpUI {
     static func unavailableMessage(reason: String?, prefs: PreferencesStore) -> String {
         if reason == "demo" {
             return prefs.t(
-                "演示环境不支持二次验证。",
-                en: "The demo environment doesn't support two-factor authentication.",
+                "The demo environment doesn't support two-factor authentication.",
+                zh: "演示环境不支持二次验证。",
                 ja: "デモ環境では二要素認証を利用できません。",
                 pl: "Środowisko demonstracyjne nie obsługuje uwierzytelniania dwuskładnikowego."
             )
         }
         return prefs.t(
-            "此服务器未配置凭据加密密钥，无法开启二次验证。请联系管理员设置 EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY。",
-            en: "This server has no credential encryption key, so two-factor authentication can't be turned on. Ask the administrator to set EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY.",
+            "This server has no credential encryption key, so two-factor authentication can't be turned on. Ask the administrator to set EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY.",
+            zh: "此服务器未配置凭据加密密钥，无法开启二次验证。请联系管理员设置 EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY。",
             ja: "このサーバーには認証情報の暗号化キーが設定されていないため、二要素認証をオンにできません。管理者に EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY の設定を依頼してください。",
             pl: "Ten serwer nie ma klucza szyfrowania poświadczeń, więc nie można włączyć uwierzytelniania dwuskładnikowego. Poproś administratora o ustawienie EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY."
         )
@@ -399,8 +399,8 @@ struct TotpSecretKeyView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 7) {
             TotpFieldLabel(text: env.preferences.t(
-                "无法扫码时，在 App 中选择“手动输入密钥”：",
-                en: "Can't scan? In the app, choose “Enter a setup key”:",
+                "Can't scan? In the app, choose “Enter a setup key”:",
+                zh: "无法扫码时，在 App 中选择“手动输入密钥”：",
                 ja: "スキャンできない場合は、アプリで「セットアップキーを入力」を選択します：",
                 pl: "Nie możesz zeskanować? W aplikacji wybierz „Wprowadź klucz konfiguracji”:"
             ))
@@ -417,8 +417,8 @@ struct TotpSecretKeyView: View {
                 } label: {
                     Label(
                         copied
-                            ? env.preferences.t("已复制", en: "Copied", ja: "コピーしました", pl: "Skopiowano")
-                            : env.preferences.t("复制", en: "Copy", ja: "コピー", pl: "Kopiuj"),
+                            ? env.preferences.t("Copied", zh: "已复制", ja: "コピーしました", pl: "Skopiowano")
+                            : env.preferences.t("Copy", zh: "复制", ja: "コピー", pl: "Kopiuj"),
                         systemImage: copied ? "checkmark" : "doc.on.doc"
                     )
                     .font(.system(size: 12, weight: .bold))
@@ -430,8 +430,8 @@ struct TotpSecretKeyView: View {
             .background(AppTheme.searchFill)
             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             Text(env.preferences.t(
-                "账号：\(issuer)（\(accountName)）· 30 秒 · 6 位",
-                en: "Account: \(issuer) (\(accountName)) · 30 seconds · 6 digits",
+                "Account: \(issuer) (\(accountName)) · 30 seconds · 6 digits",
+                zh: "账号：\(issuer)（\(accountName)）· 30 秒 · 6 位",
                 ja: "アカウント：\(issuer)（\(accountName)）· 30 秒 · 6 桁",
                 pl: "Konto: \(issuer) (\(accountName)) · 30 sekund · 6 cyfr"
             ))
@@ -458,8 +458,8 @@ struct TotpRecoveryCodesView: View {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .foregroundStyle(TotpUI.warningBody)
                 Text(env.preferences.t(
-                    "恢复码只显示这一次。验证器丢失时，用密码加一个恢复码即可登录并重新绑定。每个恢复码只能使用一次。",
-                    en: "Recovery codes are shown only this once. If you lose your authenticator, sign in with your password and one recovery code, then bind a new one. Each code works only once.",
+                    "Recovery codes are shown only this once. If you lose your authenticator, sign in with your password and one recovery code, then bind a new one. Each code works only once.",
+                    zh: "恢复码只显示这一次。验证器丢失时，用密码加一个恢复码即可登录并重新绑定。每个恢复码只能使用一次。",
                     ja: "リカバリーコードは今回だけ表示されます。認証アプリを失くした場合は、パスワードとリカバリーコード 1 つでサインインして再登録できます。各コードは 1 回だけ使えます。",
                     pl: "Kody odzyskiwania są wyświetlane tylko teraz. Jeśli zgubisz aplikację uwierzytelniającą, zaloguj się hasłem i jednym kodem odzyskiwania, a potem powiąż nową. Każdy kod działa tylko raz."
                 ))
@@ -496,8 +496,8 @@ struct TotpRecoveryCodesView: View {
                 } label: {
                     Label(
                         copied
-                            ? env.preferences.t("已复制", en: "Copied", ja: "コピーしました", pl: "Skopiowano")
-                            : env.preferences.t("复制全部", en: "Copy all", ja: "すべてコピー", pl: "Kopiuj wszystkie"),
+                            ? env.preferences.t("Copied", zh: "已复制", ja: "コピーしました", pl: "Skopiowano")
+                            : env.preferences.t("Copy all", zh: "复制全部", ja: "すべてコピー", pl: "Kopiuj wszystkie"),
                         systemImage: copied ? "checkmark" : "doc.on.doc"
                     )
                     .modifier(TotpOutlineLabel())
@@ -506,7 +506,7 @@ struct TotpRecoveryCodesView: View {
 
                 ShareLink(item: shareText) {
                     Label(
-                        env.preferences.t("分享", en: "Share", ja: "共有", pl: "Udostępnij"),
+                        env.preferences.t("Share", zh: "分享", ja: "共有", pl: "Udostępnij"),
                         systemImage: "square.and.arrow.up"
                     )
                     .modifier(TotpOutlineLabel())
@@ -516,8 +516,8 @@ struct TotpRecoveryCodesView: View {
 
             Toggle(isOn: $saved) {
                 Text(env.preferences.t(
-                    "我已把恢复码保存在安全的地方",
-                    en: "I've saved these recovery codes somewhere safe",
+                    "I've saved these recovery codes somewhere safe",
+                    zh: "我已把恢复码保存在安全的地方",
                     ja: "リカバリーコードを安全な場所に保存しました",
                     pl: "Zapisałem te kody odzyskiwania w bezpiecznym miejscu"
                 ))
@@ -530,8 +530,8 @@ struct TotpRecoveryCodesView: View {
 
     private var shareText: String {
         let header = env.preferences.t(
-            "RTNote 二次验证恢复码（每个只能使用一次）",
-            en: "RTNote two-factor recovery codes (each works once)",
+            "RTNote two-factor recovery codes (each works once)",
+            zh: "RTNote 二次验证恢复码（每个只能使用一次）",
             ja: "RTNote 二段階認証リカバリーコード（各コード 1 回のみ）",
             pl: "Kody odzyskiwania RTNote (każdy działa jednokrotnie)"
         )
@@ -588,17 +588,17 @@ struct TotpIdentityFields: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             TotpPasswordField(
-                label: env.preferences.t("当前密码", en: "Current password", ja: "現在のパスワード", pl: "Bieżące hasło"),
+                label: env.preferences.t("Current password", zh: "当前密码", ja: "現在のパスワード", pl: "Bieżące hasło"),
                 text: $input.password
             )
             if requiresSecondFactor {
                 if input.useRecoveryCode {
                     VStack(alignment: .leading, spacing: 7) {
-                        TotpFieldLabel(text: env.preferences.t("恢复码", en: "Recovery code", ja: "リカバリーコード", pl: "Kod odzyskiwania"))
+                        TotpFieldLabel(text: env.preferences.t("Recovery code", zh: "恢复码", ja: "リカバリーコード", pl: "Kod odzyskiwania"))
                         TotpRecoveryCodeField(code: $input.recoveryCode)
                         Text(env.preferences.t(
-                            "不区分大小写，短横线可省略。每个恢复码只能使用一次。",
-                            en: "Not case-sensitive; dashes are optional. Each recovery code works only once.",
+                            "Not case-sensitive; dashes are optional. Each recovery code works only once.",
+                            zh: "不区分大小写，短横线可省略。每个恢复码只能使用一次。",
                             ja: "大文字と小文字は区別されず、ハイフンは省略できます。各リカバリーコードは 1 回だけ使えます。",
                             pl: "Wielkość liter nie ma znaczenia, myślniki są opcjonalne. Każdy kod odzyskiwania działa tylko raz."
                         ))
@@ -607,8 +607,8 @@ struct TotpIdentityFields: View {
                         .fixedSize(horizontal: false, vertical: true)
                     }
                     TotpLinkButton(title: env.preferences.t(
-                        "改用验证器验证码",
-                        en: "Use an authenticator code instead",
+                        "Use an authenticator code instead",
+                        zh: "改用验证器验证码",
                         ja: "認証アプリのコードを使用",
                         pl: "Użyj kodu z aplikacji"
                     )) {
@@ -618,16 +618,16 @@ struct TotpIdentityFields: View {
                 } else {
                     VStack(alignment: .leading, spacing: 7) {
                         TotpFieldLabel(text: env.preferences.t(
-                            "验证器上的 6 位验证码",
-                            en: "6-digit code from your authenticator",
+                            "6-digit code from your authenticator",
+                            zh: "验证器上的 6 位验证码",
                             ja: "認証アプリの 6 桁のコード",
                             pl: "6-cyfrowy kod z aplikacji uwierzytelniającej"
                         ))
                         TotpCodeField(code: $input.code, autoFocus: false)
                     }
                     TotpLinkButton(title: env.preferences.t(
-                        "验证器不可用？改用恢复码",
-                        en: "Authenticator unavailable? Use a recovery code",
+                        "Authenticator unavailable? Use a recovery code",
+                        zh: "验证器不可用？改用恢复码",
                         ja: "認証アプリを使えない場合はリカバリーコードを使用",
                         pl: "Aplikacja niedostępna? Użyj kodu odzyskiwania"
                     )) {
@@ -680,8 +680,8 @@ struct TotpBindAndSaveFlow: View {
     private var bindStep: some View {
         VStack(alignment: .leading, spacing: 14) {
             Text(env.preferences.t(
-                "用身份验证器 App 扫描二维码。",
-                en: "Scan the QR code with your authenticator app.",
+                "Scan the QR code with your authenticator app.",
+                zh: "用身份验证器 App 扫描二维码。",
                 ja: "認証アプリで QR コードをスキャンしてください。",
                 pl: "Zeskanuj kod QR aplikacją uwierzytelniającą."
             ))
@@ -698,8 +698,8 @@ struct TotpBindAndSaveFlow: View {
             if let url = URL(string: setup.otpauthUri) {
                 TotpActionButton(
                     title: env.preferences.t(
-                        "用本机验证器打开",
-                        en: "Open in authenticator app",
+                        "Open in authenticator app",
+                        zh: "用本机验证器打开",
                         ja: "認証アプリで開く",
                         pl: "Otwórz w aplikacji uwierzytelniającej"
                     ),
@@ -708,8 +708,8 @@ struct TotpBindAndSaveFlow: View {
                     openURL(url) { accepted in
                         if !accepted {
                             error = env.preferences.t(
-                                "本机没有可打开此链接的验证器 App，请手动输入上方密钥。",
-                                en: "No authenticator app could open this link. Enter the setup key above manually.",
+                                "No authenticator app could open this link. Enter the setup key above manually.",
+                                zh: "本机没有可打开此链接的验证器 App，请手动输入上方密钥。",
                                 ja: "このリンクを開ける認証アプリが見つかりません。上のセットアップキーを手動で入力してください。",
                                 pl: "Żadna aplikacja uwierzytelniająca nie może otworzyć tego linku. Wpisz powyższy klucz ręcznie."
                             )
@@ -722,8 +722,8 @@ struct TotpBindAndSaveFlow: View {
 
             VStack(alignment: .leading, spacing: 7) {
                 TotpFieldLabel(text: env.preferences.t(
-                    "验证器上的 6 位验证码",
-                    en: "6-digit code from your authenticator",
+                    "6-digit code from your authenticator",
+                    zh: "验证器上的 6 位验证码",
                     ja: "認証アプリの 6 桁のコード",
                     pl: "6-cyfrowy kod z aplikacji uwierzytelniającej"
                 ))
@@ -731,8 +731,8 @@ struct TotpBindAndSaveFlow: View {
             }
 
             Text(env.preferences.t(
-                "验证成功后，下一步会生成恢复码。完成全部步骤前，二次验证不会生效。",
-                en: "After verification, the next step creates recovery codes. Two-factor authentication isn't on until every step is done.",
+                "After verification, the next step creates recovery codes. Two-factor authentication isn't on until every step is done.",
+                zh: "验证成功后，下一步会生成恢复码。完成全部步骤前，二次验证不会生效。",
                 ja: "確認できると、次のステップでリカバリーコードが作成されます。すべてのステップが完了するまで二要素認証は有効になりません。",
                 pl: "Po weryfikacji w następnym kroku zostaną utworzone kody odzyskiwania. Uwierzytelnianie dwuskładnikowe zacznie działać dopiero po ukończeniu wszystkich kroków."
             ))
@@ -743,7 +743,7 @@ struct TotpBindAndSaveFlow: View {
             TotpErrorText(message: error)
 
             TotpActionButton(
-                title: env.preferences.t("验证并继续", en: "Verify and continue", ja: "確認して続行", pl: "Zweryfikuj i kontynuuj"),
+                title: env.preferences.t("Verify and continue", zh: "验证并继续", ja: "確認して続行", pl: "Zweryfikuj i kontynuuj"),
                 busy: busy,
                 enabled: code.count == 6
             ) {

@@ -32,6 +32,7 @@ import {
   type DiagramDocument,
 } from "@edgeever/shared";
 import { clearMobileEditorUndoHistory, type MobileEditorLocale } from "@edgeever/shared/mobile-editor";
+import { ATTACHMENT_TEXT_PREFIX, LEGACY_ATTACHMENT_PREFIXES } from "@edgeever/shared/edgeever-legacy-values";
 import {
   type NoteImageTheme,
   type NoteImageFontStyle,
@@ -139,11 +140,17 @@ function buildImageTargetJson(src: string, filename: string): string | null {
   });
 }
 
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const ATTACHMENT_PREFIX_WORDS = [ATTACHMENT_TEXT_PREFIX, ...LEGACY_ATTACHMENT_PREFIXES]
+  .map((prefix) => escapeRegExp(prefix.trim().replace(/[:：]$/, "")));
+/** RTNote's "Attachment:" label prefix or one of EdgeEver's, with an ASCII or full-width colon. */
+const ATTACHMENT_PREFIX_PATTERN = new RegExp(`^\\s*(?:${ATTACHMENT_PREFIX_WORDS.join("|")})[:：]\\s*`, "i");
+
 function buildAttachmentTargetJson(href: string, label: string): string | null {
   const resourceId = getResourceIdFromHref(href);
   if (!resourceId) return null;
   const filename =
-    label.replace(/^\s*(?:附件[：:]|Attachment:)\s*/i, "").trim() || resourceId;
+    label.replace(ATTACHMENT_PREFIX_PATTERN, "").trim() || resourceId;
   return JSON.stringify({
     kind: "attachment",
     href: normalizeResourceHref(href, resourceId),
@@ -155,7 +162,7 @@ function buildAttachmentTargetJson(href: string, label: string): string | null {
 const ATTACHMENT_KIND_CLASS_PREFIX = "edgeever-attachment-kind-";
 
 function normalizeAttachmentFilename(label: string): string {
-  return label.replace(/^\s*(?:附件[：:]|Attachment:)\s*/i, "").trim();
+  return label.replace(ATTACHMENT_PREFIX_PATTERN, "").trim();
 }
 
 function decorateAttachmentLinks(root: ParentNode): void {
@@ -209,7 +216,15 @@ let locale: MobileEditorLocale = "en-US";
 // Declared before the editor exists: its toolbar refresh reads the panel state.
 let formatPanel: MobileFormatPanel | null = null;
 let formatPanelLocale: MobileEditorLocale | null = null;
-let currentPlaceholder = "开始输入…";
+let currentPlaceholder = "Start typing…";
+
+/** Text for the current editor locale. English is the source text and the fallback. */
+function localized(en: string, translations: { zh?: string; ja?: string; pl?: string }): string {
+  if (locale === "zh-CN") return translations.zh ?? en;
+  if (locale === "ja") return translations.ja ?? en;
+  if (locale === "pl") return translations.pl ?? en;
+  return en;
+}
 let suppressChange = false;
 const resourceResolvers = new Map<string, (dataUrl: string | null) => void>();
 let resourceSeq = 0;
@@ -358,7 +373,14 @@ function renderViewerDiagram(root: HTMLElement, diagram: DiagramDocument, theme:
   const container = document.createElement("div");
   container.className = "edgeever-x6-diagram";
   container.setAttribute("role", "img");
-  container.setAttribute("aria-label", diagram.kind === "mind-map" ? "思维导图" : diagram.kind === "architecture" ? "架构图" : "流程图");
+  container.setAttribute(
+    "aria-label",
+    diagram.kind === "mind-map"
+      ? localized("Mind map", { zh: "思维导图", ja: "マインドマップ", pl: "Mapa myśli" })
+      : diagram.kind === "architecture"
+        ? localized("Architecture diagram", { zh: "架构图", ja: "アーキテクチャ図", pl: "Diagram architektury" })
+        : localized("Flowchart", { zh: "流程图", ja: "フローチャート", pl: "Schemat blokowy" }),
+  );
   // Keep TipTap's managed DOM intact. Replacing a node inside ProseMirror makes
   // the next setContent call unreliable when SwiftUI reuses this WKWebView.
   proseMirror.hidden = true;
@@ -525,7 +547,7 @@ function createEdgeEverImageExtension() {
         actionButton.className = "edgeever-image-actions";
         actionButton.contentEditable = "false";
         actionButton.hidden = true;
-        actionButton.setAttribute("aria-label", "图片操作");
+        actionButton.setAttribute("aria-label", localized("Image actions", { zh: "图片操作", ja: "画像の操作", pl: "Działania na obrazie" }));
         actionButton.textContent = "⋯";
 
         const sizeControls = document.createElement("div");
@@ -533,7 +555,7 @@ function createEdgeEverImageExtension() {
         sizeControls.contentEditable = "false";
         sizeControls.hidden = true;
         sizeControls.setAttribute("role", "group");
-        sizeControls.setAttribute("aria-label", "图片宽度");
+        sizeControls.setAttribute("aria-label", localized("Image width", { zh: "图片宽度", ja: "画像の幅", pl: "Szerokość obrazu" }));
 
         const applyWidthAtPos = (width: number) => {
           const pos = getPos();
@@ -587,7 +609,7 @@ function createEdgeEverImageExtension() {
             loading.replaceChildren();
             const label = document.createElement("span");
             label.className = "edgeever-image-loading-label";
-            label.textContent = "图片加载失败";
+            label.textContent = localized("Image failed to load", { zh: "图片加载失败", ja: "画像を読み込めませんでした", pl: "Nie udało się wczytać obrazu" });
             loading.append(label);
             loading.hidden = false;
           } else if (phase === "loading") {
@@ -834,7 +856,7 @@ function resetReaderScroll() {
 
 const editor = new Editor({
   element: editorEl,
-  extensions: buildExtensions("开始书写…"),
+  extensions: buildExtensions("Start writing…"),
   editable: false,
   content: { type: "doc", content: [{ type: "paragraph" }] },
   onUpdate: ({ editor: ed }) => {

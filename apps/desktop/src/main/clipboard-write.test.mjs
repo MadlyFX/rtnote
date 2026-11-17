@@ -116,11 +116,11 @@ describe("writeFileClipboard", () => {
       const bytes = Uint8Array.from([1, 2, 3, 4]);
       await expect(writeFileClipboard(clipboardWith(writes), TestClipboardItem, {
         bytes,
-        filename: "notes/报告.pdf",
+        filename: "notes/レポート.pdf",
       }, { directory })).resolves.toBe(true);
       const path = writtenPath(writes);
       expect(relative(directory, path).startsWith("..")).toBe(false);
-      expect(basename(path)).toBe("报告.pdf");
+      expect(basename(path)).toBe("レポート.pdf");
       expect(new Uint8Array(await readFile(path))).toEqual(bytes);
       expect(writes[0][0].data["text/uri-list"].endsWith("\r\n")).toBe(true);
     } finally {

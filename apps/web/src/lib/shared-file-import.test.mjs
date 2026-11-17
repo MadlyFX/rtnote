@@ -13,7 +13,7 @@ const memo = {
 
 describe("shared file note", () => {
   test("uses the filename without its extension as the title", () => {
-    expect(sharedFileTitle("云晰科技爆单键盘项目功能梳理表.xlsx")).toBe("云晰科技爆单键盘项目功能梳理表");
+    expect(sharedFileTitle("Keyboard project feature checklist.xlsx")).toBe("Keyboard project feature checklist");
     expect(sharedFileTitle("notes.md")).toBe("notes");
     expect(sharedFileTitle("README")).toBe("README");
   });
@@ -23,8 +23,8 @@ describe("shared file note", () => {
     let updated = null;
     const result = await createSharedFileMemo({
       notebookId: "nb_inbox",
-      filename: "云晰科技爆单键盘项目功能梳理表.xlsx",
-      file: new File(["sheet"], "云晰科技爆单键盘项目功能梳理表.xlsx", {
+      filename: "Keyboard project feature checklist.xlsx",
+      file: new File(["sheet"], "Keyboard project feature checklist.xlsx", {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       }),
       createMemo: async (input) => {
@@ -37,7 +37,7 @@ describe("shared file note", () => {
         return { memo: { ...created, contentMarkdown: content.contentMarkdown } };
       },
     });
-    expect(createdTitle).toBe("云晰科技爆单键盘项目功能梳理表");
+    expect(createdTitle).toBe("Keyboard project feature checklist");
     expect(result.contentMarkdown).toContain("edgeever-staged://sheet");
     expect(JSON.stringify(updated.contentJson)).toContain(FILE_ATTACHMENT_NODE_TYPE);
   });
@@ -80,8 +80,8 @@ describe("shared file note", () => {
     const uploads = [];
     const result = await createSharedFileMemo({
       notebookId: "nb_inbox",
-      filename: "今天.md",
-      file: new File(["# 今天\n\n正文"], "今天.md", { type: "text/markdown" }),
+      filename: "Today.md",
+      file: new File(["# Today\n\nBody"], "Today.md", { type: "text/markdown" }),
       createMemo: async (input) => {
         created = input;
         return { memo: { ...memo, title: input.title, contentMarkdown: input.contentMarkdown } };
@@ -92,10 +92,10 @@ describe("shared file note", () => {
       },
       updateMemo: async () => { throw new Error("should not update"); },
     });
-    expect(created.title).toBe("今天");
-    expect(created.contentMarkdown).toBe("# 今天\n\n正文");
+    expect(created.title).toBe("Today");
+    expect(created.contentMarkdown).toBe("# Today\n\nBody");
     expect(uploads).toHaveLength(0);
-    expect(result.contentMarkdown).toBe("# 今天\n\n正文");
+    expect(result.contentMarkdown).toBe("# Today\n\nBody");
   });
 
   test("removes the empty note when the attachment cannot be saved", async () => {

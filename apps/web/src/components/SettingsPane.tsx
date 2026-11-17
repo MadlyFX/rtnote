@@ -267,13 +267,13 @@ export const SettingsPane = ({
           <SettingsGroup>
             {import.meta.env.DEV && (
               <div className="flex items-center justify-between rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs text-amber-700 dark:text-amber-300">
-                <span>Dev 预览模式：{devShowWebExport ? "当前为 Web 端原生导出卡片" : "当前为桌面端备份与恢复预览"}</span>
+                <span>Dev preview: {devShowWebExport ? "showing the web export card" : "showing the desktop backup and restore preview"}</span>
                 <button
                   type="button"
                   className="font-medium underline hover:text-amber-900 dark:hover:text-amber-100"
                   onClick={() => setDevShowWebExport((prev) => !prev)}
                 >
-                  {devShowWebExport ? "切换到桌面端预览" : "切换到 Web 原生导出"}
+                  {devShowWebExport ? "Switch to desktop preview" : "Switch to web export"}
                 </button>
               </div>
             )}
@@ -356,9 +356,9 @@ export const SettingsPane = ({
       </header>
 
       <div className="flex min-h-0 min-w-0 flex-1 bg-workspace-canvas">
-        {/* 桌面端布局：双栏 */}
+        {/* Desktop layout: two columns */}
         <div className="hidden lg:flex flex-1 min-h-0 min-w-0 mx-auto max-w-5xl px-6 py-6 gap-6">
-          {/* 左侧垂直 Tab 栏 */}
+          {/* Vertical tab bar on the left */}
           <aside className="w-52 shrink-0 flex flex-col gap-1">
             {tabItems.map((item) => {
               const Icon = item.icon;
@@ -397,7 +397,7 @@ export const SettingsPane = ({
             })}
           </aside>
 
-          {/* 右侧设置内容区 */}
+          {/* Settings content on the right */}
           <main className="flex-1 min-w-0 overflow-y-auto [scrollbar-gutter:stable] pr-2">
             <m.div key={activeTab} className="grid gap-4" {...contentEnterMotion}>
               {renderTabContent(activeTab, true)}
@@ -405,10 +405,10 @@ export const SettingsPane = ({
           </main>
         </div>
 
-        {/* 移动端布局 */}
+        {/* Mobile layout */}
         <div className="flex lg:hidden flex-1 flex-col min-h-0 min-w-0 overflow-y-auto [scrollbar-gutter:stable] px-4 py-4">
           {activeMobileTab === null ? (
-            /* 分类主菜单 */
+            /* Category menu */
             <div className="grid gap-2">
               <div className="overflow-hidden rounded-2xl border border-slate-200 bg-card">
                 <button
@@ -455,7 +455,7 @@ export const SettingsPane = ({
               </div>
             </div>
           ) : (
-            /* 详情页面 */
+            /* Detail page */
             <m.div key={activeMobileTab} className="grid gap-4" {...contentEnterMotion}>
               {renderTabContent(activeMobileTab, false)}
             </m.div>

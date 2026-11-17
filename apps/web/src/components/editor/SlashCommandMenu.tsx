@@ -36,6 +36,8 @@ import {
   CommandShortcut,
   COMMAND_ITEM_STRONG_SELECTED_CLASS_NAME,
 } from "@/components/ui/command";
+import { SLASH_COMMAND_KEYWORDS_ZH_CN } from "./slash-command-keywords.zh-CN";
+import { SLASH_COMMAND_KEYWORDS_JA } from "./slash-command-keywords.ja";
 
 export type SlashCommandId =
   | "paragraph"
@@ -104,31 +106,38 @@ export const formatCurrentTime = (date: Date) =>
 export const formatCurrentDateTime = (date: Date) =>
   `${formatCurrentDate(date)} ${formatCurrentTime(date)}`;
 
+// Commands match their English keywords plus Chinese and Japanese aliases, whatever the UI language.
+const withAliases = (id: string, keywords: string[]) => [
+  ...keywords,
+  ...(SLASH_COMMAND_KEYWORDS_ZH_CN[id] ?? []),
+  ...(SLASH_COMMAND_KEYWORDS_JA[id] ?? []),
+];
+
 export const createSlashCommandItems = (labels: SlashCommandLabels): SlashCommandItem[] => [
-  { id: "paragraph", command: "text", group: "basic", icon: Pilcrow, label: labels.items.paragraph, keywords: ["paragraph", "正文", "文本"] },
-  { id: "heading-1", command: "h1", group: "basic", icon: Heading1, label: labels.items["heading-1"], keywords: ["heading", "标题"] },
-  { id: "heading-2", command: "h2", group: "basic", icon: Heading2, label: labels.items["heading-2"], keywords: ["heading", "标题"] },
-  { id: "heading-3", command: "h3", group: "basic", icon: Heading3, label: labels.items["heading-3"], keywords: ["heading", "标题"] },
-  { id: "heading-4", command: "h4", group: "basic", icon: Heading4, label: labels.items["heading-4"], keywords: ["heading", "标题"] },
-  { id: "heading-5", command: "h5", group: "basic", icon: Heading5, label: labels.items["heading-5"], keywords: ["heading", "标题"] },
-  { id: "heading-6", command: "h6", group: "basic", icon: Heading6, label: labels.items["heading-6"], keywords: ["heading", "标题"] },
-  { id: "current-date", command: "date", group: "basic", icon: CalendarDays, label: labels.items["current-date"], keywords: ["today", "日期", "今天"] },
-  { id: "current-time", command: "time", group: "basic", icon: Clock3, label: labels.items["current-time"], keywords: ["now", "时间", "现在"] },
-  { id: "current-date-time", command: "datetime", group: "basic", icon: CalendarClock, label: labels.items["current-date-time"], keywords: ["timestamp", "日期时间", "时间戳"] },
-  { id: "bullet-list", command: "bullet", group: "basic", icon: List, label: labels.items["bullet-list"], keywords: ["list", "无序", "列表"] },
-  { id: "ordered-list", command: "numbered", group: "basic", icon: ListOrdered, label: labels.items["ordered-list"], keywords: ["ordered", "list", "有序", "编号"] },
-  { id: "task-list", command: "task", group: "basic", icon: ListTodo, label: labels.items["task-list"], keywords: ["todo", "check", "任务", "待办"] },
-  { id: "blockquote", command: "quote", group: "basic", icon: Quote, label: labels.items.blockquote, keywords: ["引用"] },
-  { id: "code-block", command: "code", group: "basic", icon: Braces, label: labels.items["code-block"], keywords: ["代码"] },
-  { id: "divider", command: "divider", group: "insert", icon: BetweenHorizontalStart, label: labels.items.divider, keywords: ["rule", "分割", "分隔"] },
-  { id: "fold", command: "fold", group: "insert", icon: ChevronsDownUp, label: labels.items.fold, keywords: ["collapse", "spoiler", "折叠", "折りたたみ"] },
-  { id: "table", command: "table", group: "insert", icon: Table, label: labels.items.table, keywords: ["表格"] },
-  { id: "inline-math", command: "math", group: "insert", icon: Sigma, label: labels.items["inline-math"], keywords: ["latex", "formula", "katex", "公式", "数学", "数式"] },
-  { id: "block-math", command: "equation", group: "insert", icon: Sigma, label: labels.items["block-math"], keywords: ["latex", "formula", "display", "katex", "块级公式", "独立公式", "数式"] },
-  { id: "attachment", command: "upload", group: "insert", icon: FileUp, label: labels.items.attachment, keywords: ["file", "attachment", "文件", "上传", "附件"] },
-  { id: "voice-memo", command: "voice", group: "insert", icon: Mic, label: labels.items["voice-memo"], keywords: ["audio", "record", "recording", "memo", "voice", "录音", "语音", "音声", "録音"] },
-  { id: "note-link", command: "note", group: "insert", icon: Link, label: labels.items["note-link"], keywords: ["link", "memo", "笔记", "引用"] },
-  { id: "external-link", command: "link", group: "insert", icon: Link, label: labels.items["external-link"], keywords: ["url", "web", "链接", "网址"] },
+  { id: "paragraph", command: "text", group: "basic", icon: Pilcrow, label: labels.items.paragraph, keywords: withAliases("paragraph", ["paragraph"]) },
+  { id: "heading-1", command: "h1", group: "basic", icon: Heading1, label: labels.items["heading-1"], keywords: withAliases("heading-1", ["heading"]) },
+  { id: "heading-2", command: "h2", group: "basic", icon: Heading2, label: labels.items["heading-2"], keywords: withAliases("heading-2", ["heading"]) },
+  { id: "heading-3", command: "h3", group: "basic", icon: Heading3, label: labels.items["heading-3"], keywords: withAliases("heading-3", ["heading"]) },
+  { id: "heading-4", command: "h4", group: "basic", icon: Heading4, label: labels.items["heading-4"], keywords: withAliases("heading-4", ["heading"]) },
+  { id: "heading-5", command: "h5", group: "basic", icon: Heading5, label: labels.items["heading-5"], keywords: withAliases("heading-5", ["heading"]) },
+  { id: "heading-6", command: "h6", group: "basic", icon: Heading6, label: labels.items["heading-6"], keywords: withAliases("heading-6", ["heading"]) },
+  { id: "current-date", command: "date", group: "basic", icon: CalendarDays, label: labels.items["current-date"], keywords: withAliases("current-date", ["today"]) },
+  { id: "current-time", command: "time", group: "basic", icon: Clock3, label: labels.items["current-time"], keywords: withAliases("current-time", ["now"]) },
+  { id: "current-date-time", command: "datetime", group: "basic", icon: CalendarClock, label: labels.items["current-date-time"], keywords: withAliases("current-date-time", ["timestamp"]) },
+  { id: "bullet-list", command: "bullet", group: "basic", icon: List, label: labels.items["bullet-list"], keywords: withAliases("bullet-list", ["list"]) },
+  { id: "ordered-list", command: "numbered", group: "basic", icon: ListOrdered, label: labels.items["ordered-list"], keywords: withAliases("ordered-list", ["ordered", "list"]) },
+  { id: "task-list", command: "task", group: "basic", icon: ListTodo, label: labels.items["task-list"], keywords: withAliases("task-list", ["todo", "check"]) },
+  { id: "blockquote", command: "quote", group: "basic", icon: Quote, label: labels.items.blockquote, keywords: withAliases("blockquote", []) },
+  { id: "code-block", command: "code", group: "basic", icon: Braces, label: labels.items["code-block"], keywords: withAliases("code-block", []) },
+  { id: "divider", command: "divider", group: "insert", icon: BetweenHorizontalStart, label: labels.items.divider, keywords: withAliases("divider", ["rule"]) },
+  { id: "fold", command: "fold", group: "insert", icon: ChevronsDownUp, label: labels.items.fold, keywords: withAliases("fold", ["collapse", "spoiler"]) },
+  { id: "table", command: "table", group: "insert", icon: Table, label: labels.items.table, keywords: withAliases("table", []) },
+  { id: "inline-math", command: "math", group: "insert", icon: Sigma, label: labels.items["inline-math"], keywords: withAliases("inline-math", ["latex", "formula", "katex"]) },
+  { id: "block-math", command: "equation", group: "insert", icon: Sigma, label: labels.items["block-math"], keywords: withAliases("block-math", ["latex", "formula", "display", "katex"]) },
+  { id: "attachment", command: "upload", group: "insert", icon: FileUp, label: labels.items.attachment, keywords: withAliases("attachment", ["file", "attachment"]) },
+  { id: "voice-memo", command: "voice", group: "insert", icon: Mic, label: labels.items["voice-memo"], keywords: withAliases("voice-memo", ["audio", "record", "recording", "memo", "voice"]) },
+  { id: "note-link", command: "note", group: "insert", icon: Link, label: labels.items["note-link"], keywords: withAliases("note-link", ["link", "memo"]) },
+  { id: "external-link", command: "link", group: "insert", icon: Link, label: labels.items["external-link"], keywords: withAliases("external-link", ["url", "web"]) },
 ];
 
 export const filterSlashCommandItems = (items: SlashCommandItem[], query: string) => {

@@ -5,33 +5,45 @@ import {
   isSuspiciousMemoOverwrite,
   SUSPICIOUS_MEMO_OVERWRITE_MESSAGE,
 } from "./memo-safety.ts";
+import { DEFAULT_MEMO_TITLE, LEGACY_DEFAULT_MEMO_TITLES } from "./memo-title.ts";
 
 describe("isSuspiciousMemoOverwrite", () => {
   test("blocks the production incident shape", () => {
     expect(
       isSuspiciousMemoOverwrite(
-        "英国 giffgaff 卡激活",
-        "原".repeat(550),
-        "号商 松松 GPT 菲区",
-        "错".repeat(70)
+        "Activate a UK giffgaff SIM",
+        "o".repeat(550),
+        "Reseller GPT region notes",
+        "x".repeat(70)
       )
     ).toBe(true);
   });
 
   test("allows image-width-only saves", () => {
     expect(
-      isSuspiciousMemoOverwrite("同一标题", "正文".repeat(300), "同一标题", "正文".repeat(300))
+      isSuspiciousMemoOverwrite("Same title", "body".repeat(150), "Same title", "body".repeat(150))
     ).toBe(false);
   });
 
   test("allows a title rename when content remains intact", () => {
     expect(
-      isSuspiciousMemoOverwrite("旧标题", "正文".repeat(300), "新标题", "正文".repeat(290))
+      isSuspiciousMemoOverwrite("Old title", "body".repeat(150), "New title", "body".repeat(145))
     ).toBe(false);
   });
 
+  test("treats empty, RTNote and EdgeEver default titles as the same untitled title", () => {
+    for (const [currentTitle, nextTitle] of [
+      [LEGACY_DEFAULT_MEMO_TITLES[0], DEFAULT_MEMO_TITLE],
+      ["", DEFAULT_MEMO_TITLE],
+      [null, LEGACY_DEFAULT_MEMO_TITLES[0]],
+    ]) {
+      expect(isSuspiciousMemoOverwrite(currentTitle, "o".repeat(550), nextTitle, "x".repeat(70))).toBe(false);
+    }
+    expect(isSuspiciousMemoOverwrite(LEGACY_DEFAULT_MEMO_TITLES[0], "o".repeat(550), "Renamed", "x".repeat(70))).toBe(true);
+  });
+
   test("does not interfere with short notes", () => {
-    expect(isSuspiciousMemoOverwrite("旧标题", "短内容", "新标题", "")).toBe(false);
+    expect(isSuspiciousMemoOverwrite("Old title", "Short", "New title", "")).toBe(false);
   });
 });
 

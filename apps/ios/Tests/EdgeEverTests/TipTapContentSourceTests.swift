@@ -36,7 +36,7 @@ final class TipTapContentSourceTests: XCTestCase {
     }
 
     func testViewerStripsStructuredTableMarker() {
-        let markdown = "| 名称 |\n| --- |\n| 示例 |\n\n<!-- edgeever-table-v1:abc -->"
+        let markdown = "| Name |\n| --- |\n| Example |\n\n<!-- edgeever-table-v1:abc -->"
         let decision = TipTapContentSource.resolve(
             mode: .viewer,
             documentJSON: #"{"type":"doc","content":[{"type":"paragraph"}]}"#,
@@ -44,7 +44,7 @@ final class TipTapContentSourceTests: XCTestCase {
         )
         XCTAssertFalse(decision.useJSON)
         XCTAssertFalse(decision.payload.contains("edgeever-table-v1"))
-        XCTAssertTrue(decision.payload.contains("示例"))
+        XCTAssertTrue(decision.payload.contains("Example"))
     }
 
     func testViewerStripsInfographicMarkerAndKeepsReadableSyntax() {
@@ -249,12 +249,12 @@ final class TipTapContentSourceTests: XCTestCase {
         """)
 
         let sample = """
-        ## 标题渲染
+        ## Heading render
 
-        这是 **粗体** 文本。
+        This is **bold** text.
 
-        - 列表一项
-        - 列表二项
+        - List item one
+        - List item two
 
         ```js
         console.log(1)
@@ -288,7 +288,7 @@ final class TipTapContentSourceTests: XCTestCase {
         let math = try await evalInt(webView, "document.querySelectorAll('.tiptap-mathematics-render .katex').length")
         let rawLeak = try await evalBool(
             webView,
-            "document.body.innerText.indexOf('## 标题渲染') >= 0 && document.querySelectorAll('h1,h2,h3').length === 0"
+            "document.body.innerText.indexOf('## Heading render') >= 0 && document.querySelectorAll('h1,h2,h3').length === 0"
         )
 
         XCTAssertGreaterThanOrEqual(h2, 1, "heading must render as h1/h2/h3, not plain text")
@@ -302,7 +302,7 @@ final class TipTapContentSourceTests: XCTestCase {
         let decision = TipTapContentSource.resolve(
             mode: .viewer,
             documentJSON: """
-            {"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"## 标题渲染 这是 **粗体**"}]}]}
+            {"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"## Heading render This is **bold**"}]}]}
             """,
             markdown: sample
         )
@@ -342,12 +342,12 @@ final class TipTapContentSourceTests: XCTestCase {
             return "# legacy\n\n- node list only\n\n<!-- edgeever-diagram-v1:\(marker) -->"
         }
         let samples = [
-            envelope(#"{"schemaVersion":1,"kind":"mind-map","nodes":[{"id":"a","label":"核心主题","x":0,"y":0,"width":100,"height":40,"shape":"topic"},{"id":"b","label":"分支主题","x":160,"y":0,"width":100,"height":40,"shape":"topic","parentId":"a"}],"edges":[{"id":"e","source":"a","target":"b"}]}"#),
-            envelope(#"{"schemaVersion":1,"kind":"flowchart","nodes":[{"id":"a","label":"开始","x":0,"y":0,"width":100,"height":40,"shape":"terminator"},{"id":"b","label":"Transformer 前向计算与因果注意力处理步骤","x":0,"y":1600,"width":100,"height":40,"shape":"process"}],"edges":[{"id":"e","source":"a","target":"b"}]}"#),
-            envelope(#"{"schemaVersion":2,"kind":"architecture","nodes":[{"id":"system","label":"应用系统","x":0,"y":0,"width":500,"height":300,"shape":"boundary"},{"id":"api","label":"API 服务","x":40,"y":40,"width":156,"height":64,"shape":"service","parentId":"system"},{"id":"db","label":"数据库","x":260,"y":40,"width":150,"height":72,"shape":"database","parentId":"system"}],"edges":[{"id":"query","source":"api","target":"db","label":"查询","kind":"data"}]}"#),
+            envelope(#"{"schemaVersion":1,"kind":"mind-map","nodes":[{"id":"a","label":"Central topic","x":0,"y":0,"width":100,"height":40,"shape":"topic"},{"id":"b","label":"Branch topic","x":160,"y":0,"width":100,"height":40,"shape":"topic","parentId":"a"}],"edges":[{"id":"e","source":"a","target":"b"}]}"#),
+            envelope(#"{"schemaVersion":1,"kind":"flowchart","nodes":[{"id":"a","label":"Start","x":0,"y":0,"width":100,"height":40,"shape":"terminator"},{"id":"b","label":"Transformer forward pass and causal attention processing steps","x":0,"y":1600,"width":100,"height":40,"shape":"process"}],"edges":[{"id":"e","source":"a","target":"b"}]}"#),
+            envelope(#"{"schemaVersion":2,"kind":"architecture","nodes":[{"id":"system","label":"Application system","x":0,"y":0,"width":500,"height":300,"shape":"boundary"},{"id":"api","label":"API service","x":40,"y":40,"width":156,"height":64,"shape":"service","parentId":"system"},{"id":"db","label":"Database","x":260,"y":40,"width":150,"height":72,"shape":"database","parentId":"system"}],"edges":[{"id":"query","source":"api","target":"db","label":"Query","kind":"data"}]}"#),
         ]
 
-        for sample in samples {
+        for (index, sample) in samples.enumerated() {
             let b64 = Data(sample.utf8).base64EncodedString()
             _ = try await eval(webView, """
             (function(){
@@ -382,7 +382,7 @@ final class TipTapContentSourceTests: XCTestCase {
             XCTAssertGreaterThan(nodeCount, 0, "X6 must materialize diagram nodes")
             let controlsCount = try await evalInt(webView, "document.querySelectorAll('.edgeever-diagram-reader-controls').length")
             XCTAssertEqual(controlsCount, 0, "the reader must not draw zoom chrome over the canvas")
-            let isFlowchart = try await evalBool(webView, "document.querySelector('.edgeever-x6-diagram')?.getAttribute('aria-label') === '流程图'")
+            let isFlowchart = index == 1
             if isFlowchart {
                 let readingScale = try await evalInt(webView, "parseInt(document.querySelector('.edgeever-x6-diagram').dataset.scale)")
                 XCTAssertEqual(readingScale, 100)
@@ -408,11 +408,11 @@ final class TipTapContentSourceTests: XCTestCase {
         // Keep rendering the portable Mermaid fallback while treating the note as
         // view-only, which is the same recovery path used by the mobile clients.
         let malformedSample = """
-        # 思维导图
+        # Mind map
 
         ```mermaid
         flowchart LR
-          n0("核心主题") --> n1("分支主题")
+          n0("Central topic") --> n1("Branch topic")
         ```
 
         <!-- edgeever-diagram-v1:not-json -->

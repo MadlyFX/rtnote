@@ -1,6 +1,8 @@
 import {
   createExcerpt,
   DEFAULT_MEMO_TITLE,
+  LEGACY_DEFAULT_MEMO_TITLES,
+  normalizeLegacyMemoTitle,
   docToText,
   markdownToDoc,
   getDiagramSummary,
@@ -89,12 +91,21 @@ export const mapMemoSummary = (row: MemoSummaryRow): MemoSummary => ({
   deletedAt: row.deleted_at,
 });
 
+// EdgeEver's default title is stored as RTNote's, so both read as untitled.
 const normalizeMemoTitle = (value: string | null | undefined) => {
   const title = value?.trim();
-  return title || DEFAULT_MEMO_TITLE;
+  return title ? normalizeLegacyMemoTitle(title) : DEFAULT_MEMO_TITLE;
 };
 
-const normalizeMemoListSort = (value: string | undefined): MemoListSortMode =>
+const sqlString = (value: string) => `'${value.replace(/'/g, "''")}'`;
+
+// Sorts untitled notes, including those with EdgeEver's default title, as
+// "Untitled note". The cursor title from normalizeMemoTitle must match it.
+const TITLE_SORT_EXPRESSION = `LOWER(CASE WHEN m.title IS NULL OR m.title IN (${
+  ["", ...LEGACY_DEFAULT_MEMO_TITLES].map(sqlString).join(", ")
+}) THEN ${sqlString(DEFAULT_MEMO_TITLE)} ELSE m.title END)`;
+
+const normalizeMemoListSort =(value: string | undefined): MemoListSortMode =>
   value === "created-desc" || value === "title-asc" || value === "title-desc" ? value : "updated-desc";
 
 const isTitleSort = (sort: MemoListSortMode): sort is "title-asc" | "title-desc" =>
@@ -168,7 +179,7 @@ export const listMemos = async (
   const limit = clampNumber(input.limit ?? DEFAULT_MEMO_LIST_LIMIT, 1, MAX_MEMO_LIST_LIMIT);
   const cursor = decodeMemoListCursor(input.cursor, sort);
   const deletedClause = includeTrash ? "m.is_deleted = 1" : "m.is_deleted = 0";
-  const titleSortExpression = `LOWER(COALESCE(NULLIF(m.title, ''), '${DEFAULT_MEMO_TITLE}'))`;
+  const titleSortExpression = TITLE_SORT_EXPRESSION;
   const baseConditions = ["m.workspace_id = ?", deletedClause];
   const baseBinds: unknown[] = [input.workspaceId];
 

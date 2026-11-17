@@ -5,7 +5,7 @@ Related Issue: #723 (P2 of the backup plan; continues #61 and #650)
 
 ## Problem and outcome
 
-Desktop scheduled backups are written to a local folder only. Users without a cloud-drive client, or who keep backups on a NAS or a WebDAV provider, had no automatic off-site copy. After each completed local backup, the desktop app can now copy the archive to a WebDAV server (Nextcloud, Synology/QNAP, Hetzner Storage Box, Koofr, pCloud, 坚果云, Alist and similar). The design is in [section 12 of the scheduled backup design](../desktop-scheduled-backup-design.md).
+Desktop scheduled backups are written to a local folder only. Users without a cloud-drive client, or who keep backups on a NAS or a WebDAV provider, had no automatic off-site copy. After each completed local backup, the desktop app can now copy the archive to a WebDAV server (Nextcloud, Synology/QNAP, Hetzner Storage Box, Koofr, pCloud, Nutstore, Alist and similar). The design is in [section 12 of the scheduled backup design](../desktop-scheduled-backup-design.md).
 
 ## Scope
 

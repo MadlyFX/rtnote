@@ -1,6 +1,10 @@
 import type { Editor } from "@tiptap/core";
 import { EditorState } from "@tiptap/pm/state";
 import type { ImageWidthPresetId } from "./image-display";
+import { ATTACHMENT_TEXT_PREFIX } from "./edgeever-legacy-values";
+import { MOBILE_EDITOR_COPY_JA } from "./mobile-editor.ja";
+import { MOBILE_EDITOR_COPY_ZH_CN } from "./mobile-editor.zh-CN";
+import { MOBILE_EDITOR_COPY_ZH_TW } from "./mobile-editor.zh-TW";
 
 export type MobileEditorLocale = "zh-CN" | "zh-TW" | "en-US" | "ja" | "pl" | "ru" | "es" | "de" | "fr";
 
@@ -44,103 +48,41 @@ export const MOBILE_EDITOR_TOOLBAR_ACTIONS = [
   activeFlag: number;
 }>;
 
-const MOBILE_EDITOR_COPY = {
-  "zh-CN": {
-    placeholder: "开始记录...",
-    toolbar: "编辑器工具栏",
-    actions: {
-      undo: "撤销",
-      redo: "重做",
-      image: "上传图片",
-      voiceMemo: "语音备忘",
-      bold: "加粗",
-      bulletList: "无序列表",
-      taskList: "任务清单",
-      increaseListIndent: "增加列表层级（Tab）",
-      decreaseListIndent: "减少列表层级（Shift + Tab）",
-      blockquote: "引用",
-      horizontalRule: "分割线",
-      format: "格式",
-    },
-    imageScale: "图片显示尺寸",
-    imageSizes: {
-      small: "较小",
-      medium: "适中",
-      large: "较大",
-      full: "铺满",
-    },
-    attachmentPrefix: "附件：",
-    close: "关闭",
-    codeBlock: {
-      mermaidPreview: "Mermaid 图表预览",
-      copy: "复制代码",
-      copied: "已复制",
-      copyFailed: "复制失败",
-      mermaidSource: "Mermaid 源码",
-      codeSource: "代码源码",
-      mermaidEmpty: "请在下方输入 Mermaid 源码。",
-      rendering: "正在渲染图表…",
-      renderFailed: "无法渲染此图表，请检查语法。",
-    },
-    diagram: {
-      mindMap: "思维导图",
-      architecture: "架构图",
-      flowchart: "流程图",
-    },
-    image: {
-      loadFailed: "图片加载失败",
-      uploading: "图片上传中…",
-      actions: "图片操作",
-    },
-  },
-"zh-TW": {
-    placeholder: "開始記錄...",
-    toolbar: "編輯器工具欄",
-    actions: {
-      undo: "撤銷",
-      redo: "重做",
-      image: "上傳圖片",
-      voiceMemo: "語音備忘",
-      bold: "加粗",
-      bulletList: "無序列表",
-      taskList: "任務清單",
-      increaseListIndent: "增加列表層級（Tab）",
-      decreaseListIndent: "減少列表層級（Shift + Tab）",
-      blockquote: "引用",
-      horizontalRule: "分割線",
-      format: "格式",
-    },
-    imageScale: "圖片顯示尺寸",
-    imageSizes: {
-      small: "較小",
-      medium: "適中",
-      large: "較大",
-      full: "鋪滿",
-    },
-    attachmentPrefix: "附件：",
-    close: "關閉",
-    codeBlock: {
-      mermaidPreview: "Mermaid 圖表預覽",
-      copy: "複製程式碼",
-      copied: "已複製",
-      copyFailed: "複製失敗",
-      mermaidSource: "Mermaid 原始碼",
-      codeSource: "程式碼原始碼",
-      mermaidEmpty: "請在下方輸入 Mermaid 原始碼。",
-      rendering: "正在渲染圖表…",
-      renderFailed: "無法渲染此圖表，請檢查語法。",
-    },
-    diagram: {
-      mindMap: "思維導圖",
-      architecture: "架構圖",
-      flowchart: "流程圖",
-    },
-    image: {
-      loadFailed: "圖片載入失敗",
-      uploading: "圖片上傳中…",
-      actions: "圖片操作",
-    },
-  },
+export type MobileEditorCopy = {
+  placeholder: string;
+  toolbar: string;
+  actions: Record<MobileEditorToolbarActionId, string>;
+  imageScale: string;
+  imageSizes: Record<ImageWidthPresetId, string>;
+  /** Written before attachment links in new notes. English for every locale; see edgeever-legacy-values. */
+  attachmentPrefix: string;
+  close: string;
+  codeBlock: {
+    mermaidPreview: string;
+    copy: string;
+    copied: string;
+    copyFailed: string;
+    mermaidSource: string;
+    codeSource: string;
+    mermaidEmpty: string;
+    rendering: string;
+    renderFailed: string;
+  };
+  diagram: {
+    mindMap: string;
+    architecture: string;
+    flowchart: string;
+  };
+  image: {
+    loadFailed: string;
+    uploading: string;
+    actions: string;
+  };
+};
+
+const MOBILE_EDITOR_COPY: Record<MobileEditorLocale, MobileEditorCopy> = {
+  "zh-CN": MOBILE_EDITOR_COPY_ZH_CN,
+  "zh-TW": MOBILE_EDITOR_COPY_ZH_TW,
   "en-US": {
     placeholder: "Start writing...",
     toolbar: "Editor toolbar",
@@ -165,7 +107,7 @@ const MOBILE_EDITOR_COPY = {
       large: "Large",
       full: "Full",
     },
-    attachmentPrefix: "Attachment: ",
+    attachmentPrefix: ATTACHMENT_TEXT_PREFIX,
     close: "Close",
     codeBlock: {
       mermaidPreview: "Mermaid diagram preview",
@@ -189,54 +131,7 @@ const MOBILE_EDITOR_COPY = {
       actions: "Image actions",
     },
   },
-  ja: {
-    placeholder: "書き始める...",
-    toolbar: "エディタのツールバー",
-    actions: {
-      undo: "元に戻す",
-      redo: "やり直す",
-      image: "画像をアップロード",
-      voiceMemo: "ボイスメモ",
-      bold: "太字",
-      bulletList: "箇条書き",
-      taskList: "タスクリスト",
-      increaseListIndent: "リストの階層を上げる（Tab）",
-      decreaseListIndent: "リストの階層を下げる（Shift + Tab）",
-      blockquote: "引用",
-      horizontalRule: "区切り線",
-      format: "書式",
-    },
-    imageScale: "画像の表示サイズ",
-    imageSizes: {
-      small: "小",
-      medium: "中",
-      large: "大",
-      full: "幅いっぱい",
-    },
-    attachmentPrefix: "添付: ",
-    close: "閉じる",
-    codeBlock: {
-      mermaidPreview: "Mermaid 図のプレビュー",
-      copy: "コードをコピー",
-      copied: "コピーしました",
-      copyFailed: "コピーできませんでした",
-      mermaidSource: "Mermaid ソース",
-      codeSource: "コードのソース",
-      mermaidEmpty: "下に Mermaid のソースを入力してください。",
-      rendering: "図をレンダリング中…",
-      renderFailed: "この図をレンダリングできません。構文を確認してください。",
-    },
-    diagram: {
-      mindMap: "マインドマップ",
-      architecture: "アーキテクチャ図",
-      flowchart: "フローチャート",
-    },
-    image: {
-      loadFailed: "画像を読み込めませんでした",
-      uploading: "画像をアップロード中…",
-      actions: "画像の操作",
-    },
-  },
+  ja: MOBILE_EDITOR_COPY_JA,
   pl: {
     placeholder: "Zacznij pisać...",
     toolbar: "Pasek narzędzi edytora",
@@ -261,7 +156,7 @@ const MOBILE_EDITOR_COPY = {
       large: "Duży",
       full: "Pełna szerokość",
     },
-    attachmentPrefix: "Załącznik: ",
+    attachmentPrefix: ATTACHMENT_TEXT_PREFIX,
     close: "Zamknij",
     codeBlock: {
       mermaidPreview: "Podgląd diagramu Mermaid",
@@ -309,7 +204,7 @@ const MOBILE_EDITOR_COPY = {
       large: "Большой",
       full: "На всю ширину",
     },
-    attachmentPrefix: "Вложение: ",
+    attachmentPrefix: ATTACHMENT_TEXT_PREFIX,
     close: "Закрыть",
     codeBlock: {
       mermaidPreview: "Предпросмотр диаграммы Mermaid",
@@ -357,7 +252,7 @@ const MOBILE_EDITOR_COPY = {
       large: "Grande",
       full: "Ancho completo",
     },
-    attachmentPrefix: "Archivo adjunto: ",
+    attachmentPrefix: ATTACHMENT_TEXT_PREFIX,
     close: "Cerrar",
     codeBlock: {
       mermaidPreview: "Vista previa del diagrama Mermaid",
@@ -405,7 +300,7 @@ const MOBILE_EDITOR_COPY = {
       large: "Groß",
       full: "Volle Breite",
     },
-    attachmentPrefix: "Anhang: ",
+    attachmentPrefix: ATTACHMENT_TEXT_PREFIX,
     close: "Schließen",
     codeBlock: {
       mermaidPreview: "Mermaid-Diagrammvorschau",
@@ -453,7 +348,7 @@ const MOBILE_EDITOR_COPY = {
       large: "Grande",
       full: "Pleine largeur",
     },
-    attachmentPrefix: "Pièce jointe : ",
+    attachmentPrefix: ATTACHMENT_TEXT_PREFIX,
     close: "Fermer",
     codeBlock: {
       mermaidPreview: "Aperçu du diagramme Mermaid",
@@ -477,7 +372,7 @@ const MOBILE_EDITOR_COPY = {
       actions: "Actions sur l'image",
     },
   },
-} as const;
+};
 
 export const getMobileEditorCopy = (locale: MobileEditorLocale) => MOBILE_EDITOR_COPY[locale];
 

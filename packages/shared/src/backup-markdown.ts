@@ -1,5 +1,6 @@
 import type { MemoDetail, Notebook, Resource } from "./types";
 import { mergeMarkdownFrontMatter } from "./front-matter";
+import { DEFAULT_MEMO_TITLE, normalizeLegacyMemoTitle } from "./memo-title";
 
 const WINDOWS_RESERVED_NAME = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i;
 
@@ -76,7 +77,7 @@ export const buildNotebookExportPaths = (notebooks: Notebook[]) => {
 
 export const buildNoteMarkdown = (markdown: string, memo: MemoDetail, notebookPath: string) =>
   mergeMarkdownFrontMatter(markdown, {
-    title: memo.title?.trim() || "Untitled note",
+    title: normalizeLegacyMemoTitle(memo.title?.trim() || DEFAULT_MEMO_TITLE),
     tags: memo.tags,
     notebook: notebookPath,
     created: memo.createdAt,

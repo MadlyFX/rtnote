@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { infographicFallbackMarkdown, serializeInfographicDocument } from "../../packages/shared/src/infographic";
 import { markdownToDoc } from "../../packages/shared/src/content";
+import { ui } from "./fixtures/ui-labels";
 
 const syntax = (heading: string) => `infographic list-row-simple-horizontal-arrow\ndata\n  title ${heading}\n  lists\n    - label First\n    - label Second`;
 const content = (heading: string) => {
@@ -9,8 +10,8 @@ const content = (heading: string) => {
 };
 const openMemo = async (page: Page, id: string, title: string) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "全部笔记", exact: true }).click();
-  await page.getByPlaceholder("搜索笔记").fill(title);
+  await page.getByRole("button", { name: ui.notebookPane.allMemos, exact: true }).click();
+  await page.getByPlaceholder(ui.memoList.searchPlaceholder).fill(title);
   await page.locator(`[data-memo-id="${id}"]`).locator("button").first().click();
   await expect(page.locator(".edgeever-infographic-preview svg")).toBeVisible();
 };
@@ -64,7 +65,7 @@ test("infographic keeps newer title, tags and inline text when an older save is 
   });
   try {
     await openMemo(page, memo.id, marker);
-    const title = page.getByRole("textbox", { name: "信息图", exact: true });
+    const title = page.getByRole("textbox", { name: ui.infographic.name, exact: true });
     const preview = page.locator(".edgeever-infographic-preview");
     await title.fill(`${marker}-first`);
     await expect.poll(async () => (await queuedUpdate(page, memo.id))?.payload.title).toBe(`${marker}-first`);
@@ -73,7 +74,7 @@ test("infographic keeps newer title, tags and inline text when an older save is 
     await page.clock.install();
     await page.clock.pauseAt(new Date(await page.evaluate(() => Date.now()) + 1_000));
     await title.fill(`${marker}-newer`);
-    await page.getByRole("button", { name: "选择笔记标签", exact: true }).click();
+    await page.getByRole("button", { name: ui.editor.tagPicker.open, exact: true }).click();
     const dialog = page.getByRole("dialog");
     await dialog.getByRole("textbox").fill(marker);
     await dialog.locator('button[type="submit"]').click();
@@ -89,7 +90,7 @@ test("infographic keeps newer title, tags and inline text when an older save is 
     await expect(inline).toHaveText("New inline draft");
     await expect(inline).toBeFocused();
     expect(await originalSvg!.evaluate((svg) => svg.isConnected)).toBe(true);
-    await expect(page.getByText("未保存", { exact: true }).last()).toBeVisible();
+    await expect(page.getByText(ui.editor.saveState.unsaved, { exact: true }).last()).toBeVisible();
     await title.click();
     const nextSaved = page.waitForResponse((response) => response.request().method() === "PATCH"
       && new URL(response.url()).pathname === `/api/v1/memos/${memo.id}`
@@ -123,7 +124,7 @@ test("infographic applies idle remote changes but retains a draft's original con
     await expect(preview).toContainText("Remote while idle");
     await page.clock.install();
     await page.clock.pauseAt(new Date(await page.evaluate(() => Date.now()) + 1_000));
-    const title = page.getByRole("textbox", { name: "信息图", exact: true });
+    const title = page.getByRole("textbox", { name: ui.infographic.name, exact: true });
     await title.fill(`${marker}-canceled`);
     await changeRemote(page, memo.id, "Remote after undo");
     await page.clock.runFor(50);
@@ -156,7 +157,7 @@ test("infographic applies idle remote changes but retains a draft's original con
     // A newer remote base must never authorize uploading the older graphic.
     const { memo: stored } = await (await page.request.get(`/api/v1/memos/${memo.id}`)).json();
     expect(stored.contentMarkdown).toBe(incoming.contentMarkdown);
-    await expect(page.getByRole("textbox", { name: "信息图", exact: true })).toHaveValue(`${marker}-draft`);
+    await expect(page.getByRole("textbox", { name: ui.infographic.name, exact: true })).toHaveValue(`${marker}-draft`);
   } finally { await removeMemo(page, memo.id); }
 });
 
@@ -180,7 +181,7 @@ test("infographic does not roll back an already queued successor when the older 
   });
   try {
     await openMemo(page, memo.id, marker);
-    const title = page.getByRole("textbox", { name: "信息图", exact: true });
+    const title = page.getByRole("textbox", { name: ui.infographic.name, exact: true });
     await title.fill(`${marker}-first`);
     await expect.poll(async () => (await queuedUpdate(page, memo.id))?.payload.title).toBe(`${marker}-first`);
     await page.evaluate(() => window.dispatchEvent(new CustomEvent("edgeever:sync-queue-changed")));
@@ -231,12 +232,12 @@ test("infographic keeps title input and focus across temporary id remapping", as
   });
   try {
     await page.goto("/");
-    await page.getByRole("button", { name: "选择笔记类型", exact: true }).click();
-    await page.getByRole("menuitem", { name: "信息图", exact: true }).click();
+    await page.getByRole("button", { name: ui.diagram.createType, exact: true }).click();
+    await page.getByRole("menuitem", { name: ui.infographic.name, exact: true }).click();
     id = await createdId;
     await page.clock.install();
     await page.clock.pauseAt(new Date(await page.evaluate(() => Date.now()) + 1_000));
-    const title = page.getByRole("textbox", { name: "信息图", exact: true });
+    const title = page.getByRole("textbox", { name: ui.infographic.name, exact: true });
     const marker = `infographic-remap-${Date.now()}`;
     await title.fill(marker);
     const originalInput = await title.elementHandle();
@@ -253,8 +254,8 @@ test("infographic keeps title input and focus across temporary id remapping", as
     expect((await saved).ok()).toBe(true);
     await page.clock.resume();
     await page.reload();
-    await page.getByRole("button", { name: "全部笔记", exact: true }).click();
-    await page.getByPlaceholder("搜索笔记").fill(marker);
+    await page.getByRole("button", { name: ui.notebookPane.allMemos, exact: true }).click();
+    await page.getByPlaceholder(ui.memoList.searchPlaceholder).fill(marker);
     await page.locator(`[data-memo-id="${id}"]`).locator("button").first().click();
     await expect(title).toHaveValue(marker);
   } finally {

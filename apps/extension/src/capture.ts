@@ -66,7 +66,7 @@ const captureSelection = (): CapturedPage => {
 
 // Dynamic sites can contain very large inline SVGs, scripts, and embedded
 // documents. They are not article content, but cloning and parsing them makes
-// Readability disproportionately expensive (知乎 pages are a common example).
+// Readability disproportionately expensive (Zhihu pages are a common example).
 const prepareDocumentForExtraction = () => {
   const candidate = document.querySelector("article, main, [role='main']");
   const clone = candidate

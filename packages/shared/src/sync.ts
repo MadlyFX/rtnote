@@ -1,4 +1,4 @@
-import { DEFAULT_MEMO_TITLE } from "./content";
+import { DEFAULT_MEMO_TITLE, isDefaultMemoTitle } from "./content";
 import type { MemoDetail, Notebook } from "./types";
 
 export type SyncEntityType = "memo" | "notebook";
@@ -105,9 +105,10 @@ export const getMemoSyncBaseConflictDetails = (
 
 export type SameDeviceMemoSyncRecovery = "ack" | "rebase" | "conflict";
 
+// Older clients send EdgeEver's default title for untitled notes; it matches RTNote's.
 const normalizeMemoSyncTitle = (value: unknown) => {
   const title = typeof value === "string" ? value.trim() : "";
-  return title || DEFAULT_MEMO_TITLE;
+  return isDefaultMemoTitle(title) ? DEFAULT_MEMO_TITLE : title;
 };
 
 const normalizeMemoSyncTags = (value: unknown) =>

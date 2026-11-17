@@ -27,36 +27,14 @@ enum CreateSaveStatus: Equatable, Sendable {
     case uploading
     case error
 
-    var labelZH: String {
+    func label(in language: AppUILanguage) -> String {
         switch self {
-        case .starting: return "正在启动"
-        case .saved: return "已保存"
-        case .saving: return "保存中"
-        case .creating: return "正在创建"
-        case .uploading: return "正在上传"
-        case .error: return "保存失败"
-        }
-    }
-
-    var labelEN: String {
-        switch self {
-        case .starting: return "Starting"
-        case .saved: return "Saved"
-        case .saving: return "Saving"
-        case .creating: return "Creating"
-        case .uploading: return "Uploading"
-        case .error: return "Save failed"
-        }
-    }
-
-    var labelPL: String {
-        switch self {
-        case .starting: return "Uruchamianie"
-        case .saved: return "Zapisano"
-        case .saving: return "Zapisywanie"
-        case .creating: return "Tworzenie"
-        case .uploading: return "Przesyłanie"
-        case .error: return "Nie udało się zapisać"
+        case .starting: return language.text("Starting", zh: "正在启动", pl: "Uruchamianie")
+        case .saved: return language.text("Saved", zh: "已保存", pl: "Zapisano")
+        case .saving: return language.text("Saving", zh: "保存中", pl: "Zapisywanie")
+        case .creating: return language.text("Creating", zh: "正在创建", pl: "Tworzenie")
+        case .uploading: return language.text("Uploading", zh: "正在上传", pl: "Przesyłanie")
+        case .error: return language.text("Save failed", zh: "保存失败", pl: "Nie udało się zapisać")
         }
     }
 
@@ -112,33 +90,13 @@ enum DetailSyncStatus: Equatable, Sendable {
     case conflict
     case error
 
-    var labelZH: String {
+    func label(in language: AppUILanguage) -> String {
         switch self {
-        case .synced: return "已同步"
-        case .pending: return "待同步"
-        case .syncing: return "保存中"
-        case .conflict: return "同步冲突"
-        case .error: return "同步失败"
-        }
-    }
-
-    var labelEN: String {
-        switch self {
-        case .synced: return "Synced"
-        case .pending: return "Pending"
-        case .syncing: return "Saving"
-        case .conflict: return "Conflict"
-        case .error: return "Sync failed"
-        }
-    }
-
-    var labelPL: String {
-        switch self {
-        case .synced: return "Zsynchronizowano"
-        case .pending: return "Oczekuje"
-        case .syncing: return "Zapisywanie"
-        case .conflict: return "Konflikt"
-        case .error: return "Błąd synchronizacji"
+        case .synced: return language.text("Synced", zh: "已同步", pl: "Zsynchronizowano")
+        case .pending: return language.text("Pending", zh: "待同步", pl: "Oczekuje")
+        case .syncing: return language.text("Saving", zh: "保存中", pl: "Zapisywanie")
+        case .conflict: return language.text("Conflict", zh: "同步冲突", pl: "Konflikt")
+        case .error: return language.text("Sync failed", zh: "同步失败", pl: "Błąd synchronizacji")
         }
     }
 

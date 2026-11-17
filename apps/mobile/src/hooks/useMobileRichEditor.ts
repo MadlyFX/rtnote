@@ -4,6 +4,7 @@ import { File as ExpoFile } from "expo-file-system";
 import { BackHandler, Platform } from "react-native";
 import {
   DEFAULT_MEMO_TITLE,
+  isDefaultMemoTitle,
   docToMarkdown,
   resolveMemoContentDoc,
   type MemoDetail,
@@ -50,7 +51,7 @@ export type MobileMemoUpdateMutation = UseMutationResult<
 
 export const resolveEditableMemoTitle = (title?: string | null) => {
   const trimmedTitle = title?.trim() ?? "";
-  return trimmedTitle === DEFAULT_MEMO_TITLE ? "" : trimmedTitle;
+  return isDefaultMemoTitle(trimmedTitle) ? "" : trimmedTitle;
 };
 
 const createMobileImageUploadId = () =>
@@ -301,7 +302,7 @@ export const useMobileRichEditor = ({
       return savedMemo;
     } catch (saveError) {
       closingRef.current = false;
-      setError(saveError instanceof Error ? saveError.message : "保存失败");
+      setError(saveError instanceof Error ? saveError.message : "Save failed");
       return null;
     } finally {
       savingRef.current = false;
@@ -372,7 +373,7 @@ export const useMobileRichEditor = ({
       return;
     }
     if (currentMemo.id.startsWith("local:")) {
-      Alert.alert("正在同步新笔记", "首次同步完成后即可上传本地图片；图片链接现在就可以直接粘贴到正文。");
+      Alert.alert("New note is syncing", "Local images can be uploaded after the first sync. Image links can already be pasted into the note.");
       return;
     }
     const assets = await pickUploadAssets();
@@ -395,13 +396,13 @@ export const useMobileRichEditor = ({
         }
         const uploadAsset = await prepareUploadAsset(asset, imageCompressionEnabled);
         const { resource } = await uploadMobileResource(client, currentMemo.id, uploadAsset);
-        applyMobileEditorUpload(editorRef, resource, uploadId, uploadAsset.name || (resource.kind === "image" ? "图片" : "附件"));
+        applyMobileEditorUpload(editorRef, resource, uploadId, uploadAsset.name || (resource.kind === "image" ? "Image" : "Attachment"));
         if (resource.kind === "image") sources.push(resource.url);
         uploadId = null;
       }
     } catch (uploadError) {
       cancelMobileEditorUpload(editorRef, uploadId);
-      setError(uploadError instanceof Error ? uploadError.message : "附件上传失败");
+      setError(uploadError instanceof Error ? uploadError.message : "Could not upload the attachment");
     } finally {
       safeDomCall(() => editorRef.current?.finishImageBatch(sources));
       uploadingRef.current = false;

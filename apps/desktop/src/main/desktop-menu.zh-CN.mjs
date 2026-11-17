@@ -1,0 +1,43 @@
+// Simplified Chinese translation of the native menu and screenshot overlay copy. English source: desktop-menu.mjs.
+
+export const menuCopy = {
+  about: "关于 RTNote",
+  addToDictionary: "添加到词典",
+  close: "关闭窗口",
+  copy: "复制",
+  copyLinkAddress: "复制链接地址",
+  cut: "剪切",
+  edit: "编辑",
+  file: "文件",
+  focusSearch: "定位到搜索",
+  front: "全部置于顶层",
+  hide: "隐藏 RTNote",
+  minimize: "最小化",
+  newMemo: "新建笔记",
+  newNotebook: "新建笔记本",
+  openNoteWindow: "在新窗口打开笔记",
+  paste: "粘贴",
+  pasteAsPlainText: "粘贴为纯文本",
+  quit: "退出 RTNote",
+  resetZoom: "重置缩放",
+  restartToUpdate: "重启以更新",
+  screenshotFailed: "截图失败。若是第一次使用，请在系统设置中允许 RTNote 使用屏幕录制。",
+  screenshotToNote: "截取屏幕到笔记",
+  selectAll: "全选",
+  show: "显示 RTNote",
+  toggleFocusMode: "切换专注模式",
+  toggleFullScreen: "切换全屏",
+  undo: "撤销",
+  redo: "重做",
+  view: "视图",
+  window: "窗口",
+  zoom: "缩放窗口",
+  zoomIn: "放大",
+  zoomOut: "缩小",
+};
+
+export const regionCopy = {
+  hint: "拖拽选择区域，松开后保存为笔记",
+  cancel: "Esc 取消",
+  full: "双击截取整个屏幕",
+};

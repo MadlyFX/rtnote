@@ -51,9 +51,9 @@ Every plugin must supply a `manifest.json` at its root:
   "settingsUi": "host",
   "description": "Shows recently updated notes.",
   "locales": {
-    "zh-CN": {
-      "name": "最近笔记",
-      "description": "查看最近更新的笔记。"
+    "de": {
+      "name": "Neueste Notizen",
+      "description": "Zeigt kürzlich aktualisierte Notizen."
     }
   },
   "entry": "./main.js",
@@ -74,7 +74,7 @@ Every plugin must supply a `manifest.json` at its root:
 | `settingsUi` | `"host"` | Yes | Settings UI renderer; currently `"host"` (rendered by host). |
 | `entry` | `string` | Yes | Entry script path; fixed to `./main.js` for GitHub distribution. |
 | `description` | `string` | No | Default description. |
-| `locales` | `object` | No | Localized metadata keyed by BCP 47 language tags (e.g. `zh-CN`, `en-US`), overriding `name` and `description`. |
+| `locales` | `object` | No | Localized metadata keyed by BCP 47 language tags (e.g. `de`, `zh-CN`), overriding `name` and `description`. |
 | `platforms` | `string[]` | No | Supported platforms: `"web"`, `"desktop"`. |
 | `permissions` | `string[]` | No | Declared capabilities disclosed to users during install and update. |
 | `settings` | `object` | No | Declarative settings schema rendered by host (detailed below). |

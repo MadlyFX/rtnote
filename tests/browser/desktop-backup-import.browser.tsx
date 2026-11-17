@@ -17,7 +17,7 @@ const status: DesktopBackupStatus = {
   passwordSet: false, secureStorageAvailable: true, lastAttemptAt: null, lastSuccessAt: "2026-10-25T03:00:00.000Z",
   lastCheck: { at: "2026-10-26T03:00:00.000Z", result: "unchanged" }, lastRestoreAt: null, nextDueAt: null, pendingPublication: null, target: { baseUrl: "http://test-instance", accountId: "test-account" },
   task: null, error: null, warning: null, importError: null, importWarning: null, history: [
-    { name: "周报归档.zip", directory: "/test/Backups", completedAt: "2026-10-24T03:00:00.000Z", size: 2301024, encrypted: false },
+    { name: "Weekly report archive.zip", directory: "/test/Backups", completedAt: "2026-10-24T03:00:00.000Z", size: 2301024, encrypted: false },
     { name: "RTNote-2026-10-25_110000.edgeever.enc", directory: "/test/Backups", completedAt: "2026-10-25T03:00:00.000Z", size: 4910204, encrypted: true },
   ],
 };

@@ -1,7 +1,14 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { Database } from "bun:sqlite";
 import { globSync, readFileSync } from "node:fs";
-import { WELCOME_MEMO_REPAIRED_CONTENT_HASH, WELCOME_MEMO_SEED_CONTENT_HASH } from "@edgeever/shared/default-workspace-seeds";
+import {
+  DEFAULT_NOTEBOOK_SEEDS,
+  WELCOME_MEMO_REPAIRED_CONTENT_HASH,
+  WELCOME_MEMO_SEED_CONTENT_HASH,
+  WELCOME_MEMO_SEED_TITLE,
+  WELCOME_MEMO_TRANSLATIONS,
+} from "@edgeever/shared/default-workspace-seeds";
+import { DEFAULT_MEMO_TEMPLATE_SEEDS } from "@edgeever/shared/memo-template-seeds";
 import { createSelfHostedStorageAdapter } from "./self-hosted-storage-adapter.ts";
 import { updateMemoRecord } from "./memo-service.ts";
 import {
@@ -75,13 +82,14 @@ const searchMatches = (sqlite, query) => sqlite
   .all(query)
   .map((row) => row.memo_id);
 
-const CHINESE_NOTEBOOKS = {
-  inbox: "等待分类",
-  "work-projects": "工作项目",
-  "learning-resources": "学习资料",
-  "creative-ideas": "灵感创作",
-  "personal-life": "生活个人",
-};
+const seededNotebookNames = (locale) =>
+  Object.fromEntries(DEFAULT_NOTEBOOK_SEEDS.map((seed) => [seed.slug, seed.names[locale]]));
+const templateTitle = (key, locale) =>
+  DEFAULT_MEMO_TEMPLATE_SEEDS.find((seed) => seed.key === key).translations[locale].title;
+
+// The installation migrations seed the zh-CN names.
+const CHINESE_NOTEBOOKS = seededNotebookNames("zh-CN");
+const JAPANESE_NOTEBOOKS = seededNotebookNames("ja");
 
 describe("fresh installation", () => {
   test("waits for the first sign-in to localize the default workspace", () => {
@@ -121,7 +129,7 @@ describe("fresh installation", () => {
     expect(note.content_hash).not.toBe(WELCOME_MEMO_SEED_CONTENT_HASH);
     expect(note.revision).toBe(2);
     expect(searchMatches(sqlite, "Witaj")).toEqual(["memo_welcome"]);
-    expect(templateNames(sqlite, DEFAULT_WORKSPACE_ID)).not.toContain("灵感速记");
+    expect(templateNames(sqlite, DEFAULT_WORKSPACE_ID)).not.toContain(templateTitle("quick-note", "zh-CN"));
     expect(searchMatches(sqlite, "Skrzynka")).toEqual([]);
     expect(templateNames(sqlite, DEFAULT_WORKSPACE_ID)).toContain("Szybka notatka");
     expect(pendingWorkspaces(sqlite)).toEqual([]);
@@ -157,8 +165,8 @@ describe("fresh installation", () => {
     db.batch = batch;
     await ensureUserWorkspace(db, "usr_owner", "admin", "ja");
 
-    expect(notebookNames(sqlite).inbox).toBe("受信トレイ");
-    expect(welcome(sqlite).title).toBe("RTNote へようこそ");
+    expect(notebookNames(sqlite).inbox).toBe(JAPANESE_NOTEBOOKS.inbox);
+    expect(welcome(sqlite).title).toBe(WELCOME_MEMO_TRANSLATIONS.ja.title);
     expect(templateNames(sqlite, DEFAULT_WORKSPACE_ID)).toContain("ひらめきメモ");
     expect(pendingWorkspaces(sqlite)).toEqual([]);
   });
@@ -177,7 +185,7 @@ describe("fresh installation", () => {
 
     expect(notebookNames(sqlite)).toMatchObject({ inbox: "Inbox", "work-projects": "My projects" });
     expect(welcome(sqlite)).toEqual(before);
-    expect(templateNames(sqlite, DEFAULT_WORKSPACE_ID)).toEqual(expect.arrayContaining(["会议纪要", "Quick Spark"]));
+    expect(templateNames(sqlite, DEFAULT_WORKSPACE_ID)).toEqual(expect.arrayContaining([templateTitle("meeting", "zh-CN"), "Quick Spark"]));
     expect(pendingWorkspaces(sqlite)).toEqual([]);
   });
 
@@ -298,7 +306,7 @@ describe("existing installation", () => {
     await ensureUserWorkspace(db, "usr_owner", "admin", "pl");
 
     expect(notebookNames(sqlite)).toEqual(CHINESE_NOTEBOOKS);
-    expect(welcome(sqlite).title).toBe("欢迎来到 EdgeEver");
+    expect(welcome(sqlite).title).toBe(WELCOME_MEMO_SEED_TITLE);
   });
 
   test("treats an installation that already has users as existing data", () => {
@@ -337,13 +345,7 @@ describe("member workspaces", () => {
       role: "member",
     });
 
-    expect(notebookNames(sqlite, "ws_member")).toEqual({
-      inbox: "受信トレイ",
-      "work-projects": "仕事のプロジェクト",
-      "learning-resources": "学習資料",
-      "creative-ideas": "アイデアと創作",
-      "personal-life": "暮らしと個人",
-    });
+    expect(notebookNames(sqlite, "ws_member")).toEqual(JAPANESE_NOTEBOOKS);
     expect(templateNames(sqlite, "ws_member")).toContain("ひらめきメモ");
     expect(pendingWorkspaces(sqlite)).toEqual([DEFAULT_WORKSPACE_ID]);
     expect(notebookNames(sqlite)).toEqual(CHINESE_NOTEBOOKS);

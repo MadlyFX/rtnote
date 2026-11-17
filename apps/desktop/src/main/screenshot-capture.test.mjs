@@ -1,5 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
+import { formatDesktopCopy } from "./desktop-copy.mjs";
+import { dialogCopy as zhCNDialogCopy } from "./desktop-copy.zh-CN.mjs";
 import {
   captureDisplayScreenshot,
   captureRegionScreenToNote,
@@ -18,6 +20,8 @@ import {
 const mainSource = readFileSync(new URL("./index.mjs", import.meta.url), "utf8");
 const preloadSource = readFileSync(new URL("../preload/index.cjs", import.meta.url), "utf8");
 const workspaceSource = readFileSync(new URL("../../../web/src/components/WorkspaceApp.tsx", import.meta.url), "utf8");
+
+const zhCNScreenshotTitle = formatDesktopCopy(zhCNDialogCopy.screenshotTitle, { stamp: "2026-09-14 11:08" });
 
 describe("screenshot capture helpers", () => {
   test("opens the macOS interactive region selector and writes a png", () => {
@@ -84,7 +88,7 @@ describe("screenshot capture helpers", () => {
 
   test("localizes the generated note title", () => {
     const date = new Date(2026, 8, 14, 11, 8, 3);
-    expect(screenshotNoteTitle("zh-CN", date)).toBe("截图 2026-09-14 11:08");
+    expect(screenshotNoteTitle("zh-CN", date)).toBe(zhCNScreenshotTitle);
     expect(screenshotNoteTitle("en-US", date)).toBe("Screenshot 2026-09-14 11:08");
     expect(screenshotNoteTitle("pl", date)).toBe("Zrzut ekranu 2026-09-14 11:08");
     expect(screenshotNoteTitle("ru-RU", date)).toBe("Снимок экрана 2026-09-14 11:08");
@@ -99,18 +103,18 @@ describe("screenshot capture helpers", () => {
       captureId: "shot-1",
       name: "screenshot.png",
       type: "image/png",
-      title: "截图",
+      title: "Screenshot",
       bytes: Buffer.from([1, 2, 3]),
     })).toMatchObject({
       captureId: "shot-1",
       name: "screenshot.png",
-      title: "截图",
+      title: "Screenshot",
     });
     expect(Array.from(screenshotImportIpcPayload({
       captureId: "shot-1",
       name: "screenshot.png",
       type: "image/png",
-      title: "截图",
+      title: "Screenshot",
       bytes: Buffer.from([1, 2, 3]),
     }).bytes)).toEqual([1, 2, 3]);
   });
@@ -150,7 +154,7 @@ describe("region screenshot to note", () => {
       selectRegion: async () => ({ x: 10, y: 5, width: 20, height: 10 }),
     });
     expect(Buffer.from(selected.bytes).toString()).toBe("crop:20,10,40,20");
-    expect(selected.title).toBe("截图 2026-09-14 11:08");
+    expect(selected.title).toBe(zhCNScreenshotTitle);
     expect(selected.type).toBe("image/png");
   });
 

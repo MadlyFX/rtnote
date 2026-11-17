@@ -1,5 +1,6 @@
 import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
 import type { JSONContent } from "@tiptap/core";
+import { format, ui } from "./fixtures/ui-labels";
 
 const paragraph = (text: string) => ({ type: "paragraph", content: [{ type: "text", text }] });
 const heading = (level: number, text: string) => ({
@@ -21,8 +22,9 @@ const createArticle = async (request: APIRequestContext, deepOnly = false, conte
     heading(5, "Duplicate"), ...filler(),
     heading(2, "Duplicate"), ...filler(),
     heading(2, ""), heading(2, "!!!"), ...filler(),
-    heading(2, "ＡＰＩ 使用"), ...filler(),
-    heading(2, "API 使用"), ...filler(),
+    // Full-width and CJK headings ("API usage") keep their characters in fragment IDs.
+    heading(2, "ＡＰＩ \u4f7f\u7528"), ...filler(),
+    heading(2, "API \u4f7f\u7528"), ...filler(),
   ]);
   const memoResponse = await request.post("/api/v1/memos", {
     data: { notebookId: notebook.id, title: "Public outline regression", contentJson: { type: "doc", content } },
@@ -109,10 +111,10 @@ for (const layout of ["standalone", "site"] as const) {
       await expect(page.locator("body")).toHaveCSS("overflow", "hidden");
       await page.keyboard.press("Escape");
       await expect(page.locator(".yarl__portal")).toHaveCount(0);
-      await outline.getByRole("button", { name: "折叠全部标题", exact: true }).click();
+      await outline.getByRole("button", { name: ui.editor.collapseAllOutline, exact: true }).click();
       await expect(outline.locator("nav li")).toHaveCount(1);
       await expect(page.locator(".tiptap h1, .tiptap h2, .tiptap h4, .tiptap h5, .tiptap h6")).toHaveCount(10);
-      await outline.getByRole("button", { name: "展开全部标题", exact: true }).click();
+      await outline.getByRole("button", { name: ui.editor.expandAllOutline, exact: true }).click();
       await expect(leaf).toBeVisible();
       await leaf.click();
       await expect(page).toHaveURL(/#article-leaf-section-1$/);
@@ -123,8 +125,8 @@ for (const layout of ["standalone", "site"] as const) {
       await expectAtFragment(page, article.paths[layout], "article-duplicate-1", "Duplicate");
       await expect(page.locator('[id="article-duplicate-1"]')).toHaveJSProperty("tagName", "H2");
       await expectAtFragment(page, article.paths[layout], "article-section-2", "!!!");
-      await expectAtFragment(page, article.paths[layout], "article-ａｐｉ-使用-1", "ＡＰＩ 使用");
-      await expectAtFragment(page, article.paths[layout], "article-api-使用-1", "API 使用");
+      await expectAtFragment(page, article.paths[layout], "article-ａｐｉ-\u4f7f\u7528-1", "ＡＰＩ \u4f7f\u7528");
+      await expectAtFragment(page, article.paths[layout], "article-api-\u4f7f\u7528-1", "API \u4f7f\u7528");
     } finally {
       await article.cleanup();
     }
@@ -135,13 +137,13 @@ for (const layout of ["standalone", "site"] as const) {
     try {
       await page.setViewportSize({ width: 390, height: 844 });
       await page.goto(article.paths[layout]);
-      await page.getByRole("button", { name: "文档大纲", exact: true }).click();
+      await page.getByRole("button", { name: ui.editor.outline, exact: true }).click();
       const drawer = page.getByRole("dialog");
       const leaf = drawer.getByRole("link", { name: "Leaf section", exact: true });
       await expect(leaf).toBeVisible();
-      await drawer.getByRole("button", { name: "收起 Deep section", exact: true }).click();
+      await drawer.getByRole("button", { name: format(ui.editor.collapseOutlineHeading, { name: "Deep section" }), exact: true }).click();
       await expect(leaf).toHaveCount(0);
-      await drawer.getByRole("button", { name: "展开全部标题", exact: true }).click();
+      await drawer.getByRole("button", { name: ui.editor.expandAllOutline, exact: true }).click();
       await leaf.click();
       await expect(drawer).toBeHidden();
       await expect(page.locator(".tiptap h6")).toBeInViewport();
@@ -160,7 +162,7 @@ for (const layout of ["standalone", "site"] as const) {
       expect(update.ok(), await update.text()).toBe(true);
       await page.goto(article.paths[layout]);
       await expect(page.locator(".tiptap")).toHaveText("No headings remain.");
-      await expect(page.getByRole("button", { name: "文档大纲", exact: true })).toHaveCount(0);
+      await expect(page.getByRole("button", { name: ui.editor.outline, exact: true })).toHaveCount(0);
       await expect(page.locator(".edgeever-public-share aside")).toHaveCount(0);
     } finally {
       await article.cleanup();

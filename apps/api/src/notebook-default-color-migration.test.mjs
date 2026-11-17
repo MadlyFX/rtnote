@@ -19,7 +19,7 @@ describe("default notebook colors", () => {
         UPDATE notebooks SET is_bold = 1 WHERE slug = 'learning-resources';
         INSERT INTO notebooks (id, workspace_id, parent_id, name, slug, icon, color, sort_order)
         VALUES
-          ('nb_demo_features', 'ws_default', 'nb_projects', '功能演示', 'demo-features', 'notebook', '#0891b2', 21),
+          ('nb_demo_features', 'ws_default', 'nb_projects', 'Feature demos', 'demo-features', 'notebook', '#0891b2', 21),
           ('nb_trips', 'ws_default', NULL, 'Trips', 'trips', 'notebook', '#2563eb', 60),
           ('nb_custom_inbox', 'ws_other', NULL, 'Inbox', 'inbox', 'notebook', '#112233', 10);
       `);

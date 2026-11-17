@@ -90,7 +90,7 @@ const createDevBackupBridge = () => {
         case "choose-directory":
           return "~/Documents/RTNote Backups" as any;
         case "open-folder":
-          console.info("[Dev Preview] 打开备份目录:", devStatus.actualDirectory);
+          console.info("[Dev Preview] Open backup folder:", devStatus.actualDirectory);
           return true as any;
         case "run": {
           const newName = `RTNote-${new Date().toISOString().slice(0, 10)}_${Date.now().toString().slice(-6)}.zip`;

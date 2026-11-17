@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { BackHandler, Dimensions, KeyboardAvoidingView, Linking, Modal, PixelRatio, Platform, ScrollView, Switch, View } from "react-native";
 import { Activity, ActivityIndicator, Check, ChevronDown, ChevronLeft, ChevronRight, Cloud, Copy, ExternalLink, Image as ImageIcon, Info, LogOut, MessageSquare, MonitorSmartphone, Moon, RefreshCw, ShieldCheck, SlidersHorizontal, Sun, UserRound } from "../components/icons";
 import { Pressable, Text } from "../components/LocalizedText";
+import { zhCNFeedbackReport } from "../lib/i18n/zh-CN";
 import { formatMobileCopy, useMobileLocale, getMobileCatalog, type MobileLocale } from "../lib/mobile-locale";
 import { useMobileTheme } from "../lib/mobile-theme";
 import { useMobileUpdate } from "../lib/mobile-update";
@@ -48,15 +49,21 @@ const formatExecutionEnvironment = (environment: string | null | undefined, loca
       return environment || getMobileSystemInfoText(localePreference).unknown;
   }
 };
+// Each language is listed under its own name, whatever the current locale.
+const LOCALE_NATIVE_NAMES = {
+  "zh-CN": "简体中文",
+  "zh-TW": "繁體中文",
+  ja: "日本語",
+} as const;
 const MOBILE_LOCALE_OPTIONS: Array<{ label: string; value: MobileLocalePreference }> = [
-  { label: "跟随系统", value: "system" },
-  { label: "简体中文", value: "zh-CN" },
-  { label: "繁體中文", value: "zh-TW" },
+  { label: "Follow system", value: "system" },
+  { label: LOCALE_NATIVE_NAMES["zh-CN"], value: "zh-CN" },
+  { label: LOCALE_NATIVE_NAMES["zh-TW"], value: "zh-TW" },
   { label: "English", value: "en-US" },
   { label: "Español", value: "es" },
   { label: "Deutsch", value: "de" },
   { label: "Français", value: "fr" },
-  { label: "日本語", value: "ja" },
+  { label: LOCALE_NATIVE_NAMES.ja, value: "ja" },
   { label: "Polski", value: "pl" },
   { label: "Русский", value: "ru" },
 ];
@@ -156,16 +163,16 @@ export const SettingsView = ({
     refetchInterval: activeTab === "system" ? 10_000 : false,
   });
   const tabs: Array<{ key: SettingsTab; label: string; icon: ReactNode }> = [
-    { key: "general", label: "常规设置", icon: <SlidersHorizontal color="#059669" size={17} /> },
-    { key: "account", label: "登录设置", icon: <ShieldCheck color="#059669" size={17} /> },
+    { key: "general", label: "General", icon: <SlidersHorizontal color="#059669" size={17} /> },
+    { key: "account", label: "Login Settings", icon: <ShieldCheck color="#059669" size={17} /> },
   ];
   const systemInfoCopy = getMobileSystemInfoText(localePreference);
   const systemInfoDescription = hasUpdate ? systemInfoCopy.updateAvailableDescription : systemInfoCopy.description;
   const activeTabItem = activeTab === "system"
     ? { label: systemInfoCopy.title, icon: <Info color="#059669" size={17} /> }
     : tabs.find((tab) => tab.key === activeTab);
-  const title = activeTabItem?.label ?? "我的";
-  const activeLocaleLabel = MOBILE_LOCALE_OPTIONS.find((option) => option.value === localePreference)?.label ?? "跟随系统";
+  const title = activeTabItem?.label ?? "Me";
+  const activeLocaleLabel = MOBILE_LOCALE_OPTIONS.find((option) => option.value === localePreference)?.label ?? "Follow system";
   const openLocalePicker = () => {
     localeSelectRef.current?.measureInWindow((left, top, width, height) => {
       setLocalePickerAnchor({ left, top: top + height + 4, width });
@@ -219,14 +226,14 @@ export const SettingsView = ({
     if (activeTab === "general") {
       return (
         <View style={styles.settingsDetailList}>
-          <SettingsGroup title="偏好设置" icon={<ImageIcon color="#047857" size={16} />}>
+          <SettingsGroup title="Preferences" icon={<ImageIcon color="#047857" size={16} />}>
             <View style={styles.settingsContentRow}>
               <View style={styles.preferenceStack}>
                 <View style={styles.preferenceText}>
-                  <Text style={styles.settingsRowTitle}>界面语言</Text>
-                  <Text style={styles.settingsRowDescription}>切换产品界面的显示语言。</Text>
+                  <Text style={styles.settingsRowTitle}>Interface language</Text>
+                  <Text style={styles.settingsRowDescription}>Choose the language used in the app.</Text>
                 </View>
-                <Pressable accessibilityLabel="界面语言" accessibilityRole="button" onPress={openLocalePicker} ref={localeSelectRef} style={styles.settingsSelect}>
+                <Pressable accessibilityLabel="Interface language" accessibilityRole="button" onPress={openLocalePicker} ref={localeSelectRef} style={styles.settingsSelect}>
                   <Text style={styles.settingsSelectText}>{activeLocaleLabel}</Text>
                   <ChevronDown color="#64748b" size={18} />
                 </Pressable>
@@ -235,22 +242,22 @@ export const SettingsView = ({
             <View style={styles.settingsContentRow}>
               <View style={styles.preferenceStack}>
                 <View style={styles.preferenceText}>
-                  <Text style={styles.settingsRowTitle}>压缩笔记内图片</Text>
-                  <Text style={styles.settingsRowDescription}>上传大图时在本地压缩，节省资源占用。</Text>
+                  <Text style={styles.settingsRowTitle}>Compress note images</Text>
+                  <Text style={styles.settingsRowDescription}>Compress large images on this device before upload.</Text>
                 </View>
                 <View style={styles.settingsSwitchStart}>
-                  <Switch accessibilityLabel={translate("是否压缩笔记内图片")} onValueChange={onImageCompressionChange} value={imageCompressionEnabled} />
+                  <Switch accessibilityLabel={translate("Compress note images")} onValueChange={onImageCompressionChange} value={imageCompressionEnabled} />
                 </View>
               </View>
             </View>
             <View style={styles.settingsContentRow}>
               <View style={styles.preferenceStack}>
                 <View style={styles.preferenceText}>
-                  <Text style={styles.settingsRowTitle}>父笔记本中显示子笔记本笔记</Text>
-                  {showDescendantNotesSaveFailed ? <Text accessibilityRole="alert" style={styles.errorText}>无法保存“父笔记本中显示子笔记本笔记”设置，请稍后重试</Text> : null}
+                  <Text style={styles.settingsRowTitle}>Show notes from sub-notebooks</Text>
+                  {showDescendantNotesSaveFailed ? <Text accessibilityRole="alert" style={styles.errorText}>Could not save the "Show notes from sub-notebooks" setting. Please try again.</Text> : null}
                 </View>
                 <View style={styles.settingsSwitchStart}>
-                  <Switch accessibilityLabel={translate("是否在父笔记本中显示子笔记本中的笔记")} onValueChange={onShowDescendantNotesChange} value={showDescendantNotes} />
+                  <Switch accessibilityLabel={translate("Show notes from sub-notebooks in parent notebooks")} onValueChange={onShowDescendantNotesChange} value={showDescendantNotes} />
                 </View>
               </View>
             </View>
@@ -291,10 +298,10 @@ export const SettingsView = ({
             <UserRound color="#047857" size={19} />
           </View>
       <View style={styles.accountSummaryContent}>
-            <Text style={styles.accountSummaryTitle}>{translate("当前账户")}</Text>
+            <Text style={styles.accountSummaryTitle}>{translate("Current account")}</Text>
             <Text style={styles.accountSummaryName}>{currentUser?.displayName || currentUser?.username || "—"}</Text>
         <Text style={styles.accountSummaryHelp}>
-              @{currentUser?.username ?? "—"} · {currentUser?.role === "owner" ? translate("实例管理员") : translate("成员")}
+              @{currentUser?.username ?? "—"} · {currentUser?.role === "owner" ? translate("Instance owner") : translate("Member")}
             </Text>
           </View>
         </View>
@@ -304,7 +311,7 @@ export const SettingsView = ({
         <View style={styles.settingsLogoutCard}>
           <Pressable onPress={onSignOut} style={styles.settingsLogoutButton}>
             <LogOut color="#ffffff" size={17} />
-            <Text style={styles.settingsLogoutText}>退出登录</Text>
+            <Text style={styles.settingsLogoutText}>Sign out</Text>
           </Pressable>
         </View>
       </View>
@@ -319,7 +326,7 @@ export const SettingsView = ({
       style={styles.settingsScreen}
     >
       <View style={styles.settingsHeader}>
-        <Pressable accessibilityLabel="返回" onPress={() => activeTab ? setActiveTab(null) : onClose()} style={styles.settingsBackButton}>
+        <Pressable accessibilityLabel="Back" onPress={() => activeTab ? setActiveTab(null) : onClose()} style={styles.settingsBackButton}>
           <ChevronLeft color="#64748b" size={21} />
         </Pressable>
         <View style={styles.settingsHeaderTitle}>
@@ -327,13 +334,13 @@ export const SettingsView = ({
           <Text numberOfLines={1} style={styles.settingsTitle}>{title}</Text>
         </View>
         <Pressable
-          accessibilityLabel={resolvedTheme === "dark" ? "切换到浅色模式" : "切换到深色模式"}
+          accessibilityLabel={resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
           accessibilityRole="button"
           onPress={toggleTheme}
           style={styles.settingsThemeButton}
         >
           {resolvedTheme === "dark" ? <Sun color="#64748b" size={19} /> : <Moon color="#64748b" size={19} />}
-          <Text numberOfLines={1} style={styles.settingsThemeText}>{resolvedTheme === "dark" ? "切换到浅色模式" : "切换到深色模式"}</Text>
+          <Text numberOfLines={1} style={styles.settingsThemeText}>{resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}</Text>
         </Pressable>
       </View>
       {/* Android draws edge-to-edge, so the window no longer resizes for the
@@ -384,8 +391,8 @@ export const SettingsView = ({
                 <View style={styles.settingsMenuLabel}>
                   <View style={[styles.settingsMenuIcon, styles.settingsFeedbackIcon]}><MessageSquare color="#64748b" size={17} /></View>
                   <View style={styles.settingsFeedbackCopy}>
-                    <Text style={styles.settingsMenuText}>意见反馈</Text>
-                    <Text style={styles.settingsFeedbackDescription}>报告问题或提出功能建议</Text>
+                    <Text style={styles.settingsMenuText}>Feedback</Text>
+                    <Text style={styles.settingsFeedbackDescription}>Report a problem or suggest a feature</Text>
                   </View>
                 </View>
                 <ExternalLink color="#94a3b8" size={17} />
@@ -826,6 +833,16 @@ const getMobileSystemInfoGroups = (
   ];
 };
 
+// The GitHub issue body is written in Chinese for zh-CN and in English for every other locale.
+const englishFeedbackReport: typeof zhCNFeedbackReport = {
+  contentHeading: "Feedback",
+  contentPrompt: "Describe the problem, steps to reproduce it, or the feature you would like to see.",
+  privacyNotice: "GitHub Issues are public. Do not include passwords, tokens, instance URLs, or private note content.",
+  systemInfoHeading: "System information",
+  systemInfoNotice: "The following information was generated by RTNote to help diagnose the issue.",
+  titlePrefix: "[Feedback] ",
+};
+
 const buildMobileFeedbackUrl = (
   localePreference: MobileLocaleMode,
   diagnostics: Parameters<typeof getMobileSystemInfoGroups>[1] = {},
@@ -833,25 +850,21 @@ const buildMobileFeedbackUrl = (
   const english = isEnglishMobileLocale(localePreference);
   const infoGroups = getMobileSystemInfoGroups(localePreference, diagnostics);
 
+  const report = english ? englishFeedbackReport : zhCNFeedbackReport;
+
   return buildGitHubFeedbackUrl({
-    contentHeading: english ? "Feedback" : "反馈内容",
-    contentPrompt: english
-      ? "Describe the problem, steps to reproduce it, or the feature you would like to see."
-      : "请描述遇到的问题、复现步骤，或你希望增加的功能。",
-    privacyNotice: english
-      ? "GitHub Issues are public. Do not include passwords, tokens, instance URLs, or private note content."
-      : "GitHub Issue 公开可见，请勿提交密码、Token、实例地址或私人笔记内容。",
+    contentHeading: report.contentHeading,
+    contentPrompt: report.contentPrompt,
+    privacyNotice: report.privacyNotice,
     systemInfo: infoGroups.flatMap((group) => group.items
       .filter((item) => !item.localOnly)
       .map((item) => ({
         label: `${group.title} / ${item.label}`,
         value: item.value,
       }))),
-    systemInfoHeading: english ? "System information" : "系统信息",
-    systemInfoNotice: english
-      ? "The following information was generated by RTNote to help diagnose the issue."
-      : "以下信息由 RTNote 自动生成，可帮助定位问题。",
-    titlePrefix: english ? "[Feedback] " : "[反馈] ",
+    systemInfoHeading: report.systemInfoHeading,
+    systemInfoNotice: report.systemInfoNotice,
+    titlePrefix: report.titlePrefix,
     client: "Android",
   });
 };

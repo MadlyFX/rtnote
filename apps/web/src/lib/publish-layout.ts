@@ -1,3 +1,4 @@
+import { prefersChineseContent } from "./bilingual-content-locale";
 import {
   PUBLISH_LAYOUT_ORNAMENTS,
   publishOrnamentCssVars,
@@ -955,12 +956,14 @@ export const buildPublishStyles = (
   };
 };
 
-const THEME_BLOCK_LABELS: Record<string, string> = {
-  intro: "引言",
-  "key-point": "重点观点",
-  callout: "提示",
-  chapter: "章节",
+// Published theme block labels, in English with a Simplified Chinese variant for Chinese UI locales.
+const THEME_BLOCK_LABELS: Record<string, { en: string; zh: string }> = {
+  intro: { en: "Intro", zh: "引言" },
+  "key-point": { en: "Key point", zh: "重点观点" },
+  callout: { en: "Note", zh: "提示" },
+  chapter: { en: "Chapter", zh: "章节" },
 };
+const THEME_BLOCK_FALLBACK_LABEL = { en: "Theme block", zh: "主题组件" };
 
 const themeBlockStyles = (
   kind: string,
@@ -1707,7 +1710,8 @@ const applyThemeBlocks = (
     block.style.cssText = `${styles.block}${block.style.cssText}`;
     const label = root.ownerDocument.createElement("p");
     label.setAttribute("data-ee-publish-chrome", "true");
-    label.textContent = THEME_BLOCK_LABELS[kind] || "主题组件";
+    const labels = THEME_BLOCK_LABELS[kind] || THEME_BLOCK_FALLBACK_LABEL;
+    label.textContent = prefersChineseContent(root.ownerDocument.documentElement.lang) ? labels.zh : labels.en;
     label.style.cssText = styles.label;
     block.insertBefore(label, block.firstChild);
   });

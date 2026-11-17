@@ -18,10 +18,10 @@ import { NOTE_IMAGE_FONT_SUBSETS } from "./note-image-font-manifest";
 describe("note image templates", () => {
   test("author signatures show only the name without a generated avatar in every template", () => {
     for (const theme of NOTE_IMAGE_THEME_OPTIONS) {
-      const markup = buildNoteImageCardMarkup({ theme, title: "Note", bodyHtml: "<p>Text</p>", author: "天马", showAuthor: true });
+      const markup = buildNoteImageCardMarkup({ theme, title: "Note", bodyHtml: "<p>Text</p>", author: "Ada", showAuthor: true });
       const { document } = parseHTML(markup);
       const signature = document.querySelector(".edgeever-footer-author");
-      expect(signature?.textContent).toBe("天马");
+      expect(signature?.textContent).toBe("Ada");
       expect(signature?.children.length).toBe(1);
       expect(document.querySelector(".edgeever-card-avatar")).toBeNull();
     }
@@ -133,10 +133,10 @@ describe("note image templates", () => {
         expect(markup.match(/class="edgeever-brand-badge"/g)).toHaveLength(1);
       }
     }
-    const signed = buildNoteImageCardMarkup({ theme: "bento", title: "Note", bodyHtml: "", author: "天马", showAuthor: true, showBranding: false });
+    const signed = buildNoteImageCardMarkup({ theme: "bento", title: "Note", bodyHtml: "", author: "Ada", showAuthor: true, showBranding: false });
     expect(signed).not.toContain('class="edgeever-card-avatar"');
-    expect(signed).toContain('<span>天马</span>');
-    expect(signed).toContain('<span>天马</span>');
+    expect(signed).toContain('<span>Ada</span>');
+    expect(signed).toContain('<span>Ada</span>');
     expect(signed).not.toContain('class="edgeever-brand-badge"');
   });
 

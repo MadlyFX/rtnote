@@ -76,8 +76,8 @@ test("loading an existing configuration preserves the previous default of five c
 test("failure and cancellation preserve success and never rotate; credentials stay out of config", async () => {
   const f = await fixture();
   try {
-    await f.manager.save({ ...f.manager.status().config, encrypted: true, retention: 3 }, "  密码  ");
-    await f.manager.run(); expect(f.workers.at(-1).data.password).toBe("  密码  "); await complete(f);
+    await f.manager.save({ ...f.manager.status().config, encrypted: true, retention: 3 }, "  パスワード  ");
+    await f.manager.run(); expect(f.workers.at(-1).data.password).toBe("  パスワード  "); await complete(f);
     const successful = f.manager.status().lastSuccessAt;
     await f.manager.run();
     await expect(f.manager.save(f.manager.status().config)).rejects.toThrow();
@@ -88,7 +88,7 @@ test("failure and cancellation preserve success and never rotate; credentials st
     await f.manager.run(); await f.manager.cancel();
     expect(f.manager.status().history).toHaveLength(1);
     const state = await readFile(f.manager.statePath(), "utf8");
-    expect(state).not.toContain("密码"); expect(state).not.toContain("session-a");
+    expect(state).not.toContain("パスワード"); expect(state).not.toContain("session-a");
     expect(f.manager.status().passwordSet).toBe(true);
     const external = join(f.root, "external"); await writeFile(external, "keep");
     const oldest = f.manager.status().history[0]; await rm(join(f.manager.status().actualDirectory, oldest.name));

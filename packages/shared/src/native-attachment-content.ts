@@ -4,6 +4,7 @@ import { FILE_ATTACHMENT_NODE_TYPE } from "./file-attachment";
 import { PDF_ATTACHMENT_NODE_TYPE } from "./pdf-attachment";
 import type { TiptapDoc, TiptapMark, TiptapNode, TiptapTextNode } from "./content";
 import { formatAttachmentMetadata, normalizeAttachmentByteSize } from "./attachment-metadata";
+import { ATTACHMENT_LABEL_PREFIX_PATTERN } from "./edgeever-legacy-values";
 
 const ATTACHMENT_NODE_TYPES = new Set<string>([
   FILE_ATTACHMENT_NODE_TYPE,
@@ -18,7 +19,7 @@ const getStringAttr = (node: TiptapNode, key: string) => {
 const ATTACHMENT_KIND_CLASS_PREFIX = "edgeever-attachment-kind-";
 
 const normalizeAttachmentFilename = (label: string) =>
-  label.replace(/^\s*(?:附件[：:]|Attachment:)\s*/i, "").trim();
+  label.replace(ATTACHMENT_LABEL_PREFIX_PATTERN, "").trim();
 
 export const getNativeAttachmentLinkClass = (
   filename: string,

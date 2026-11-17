@@ -2,8 +2,8 @@ import { describe, expect, test } from "bun:test";
 import { markdownToDoc } from "./content.ts";
 import { openBlockSource, splitMarkdownParseChunks } from "./markdown-block-start.ts";
 
-const paragraph = "分析 `code span` 与 [link](https://example.com/a) 以及 $x_1$ 价格 $12.50 的段落，"
-  + "附数组写法 arr[0] 与 arr[1] 的说明。";
+const paragraph = "A paragraph with a `code span`, a [link](https://example.com/a), $x_1$ and a price of $12.50, "
+  + "plus notes on the arr[0] and arr[1] array syntax.";
 
 describe("open block marker scan", () => {
   test("keeps a marker in the current paragraph and ignores the next block", () => {

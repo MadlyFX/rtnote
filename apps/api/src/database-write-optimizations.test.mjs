@@ -142,7 +142,7 @@ describe("database write optimizations", () => {
     try {
       const memo = getSeedMemo(sqlite);
       const actor = { actorType: "user", actorId: "user_owner" };
-      const source = "成本 1~2~3 元，10~20, 30~40";
+      const source = "Cost 1~2~3 yuan, 10~20, 30~40";
       const first = await updateMemoRecord(database, memo.workspace_id, memo.id,
         { contentMarkdown: source }, actor, "owner");
       expect(first.memo.contentJson.content[0].content).toEqual([{ type: "text", text: source }]);
@@ -185,7 +185,7 @@ describe("database write optimizations", () => {
   test("keeps a structured table intact and retires an attachment removed from it", async () => {
     const { database, sqlite } = createDatabase();
     const memo = getSeedMemo(sqlite);
-    let document = addTableField(createDefaultTableDocument(), { id: "fld_files", name: "附件", type: "attachment" });
+    let document = addTableField(createDefaultTableDocument(), { id: "fld_files", name: "Attachments", type: "attachment" });
     document = updateTableCell(document, "rec_sample", "fld_files", [{
       resourceId: "res_table_file",
       filename: "brief.pdf",
@@ -211,7 +211,7 @@ describe("database write optimizations", () => {
       database,
       memo.workspace_id,
       memo.id,
-      { contentMarkdown: "普通笔记" },
+      { contentMarkdown: "A plain note" },
       actor,
       "owner",
     );

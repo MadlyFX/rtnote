@@ -4,6 +4,9 @@ import { isInTable } from "@tiptap/pm/tables";
 import type { MobileEditorLocale } from "./mobile-editor";
 import { IMAGE_FIGURE_NODE_TYPE } from "./image-figure";
 import { IMAGE_GALLERY_NODE_TYPE } from "./image-gallery";
+import { FORMAT_PANEL_COPY_JA } from "./mobile-format-panel.ja";
+import { FORMAT_PANEL_COPY_ZH_CN } from "./mobile-format-panel.zh-CN";
+import { FORMAT_PANEL_COPY_ZH_TW } from "./mobile-format-panel.zh-TW";
 import { CELL_BORDER_NONE, normalizeCellBorder } from "./rich-table-markdown";
 import { normalizeTextColor, TEXT_COLORS } from "./text-colors";
 import {
@@ -25,7 +28,7 @@ import {
  * spacing, image captions and table cell tools, each shown when it applies.
  */
 
-type FormatPanelCopy = {
+export type FormatPanelCopy = {
   title: string;
   close: string;
   font: string;
@@ -65,39 +68,9 @@ const FORMAT_PANEL_COPY: Record<MobileEditorLocale, FormatPanelCopy> = {
     cellColor: "Cell color", noCellColor: "No color", cellBorder: "Cell border", defaultBorder: "Default border", noBorder: "No border",
     colors: { gray: "Gray", brown: "Brown", orange: "Orange", yellow: "Yellow", green: "Green", blue: "Blue", purple: "Purple", pink: "Pink", red: "Red" },
   },
-  "zh-CN": {
-    title: "格式", close: "关闭", font: "字体", defaultFont: "默认字体",
-    fontNames: { sans: "无衬线", serif: "衬线", mono: "等宽" },
-    size: "字号", defaultSize: "默认字号", alignment: "对齐",
-    alignments: { left: "左对齐", center: "居中", right: "右对齐", justify: "两端对齐" },
-    lineSpacing: "行距", defaultLineSpacing: "默认行距", image: "图片",
-    addCaption: "添加图注", removeCaption: "移除图注", table: "表格",
-    mergeCells: "合并单元格", splitCell: "拆分单元格", headerRow: "标题行", headerColumn: "标题列",
-    cellColor: "单元格颜色", noCellColor: "无颜色", cellBorder: "单元格边框", defaultBorder: "默认边框", noBorder: "无边框",
-    colors: { gray: "灰色", brown: "棕色", orange: "橙色", yellow: "黄色", green: "绿色", blue: "蓝色", purple: "紫色", pink: "粉色", red: "红色" },
-  },
-  "zh-TW": {
-    title: "格式", close: "關閉", font: "字型", defaultFont: "預設字型",
-    fontNames: { sans: "無襯線", serif: "襯線", mono: "等寬" },
-    size: "字級", defaultSize: "預設字級", alignment: "對齊",
-    alignments: { left: "靠左對齊", center: "置中", right: "靠右對齊", justify: "左右對齊" },
-    lineSpacing: "行距", defaultLineSpacing: "預設行距", image: "圖片",
-    addCaption: "新增圖說", removeCaption: "移除圖說", table: "表格",
-    mergeCells: "合併儲存格", splitCell: "分割儲存格", headerRow: "標題列", headerColumn: "標題欄",
-    cellColor: "儲存格顏色", noCellColor: "無顏色", cellBorder: "儲存格框線", defaultBorder: "預設框線", noBorder: "無框線",
-    colors: { gray: "灰色", brown: "棕色", orange: "橙色", yellow: "黃色", green: "綠色", blue: "藍色", purple: "紫色", pink: "粉紅色", red: "紅色" },
-  },
-  ja: {
-    title: "書式", close: "閉じる", font: "フォント", defaultFont: "既定のフォント",
-    fontNames: { sans: "ゴシック体", serif: "明朝体", mono: "等幅" },
-    size: "サイズ", defaultSize: "既定のサイズ", alignment: "配置",
-    alignments: { left: "左揃え", center: "中央揃え", right: "右揃え", justify: "両端揃え" },
-    lineSpacing: "行間", defaultLineSpacing: "既定の行間", image: "画像",
-    addCaption: "キャプションを追加", removeCaption: "キャプションを削除", table: "表",
-    mergeCells: "セルを結合", splitCell: "セルを分割", headerRow: "見出し行", headerColumn: "見出し列",
-    cellColor: "セルの色", noCellColor: "色なし", cellBorder: "セルの罫線", defaultBorder: "既定の罫線", noBorder: "罫線なし",
-    colors: { gray: "グレー", brown: "ブラウン", orange: "オレンジ", yellow: "イエロー", green: "グリーン", blue: "ブルー", purple: "パープル", pink: "ピンク", red: "レッド" },
-  },
+  "zh-CN": FORMAT_PANEL_COPY_ZH_CN,
+  "zh-TW": FORMAT_PANEL_COPY_ZH_TW,
+  ja: FORMAT_PANEL_COPY_JA,
   pl: {
     title: "Formatowanie", close: "Zamknij", font: "Czcionka", defaultFont: "Domyślna czcionka",
     fontNames: { sans: "Bezszeryfowa", serif: "Szeryfowa", mono: "Stałej szerokości" },

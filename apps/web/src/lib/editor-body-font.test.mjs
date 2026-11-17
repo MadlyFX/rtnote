@@ -11,6 +11,10 @@ import {
   writeEditorBodyFontPreference,
 } from "./editor-body-font.ts";
 
+// A locally installed font with a Chinese family name (LXGW WenKai), escaped so the
+// source stays English. Custom family names outside ASCII must be accepted.
+const CJK_FONT_FAMILY = "\u971e\u9e5c\u6587\u6977";
+
 const installLocalStorage = () => {
   const values = new Map();
   globalThis.window = {
@@ -51,10 +55,10 @@ describe("editor body font preference", () => {
 
   test("persists a bundled face and a custom family", () => {
     const values = installLocalStorage();
-    writeEditorBodyFontPreference({ choice: "wenkai", customFamily: "霞鹜文楷" });
+    writeEditorBodyFontPreference({ choice: "wenkai", customFamily: "LXGW WenKai" });
     expect(values.get(EDITOR_BODY_FONT_STORAGE_KEY)).toBe("wenkai");
-    expect(values.get(EDITOR_BODY_FONT_CUSTOM_STORAGE_KEY)).toBe("霞鹜文楷");
-    expect(readEditorBodyFontPreference()).toEqual({ choice: "wenkai", customFamily: "霞鹜文楷" });
+    expect(values.get(EDITOR_BODY_FONT_CUSTOM_STORAGE_KEY)).toBe("LXGW WenKai");
+    expect(readEditorBodyFontPreference()).toEqual({ choice: "wenkai", customFamily: "LXGW WenKai" });
   });
 
   test("falls back when local storage is unavailable", () => {
@@ -75,7 +79,7 @@ describe("editor body font preference", () => {
   test("keeps installed font names and rejects style injection", () => {
     expect(sanitizeEditorBodyFontFamily("  LXGW WenKai  ")).toBe("LXGW WenKai");
     expect(sanitizeEditorBodyFontFamily('"Source Han Serif SC", Songti SC')).toBe('"Source Han Serif SC", Songti SC');
-    expect(sanitizeEditorBodyFontFamily("霞鹜文楷")).toBe("霞鹜文楷");
+    expect(sanitizeEditorBodyFontFamily(CJK_FONT_FAMILY)).toBe(CJK_FONT_FAMILY);
     expect(sanitizeEditorBodyFontFamily("")).toBe("");
     expect(sanitizeEditorBodyFontFamily("WenKai; color: red")).toBe("");
     expect(sanitizeEditorBodyFontFamily("url(https://evil.example/font.woff2)")).toBe("");

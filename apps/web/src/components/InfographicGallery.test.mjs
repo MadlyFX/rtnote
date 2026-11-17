@@ -8,6 +8,8 @@ import {
   getSampleSyntax,
   getSampleTitle,
 } from "../lib/infographic-samples";
+import { INFOGRAPHIC_SAMPLES_JA } from "../lib/infographic-samples.ja";
+import { INFOGRAPHIC_SAMPLES_ZH_CN } from "../lib/infographic-samples.zh-CN";
 
 const editorPaneSource = readFileSync(new URL("./InfographicEditorPane.tsx", import.meta.url), "utf8");
 const gallerySource = readFileSync(new URL("./InfographicGallery.tsx", import.meta.url), "utf8");
@@ -27,7 +29,7 @@ describe("infographic gallery samples", () => {
 
   test("all Chinese sample syntaxes parse cleanly without errors", () => {
     for (const sample of INFOGRAPHIC_SAMPLES) {
-      const parsed = parseSyntax(sample.syntaxZh);
+      const parsed = parseSyntax(INFOGRAPHIC_SAMPLES_ZH_CN[sample.id].syntax);
       expect(parsed.errors.length).toBe(0);
       expect(parsed.options.template).toBe(sample.template);
     }
@@ -35,26 +37,33 @@ describe("infographic gallery samples", () => {
 
   test("all English sample syntaxes parse cleanly without errors", () => {
     for (const sample of INFOGRAPHIC_SAMPLES) {
-      const parsed = parseSyntax(sample.syntaxEn);
+      const parsed = parseSyntax(sample.syntax);
       expect(parsed.errors.length).toBe(0);
       expect(parsed.options.template).toBe(sample.template);
     }
   });
 
+  test("every sample has a Simplified Chinese translation", () => {
+    for (const sample of INFOGRAPHIC_SAMPLES) {
+      expect(INFOGRAPHIC_SAMPLES_ZH_CN[sample.id]).toBeDefined();
+    }
+  });
+
   test("multilingual helper methods return appropriate localized content", () => {
     const sample = INFOGRAPHIC_SAMPLES[0];
-    expect(getSampleTitle(sample, "zh-CN")).toBe(sample.titleZh);
-    expect(getSampleTitle(sample, "en-US")).toBe(sample.titleEn);
-    expect(getSampleTitle(sample, "ja")).toBe(sample.titleJa ?? sample.titleEn);
+    const zhCN = INFOGRAPHIC_SAMPLES_ZH_CN[sample.id];
+    expect(getSampleTitle(sample, "zh-CN")).toBe(zhCN.title);
+    expect(getSampleTitle(sample, "en-US")).toBe(sample.title);
+    expect(getSampleTitle(sample, "ja")).toBe(INFOGRAPHIC_SAMPLES_JA[sample.id]?.title ?? sample.title);
 
-    expect(getSampleSyntax(sample, "zh-CN")).toBe(sample.syntaxZh);
-    expect(getSampleSyntax(sample, "en-US")).toBe(sample.syntaxEn);
-    expect(getSampleSyntax(sample, "zh")).toBe(sample.syntaxZh);
-    expect(getSampleSyntax(sample, "pl")).toBe(sample.syntaxEn);
-    expect(getSampleSyntax(sample)).toBe(sample.syntaxEn);
+    expect(getSampleSyntax(sample, "zh-CN")).toBe(zhCN.syntax);
+    expect(getSampleSyntax(sample, "en-US")).toBe(sample.syntax);
+    expect(getSampleSyntax(sample, "zh")).toBe(zhCN.syntax);
+    expect(getSampleSyntax(sample, "pl")).toBe(sample.syntax);
+    expect(getSampleSyntax(sample)).toBe(sample.syntax);
 
-    expect(getSampleDesc(sample, "zh-CN")).toBe(sample.descZh);
-    expect(getSampleDesc(sample, "en-US")).toBe(sample.descEn);
+    expect(getSampleDesc(sample, "zh-CN")).toBe(zhCN.desc);
+    expect(getSampleDesc(sample, "en-US")).toBe(sample.desc);
   });
 });
 

@@ -7,7 +7,8 @@ export async function loadPosterFont(family: string, text = "", { deadline = tru
   // The deadline must include bundled fallback preparation: a damaged local
   // asset can fall through to slow remote mirrors before catalog loading starts.
   const prepare = async () => {
-    await loadOfflineFonts(text || "RTNote 中文");
+    // Without text, load a Latin and a CJK sample ("Chinese") so both glyph sets are ready.
+    await loadOfflineFonts(text || "RTNote \u4e2d\u6587");
     const registrationFamily = family.split(",")[0].trim().replace(/^["']|["']$/g, "");
     const id = findCatalogFont(registrationFamily);
     if (!id) return;

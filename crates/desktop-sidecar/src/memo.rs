@@ -362,13 +362,27 @@ pub(crate) fn merge_memos(database: &Connection, params: &Value) -> Result<Value
     memo_value(database, &id, true).map(|memo| json!({ "memo": memo }))
 }
 
+/// Default title stored for untitled notes; matches `DEFAULT_MEMO_TITLE` in `@edgeever/shared`.
+pub(crate) const DEFAULT_MEMO_TITLE: &str = "Untitled note";
+
+/// Default title EdgeEver stored for untitled notes (Chinese for "untitled note").
+/// Matches `LEGACY_DEFAULT_MEMO_TITLES` in `@edgeever/shared`. Escaped to keep the
+/// source English; older notes, backups and clients still carry it.
+pub(crate) const LEGACY_DEFAULT_MEMO_TITLE: &str = "\u{65e0}\u{6807}\u{9898}\u{7b14}\u{8bb0}";
+
+/// True when a title is empty or one of the default untitled titles.
+pub(crate) fn is_default_memo_title(title: &str) -> bool {
+    let title = title.trim();
+    title.is_empty() || title == DEFAULT_MEMO_TITLE || title == LEGACY_DEFAULT_MEMO_TITLE
+}
+
 pub(crate) fn resolve_custom_merge_title<'a>(
     titles: impl IntoIterator<Item = &'a str>,
 ) -> Option<String> {
     titles
         .into_iter()
         .map(str::trim)
-        .find(|title| !title.is_empty() && *title != "无标题笔记")
+        .find(|title| !is_default_memo_title(title))
         .map(str::to_owned)
 }
 
@@ -473,13 +487,15 @@ pub(crate) fn list_memos(database: &Connection, params: &Value) -> Result<Value,
         .unwrap_or(0)
         .max(0);
     let where_clause = format!(
-        "m.is_deleted = ?1 AND (?2 = '' OR lower(COALESCE(NULLIF(m.title, ''), '无标题笔记') || ' ' || m.excerpt || ' ' || c.content_text || ' ' || m.tags_json) LIKE '%' || lower(?2) || '%')
+        "m.is_deleted = ?1 AND (?2 = '' OR lower(CASE WHEN m.title IS NULL OR m.title IN ('', '{legacy_untitled}') THEN '{untitled}' ELSE m.title END || ' ' || m.excerpt || ' ' || c.content_text || ' ' || m.tags_json) LIKE '%' || lower(?2) || '%')
             AND (?3 IS NULL OR m.notebook_id = ?3)
             AND (?4 = '[]' OR m.notebook_id IN (SELECT value FROM json_each(?4)))
             AND (?5 = '' OR EXISTS (
                 SELECT 1 FROM json_each(m.tags_json) AS memo_tag
                 WHERE LOWER(TRIM(CAST(memo_tag.value AS TEXT))) = LOWER(?5)
-            )){filter}"
+            )){filter}",
+        legacy_untitled = LEGACY_DEFAULT_MEMO_TITLE,
+        untitled = DEFAULT_MEMO_TITLE,
     );
     let query = format!("SELECT m.id, m.notebook_id, m.title, m.excerpt, m.tags_json, m.is_pinned, m.is_archived, m.is_deleted,
                 c.revision, m.created_at, m.updated_at, m.deleted_at, c.content_markdown

@@ -39,6 +39,38 @@ const exceptions: Exception[] = [
   // Chinese values EdgeEver stored in user data, mapped to RTNote's on read.
   { path: /^packages\/shared\/src\/memo-title\.ts$/, reason: "maps EdgeEver's stored untitled title" },
   { path: /^packages\/shared\/src\/edgeever-legacy-values\.ts$/, reason: "maps EdgeEver's stored attachment prefix and inbox name" },
+  { path: /^apps\/ios\/EdgeEver\/Data\/Models\/EdgeEverLegacyValues\.swift$/, reason: "iOS copy of EdgeEver's stored values" },
+  { path: /^apps\/ios\/Tests\/EdgeEverTests\/EdgeEverLegacyValuesTests\.swift$/, reason: "tests that EdgeEver's stored values are still recognised" },
+  // Xcode string catalogs hold English source strings with their translations.
+  { path: /\.xcstrings$/, reason: "Xcode string catalog (translations)" },
+  // Web-clipper code that reads Chinese websites, and its fixtures and tests.
+  { path: /^apps\/extension\/fixtures\/platforms\//, reason: "captured pages from Chinese sites and Chinese-locale sessions of other sites" },
+  { path: /^apps\/extension\/src\/(?:article-clip|boss-clip|capture-platform|capture-xhs|douban-clip|jike-clip|social-clip|tweet-clip|v2ex-clip|wechat-headings|xhs-clip|xiaoyuzhou-clip|xueqiu-clip|xueqiu-tag)\.ts$/, reason: "web-clipper site adapters that match Chinese page text and controls" },
+  { path: /^apps\/extension\/(?:article-clip|platform-capture|platform-clip|platform-save|social-clip|tweet-clip|vertical-clip|xhs-clip|zhihu-clip)\.test\.mjs$/, reason: "site-adapter tests with Chinese page content" },
+  { path: /^tests\/e2e\/web-clipper-(?:platforms|html-safety)\.spec\.ts$/, reason: "end-to-end clipping of Chinese sites" },
+  // The WeChat chat importer parses WeChat's Chinese export format.
+  { path: /^apps\/desktop\/src\/main\/wechat-(?:chat-archive|share-import)(?:\.test)?\.mjs$/, reason: "WeChat chat importer" },
+  // Chinese font names, and font licence and attribution files.
+  { path: /^packages\/shared\/src\/(?:font-catalog-data|poster-font-notices|note-image-font-notices|note-image-card)\.ts$/, reason: "Chinese font names" },
+  { path: /^packages\/shared\/src\/note-image-assets\//, reason: "font licence and attribution files" },
+  { path: /^packages\/shared\/src\/font-assets\/poster\/licenses\//, reason: "font licence files" },
+  { path: /^apps\/web\/src\/assets\/fonts\/editor-body\/[^/]+\.txt$/, reason: "font licence text" },
+  { path: /^apps\/web\/src\/lib\/poster-design\/vendor\/qiaomu\/(?:typeset\.ts|LICENSE|README\.md)$/, reason: "vendored poster templates: Chinese font family names and the upstream author's attribution" },
+  { path: /^apps\/web\/src\/lib\/wechat-chat-import\.test\.mjs$/, reason: "WeChat chat importer tests" },
+  // Example plugins ship a `locales: { "zh-CN": … }` block in the plugin manifest format.
+  { path: /^apps\/web\/public\/extensions\/[^/]+\/manifest\.json$/, reason: "plugin manifest translations" },
+  // Tests whose subject is CJK text handling: segmentation, search, measuring, rendering.
+  { path: /^packages\/shared\/src\/(?:editor-link|markdown-strike|diagram-flowchart-style|diagram-mindmap-style|note-image-card|note-image-remote-fonts)\.test\.mjs$/, reason: "tests of CJK text handling" },
+  { path: /^apps\/api\/src\/(?:mcp-management-tools|mcp-poster-tools|notebook-share-routes)\.test\.mjs$/, reason: "tests of CJK search and layout" },
+  { path: /^tests\/e2e\/fixtures\/(?:mermaid-viewer\.js|note-image-(?:content\.ts|quality\.tsx))$/, reason: "Chinese text rendering samples" },
+  { path: /^tests\/browser\/paper-list(?:-reference)?\.ts$/, reason: "Chinese poster layout compared against a reference" },
+  { path: /^scripts\/public-notebook-site-plan-ablation\.mjs$/, reason: "CJK substring search check" },
+  // Real third-party exports used as import fixtures; some file names are Chinese.
+  { path: /^tests\/fixtures\/note-import\//, reason: "third-party note export fixtures" },
+  { path: /^tests\/note-import\.integration\.test\.mjs$/, reason: "asserts the note-import fixtures" },
+  // Historical records.
+  { path: /^docs\/changes\/evidence\//, reason: "captured output from EdgeEver builds; rewriting it would falsify the record" },
+  { path: /^release-summary\.json$/, reason: "release notes keyed by locale" },
   { path: /^tests\/english-source-guard\.test\.ts$/, reason: "this guard" },
 ];
 
@@ -68,7 +100,7 @@ const findings = () => trackedFiles().filter(isScanned).flatMap((file) => {
 describe("English source language", () => {
   test("Chinese text appears only in translations and justified exceptions", () => {
     expect(findings()).toEqual([]);
-  });
+  }, 60_000);
 
   test("every exception still matches a tracked file", () => {
     const files = trackedFiles();

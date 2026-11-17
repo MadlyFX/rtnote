@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { ui } from "./fixtures/ui-labels";
 
 test("starts at the note list after a renderer failure instead of reopening the previous note", async ({ page }) => {
   await page.addInitScript(() => {
@@ -6,11 +7,11 @@ test("starts at the note list after a renderer failure instead of reopening the 
   });
   await page.goto("/");
 
-  await expect(page.getByRole("status").getByText("已进入安全启动模式")).toBeVisible();
+  await expect(page.getByRole("status").getByText(ui.errorScreens.safeModeTitle)).toBeVisible();
   const firstMemo = page.locator("[data-memo-id]").first();
   await expect(firstMemo).toBeVisible();
   await firstMemo.click();
 
-  await expect(page.getByText("已进入安全启动模式")).toHaveCount(0);
+  await expect(page.getByText(ui.errorScreens.safeModeTitle)).toHaveCount(0);
   await expect.poll(() => page.evaluate(() => window.localStorage.getItem("edgeever.renderer-recovery-required"))).toBeNull();
 });

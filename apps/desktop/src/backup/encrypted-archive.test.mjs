@@ -16,7 +16,7 @@ const encode = async (bytes, password) => {
 test("EDGB v1 authenticates its exact header and preserves Unicode and whitespace passwords", async () => {
   const path = await directory();
   const bytes = Buffer.from("A portable ZIP stream\n".repeat(100));
-  const password = "  备份 café  ";
+  const password = "  バックアップ café  ";
   const first = await encode(bytes, password);
   const second = await encode(bytes, password);
   expect(first.subarray(0, 4).toString()).toBe("EDGB");

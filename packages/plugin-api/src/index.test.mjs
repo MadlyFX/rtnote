@@ -31,16 +31,16 @@ describe("extension manifests", () => {
       settingsUi: "host",
       description: "English description",
       locales: {
-        zh_CN: { name: "本地化插件", description: " 中文说明 " },
-        ja: { description: "日本語の説明", html: "<script>" },
+        zh_CN: { name: "Localized plugin (zh-CN)", description: " Chinese description " },
+        ja: { description: "Japanese description", html: "<script>" },
       },
       entry: "./main.js",
       permissions: [],
     });
 
     expect(manifest.locales).toEqual({
-      "zh-CN": { name: "本地化插件", description: "中文说明" },
-      ja: { description: "日本語の説明" },
+      "zh-CN": { name: "Localized plugin (zh-CN)", description: "Chinese description" },
+      ja: { description: "Japanese description" },
     });
   });
 
@@ -164,7 +164,7 @@ describe("extension manifests", () => {
             key: "endpoint",
             type: "text",
             label: "Endpoint",
-            locales: { "zh-CN": { label: "服务地址", description: "连接地址", placeholder: "请输入地址" } },
+            locales: { "zh-CN": { label: "Service URL (zh-CN)", description: "Connection URL (zh-CN)", placeholder: "Enter a URL (zh-CN)" } },
             default: "https://example.com",
             className: "plugin-owned-layout",
             style: { color: "red" },
@@ -173,7 +173,7 @@ describe("extension manifests", () => {
           { key: "token", type: "secret", label: "Token", required: true },
           { key: "limit", type: "number", label: "Limit", default: 10, min: 1, max: 100 },
           { key: "enabled", type: "boolean", label: "Enabled", default: true },
-          { key: "format", type: "select", label: "Format", options: [{ value: "md", label: "Markdown" }], locales: { ja: { label: "形式", options: { md: "マークダウン" } } } },
+          { key: "format", type: "select", label: "Format", options: [{ value: "md", label: "Markdown" }], locales: { ja: { label: "Format (ja)", options: { md: "Markdown (ja)" } } } },
           {
             key: "topics.ai",
             type: "boolean",
@@ -197,8 +197,8 @@ describe("extension manifests", () => {
     expect(manifest.type).toBe("plugin");
     expect(manifest.settings?.fields).toHaveLength(6);
     expect(manifest.settings?.fields[0]).toMatchObject({ key: "endpoint", default: "https://example.com" });
-    expect(manifest.settings?.fields[0].locales?.["zh-CN"]).toEqual({ label: "服务地址", description: "连接地址", placeholder: "请输入地址" });
-    expect(manifest.settings?.fields[4].locales?.ja?.options).toEqual({ md: "マークダウン" });
+    expect(manifest.settings?.fields[0].locales?.["zh-CN"]).toEqual({ label: "Service URL (zh-CN)", description: "Connection URL (zh-CN)", placeholder: "Enter a URL (zh-CN)" });
+    expect(manifest.settings?.fields[4].locales?.ja?.options).toEqual({ md: "Markdown (ja)" });
     expect(manifest.settings?.fields[0]).not.toHaveProperty("className");
     expect(manifest.settings?.fields[0]).not.toHaveProperty("style");
     expect(manifest.settings?.fields[0]).not.toHaveProperty("html");
@@ -239,7 +239,7 @@ describe("extension manifests", () => {
     })).toThrow("between 1 and 100 items");
     expect(() => parseExtensionManifest({
       ...base,
-      settings: { fields: [{ key: "mode", type: "select", label: "Mode", options: [{ value: "a", label: "A" }], locales: { ja: { options: { missing: "不明" } } } }] },
+      settings: { fields: [{ key: "mode", type: "select", label: "Mode", options: [{ value: "a", label: "A" }], locales: { ja: { options: { missing: "Unknown (ja)" } } } }] },
     })).toThrow("invalid options");
   });
 });
@@ -253,7 +253,7 @@ describe("marketplace registry", () => {
         id: "org.edgeever.example",
         name: "Example",
         description: "Example plugin",
-        locales: { "zh-CN": { description: "示例插件" } },
+        locales: { "zh-CN": { description: "Example plugin (zh-CN)" } },
         author: "RTNote",
         publisher: "edgeever",
         category: "Productivity",
@@ -264,7 +264,7 @@ describe("marketplace registry", () => {
     }).entries[0]).toMatchObject({
       id: "org.edgeever.example",
       publisher: "edgeever",
-      locales: { "zh-CN": { description: "示例插件" } },
+      locales: { "zh-CN": { description: "Example plugin (zh-CN)" } },
       verification: { version: "1.0.0" },
     });
   });
@@ -321,7 +321,7 @@ describe("marketplace registry", () => {
         listing: "community",
         publisher: undefined,
       }],
-      revocations: [{ id: "com.example.old", reason: "仓库已转为私有", revokedAt: "2026-10-05T00:00:00.000Z" }],
+      revocations: [{ id: "com.example.old", reason: "Repository is now private", revokedAt: "2026-10-05T00:00:00.000Z" }],
     });
 
     expect(registry.entries[0]).toMatchObject({
@@ -333,7 +333,7 @@ describe("marketplace registry", () => {
     expect(registry.entries[0]).not.toHaveProperty("listing");
     expect(registry.entries[0]).not.toHaveProperty("publisher");
     expect(registry.revocations).toEqual([
-      { id: "com.example.old", reason: "仓库已转为私有", revokedAt: "2026-10-05T00:00:00.000Z" },
+      { id: "com.example.old", reason: "Repository is now private", revokedAt: "2026-10-05T00:00:00.000Z" },
     ]);
   });
 });
@@ -399,7 +399,7 @@ describe("community marketplace merge", () => {
       registryVersion: "1",
       updatedAt: "2026-10-05T00:00:00.000Z",
       entries: [communityEntry],
-      revocations: [{ id: "com.example.readwise", reason: "仓库已转为私有", revokedAt: "2026-10-05T00:00:00.000Z" }],
+      revocations: [{ id: "com.example.readwise", reason: "Repository is now private", revokedAt: "2026-10-05T00:00:00.000Z" }],
     });
     const remembered = rememberMarketplaceRevocations([], community.revocations);
     const merged = mergeCommunityMarketplace(bundled, community, new Set(remembered.map((item) => item.id)));

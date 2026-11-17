@@ -31,26 +31,26 @@ const paste = (editor, entries, shiftKey, lastKeyCode) =>
   pasteBlockMarkdown(viewOf(editor, shiftKey, lastKeyCode), clipboard(entries));
 
 // Excerpt of the sample attached to issue #660.
-const ISSUE_SAMPLE = `# 一级标题
+const ISSUE_SAMPLE = `# Heading level one
 
-## 2. 行内格式
+## 2. Inline formatting
 
-普通文字中包含 **粗体**、*斜体*、~~删除线~~ 和 \`行内代码\`。
+Plain text with **bold**, *italic*, ~~strikethrough~~ and \`inline code\`.
 
-- 第一项
-- 第二项，包含 **粗体**
-  - 第二层第一项
+- First item
+- Second item, with **bold**
+  - Nested first item
 
-1. 打开笔记。
-2. 粘贴 Markdown 文本。
+1. Open a note.
+2. Paste Markdown text.
 
-> 引用
+> Quote
 
 \`\`\`js
 const count = 1;
 \`\`\`
 
-| 列 A | 列 B |
+| Column A | Column B |
 | --- | --- |
 | 1 | 2 |
 `;

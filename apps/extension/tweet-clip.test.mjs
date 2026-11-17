@@ -15,10 +15,10 @@ import {
 
 const labels = {
   capturedAt: "2026-09-26T00:00:00.000Z",
-  sourceLabel: "来源",
-  capturedAtLabel: "抓取时间",
-  timeLabel: "时间",
-  altFallback: "图片",
+  sourceLabel: "Source",
+  capturedAtLabel: "Captured at",
+  timeLabel: "Time",
+  altFallback: "Image",
 };
 
 const tweet = {
@@ -46,7 +46,7 @@ describe("tweet note content", () => {
   test("keeps the visible post, quote, photo, and source link", () => {
     expect(cleanTweetText(tweet.text)).toBe("兄弟们，我今天挖到一个真狠活。");
     expect(tweetAuthorLine("火山哥", "@huoshan007")).toBe("火山哥 (@huoshan007)");
-    expect(tweetNoteTitle({ ...tweet, fallback: "一条推文" })).toBe("火山哥: 兄弟们，我今天挖到一个真狠活。");
+    expect(tweetNoteTitle({ ...tweet, fallback: "A post" })).toBe("火山哥: 兄弟们，我今天挖到一个真狠活。");
     const markdown = tweetNoteMarkdown({
       ...tweet,
       text: cleanTweetText(tweet.text),
@@ -57,7 +57,7 @@ describe("tweet note content", () => {
     expect(markdown).toContain("> Jianying (@jianying)\n> 无界面后台版");
     expect(markdown).toContain("![卡片 图](/api/v1/resources/res_1/blob)");
     expect(markdown).toContain("(https://x.com/huoshan007/status/123)");
-    expect(markdown).toContain("时间: " + clipDateTimeText("2026-09-26T01:00:00.000Z"));
+    expect(markdown).toContain("Time: " + clipDateTimeText("2026-09-26T01:00:00.000Z"));
     expect(markdown).not.toContain("pbs.twimg.com");
   });
 

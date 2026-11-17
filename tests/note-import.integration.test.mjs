@@ -902,7 +902,7 @@ describe("native third-party import through the real API", () => {
     expect(await executeNoteImport(options)).toMatchObject({ completed: 0, failed: 1 });
     expect(await executeNoteImport(options)).toMatchObject({ completed: 1, failed: 0 });
     const [state] = await session.index.page("result");
-    expect((await client.getMemo(state.memo.id)).memo.title).toBe("无标题笔记");
+    expect((await client.getMemo(state.memo.id)).memo.title).toBe("Untitled note");
     await session.close(); db.close();
   });
 

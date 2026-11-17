@@ -8,11 +8,11 @@ import {
 
 describe("single-note Markdown export", () => {
   test("creates a UTF-8 Markdown file with the current content", async () => {
-    const file = createMarkdownFile("# 标题\n\n当前未保存内容", "项目 / 计划", "Untitled note");
+    const file = createMarkdownFile("# Title\n\nCurrent unsaved content", "Project / Plan", "Untitled note");
 
-    expect(file.filename).toBe("项目 - 计划.md");
+    expect(file.filename).toBe("Project - Plan.md");
     expect(file.blob.type).toBe("text/markdown;charset=utf-8");
-    expect(await file.blob.text()).toBe("# 标题\n\n当前未保存内容");
+    expect(await file.blob.text()).toBe("# Title\n\nCurrent unsaved content");
   });
 
   test("sanitizes unsafe and reserved filenames", () => {

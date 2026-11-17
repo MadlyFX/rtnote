@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { ui } from "./fixtures/ui-labels";
 
 const createMemo = async (page: Page, title: string) => {
   const notebooksResponse = await page.request.get("/api/v1/notebooks");
@@ -29,7 +30,7 @@ const dispatchPaste = async (editor: Locator, entries: Record<string, string>) =
 
 const openMemo = async (page: Page, memo: { id: string }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "全部笔记", exact: true }).click();
+  await page.getByRole("button", { name: ui.notebookPane.allMemos, exact: true }).click();
   await page.locator(`[data-memo-id="${memo.id}"]`).locator("button").first().click();
   const editor = page.locator(".ProseMirror[contenteditable='true']");
   await expect(editor).toBeEditable();
@@ -39,23 +40,23 @@ const openMemo = async (page: Page, memo: { id: string }) => {
 
 // Issue #660: Markdown copied from a plain-text source.
 const MARKDOWN = [
-  "# 一级标题",
+  "# Heading one",
   "",
-  "普通文字中包含 **粗体**、*斜体*、~~删除线~~ 和 `行内代码`。",
+  "Plain text with **bold**, *italic*, ~~strikethrough~~ and `inline code`.",
   "",
-  "- 第一项",
-  "- 第二项",
+  "- First item",
+  "- Second item",
   "",
-  "1. 打开笔记。",
-  "2. 粘贴 Markdown 文本。",
+  "1. Open a note.",
+  "2. Paste Markdown text.",
   "",
-  "> 引用",
+  "> Quote",
   "",
   "```js",
   "const count = 1;",
   "```",
   "",
-  "| 列 A | 列 B |",
+  "| Column A | Column B |",
   "| --- | --- |",
   "| 1 | 2 |",
 ].join("\n");
@@ -68,19 +69,19 @@ test("renders Markdown pasted as plain text in the rich-text editor", async ({ p
     const editor = await openMemo(page, memo);
     await dispatchPaste(editor, { "text/plain": MARKDOWN });
 
-    await expect(editor.locator("h1")).toHaveText("一级标题");
-    await expect(editor.locator("strong")).toHaveText("粗体");
-    await expect(editor.locator("em")).toHaveText("斜体");
-    await expect(editor.locator("s")).toHaveText("删除线");
-    await expect(editor.locator("p code")).toHaveText("行内代码");
+    await expect(editor.locator("h1")).toHaveText("Heading one");
+    await expect(editor.locator("strong")).toHaveText("bold");
+    await expect(editor.locator("em")).toHaveText("italic");
+    await expect(editor.locator("s")).toHaveText("strikethrough");
+    await expect(editor.locator("p code")).toHaveText("inline code");
     await expect(editor.locator("ul > li")).toHaveCount(2);
     await expect(editor.locator("ol > li")).toHaveCount(2);
-    await expect(editor.locator("blockquote")).toContainText("引用");
-    const codeBlocks = editor.getByRole("button", { name: "复制代码" });
+    await expect(editor.locator("blockquote")).toContainText("Quote");
+    const codeBlocks = editor.getByRole("button", { name: ui.editorToolbar.copyCode });
     await expect(codeBlocks).toHaveCount(1);
     await expect(editor).toContainText("const count = 1;");
     await expect(editor.locator("table td")).toHaveCount(2);
-    await expect(editor).not.toContainText("# 一级标题");
+    await expect(editor).not.toContainText("# Heading one");
     await expect(editor).not.toContainText("| --- |");
 
     // One undo step removes the whole paste.
@@ -88,7 +89,7 @@ test("renders Markdown pasted as plain text in the rich-text editor", async ({ p
     await expect(editor.locator("h1")).toHaveCount(0);
     await expect(editor.locator("table")).toHaveCount(0);
     await page.keyboard.press("ControlOrMeta+Shift+z");
-    await expect(editor.locator("h1")).toHaveText("一级标题");
+    await expect(editor.locator("h1")).toHaveText("Heading one");
 
     // A code copy from VS Code stays a code block rather than becoming a list.
     await editor.locator("h1").click();
@@ -106,7 +107,7 @@ test("renders Markdown pasted as plain text in the rich-text editor", async ({ p
       const response = await page.request.get(`/api/v1/memos/${memo.id}`);
       const body = await response.json() as { memo: { contentMarkdown: string } };
       return body.memo.contentMarkdown;
-    }, { timeout: 20_000 }).toContain("# 一级标题");
+    }, { timeout: 20_000 }).toContain("# Heading one");
   } finally {
     await deleteMemo(page, memo.id);
   }

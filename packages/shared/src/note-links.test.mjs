@@ -4,10 +4,10 @@ import { docToMarkdown, markdownToDoc } from "./content.ts";
 
 describe("stable memo links", () => {
   test("round trips a memo id through the internal link format", () => {
-    const href = createMemoLinkHref("memo/中文 1");
+    const href = createMemoLinkHref("memo/café 1");
 
-    expect(href).toBe("#memo=memo%2F%E4%B8%AD%E6%96%87%201");
-    expect(parseMemoLinkHref(href)).toBe("memo/中文 1");
+    expect(href).toBe("#memo=memo%2Fcaf%C3%A9%201");
+    expect(parseMemoLinkHref(href)).toBe("memo/café 1");
   });
 
   test("rejects unrelated links", () => {
@@ -18,7 +18,7 @@ describe("stable memo links", () => {
   test("reads memo ids from resolved hash URLs", () => {
     expect(parseMemoLinkHref("/#memo=memo_flow")).toBe("memo_flow");
     expect(parseMemoLinkHref("http://127.0.0.1:5173/#memo=memo_flow")).toBe("memo_flow");
-    expect(parseMemoLinkHref("http://127.0.0.1:5173/#memo=memo%2F%E4%B8%AD")).toBe("memo/中");
+    expect(parseMemoLinkHref("http://127.0.0.1:5173/#memo=memo%2F%C3%A9")).toBe("memo/é");
   });
 
   test("restores the memo_ prefix when a model drops it from the hash", () => {
@@ -27,19 +27,19 @@ describe("stable memo links", () => {
   });
 
   test("preserves memo links in Markdown", () => {
-    const markdown = "查看 [项目笔记](#memo=memo_project)。";
+    const markdown = "See [Project notes](#memo=memo_project).";
     const doc = markdownToDoc(markdown);
 
     expect(doc.content[0]?.content?.[1]).toMatchObject({
       type: "text",
-      text: "项目笔记",
+      text: "Project notes",
       marks: [{ type: "link", attrs: { href: "#memo=memo_project" } }],
     });
     expect(docToMarkdown(doc)).toBe(markdown);
   });
 
   test("collects unique referenced memo ids from link marks", () => {
-    const doc = markdownToDoc("[项目](#memo=memo_project) 和 [项目副本](#memo=memo_project) 及 [待办](#memo=memo_todo)");
+    const doc = markdownToDoc("[Project](#memo=memo_project) and [Project copy](#memo=memo_project) and [To-do](#memo=memo_todo)");
 
     expect(collectMemoLinkIds(doc)).toEqual(["memo_project", "memo_todo"]);
   });

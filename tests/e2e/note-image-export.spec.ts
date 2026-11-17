@@ -1,6 +1,9 @@
 import { expect, test, type APIRequestContext, type Download } from "@playwright/test";
 import sharp from "sharp";
 
+// Runs in English; playwright.config.ts defaults to zh-CN.
+test.use({ locale: "en-US" });
+
 const E2E_USERNAME = process.env.EDGE_EVER_E2E_USERNAME || "admin";
 const E2E_PASSWORD = process.env.EDGE_EVER_E2E_PASSWORD || "admin123";
 
@@ -47,17 +50,17 @@ test("downloads a long note as one non-blank PNG or JPEG from the share dialog",
     await page.locator(`[data-memo-id="${memoId}"]`).locator("button").first().click();
     await expect(page.locator(".ProseMirror")).toContainText("Visible export content 80");
 
-    await page.getByRole("button", { name: /笔记更多操作|More note actions/ }).click();
-    await expect(page.getByRole("menuitem", { name: /导出 PNG|Export PNG/ })).toHaveCount(0);
-    await expect(page.getByRole("menuitem", { name: /导出 JPEG|Export JPEG/ })).toHaveCount(0);
-    await page.getByRole("menuitem", { name: /分享为图片|Share as image/ }).click();
-    const dialog = page.getByRole("dialog", { name: /分享为图片|Share as image/ });
+    await page.getByRole("button", { name: /More note actions/ }).click();
+    await expect(page.getByRole("menuitem", { name: /Export PNG/ })).toHaveCount(0);
+    await expect(page.getByRole("menuitem", { name: /Export JPEG/ })).toHaveCount(0);
+    await page.getByRole("menuitem", { name: /Share as image/ }).click();
+    const dialog = page.getByRole("dialog", { name: /Share as image/ });
     await expect(dialog).toBeVisible();
-    await expect(dialog.getByRole("img", { name: /笔记分享图片预览|Note image share preview/ })).toBeVisible({ timeout: 20_000 });
-    await expect(dialog.getByRole("checkbox", { name: /RTNote 品牌标识|RTNote branding/ })).toBeChecked();
+    await expect(dialog.getByRole("img", { name: /Note image share preview/ })).toBeVisible({ timeout: 20_000 });
+    await expect(dialog.getByRole("checkbox", { name: /RTNote branding/ })).toBeChecked();
 
     const pngDownloadPromise = page.waitForEvent("download");
-    await dialog.getByRole("button", { name: /下载图片|Download image/ }).click();
+    await dialog.getByRole("button", { name: /Download image/ }).click();
     const pngDownload = await pngDownloadPromise;
     expect(pngDownload.suggestedFilename()).toMatch(/\.png$/i);
     expect(pngDownload.suggestedFilename()).not.toMatch(/\.zip$/i);
@@ -68,14 +71,14 @@ test("downloads a long note as one non-blank PNG or JPEG from the share dialog",
     expect(pngImage.statistics.channels.some((channel) => channel.stdev > 5)).toBe(true);
     await expect(dialog).toBeVisible();
 
-    await dialog.getByRole("button", { name: /薄荷|Mint/ }).click();
-    await dialog.getByRole("checkbox", { name: /笔记本|Notebook/ }).click();
+    await dialog.getByRole("button", { name: /Mint/ }).click();
+    await dialog.getByRole("checkbox", { name: /Notebook/ }).click();
     await dialog.getByRole("combobox").click();
     await page.getByRole("option", { name: /JPEG/ }).click();
-    await expect(dialog.getByText(/正在生成预览|Generating preview/)).toBeHidden({ timeout: 20_000 });
+    await expect(dialog.getByText(/Generating preview/)).toBeHidden({ timeout: 20_000 });
 
     const shareDownloadPromise = page.waitForEvent("download");
-    await dialog.getByRole("button", { name: /下载图片|Download image/ }).click();
+    await dialog.getByRole("button", { name: /Download image/ }).click();
     const shareDownload = await shareDownloadPromise;
     expect(shareDownload.suggestedFilename()).toMatch(/\.jpg$/i);
     const sharedImage = await inspectDownload(shareDownload);

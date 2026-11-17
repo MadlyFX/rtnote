@@ -7,7 +7,7 @@ import { attachmentOpenInput, registerAttachmentOpenIpc } from "./attachment-ope
 
 const directories = [];
 afterEach(async () => { await Promise.all(directories.splice(0).map((path) => rm(path, { recursive: true, force: true }))); });
-const input = { url: "edgeever-resource://resource/res_1", filename: "训练.xlsx" };
+const input = { url: "edgeever-resource://resource/res_1", filename: "トレーニング.xlsx" };
 const fixture = async (overrides = {}) => {
   const directory = await mkdtemp(join(tmpdir(), "edgeever-open-test-"));
   directories.push(directory);
@@ -25,7 +25,7 @@ const fixture = async (overrides = {}) => {
 };
 
 test("accepts document/media/archive types and preserves safe extensions", () => {
-  for (const filename of ["训练.xlsx", "old.xls", "plan.docx", "old.doc", "slides.pptx", "report.pdf", "archive.zip", "clip.mp4", "sound.mp3", "notes.txt"]) {
+  for (const filename of ["トレーニング.xlsx", "old.xls", "plan.docx", "old.doc", "slides.pptx", "report.pdf", "archive.zip", "clip.mp4", "sound.mp3", "notes.txt"]) {
     expect(attachmentOpenInput({ ...input, filename })).toEqual({ ...input, filename });
   }
   for (const filename of ["program.exe", "file.pdf.exe", "run.sh", "run.command", "run.bat", "app.desktop", "link.lnk", "setup.msi", "code.js", "file", "unknown.bin", "file.hta", "open.url"]) {
@@ -35,7 +35,7 @@ test("accepts document/media/archive types and preserves safe extensions", () =>
   expect(attachmentOpenInput({ ...input, filename: "COM¹.pdf" }).filename).toBe("attachment_COM¹.pdf");
   expect(attachmentOpenInput({ ...input, filename: "NUL .txt" }).filename).toBe("attachment_NUL.txt");
   expect(attachmentOpenInput({ ...input, filename: 'C:\\folder\\a:b?.pdf. ' }).filename).toBe("a_b_.pdf");
-  expect(attachmentOpenInput({ ...input, filename: "文".repeat(200) + ".xlsx" }).filename.endsWith(".xlsx")).toBe(true);
+  expect(attachmentOpenInput({ ...input, filename: "ア".repeat(200) + ".xlsx" }).filename.endsWith(".xlsx")).toBe(true);
 });
 
 test("rejects arbitrary paths, network URLs and malformed internal resource addresses", () => {
@@ -48,7 +48,7 @@ test("streams complete bytes to a private, named copy before asking the OS to op
   const context = await fixture();
   expect(await context.open()).toEqual({ ok: true });
   const path = context.opened[0];
-  expect(basename(path)).toBe("训练.xlsx");
+  expect(basename(path)).toBe("トレーニング.xlsx");
   expect(await readFile(path, "utf8")).toBe("attachment bytes");
   expect(context.reads).toEqual([input.url]);
   if (process.platform !== "win32") expect((await stat(path)).mode & 0o777).toBe(0o600);
@@ -69,7 +69,7 @@ test("numbers repeated local copies while preserving the original cloud filename
   const tracked = [];
   const context = await fixture({ writeback: { track: async (value) => tracked.push(value) } });
   for (let index = 0; index < 3; index++) expect(await context.open()).toEqual({ ok: true });
-  expect(context.opened.map((path) => basename(path))).toEqual(["训练.xlsx", "训练 (2).xlsx", "训练 (3).xlsx"]);
+  expect(context.opened.map((path) => basename(path))).toEqual(["トレーニング.xlsx", "トレーニング (2).xlsx", "トレーニング (3).xlsx"]);
   expect(tracked.map(({ filename }) => filename)).toEqual([input.filename, input.filename, input.filename]);
   expect(tracked.map(({ localFilename }) => localFilename)).toEqual(context.opened.map((path) => basename(path)));
 });

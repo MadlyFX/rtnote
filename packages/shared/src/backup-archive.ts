@@ -1,5 +1,6 @@
 import { EDGEEVER_ZIP_FORMAT, EDGEEVER_ZIP_FORMAT_VERSION, JsonBackupManifestSchema, JsonBackupMemoSchema, JsonBackupNotebookSchema, type JsonBackupManifest, type JsonBackupMemo, type JsonBackupNotebook, type JsonBackupResource, type JsonBackupRevision } from "./backup";
 import type { MemoDetail, Notebook, Resource } from "./types";
+import { DEFAULT_MEMO_TITLE, normalizeLegacyMemoTitle } from "./memo-title";
 import { Reader, ZipReader, ZipWriter, Uint8ArrayReader, type CreateReadableOptions } from "@zip.js/zip.js/index-native.js";
 import { buildNoteMarkdown, buildNotebookExportPaths, getExportResourceExtension, replaceExportResourceUrl, sanitizeExportPathSegment, uniqueExportName } from "./backup-markdown";
 const strToU8 = (value: string) => new TextEncoder().encode(value);
@@ -140,7 +141,7 @@ export const createEdgeEverZipStream = async (
           const notebookPath = notebookPaths.get(memo.notebookId) ?? "Unfiled";
           const usedNames = memoNamesByNotebook.get(notebookPath) ?? new Set<string>();
           memoNamesByNotebook.set(notebookPath, usedNames);
-          const stem = uniqueExportName(sanitizeExportPathSegment(memo.title?.trim() || "Untitled note", "Untitled note"), usedNames);
+          const stem = uniqueExportName(sanitizeExportPathSegment(normalizeLegacyMemoTitle(memo.title?.trim() || DEFAULT_MEMO_TITLE), DEFAULT_MEMO_TITLE), usedNames);
           const directory = `notes/${notebookPath}`;
           const assets = `${stem}.assets`;
           const resourceNames = new Set<string>();

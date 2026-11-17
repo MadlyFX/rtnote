@@ -23,24 +23,30 @@ const collectKeys = (value, prefix = "") => {
   return Object.keys(value).flatMap((key) => collectKeys(value[key], prefix ? `${prefix}.${key}` : key));
 };
 
+// English (en-US) is the source language and the reference catalog: every
+// other locale must have exactly its keys.
+const translations = { "zh-CN": zhCN, "zh-TW": zhTW, ja, pl, ru, es, de, fr };
+
 describe("shared i18n catalogs", () => {
-  test("ships Japanese alongside Chinese and English with matching keys", () => {
+  test("lists English first among the supported locales", () => {
     expect(supportedLocales).toEqual(["en-US", "zh-CN", "zh-TW", "ja", "pl", "ru", "es", "de", "fr"]);
-    expect(collectKeys(ja)).toEqual(collectKeys(enUS));
-    expect(collectKeys(ja)).toEqual(collectKeys(zhCN));
+  });
+
+  test.each(Object.entries(translations))("%s has exactly the keys of the en-US reference catalog", (_locale, catalog) => {
+    const reference = new Set(collectKeys(enUS));
+    const keys = new Set(collectKeys(catalog));
+    expect([...reference].filter((key) => !keys.has(key))).toEqual([]);
+    expect([...keys].filter((key) => !reference.has(key))).toEqual([]);
+  });
+
+  test("translations are in their own language", () => {
+    expect(zhCN.login.title).toContain("登录");
     expect(ja.login.title).toContain("サインイン");
-    expect(ja.editor.imageScale).toContain("画像");
-    expect(collectKeys(zhTW)).toEqual(collectKeys(enUS));
     expect(zhTW.login.title).toContain("登入");
-    expect(collectKeys(pl)).toEqual(collectKeys(enUS));
     expect(pl.login.title).toContain("Zaloguj");
-    expect(collectKeys(ru)).toEqual(collectKeys(enUS));
     expect(ru.login.title).toContain("Вход");
-    expect(collectKeys(es)).toEqual(collectKeys(enUS));
     expect(es.login.title).toContain("Iniciar");
-    expect(collectKeys(de)).toEqual(collectKeys(enUS));
     expect(de.login.title).toContain("anmelden");
-    expect(collectKeys(fr)).toEqual(collectKeys(enUS));
     expect(fr.login.title).toContain("connecter");
   });
 });

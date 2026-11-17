@@ -1,0 +1,43 @@
+// Japanese translation of the native menu and screenshot overlay copy. English source: desktop-menu.mjs.
+
+export const menuCopy = {
+  about: "RTNote について",
+  addToDictionary: "辞書に追加",
+  close: "ウインドウを閉じる",
+  copy: "コピー",
+  copyLinkAddress: "リンクのアドレスをコピー",
+  cut: "カット",
+  edit: "編集",
+  file: "ファイル",
+  focusSearch: "検索に移動",
+  front: "すべてを手前に移動",
+  hide: "RTNote を非表示",
+  minimize: "しまう",
+  newMemo: "新規ノート",
+  newNotebook: "新規ノートブック",
+  openNoteWindow: "新しいウインドウでノートを開く",
+  paste: "ペースト",
+  pasteAsPlainText: "プレーンテキストとしてペースト",
+  quit: "RTNote を終了",
+  resetZoom: "実際のサイズ",
+  restartToUpdate: "再起動してアップデート",
+  screenshotFailed: "スクリーンショットを撮れませんでした。初めての場合は、システム設定で RTNote の画面収録を許可してください。",
+  screenshotToNote: "画面をノートに取り込む",
+  selectAll: "すべてを選択",
+  show: "RTNote を表示",
+  toggleFocusMode: "集中モードの切り替え",
+  toggleFullScreen: "フルスクリーンの切り替え",
+  undo: "取り消す",
+  redo: "やり直す",
+  view: "表示",
+  window: "ウインドウ",
+  zoom: "拡大/縮小",
+  zoomIn: "拡大",
+  zoomOut: "縮小",
+};
+
+export const regionCopy = {
+  hint: "ドラッグして範囲を選択し、離すとノートに保存します",
+  cancel: "Esc でキャンセル",
+  full: "ダブルクリックで画面全体",
+};

@@ -10,7 +10,7 @@ const serve = (handler) => {
 };
 const image = (endpoint, extra = {}) => ({
   endpoint, token: "imgbed-token", uploadFolder: "notes/2026/10", nameType: "default",
-  filename: "截图.png", mimeType: "image/png", bytes: new Uint8Array([137, 80, 78, 71]), ...extra,
+  filename: "スクショ.png", mimeType: "image/png", bytes: new Uint8Array([137, 80, 78, 71]), ...extra,
 });
 
 test("posts the image with bearer token, folder and naming, and prefers publicUrl", async () => {
@@ -23,10 +23,10 @@ test("posts the image with bearer token, folder and naming, and prefers publicUr
     expect(url.searchParams.get("serverCompress")).toBe("false");
     expect(request.headers.get("authorization")).toBe("Bearer imgbed-token");
     const file = (await request.formData()).get("file");
-    expect(file.name).toBe("截图.png");
+    expect(file.name).toBe("スクショ.png");
     expect(file.type).toBe("image/png");
     expect(new Uint8Array(await file.arrayBuffer())).toEqual(new Uint8Array([137, 80, 78, 71]));
-    return Response.json([{ src: "/file/abc_截图.png", publicUrl: "https://cdn.example.com/abc.png" }]);
+    return Response.json([{ src: "/file/abc_スクショ.png", publicUrl: "https://cdn.example.com/abc.png" }]);
   });
   expect(await uploadImgBedImage(image(endpoint, { nameType: "short", uploadChannel: "cfr2", serverCompress: false }))).toEqual({ url: "https://cdn.example.com/abc.png" });
 });

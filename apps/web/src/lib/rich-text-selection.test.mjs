@@ -8,14 +8,14 @@ import { getRichTextSelectionContext, markdownForRichTextSelection } from "@edge
 
 describe("markdownForRichTextSelection", () => {
   test("keeps list-like single-line output inline inside a paragraph", () => {
-    expect(markdownForRichTextSelection("1. - 校对", true)).toEqual([
-      { type: "text", text: "1. - 校对" },
+    expect(markdownForRichTextSelection("1. - Proofread", true)).toEqual([
+      { type: "text", text: "1. - Proofread" },
     ]);
   });
 
   test("does not split the surrounding paragraph when applying the replacement", () => {
-    const text = "入口放在笔记栏中，1. - 校对先预览结果，再进行写入。";
-    const selectedText = "1. - 校对";
+    const text = "The entry sits in the note bar, 1. - Proofread previews the result before writing.";
+    const selectedText = "1. - Proofread";
     const from = text.indexOf(selectedText) + 1;
     const editor = new Editor({
       extensions: [StarterKit],
@@ -39,11 +39,11 @@ describe("markdownForRichTextSelection", () => {
 
   test("keeps a selected list item in its existing list instead of nesting another list", () => {
     const originalMarkdown = [
-      "入口放在选中文本菜单和笔记栏中，",
+      "The entry sits in the selection menu and the note bar,",
       "",
-      "1. - 校对",
+      "1. - Proofread",
       "",
-      "先预览结果，再进行写入。",
+      "previewing the result before writing.",
     ].join("\n");
     const editor = new Editor({
       extensions: [StarterKit],
@@ -61,7 +61,7 @@ describe("markdownForRichTextSelection", () => {
       NodeSelection.create(editor.state.doc, listPosition),
     );
     expect(context).toMatchObject({
-      contentMarkdown: "- 校对",
+      contentMarkdown: "- Proofread",
       isInline: true,
     });
 
@@ -75,21 +75,21 @@ describe("markdownForRichTextSelection", () => {
   });
 
   test("preserves inline Markdown marks", () => {
-    expect(markdownForRichTextSelection("改得 **自然** 一些", true)).toEqual([
-      { type: "text", text: "改得 " },
-      { type: "text", text: "自然", marks: [{ type: "bold" }] },
-      { type: "text", text: " 一些" },
+    expect(markdownForRichTextSelection("make it **more** natural", true)).toEqual([
+      { type: "text", text: "make it " },
+      { type: "text", text: "more", marks: [{ type: "bold" }] },
+      { type: "text", text: " natural" },
     ]);
   });
 
   test("collapses multi-block output when replacing an inline selection", () => {
-    expect(markdownForRichTextSelection("第一段\n\n第二段", true)).toEqual([
-      { type: "text", text: "第一段 第二段" },
+    expect(markdownForRichTextSelection("First paragraph\n\nSecond paragraph", true)).toEqual([
+      { type: "text", text: "First paragraph Second paragraph" },
     ]);
   });
 
   test("keeps block parsing when the original selection spans blocks", () => {
-    expect(markdownForRichTextSelection("1. - 校对", false)[0]?.type).toBe("orderedList");
+    expect(markdownForRichTextSelection("1. - Proofread", false)[0]?.type).toBe("orderedList");
   });
 
   test("replaces a table node selected at the start of the document", () => {

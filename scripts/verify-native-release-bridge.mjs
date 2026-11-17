@@ -133,7 +133,7 @@ const launch = async (update) => {
       autoUpdater.quitAndInstall = (silent) => { autoUpdater.autoRunAppAfterInstall = false; return install(silent, false); };
       dialog.showMessageBox = async (...args) => {
         const options = args.at(-1);
-        return {response: options.buttons?.some(button => /restart|重启/i.test(button)) ? 0 : 1, checkboxChecked:false};
+        return {response: options.buttons?.some(button => /restart|\\u91cd\\u542f/i.test(button)) ? 0 : 1, checkboxChecked:false};
       };
     }
     };

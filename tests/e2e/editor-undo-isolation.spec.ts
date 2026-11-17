@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { ui } from "./fixtures/ui-labels";
 
 test("keeps undo history isolated when switching between search results", async ({ page }) => {
   const marker = `undo-isolation-${Date.now()}`;
@@ -21,8 +22,8 @@ test("keeps undo history isolated when switching between search results", async 
 
   try {
     await page.goto("/");
-    await page.getByRole("button", { name: "全部笔记", exact: true }).click();
-    await page.getByPlaceholder("搜索笔记").fill(marker);
+    await page.getByRole("button", { name: ui.notebookPane.allMemos, exact: true }).click();
+    await page.getByPlaceholder(ui.memoList.searchPlaceholder).fill(marker);
 
     await page.locator(`[data-memo-id="${first.id}"]`).locator("button").first().click();
     const editor = page.locator(".ProseMirror[contenteditable='true']");

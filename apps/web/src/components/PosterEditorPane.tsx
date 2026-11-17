@@ -2,6 +2,7 @@ import { withFontDeadline } from "@edgeever/shared/font-loader";
 import { FontLoadFeedback } from "./FontLoadFeedback";
 import { createFontLoadState } from "@/lib/font-load-state";
 import { loadPosterFont } from "@/lib/poster-design/fonts";
+import { SOURCE_HAN_SANS, SOURCE_HAN_SANS_HEAVY } from "@/lib/poster-design/vendor/qiaomu/typeset";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -433,8 +434,8 @@ export default function PosterEditorPane({
       fontSize: Math.round(size),
       fontFamily: zh
         ? style === "heading"
-          ? "思源黑体 Heavy"
-          : "思源黑体"
+          ? SOURCE_HAN_SANS_HEAVY
+          : SOURCE_HAN_SANS
         : "Inter",
       fontWeight: "normal",
       textAlign: "left",

@@ -1,0 +1,10 @@
+/* Simplified Chinese labels for the numbered heading chrome in note-prose-styles.css. */
+:root:lang(zh) .edgeever-editor[data-note-heading-style="numbered"] .ProseMirror h1::before,
+:root:lang(zh) .edgeever-editor[data-note-heading-style="numbered"] .markdown-content h1::before {
+  content: "●  FEATURED · 深度实测";
+}
+
+:root:lang(zh) .edgeever-editor[data-note-heading-style="numbered"] .ProseMirror h1::after,
+:root:lang(zh) .edgeever-editor[data-note-heading-style="numbered"] .markdown-content h1::after {
+  content: "RTNOTE · 精选笔记";
+}
