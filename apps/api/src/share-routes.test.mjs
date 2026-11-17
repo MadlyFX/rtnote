@@ -49,10 +49,9 @@ class SqliteD1Database {
 const sourceToken = "s".repeat(43);
 const targetToken = "t".repeat(43);
 
-const createDatabaseEnvironment = ({ presentationMigration = true } = {}) => {
+const createDatabaseEnvironment = () => {
   const sqlite = new Database(":memory:");
   for (const migration of globSync("migrations/*.sql").sort()) {
-    if (!presentationMigration && migration.endsWith("0083_memo_share_presentation.sql")) continue;
     sqlite.exec(readFileSync(migration, "utf8"));
   }
   sqlite.query("INSERT INTO workspaces (id, name, is_personal) VALUES (?, ?, 1)")
@@ -106,15 +105,14 @@ describe("public memo shares", () => {
     sqlite.close();
   });
 
-  test("defaults both presentation settings on for migrated shares and new shares", async () => {
-    const { sqlite, environment } = createDatabaseEnvironment({ presentationMigration: false });
+  test("defaults both presentation settings on for existing and new shares", async () => {
+    const { sqlite, environment } = createDatabaseEnvironment();
     try {
       sqlite.exec("UPDATE memo_shares SET show_details = 0");
-      const before = sqlite.query("SELECT * FROM memo_shares ORDER BY id").all();
-      sqlite.exec(readFileSync("migrations/0083_memo_share_presentation.sql", "utf8"));
-      expect(sqlite.prepare("SELECT * FROM memo_shares ORDER BY id").all()).toEqual(
-        before.map((row) => ({ ...row, show_updated_at: 1, show_branding: 1 })),
-      );
+      expect(sqlite.query("SELECT show_updated_at, show_branding FROM memo_shares").all()).toEqual([
+        { show_updated_at: 1, show_branding: 1 },
+        { show_updated_at: 1, show_branding: 1 },
+      ]);
       const app = createShareApp(environment);
       for (const path of ["/api/v1/memos/memo_source/share", `/api/public/shares/${sourceToken}`]) {
         const share = (await (await app.request(path, {}, environment)).json()).share;
@@ -887,27 +885,6 @@ describe("memo share expiry and views", () => {
   const json = (body) => ({ method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
   const shareRow = (sqlite, token = sourceToken) =>
     sqlite.query("SELECT expires_at, view_count, last_viewed_at, updated_at, password_hash FROM memo_shares WHERE token = ?").get(token);
-
-  test("adds the columns to existing shares without changing them", async () => {
-    const sqlite = new Database(":memory:");
-    try {
-      for (const migration of globSync("migrations/*.sql").sort()) {
-        if (migration.endsWith("0087_memo_share_expiry_views.sql")) continue;
-        sqlite.exec(readFileSync(migration, "utf8"));
-      }
-      sqlite.query("INSERT INTO workspaces (id, name, is_personal) VALUES ('ws_old', 'Old', 1)").run();
-      sqlite.query("INSERT INTO notebooks (id, workspace_id, name) VALUES ('nb_old', 'ws_old', 'Inbox')").run();
-      sqlite.query("INSERT INTO memos (id, workspace_id, notebook_id, title) VALUES ('memo_old', 'ws_old', 'nb_old', 'Old')").run();
-      sqlite.query("INSERT INTO memo_shares (id, memo_id, workspace_id, token) VALUES ('share_old', 'memo_old', 'ws_old', ?)").run(sourceToken);
-      const before = sqlite.query("SELECT * FROM memo_shares").all();
-      sqlite.exec(readFileSync("migrations/0087_memo_share_expiry_views.sql", "utf8"));
-      expect(sqlite.prepare("SELECT * FROM memo_shares").all()).toEqual(
-        before.map((row) => ({ ...row, expires_at: null, view_count: 0, last_viewed_at: null })),
-      );
-    } finally {
-      sqlite.close();
-    }
-  });
 
   test("sets, normalizes, extends and removes the expiry without touching the password", async () => {
     const { sqlite, environment } = createDatabaseEnvironment();

@@ -246,9 +246,9 @@ describe("first sign-in seed localization", () => {
   });
 
   test("keeps the demo's own seed in the visitor's language", async () => {
-    // The demo keeps the zh-CN names that the installation migrations seed.
-    expect(await signIn({ demo: true, body: { locale: "en-US" } }))
-      .toEqual({ status: 200, inbox: seededInboxName("zh-CN"), pending: 0 });
+    // The demo keeps the en-US names that the baseline migration seeds.
+    expect(await signIn({ demo: true, body: { locale: "pl" } }))
+      .toEqual({ status: 200, inbox: seededInboxName("en-US"), pending: 0 });
   });
 });
 

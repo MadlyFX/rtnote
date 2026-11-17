@@ -10,13 +10,12 @@ import {
 import { DEMO_SEED_MEMOS } from "./demo-seed-data.ts";
 import { DEMO_RESET_TIP_MARKER_ZH } from "./demo-seed-data.zh-CN.ts";
 
-const MIGRATION = "0079_workspace_example_seeds.sql";
 const migrationFiles = globSync("migrations/*.sql").sort();
 const opened = [];
 afterEach(() => opened.splice(0).forEach((sqlite) => sqlite.close()));
 
-const migrate = (sqlite, filter = () => true) => {
-  for (const file of migrationFiles.filter(filter)) sqlite.exec(readFileSync(file, "utf8"));
+const migrate = (sqlite) => {
+  for (const file of migrationFiles) sqlite.exec(readFileSync(file, "utf8"));
 };
 
 const openDatabase = () => {
@@ -40,14 +39,6 @@ const openDatabase = () => {
 const freshInstallation = () => {
   const database = openDatabase();
   migrate(database.sqlite);
-  return database;
-};
-
-const upgradedInstallation = (prepare) => {
-  const database = openDatabase();
-  migrate(database.sqlite, (file) => file < `migrations/${MIGRATION}`);
-  prepare(database.sqlite);
-  migrate(database.sqlite, (file) => file >= `migrations/${MIGRATION}`);
   return database;
 };
 
@@ -121,26 +112,26 @@ describe("workspace example seed", () => {
     expect(exampleCounts(sqlite)).toEqual({ "demo-features": 7, "feature-demos": 7 });
   });
 
-  test("does not backfill an installation that already has another note", async () => {
-    const { sqlite, env } = upgradedInstallation((existing) => {
-      existing.query(
-        `INSERT INTO memos (id, notebook_id, title, created_by, updated_by)
-         VALUES ('memo_user', 'nb_inbox', 'My own note', 'usr_owner', 'usr_owner')`,
-      ).run();
-    });
+  test("drops a pending seed when the workspace already has another note", async () => {
+    const { sqlite, env } = freshInstallation();
+    sqlite.query(
+      `INSERT INTO memos (id, notebook_id, title, created_by, updated_by)
+       VALUES ('memo_user', 'nb_inbox', 'My own note', 'usr_owner', 'usr_owner')`,
+    ).run();
+
+    await ensureWorkspaceExampleSeed(env, "ws_default");
 
     expect(pending(sqlite)).toEqual([]);
-    await ensureWorkspaceExampleSeed(env, "ws_default");
     expect(exampleCounts(sqlite)).toEqual({});
   });
 
-  test("does not backfill a welcome note the user has edited", async () => {
-    const { sqlite, env } = upgradedInstallation((existing) => {
-      existing.query("UPDATE memos SET updated_by = 'usr_owner' WHERE id = 'memo_welcome'").run();
-    });
+  test("drops a pending seed when the user has edited the welcome note", async () => {
+    const { sqlite, env } = freshInstallation();
+    sqlite.query("UPDATE memos SET updated_by = 'usr_owner' WHERE id = 'memo_welcome'").run();
+
+    await ensureWorkspaceExampleSeed(env, "ws_default");
 
     expect(pending(sqlite)).toEqual([]);
-    await ensureWorkspaceExampleSeed(env, "ws_default");
     expect(exampleCounts(sqlite)).toEqual({});
   });
 

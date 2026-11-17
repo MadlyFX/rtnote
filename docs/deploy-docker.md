@@ -137,6 +137,10 @@ before it starts accepting traffic. Take a backup first. Application rollback
 does not reverse a database migration; restore the pre-upgrade volume backup
 when a data rollback is required.
 
+A database that stopped partway through the migrations RTNote inherited from
+EdgeEver must finish them on an older release before it can take
+`0100_baseline.sql`; see [Database baseline](database-baseline.md).
+
 The image default command is `bun scripts/self-hosted-server.js`. It also keeps
 `scripts/self-hosted-server.mjs` as an alias, because NAS and GUI panels often
 reuse a saved command. If logs show

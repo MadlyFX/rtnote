@@ -27,7 +27,7 @@ What can be customised:
 
 ### How it is stored and served
 
-- `branding_profiles` (migration `0094_branding.sql`) holds one row per level: `instance`, `workspace:<id>` or `notebook:<id>`. Deleting a workspace or notebook deletes its row.
+- `branding_profiles` (created in `migrations/0100_baseline.sql`) holds one row per level: `instance`, `workspace:<id>` or `notebook:<id>`. Deleting a workspace or notebook deletes its row.
 - Logos are uploaded attachments in `branding_assets`, stored under `workspaces/<id>/branding/` or `instance/branding/`. They are served without authentication at `/api/public/branding/assets/<id>` because they appear on sign-in and public pages. Ids are random and files never change, so they cache forever. Uploads are checked by content (PNG, JPEG, WebP, SVG or ICO, up to 1 MB). SVGs are served with a sandboxing Content-Security-Policy. Uploads that no level references are deleted a day later.
 - `memo_shares.branding_notebook_id` records which notebook's branding a shared note uses.
 - The server renders branding into the first response of shared notes, notebook sites and public forms (title, favicon, theme colour, a colour stylesheet and the branding JSON the page reads before it renders), and into `/manifest.webmanifest`. On Cloudflare these paths run the worker first (`wrangler.toml`).

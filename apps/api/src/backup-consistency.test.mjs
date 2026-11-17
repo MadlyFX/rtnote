@@ -15,23 +15,23 @@ const cleanups = [];
 afterEach(() => cleanups.splice(0).forEach((cleanup) => cleanup()));
 const auth = { kind: "user", actorType: "user", actorId: "backup-test-user", username: "owner", displayName: "Owner", scopes: [], workspaceId: "ws_default", role: "owner" };
 
+// Paging indexes the protocol relies on; tests drop them to compare query plans
+// with and without, then create them again exactly as the baseline does.
+const MEMO_ID_PAGING_INDEX = "CREATE INDEX idx_memos_workspace_id ON memos(workspace_id, id)";
+const EXPORT_CURSOR_INDEX = "CREATE INDEX idx_memos_workspace_created_export ON memos(workspace_id, is_deleted, created_at, id)";
+
 const installation = async ({ includeExportIndex = true, includeMemoIdIndex = true } = {}) => {
   const sqlite = new Database(":memory:");
-  const migrations = globSync("migrations/*.sql").sort();
-  // Start with the existing schema and data, then upgrade it in place.
-  // Migrations that drop tables 0080 adds triggers to run after it, as on a real upgrade.
-  const afterRevision = migrations.filter((file) => file.endsWith("0093_drop_ai_writing_assist.sql"));
-  for (const file of migrations.filter((file) => !file.endsWith("0080_backup_revision.sql")
-    && !afterRevision.includes(file)
-    && (includeExportIndex || !file.endsWith("0085_export_cursor_index.sql"))
-    && (includeMemoIdIndex || !file.endsWith("0086_memo_id_paging_index.sql")))) sqlite.exec(readFileSync(file, "utf8"));
+  for (const file of globSync("migrations/*.sql").sort()) sqlite.exec(readFileSync(file, "utf8"));
+  if (!includeExportIndex) sqlite.exec("DROP INDEX idx_memos_workspace_created_export");
+  if (!includeMemoIdIndex) sqlite.exec("DROP INDEX idx_memos_workspace_id");
   const directory = mkdtempSync(join(tmpdir(), "edgeever-backup-protocol-"));
   cleanups.push(() => { sqlite.close(); rmSync(directory, { recursive: true, force: true }); });
   const storage = createSelfHostedStorageAdapter(sqlite, directory);
   const inbox = sqlite.query("SELECT id FROM notebooks WHERE workspace_id = 'ws_default' AND slug = 'inbox'").get().id;
-  const note = await createMemoRecord(storage.db, "ws_default", { notebookId: inbox, title: "Before upgrade", contentMarkdown: "original body", tags: ["backup"] }, auth, "owner");
-  sqlite.exec(readFileSync("migrations/0080_backup_revision.sql", "utf8"));
-  for (const file of afterRevision) sqlite.exec(readFileSync(file, "utf8"));
+  const note = await createMemoRecord(storage.db, "ws_default", { notebookId: inbox, title: "Existing note", contentMarkdown: "original body", tags: ["backup"] }, auth, "owner");
+  // Start every test from revision 0 with data already present.
+  sqlite.exec("UPDATE workspaces SET backup_revision = 0");
   let activeAuth = auth;
   const app = new Hono();
   app.use("/api/v1/*", async (c, next) => { c.set("auth", activeAuth); await next(); });
@@ -47,7 +47,7 @@ const installation = async ({ includeExportIndex = true, includeMemoIdIndex = tr
 
 const pageUrl = (state, kind = "memos", after = "") => `/api/v1/backups/data?${new URLSearchParams({ kind, identity: state.identity, revision: state.backupRevision, after, limit: "1" })}`;
 
-describe("consistent backup reads across a real schema upgrade", () => {
+describe("consistent backup reads", () => {
   test("upgrades populated backup and bootstrap pages to workspace-scoped ID seeks without changing their data", async () => {
     const db = await installation({ includeMemoIdIndex: false });
     db.sqlite.exec("INSERT INTO workspaces(id,name) VALUES('ws_other','Other'); INSERT INTO notebooks(id,workspace_id,name) VALUES('nb_other','ws_other','Other');");
@@ -119,7 +119,7 @@ describe("consistent backup reads across a real schema upgrade", () => {
     const explain = ({ sql, values }) => db.sqlite.query(`EXPLAIN QUERY PLAN ${sql}`).all(...values);
     expect(pageQueries.some(query => explain(query).some(row => row.parent === 0 && row.detail.includes("TEMP B-TREE FOR ORDER BY")))).toBe(true);
     pageQueries.length = 0;
-    db.sqlite.exec(readFileSync("migrations/0086_memo_id_paging_index.sql", "utf8"));
+    db.sqlite.exec(MEMO_ID_PAGING_INDEX);
     expect(dataSnapshot()).toEqual(beforeData);
     expect(await readAll()).toEqual(before);
     expect(pageQueries.length).toBeGreaterThan(2);
@@ -140,7 +140,7 @@ describe("consistent backup reads across a real schema upgrade", () => {
     }, auth, "owner");
     const snapshot = () => db.sqlite.query("SELECT m.*, c.content_markdown, c.content_json, c.content_hash, c.revision FROM memos m JOIN memo_contents c ON c.memo_id=m.id ORDER BY m.id").all();
     const before = snapshot();
-    db.sqlite.exec(readFileSync("migrations/0085_export_cursor_index.sql", "utf8"));
+    db.sqlite.exec(EXPORT_CURSOR_INDEX);
     expect(snapshot()).toEqual(before);
     const expected = db.sqlite.query("SELECT id FROM memos WHERE workspace_id='ws_default' AND is_deleted=0 ORDER BY created_at,id").all().map(row => row.id);
     for (const endpoint of ["backups/json", "exports/markdown"]) {

@@ -6,8 +6,8 @@ import {
 } from "@edgeever/shared";
 import {
   LEGACY_WELCOME_MEMO_TITLES,
-  WELCOME_MEMO_REPAIRED_CONTENT_HASH,
-  WELCOME_MEMO_SEED_CONTENT_HASH,
+  LEGACY_WELCOME_MEMO_REPAIRED_CONTENT_HASH,
+  LEGACY_WELCOME_MEMO_SEED_CONTENT_HASH,
   WELCOME_MEMO_TRANSLATIONS,
   buildWelcomeMemoContent,
 } from "@edgeever/shared/default-workspace-seeds";
@@ -52,8 +52,8 @@ export const markWorkspaceExampleSeedPendingStatement = (
 
 const knownWelcomeContentHashes = async () => {
   const hashes = new Set<string>([
-    WELCOME_MEMO_SEED_CONTENT_HASH,
-    WELCOME_MEMO_REPAIRED_CONTENT_HASH,
+    LEGACY_WELCOME_MEMO_SEED_CONTENT_HASH,
+    LEGACY_WELCOME_MEMO_REPAIRED_CONTENT_HASH,
   ]);
   for (const locale of supportedLocales) {
     const welcome = buildWelcomeMemoContent(locale);

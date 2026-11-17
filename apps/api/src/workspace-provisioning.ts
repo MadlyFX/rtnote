@@ -1,8 +1,9 @@
 import {
   DEFAULT_NOTEBOOK_SEEDS,
+  LEGACY_WELCOME_MEMO_REPAIRED_CONTENT_HASH,
+  LEGACY_WELCOME_MEMO_SEED_CONTENT_HASH,
+  WELCOME_MEMO_BASELINE_LOCALE,
   WELCOME_MEMO_ID,
-  WELCOME_MEMO_REPAIRED_CONTENT_HASH,
-  WELCOME_MEMO_SEED_CONTENT_HASH,
   WELCOME_MEMO_SEED_TITLE,
   buildWelcomeMemoContent,
   localizeDefaultNotebookName,
@@ -120,15 +121,20 @@ export const createWorkspaceSeedLocalizationStatements = async (
 ): Promise<PreparedStatementAdapter[]> => {
   const welcome = buildWelcomeMemoContent(locale);
   const welcomeContentHash = await sha256(welcome.contentMarkdown + welcome.contentJson);
-  // The memo row must still carry the seeded title and the system actor, and
-  // the content must still be the seeded revision. The content is replaced
+  const baselineWelcome = buildWelcomeMemoContent(WELCOME_MEMO_BASELINE_LOCALE);
+  const baselineWelcomeHash = await sha256(baselineWelcome.contentMarkdown + baselineWelcome.contentJson);
+  // Titles the welcome note is seeded with: the baseline's, and EdgeEver's in
+  // databases created before the baseline.
+  const seededTitles = [baselineWelcome.title, WELCOME_MEMO_SEED_TITLE];
+  // The memo row must still carry a seeded title and the system actor, and
+  // the content must still be a seeded revision. The content is replaced
   // before the memo row, so the memo row's guard looks for that replacement.
   const welcomeGuard = (states: [string, number][]) => ({
     sql: `${SEED_LOCALIZATION_PENDING}
       AND EXISTS (
         SELECT 1 FROM memos
         WHERE id = ? AND workspace_id = ? AND is_deleted = 0
-          AND title = ? AND updated_by = 'system'
+          AND title IN (${seededTitles.map(() => "?").join(", ")}) AND updated_by = 'system'
       )
       AND EXISTS (
         SELECT 1 FROM memo_contents
@@ -138,14 +144,15 @@ export const createWorkspaceSeedLocalizationStatements = async (
       workspaceId,
       WELCOME_MEMO_ID,
       workspaceId,
-      WELCOME_MEMO_SEED_TITLE,
+      ...seededTitles,
       WELCOME_MEMO_ID,
       ...states.flat(),
     ],
   });
   const welcomeIsUntouched = welcomeGuard([
-    [WELCOME_MEMO_SEED_CONTENT_HASH, 0],
-    [WELCOME_MEMO_REPAIRED_CONTENT_HASH, 1],
+    [baselineWelcomeHash, 0],
+    [LEGACY_WELCOME_MEMO_SEED_CONTENT_HASH, 0],
+    [LEGACY_WELCOME_MEMO_REPAIRED_CONTENT_HASH, 1],
   ]);
   const welcomeContentWasLocalized = welcomeGuard([[welcomeContentHash, 1], [welcomeContentHash, 2]]);
 
@@ -155,8 +162,8 @@ export const createWorkspaceSeedLocalizationStatements = async (
       bindings: [workspaceId],
     }),
     // Templates that already exist (the default workspace's come from the
-    // installation migrations) are replaced only while they still equal one
-    // of the seeded translations.
+    // baseline migration) are replaced only while they still equal one of the
+    // seeded translations.
     ...DEFAULT_MEMO_TEMPLATE_SEEDS.map((seed) => {
       const seeded = Object.values(seed.translations);
       const localized = localizeMemoTemplateSeed(seed, locale);
@@ -201,7 +208,7 @@ export const createWorkspaceSeedLocalizationStatements = async (
     }),
     db.prepare(
       `INSERT INTO memo_search_documents (memo_id, title, content_text, tags)
-       SELECT ?, ?, ?, 'edgeever welcome'
+       SELECT ?, ?, ?, 'welcome'
        WHERE ${welcomeIsUntouched.sql}
        ON CONFLICT(memo_id) DO UPDATE SET
          title = excluded.title,

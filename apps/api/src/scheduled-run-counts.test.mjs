@@ -7,9 +7,9 @@ import { registerScheduledTaskRoutes } from "./scheduled-task-routes.ts";
 
 const databases = [];
 afterEach(() => databases.splice(0).forEach((db) => db.close()));
-const upgradeFixture = () => {
+const fixture = () => {
   const db = new Database(":memory:"); databases.push(db);
-  for (const file of globSync("migrations/*.sql").sort().filter((file) => file < "migrations/0084_scheduled_run_counts.sql")) db.exec(readFileSync(file, "utf8"));
+  for (const file of globSync("migrations/*.sql").sort()) db.exec(readFileSync(file, "utf8"));
   db.exec("INSERT INTO workspaces (id,name) VALUES ('ws_a','A'),('ws_b','B');");
   const now = new Date().toISOString();
   for (const [id, workspace] of [["task_a", "ws_a"], ["task_a2", "ws_a"], ["task_b", "ws_b"]]) db.query(
@@ -22,7 +22,6 @@ const upgradeFixture = () => {
   ).run(id, task, workspace, new Date(Date.now() + ++sequence * 1000).toISOString(), "desktop-device-1234567890", started);
   insert("run_a"); insert("run_a2"); insert("run_a3", "task_a2"); insert("run_b", "task_b", "ws_b");
   const before = db.query("SELECT * FROM scheduled_task_runs ORDER BY id").all();
-  db.exec(readFileSync("migrations/0084_scheduled_run_counts.sql", "utf8"));
   const assertCounts = () => {
     for (const row of db.query("SELECT id,scheduled_run_count FROM workspaces").all()) expect(row.scheduled_run_count).toBe(db.query("SELECT COUNT(*) AS n FROM scheduled_task_runs WHERE workspace_id = ?").get(row.id).n);
     for (const row of db.query("SELECT id,workspace_id,run_count FROM scheduled_tasks").all()) expect(row.run_count).toBe(db.query("SELECT COUNT(*) AS n FROM scheduled_task_runs WHERE task_id = ? AND workspace_id = ?").get(row.id, row.workspace_id).n);
@@ -30,8 +29,8 @@ const upgradeFixture = () => {
   return { db, insert, before, assertCounts };
 };
 
-test("upgrades existing task history without changing records and maintains exact transactional counts", () => {
-  const { db, insert, before, assertCounts } = upgradeFixture();
+test("maintains exact transactional run counts", () => {
+  const { db, insert, before, assertCounts } = fixture();
   expect(db.query("SELECT * FROM scheduled_task_runs ORDER BY id").all()).toEqual(before);
   assertCounts();
   insert("run_new"); assertCounts();
@@ -47,7 +46,7 @@ test("upgrades existing task history without changing records and maintains exac
 });
 
 test("ignored claims and mismatched historical scopes do not corrupt task totals", () => {
-  const { db, insert, assertCounts } = upgradeFixture();
+  const { db, insert, assertCounts } = fixture();
   db.exec("INSERT OR IGNORE INTO scheduled_task_runs SELECT * FROM scheduled_task_runs WHERE id = 'run_a'"); assertCounts();
   insert("scope_mismatch", "task_a", "ws_b"); assertCounts();
   db.exec("UPDATE scheduled_tasks SET workspace_id = 'ws_b' WHERE id = 'task_a'"); assertCounts();
@@ -55,8 +54,8 @@ test("ignored claims and mismatched historical scopes do not corrupt task totals
   db.exec("DELETE FROM scheduled_task_runs WHERE id = 'scope_mismatch'"); assertCounts();
 });
 
-test("history polling uses primary-key totals and indexed retention cleanup after a real schema upgrade", async () => {
-  const { db, insert, assertCounts } = upgradeFixture();
+test("history polling uses primary-key totals and indexed retention cleanup", async () => {
+  const { db, insert, assertCounts } = fixture();
   insert("expired", "task_a", "ws_a", new Date(Date.now() - 31 * 86400000).toISOString());
   const storage = createSelfHostedStorageAdapter(db, "/private/tmp/edgeever-count-unused");
   const queries = []; const prepare = storage.db.prepare.bind(storage.db);

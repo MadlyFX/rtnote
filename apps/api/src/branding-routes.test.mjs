@@ -259,16 +259,15 @@ describe("branding on public pages", () => {
   });
 });
 
-describe("branding migration", () => {
-  test("upgrades a database with existing shares in place", () => {
+describe("branding schema", () => {
+  test("defaults share branding on and enforces profile ids and cascades", () => {
     const db = new Database(":memory:");
     databases.push(db);
-    for (const file of migrations.filter((file) => file < "migrations/0094_branding.sql")) db.exec(readFileSync(file, "utf8"));
+    for (const file of migrations) db.exec(readFileSync(file, "utf8"));
     db.run("INSERT INTO workspaces (id, name) VALUES ('ws_x', 'X')");
     db.run("INSERT INTO notebooks (id, workspace_id, name) VALUES ('nb_x', 'ws_x', 'N')");
     db.run("INSERT INTO memos (id, notebook_id, workspace_id, title) VALUES ('m_x', 'nb_x', 'ws_x', 'T')");
     db.run("INSERT INTO memo_shares (id, memo_id, workspace_id, token) VALUES ('s_x', 'm_x', 'ws_x', 'tok')");
-    db.exec(readFileSync("migrations/0094_branding.sql", "utf8"));
     expect(db.query("SELECT show_branding, branding_notebook_id FROM memo_shares").get()).toEqual({ show_branding: 1, branding_notebook_id: null });
     expect(() => db.run("INSERT INTO branding_profiles (id, scope, workspace_id) VALUES ('workspace:other', 'workspace', 'ws_x')")).toThrow();
     db.run("INSERT INTO branding_profiles (id, scope, workspace_id) VALUES ('workspace:ws_x', 'workspace', 'ws_x')");

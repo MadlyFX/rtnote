@@ -3,8 +3,7 @@ import { Database } from "bun:sqlite";
 import { globSync, readFileSync } from "node:fs";
 import {
   DEFAULT_NOTEBOOK_SEEDS,
-  WELCOME_MEMO_REPAIRED_CONTENT_HASH,
-  WELCOME_MEMO_SEED_CONTENT_HASH,
+  LEGACY_WELCOME_MEMO_REPAIRED_CONTENT_HASH,
   WELCOME_MEMO_SEED_TITLE,
   WELCOME_MEMO_TRANSLATIONS,
 } from "@edgeever/shared/default-workspace-seeds";
@@ -18,13 +17,12 @@ import {
   markWorkspaceSeedLocalizationPendingStatement,
 } from "./workspace-provisioning.ts";
 
-const LOCALIZATION_MIGRATION = "0070_workspace_seed_localization.sql";
 const migrationFiles = globSync("migrations/*.sql").sort();
 const opened = [];
 afterEach(() => opened.splice(0).forEach((sqlite) => sqlite.close()));
 
-const migrate = (sqlite, filter = () => true) => {
-  for (const file of migrationFiles.filter(filter)) sqlite.exec(readFileSync(file, "utf8"));
+const migrate = (sqlite) => {
+  for (const file of migrationFiles) sqlite.exec(readFileSync(file, "utf8"));
 };
 
 const openDatabase = () => {
@@ -39,12 +37,23 @@ const freshInstallation = () => {
   return database;
 };
 
-// An installation that ran every migration before this change, then upgraded.
-const upgradedInstallation = (prepare) => {
-  const database = openDatabase();
-  migrate(database.sqlite, (file) => file < `migrations/${LOCALIZATION_MIGRATION}`);
-  prepare(database.sqlite);
-  migrate(database.sqlite, (file) => file >= `migrations/${LOCALIZATION_MIGRATION}`);
+// A database created by EdgeEver's migrations before the baseline, whose
+// owner has not signed in yet: the same rows with EdgeEver's zh-CN seed values
+// and the repaired welcome note at revision 1.
+const legacySeededInstallation = () => {
+  const database = freshInstallation();
+  const { sqlite } = database;
+  for (const seed of DEFAULT_NOTEBOOK_SEEDS) {
+    sqlite.query("UPDATE notebooks SET name = ? WHERE workspace_id = 'ws_default' AND slug = ?").run(seed.names["zh-CN"], seed.slug);
+  }
+  for (const seed of DEFAULT_MEMO_TEMPLATE_SEEDS) {
+    const zh = seed.translations["zh-CN"];
+    sqlite.query("UPDATE memo_templates SET name = ?, title = ?, description = ?, content_markdown = ? WHERE id = ?")
+      .run(zh.title, zh.title, zh.description, zh.contentMarkdown, `ws_default_template_${seed.key}`);
+  }
+  sqlite.query("UPDATE memos SET title = ? WHERE id = 'memo_welcome'").run(WELCOME_MEMO_SEED_TITLE);
+  sqlite.query("UPDATE memo_contents SET content_hash = ?, revision = 1 WHERE memo_id = 'memo_welcome'")
+    .run(LEGACY_WELCOME_MEMO_REPAIRED_CONTENT_HASH);
   return database;
 };
 
@@ -87,7 +96,8 @@ const seededNotebookNames = (locale) =>
 const templateTitle = (key, locale) =>
   DEFAULT_MEMO_TEMPLATE_SEEDS.find((seed) => seed.key === key).translations[locale].title;
 
-// The installation migrations seed the zh-CN names.
+// The baseline migration seeds the en-US names.
+const BASELINE_NOTEBOOKS = seededNotebookNames("en-US");
 const CHINESE_NOTEBOOKS = seededNotebookNames("zh-CN");
 const JAPANESE_NOTEBOOKS = seededNotebookNames("ja");
 
@@ -96,12 +106,14 @@ describe("fresh installation", () => {
     const { sqlite } = freshInstallation();
 
     expect(pendingWorkspaces(sqlite)).toEqual([DEFAULT_WORKSPACE_ID]);
-    expect(notebookNames(sqlite)).toEqual(CHINESE_NOTEBOOKS);
+    expect(notebookNames(sqlite)).toEqual(BASELINE_NOTEBOOKS);
+    expect(welcome(sqlite).title).toBe("Welcome to RTNote");
   });
 
   test("localizes notebooks, the welcome note, its search data, and templates to the owner's UI locale", async () => {
     const { sqlite, db } = freshInstallation();
     addUser(sqlite, "usr_owner", "admin");
+    const seeded = welcome(sqlite);
 
     expect(await ensureUserWorkspace(db, "usr_owner", "admin", "pl")).toEqual({
       workspaceId: DEFAULT_WORKSPACE_ID,
@@ -126,10 +138,10 @@ describe("fresh installation", () => {
       attrs: { level: 2 },
       content: [{ type: "text", text: "Witaj w RTNote" }],
     });
-    expect(note.content_hash).not.toBe(WELCOME_MEMO_SEED_CONTENT_HASH);
-    expect(note.revision).toBe(2);
+    expect(note.content_hash).not.toBe(seeded.content_hash);
+    expect(note.revision).toBe(1);
     expect(searchMatches(sqlite, "Witaj")).toEqual(["memo_welcome"]);
-    expect(templateNames(sqlite, DEFAULT_WORKSPACE_ID)).not.toContain(templateTitle("quick-note", "zh-CN"));
+    expect(templateNames(sqlite, DEFAULT_WORKSPACE_ID)).not.toContain(templateTitle("quick-note", "en-US"));
     expect(searchMatches(sqlite, "Skrzynka")).toEqual([]);
     expect(templateNames(sqlite, DEFAULT_WORKSPACE_ID)).toContain("Szybka notatka");
     expect(pendingWorkspaces(sqlite)).toEqual([]);
@@ -160,7 +172,7 @@ describe("fresh installation", () => {
     expect(sqlite.query("SELECT role FROM workspace_members WHERE user_id = 'usr_owner'").get())
       .toEqual({ role: "owner" });
     expect(pendingWorkspaces(sqlite)).toEqual([DEFAULT_WORKSPACE_ID]);
-    expect(notebookNames(sqlite)).toEqual(CHINESE_NOTEBOOKS);
+    expect(notebookNames(sqlite)).toEqual(BASELINE_NOTEBOOKS);
 
     db.batch = batch;
     await ensureUserWorkspace(db, "usr_owner", "admin", "ja");
@@ -181,11 +193,11 @@ describe("fresh installation", () => {
     `);
     const before = welcome(sqlite);
 
-    await ensureUserWorkspace(db, "usr_owner", "admin", "en-US");
+    await ensureUserWorkspace(db, "usr_owner", "admin", "fr");
 
-    expect(notebookNames(sqlite)).toMatchObject({ inbox: "Inbox", "work-projects": "My projects" });
+    expect(notebookNames(sqlite)).toMatchObject({ inbox: seededNotebookNames("fr").inbox, "work-projects": "My projects" });
     expect(welcome(sqlite)).toEqual(before);
-    expect(templateNames(sqlite, DEFAULT_WORKSPACE_ID)).toEqual(expect.arrayContaining([templateTitle("meeting", "zh-CN"), "Quick Spark"]));
+    expect(templateNames(sqlite, DEFAULT_WORKSPACE_ID)).toEqual(expect.arrayContaining([templateTitle("meeting", "en-US"), templateTitle("quick-note", "fr")]));
     expect(pendingWorkspaces(sqlite)).toEqual([]);
   });
 
@@ -235,6 +247,7 @@ describe("fresh installation", () => {
   test("keeps a welcome note whose title alone was edited before the first sign-in localized it", async () => {
     const { sqlite, db } = freshInstallation();
     addUser(sqlite, "usr_owner", "admin");
+    const seeded = welcome(sqlite);
     const edited = await updateMemoRecord(
       db,
       DEFAULT_WORKSPACE_ID,
@@ -245,14 +258,14 @@ describe("fresh installation", () => {
     );
     expect(edited.error).toBeUndefined();
     const before = welcome(sqlite);
-    expect(before.content_hash).toBe(WELCOME_MEMO_REPAIRED_CONTENT_HASH);
+    expect(before.content_hash).toBe(seeded.content_hash);
     expect(pendingWorkspaces(sqlite)).toEqual([DEFAULT_WORKSPACE_ID]);
 
-    await ensureUserWorkspace(db, "usr_owner", "admin", "en-US");
+    await ensureUserWorkspace(db, "usr_owner", "admin", "de");
 
     expect(welcome(sqlite)).toEqual(before);
     expect(before.title).toBe("My first note");
-    expect(notebookNames(sqlite).inbox).toBe("Inbox");
+    expect(notebookNames(sqlite).inbox).toBe(seededNotebookNames("de").inbox);
     expect(pendingWorkspaces(sqlite)).toEqual([]);
   });
 
@@ -278,41 +291,35 @@ describe("fresh installation", () => {
   });
 });
 
-describe("existing installation", () => {
-  test("keeps the default workspace unchanged after upgrading", async () => {
-    const { sqlite, db } = upgradedInstallation((database) => {
-      addUser(database, "usr_owner", "admin");
-      database.exec("INSERT INTO workspace_members (workspace_id, user_id, role) VALUES ('ws_default', 'usr_owner', 'owner')");
-    });
+describe("database seeded by EdgeEver's migrations", () => {
+  test("still waits for the first sign-in and localizes the zh-CN seed", async () => {
+    const { sqlite, db } = legacySeededInstallation();
+    addUser(sqlite, "usr_owner", "admin");
+    expect(notebookNames(sqlite)).toEqual(CHINESE_NOTEBOOKS);
+    expect(pendingWorkspaces(sqlite)).toEqual([DEFAULT_WORKSPACE_ID]);
+
+    await ensureUserWorkspace(db, "usr_owner", "admin", "pl");
+
+    expect(notebookNames(sqlite).inbox).toBe("Skrzynka");
+    const note = welcome(sqlite);
+    expect(note.title).toBe("Witaj w RTNote");
+    expect(note.revision).toBe(2);
+    expect(templateNames(sqlite, DEFAULT_WORKSPACE_ID)).toContain("Szybka notatka");
+    expect(templateNames(sqlite, DEFAULT_WORKSPACE_ID)).not.toContain(templateTitle("quick-note", "zh-CN"));
+    expect(pendingWorkspaces(sqlite)).toEqual([]);
+  });
+
+  test("keeps an edited zh-CN welcome note", async () => {
+    const { sqlite, db } = legacySeededInstallation();
+    addUser(sqlite, "usr_owner", "admin");
+    sqlite.exec("UPDATE memo_contents SET content_hash = 'edited' WHERE memo_id = 'memo_welcome'");
     const before = welcome(sqlite);
 
-    expect(pendingWorkspaces(sqlite)).toEqual([]);
-    await ensureUserWorkspace(db, "usr_owner", "admin", "pl");
+    await ensureUserWorkspace(db, "usr_owner", "admin", "en-US");
 
-    expect(notebookNames(sqlite)).toEqual(CHINESE_NOTEBOOKS);
     expect(welcome(sqlite)).toEqual(before);
-  });
-
-  test("treats an unclaimed workspace that already holds notes as existing data", async () => {
-    const { sqlite, db } = upgradedInstallation((database) => {
-      database.exec(`
-        INSERT INTO memos (id, notebook_id, title, excerpt, tags_json, created_by, updated_by)
-        VALUES ('memo_kept', 'nb_projects', 'Kept', '', '[]', 'system', 'system');
-      `);
-    });
-    addUser(sqlite, "usr_owner", "admin");
-
-    expect(pendingWorkspaces(sqlite)).toEqual([]);
-    await ensureUserWorkspace(db, "usr_owner", "admin", "pl");
-
-    expect(notebookNames(sqlite)).toEqual(CHINESE_NOTEBOOKS);
-    expect(welcome(sqlite).title).toBe(WELCOME_MEMO_SEED_TITLE);
-  });
-
-  test("treats an installation that already has users as existing data", () => {
-    const { sqlite } = upgradedInstallation((database) => addUser(database, "usr_previous"));
-
-    expect(pendingWorkspaces(sqlite)).toEqual([]);
+    expect(before.title).toBe(WELCOME_MEMO_SEED_TITLE);
+    expect(notebookNames(sqlite).inbox).toBe("Inbox");
   });
 });
 
@@ -348,7 +355,7 @@ describe("member workspaces", () => {
     expect(notebookNames(sqlite, "ws_member")).toEqual(JAPANESE_NOTEBOOKS);
     expect(templateNames(sqlite, "ws_member")).toContain("ひらめきメモ");
     expect(pendingWorkspaces(sqlite)).toEqual([DEFAULT_WORKSPACE_ID]);
-    expect(notebookNames(sqlite)).toEqual(CHINESE_NOTEBOOKS);
+    expect(notebookNames(sqlite)).toEqual(BASELINE_NOTEBOOKS);
   });
 
   test("creates a self-provisioned workspace directly in the user's language", async () => {

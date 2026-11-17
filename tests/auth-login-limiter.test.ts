@@ -11,7 +11,7 @@ import { createSelfHostedStorageAdapter } from "../apps/api/src/self-hosted-stor
 
 const createDatabase = () => {
   const sqlite = new Database(":memory:");
-  sqlite.exec(readFileSync("migrations/0020_auth_login_attempts.sql", "utf8"));
+  sqlite.exec(readFileSync("migrations/0100_baseline.sql", "utf8"));
   return {
     sqlite,
     db: createSelfHostedStorageAdapter(sqlite, ".edgeever-test-resources").db,

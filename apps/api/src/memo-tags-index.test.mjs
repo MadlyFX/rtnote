@@ -2,18 +2,17 @@ import { Database } from "bun:sqlite";
 import { describe, expect, test } from "bun:test";
 import { globSync, readFileSync } from "node:fs";
 
-describe("normalized memo tag migration", () => {
-  test("backfills tags and keeps the indexed relation synchronized", () => {
+describe("normalized memo tags", () => {
+  test("keep the indexed relation synchronized with memos.tags_json", () => {
     const sqlite = new Database(":memory:");
     sqlite.exec("PRAGMA foreign_keys = ON");
-    for (const path of globSync("migrations/*.sql").sort().filter((path) => path < "migrations/0035")) {
+    for (const path of globSync("migrations/*.sql").sort()) {
       sqlite.exec(readFileSync(path, "utf8"));
     }
 
     sqlite.query(
       `UPDATE memos SET tags_json = '["Demo","Database"]' WHERE id = 'memo_welcome'`,
     ).run();
-    sqlite.exec(readFileSync("migrations/0035_normalized_memo_tags.sql", "utf8"));
 
     expect(sqlite.query(
       `SELECT name, normalized_name FROM memo_tags WHERE memo_id = 'memo_welcome' ORDER BY name`,

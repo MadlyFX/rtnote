@@ -29,11 +29,7 @@ const auth = {
 const fixture = (legacyHash) => {
   const db = new Database(":memory:");
   databases.push(db);
-  // Populate a real pre-feature schema first, then upgrade it in place.
-  const migrations = globSync("migrations/*.sql").sort();
-  for (const file of migrations.filter(
-    (file) => file < "migrations/0067_notebook_shares.sql",
-  ))
+  for (const file of globSync("migrations/*.sql").sort())
     db.exec(readFileSync(file, "utf8"));
   db.run(
     "INSERT INTO workspaces (id, name) VALUES ('ws_test', 'Test'), ('ws_other', 'Other')",
@@ -73,16 +69,12 @@ const fixture = (legacyHash) => {
     "INSERT INTO memo_shares (id, memo_id, workspace_id, token) VALUES ('individual', 'memo_child', 'ws_test', ?)",
     [individualToken],
   );
-  db.exec(readFileSync("migrations/0067_notebook_shares.sql", "utf8"));
   db.run(
     "INSERT INTO notebook_shares (id, notebook_id, workspace_id, token) VALUES ('shared', 'root', 'ws_test', ?)",
     [token],
   );
-  db.exec(readFileSync("migrations/0068_notebook_share_passwords.sql", "utf8"));
+  // A share saved before recoverable passwords carries only the hash.
   if (legacyHash) db.run("UPDATE notebook_shares SET password_hash = ?", [legacyHash]);
-  db.exec(readFileSync("migrations/0069_share_password_encryption.sql", "utf8"));
-  for (const file of migrations.filter((file) => file > "migrations/0069_share_password_encryption.sql"))
-    db.exec(readFileSync(file, "utf8"));
   const environment = {
     EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY: "test-share-master-key",
     storage: createSelfHostedStorageAdapter(
@@ -132,7 +124,7 @@ const manage = (f, path, body, init = {}) => f.app.request(`/api/v1/notebooks/ro
 }, f.environment);
 
 describe("public notebook site controls", () => {
-  test("old share upgrade preserves scope, token, and password while settings patch is independent", async () => {
+  test("site settings keep a hash-only share's scope, token, and password", async () => {
     const f = fixture(await hashPassword("old-password"));
     const before = f.db.query("SELECT token, password_hash FROM notebook_shares").get();
     const saved = await manage(f, "/site", { siteSlug: "My-Docs", settings: { footerText: "Example", sortMode: "title" } });
@@ -371,7 +363,7 @@ describe("public notebook site controls", () => {
 });
 
 describe("live recursive notebook sharing", () => {
-  test("upgrades existing data without creating individual shares; exposes only the live workspace subtree", async () => {
+  test("exposes only the live workspace subtree without creating individual shares", async () => {
     const { db, request } = fixture();
     const response = await request();
     expect(response.status).toBe(200);
@@ -628,7 +620,7 @@ describe("password-protected notebook shares", () => {
   const cookieFrom = (response) => response.headers.get("set-cookie").split(";")[0];
   const paths = ["", "/memos/memo_child", "/memos/memo_grand", "/resources/res_memo_grand/blob"];
 
-  test("migrates an existing live link in place and protects directory, descendants and blobs", async () => {
+  test("protects an existing live link in place: directory, descendants and blobs", async () => {
     const f = fixture();
     expect((await f.request()).status).toBe(200);
     const { response, data } = await changePassword(f);
@@ -760,7 +752,7 @@ describe("notebook share password recovery", () => {
     body: JSON.stringify({ passwordProtected: protectedValue }),
   }, f.environment);
 
-  test("upgrades a hash-only share in place without invalidating the old password", async () => {
+  test("keeps a hash-only share's old password valid", async () => {
     const f = fixture(await hashPassword("legacy12"));
     const owner = await f.app.request(ownerPath, {}, f.environment);
     expect((await owner.json()).share.password).toBeUndefined();

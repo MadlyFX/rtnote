@@ -12,9 +12,10 @@ export type DefaultNotebookSeed = {
   names: Record<SupportedLocale, string>;
 };
 
-// The installation migrations (inherited from EdgeEver and immutable) seed the
-// zh-CN names. Keep zh-CN first so the localization guard can recognise names
-// that nobody has changed yet and replace them with the reader's language.
+// migrations/0100_baseline.sql seeds the en-US names; databases created by
+// EdgeEver's migrations before the baseline carry the zh-CN names. Every
+// translation counts as a seeded name, so the localization guard can recognise
+// names that nobody has changed yet and replace them with the reader's language.
 // color stays null so the sidebar uses the shared slate icon. A hue is stored
 // only after someone saves an appearance.
 export const DEFAULT_NOTEBOOK_SEEDS: readonly DefaultNotebookSeed[] = [
@@ -113,20 +114,25 @@ export const localizeDefaultNotebookName = (
 export const WELCOME_MEMO_ID = "memo_welcome";
 
 /**
- * The welcome note as the installation migrations leave it (0001_initial.sql,
- * repaired by 0014_repair_seed_memo_content_hash.sql): its title, the content
- * hash, and revision 0 written by the `system` actor. Any edit, including a
- * title-only one, changes the title, the revision, or the actor, so together
- * they identify a welcome note nobody has touched.
- *
- * The migrations predate the RTNote name and are immutable, so the seeded
- * title still says EdgeEver. First sign-in replaces it with the localized
- * RTNote welcome note.
+ * migrations/0100_baseline.sql seeds the default workspace in this locale: the
+ * welcome note is buildWelcomeMemoContent(WELCOME_MEMO_BASELINE_LOCALE) at
+ * revision 0, written by the `system` actor. Any edit, including a title-only
+ * one, changes the title, the revision, or the actor, so together they identify
+ * a welcome note nobody has touched. First sign-in replaces it with the
+ * reader's language.
+ */
+export const WELCOME_MEMO_BASELINE_LOCALE: SupportedLocale = "en-US";
+
+/**
+ * The welcome note as EdgeEver's installation migrations left it, in databases
+ * created before the baseline: a Chinese title, revision 0 with
+ * LEGACY_WELCOME_MEMO_SEED_CONTENT_HASH, or revision 1 with
+ * LEGACY_WELCOME_MEMO_REPAIRED_CONTENT_HASH once EdgeEver repaired a literal
+ * backslash-n in it. Still recognised so those databases localize too.
  */
 export const WELCOME_MEMO_SEED_TITLE = LEGACY_WELCOME_MEMO_SEED_TITLE;
-export const WELCOME_MEMO_SEED_CONTENT_HASH = "4edcf7092f86c561210d4eb788e96f28ec5c045f93952c82f5f57e1902f548bd";
-// Migration 0071 repairs the original seed's literal backslash-n and advances it to revision 1.
-export const WELCOME_MEMO_REPAIRED_CONTENT_HASH = "30fae5a337f8b9709505c5ab00ee921410b78632c14f4b7577c88aea0f9fc390";
+export const LEGACY_WELCOME_MEMO_SEED_CONTENT_HASH = "4edcf7092f86c561210d4eb788e96f28ec5c045f93952c82f5f57e1902f548bd";
+export const LEGACY_WELCOME_MEMO_REPAIRED_CONTENT_HASH = "30fae5a337f8b9709505c5ab00ee921410b78632c14f4b7577c88aea0f9fc390";
 
 export type WelcomeMemoTranslation = {
   title: string;
@@ -196,7 +202,7 @@ export type WelcomeMemoContent = {
   contentText: string;
 };
 
-// Mirrors the document shape of the welcome note in migrations/0001_initial.sql:
+// Mirrors the document shape of the welcome note that EdgeEver first seeded:
 // a level-2 heading followed by two paragraphs.
 export const buildWelcomeMemoContent = (locale: string | null | undefined): WelcomeMemoContent => {
   const { title, paragraphs } = WELCOME_MEMO_TRANSLATIONS[resolveSupportedLocale(locale)];

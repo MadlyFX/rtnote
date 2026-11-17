@@ -140,21 +140,18 @@ describe("TOTP primitives", () => {
 });
 
 describe("TOTP routes", () => {
-  test("sessions created before the TOTP migrations keep working after them", async () => {
+  test("sessions that set none of the TOTP columns keep working", async () => {
     const sqlite = new Database(":memory:");
     instances.push(sqlite);
-    const files = globSync("migrations/*.sql").sort();
-    // 0088 introduced TOTP; later migrations in this feature (0089, 0090) build on it.
-    const migrationNumber = (file) => Number(file.match(/(\d{4})_[^/]*\.sql$/)[1]);
-    for (const path of files.filter((file) => migrationNumber(file) < 88)) sqlite.exec(readFileSync(path, "utf8"));
+    for (const path of globSync("migrations/*.sql").sort()) sqlite.exec(readFileSync(path, "utf8"));
     sqlite.query("INSERT INTO users (id, username, password_hash) VALUES ('usr_owner', 'owner', 'unused')").run();
     const { sha256 } = await import("./hash-utils.ts");
+    // Only the columns sessions had before TOTP, as in sessions created by older releases.
     sqlite.query(
       `INSERT INTO sessions (id, user_id, token_hash, device_id, expires_at, created_at, last_seen_at)
        VALUES ('sess_old', 'usr_owner', ?, 'old-device', ?, ?, ?)`,
     ).run(await sha256("old-token"), new Date(Date.now() + 86_400_000).toISOString(),
       new Date().toISOString(), new Date().toISOString());
-    for (const path of files.filter((file) => migrationNumber(file) >= 88)) sqlite.exec(readFileSync(path, "utf8"));
     const auth = await authenticateRequestFor(sqlite, "old-token");
     expect(auth).toMatchObject({ kind: "user", actorId: "usr_owner", sessionId: "sess_old" });
     expect(auth.mfaRestricted).toBeUndefined();

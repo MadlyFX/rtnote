@@ -28,7 +28,7 @@ User-visible text always says RTNote.
 
 ## Data and runtime
 
-- **Migrations**: add a new, higher-numbered SQL file in `migrations/` for any schema or seed change. Never edit a migration that has run.
+- **Migrations**: add a new, higher-numbered SQL file in `migrations/` for any schema or seed change. Never edit a migration that has run, including `0100_baseline.sql`, which replaced EdgeEver's migrations (see [docs/database-baseline.md](docs/database-baseline.md)).
 - **Cross-runtime**: Cloudflare and Docker share one business codebase. Keep business logic out of runtime entry points and infrastructure adapters.
 - **Read budget**: backups, pagination, sync and polling must account for cumulative reads. Never rescan or recount the full table per page or per poll. Verify read growth with representative local data and add regression tests.
 - **Rich text is the source of truth**: note content lives in `content_json`. `content_markdown` is derived for export, sharing and MCP. New formatting must not depend on Markdown round-trips.
