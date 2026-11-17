@@ -8,9 +8,10 @@ import { translateCurrentMobileText } from "../lib/mobile-locale";
 import { resolveMobileThemeStyles, useMobileTheme } from "../lib/mobile-theme";
 
 export const AppDialogProvider = ({ children }: { children: ReactNode }) => {
-  const { resolvedTheme } = useMobileTheme();
+  const { resolvedTheme, themeKey } = useMobileTheme();
   const insets = useSafeAreaInsets();
-  const styles = useMemo(() => resolveMobileThemeStyles(baseStyles, resolvedTheme), [resolvedTheme]);
+  // themeKey also changes with the server branding colours.
+  const styles = useMemo(() => resolveMobileThemeStyles(baseStyles, resolvedTheme), [resolvedTheme, themeKey]);
   const [request, setRequest] = useState<AppDialogRequest | null>(null);
 
   useEffect(() => registerAppDialogPresenter(setRequest), []);

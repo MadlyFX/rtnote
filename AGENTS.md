@@ -56,5 +56,6 @@ User-visible text always says RTNote.
 
 ## Brand
 
-- Logo source: `assets/brand/rtnote-icon.svg` (tile) and `assets/brand/rtnote-mark.svg` (glyph, `#07130B`). Tile colour `#16A06E`.
-- After changing the logo, run `bun run prepare:brand:icons` to regenerate every platform's icons.
+- Build-time identity (installer and home-screen name, icon sources, tile colour `#16A06E`) lives in `brand.config.json`. Logo sources: `assets/brand/rtnote-icon.svg` (tile) and `assets/brand/rtnote-mark.svg` (glyph, `#07130B`).
+- After changing the config or the logo, run `bun run prepare:brand` to update the platform files and regenerate every platform's icons.
+- In-app and shared-page branding is server data, not code: see [docs/branding.md](docs/branding.md). Never hardcode "RTNote" in server-rendered public HTML; use the resolved branding.

@@ -12,6 +12,7 @@ final class AppEnvironment {
     let outboxFlusher: OutboxFlusher
     let preferences: PreferencesStore
     let shareHandoff: ShareHandoffStore
+    let branding: BrandingStore
 
     private(set) var bootstrapProgress: BootstrapProgress?
     private(set) var isSyncing = false
@@ -34,6 +35,7 @@ final class AppEnvironment {
         self.outboxFlusher = flusher
         self.preferences = PreferencesStore()
         self.shareHandoff = ShareHandoffStore()
+        self.branding = BrandingStore()
     }
 
     /// Test-friendly initializer.
@@ -45,7 +47,8 @@ final class AppEnvironment {
         syncEngine: SyncEngine,
         outboxFlusher: OutboxFlusher,
         preferences: PreferencesStore = PreferencesStore(),
-        shareHandoff: ShareHandoffStore = ShareHandoffStore()
+        shareHandoff: ShareHandoffStore = ShareHandoffStore(),
+        branding: BrandingStore = BrandingStore(defaults: UserDefaults(suiteName: "rtnote.tests.branding") ?? .standard)
     ) {
         self.session = session
         self.mirror = mirror
@@ -55,6 +58,7 @@ final class AppEnvironment {
         self.outboxFlusher = outboxFlusher
         self.preferences = preferences
         self.shareHandoff = shareHandoff
+        self.branding = branding
     }
 
     func bootstrap() async {
@@ -70,6 +74,26 @@ final class AppEnvironment {
             // Warm TipTap process + EditorBundle off the critical path of the first note open.
             await MainActor.run { TipTapWarmPool.warmIfNeeded() }
             await runSyncCycle()
+        }
+    }
+
+    /// Keeps branding in step with the session: workspace `effective` when signed in,
+    /// the instance default for a restricted (rebind-only) session, built-in when signed
+    /// out. `force` skips the 5-minute throttle (launch / sign-in); failures keep what is shown.
+    func refreshBranding(force: Bool) async {
+        guard !session.isLoading else { return }
+        guard let current = session.session,
+              let url = try? EdgeEverURLNormalizer.normalizeInstanceURL(current.baseUrl)
+        else {
+            branding.sessionEnded()
+            return
+        }
+        branding.discardWorkspace(unlessFrom: url)
+        if session.isMfaRebindRequired {
+            // Business APIs answer 403 until the authenticator is rebound.
+            await branding.refreshPublic(baseURL: url)
+        } else {
+            await branding.refreshWorkspace(client: session.client, force: force)
         }
     }
 

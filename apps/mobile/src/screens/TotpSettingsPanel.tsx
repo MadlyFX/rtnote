@@ -18,7 +18,7 @@ import {
   useTwoFactorCopy,
 } from "../components/TotpFlowParts";
 import { formatMobileCopy } from "../lib/mobile-locale";
-import { resolveMobileThemeStyles, useMobileTheme, type MobileResolvedTheme } from "../lib/mobile-theme";
+import { mobileThemeStylesKey, resolveMobileThemeStyles, useMobileTheme, type MobileResolvedTheme } from "../lib/mobile-theme";
 import {
   getTotpErrorKey,
   getTotpUnavailableKey,
@@ -339,11 +339,12 @@ const baseTotpSettingsStyles = StyleSheet.create({
 });
 
 let styles = baseTotpSettingsStyles;
-let totpSettingsStylesTheme: MobileResolvedTheme = "light";
+// Theme plus branding colours the cached styles were resolved for.
+let totpSettingsStylesTheme = "light";
 
 const refreshTotpSettingsThemeStyles = (theme: MobileResolvedTheme) => {
-  if (totpSettingsStylesTheme !== theme) {
+  if (totpSettingsStylesTheme !== mobileThemeStylesKey(theme)) {
     styles = resolveMobileThemeStyles(baseTotpSettingsStyles, theme);
-    totpSettingsStylesTheme = theme;
+    totpSettingsStylesTheme = mobileThemeStylesKey(theme);
   }
 };

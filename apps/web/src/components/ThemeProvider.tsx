@@ -1,5 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { DIAGRAM_CANVAS_LIGHT } from "@edgeever/shared/diagram-canvas";
+import { brandThemeColor } from "@edgeever/shared/branding";
+import { getBranding } from "@/lib/branding";
 import {
   DEFAULT_CUSTOM_DARK_COLORS,
   DEFAULT_CUSTOM_EDITOR_THEME,
@@ -295,7 +297,10 @@ const applyThemeToDocument = (preference: ThemePreference) => {
   root.style.colorScheme = resolvedTheme;
 
   const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-  themeColor?.setAttribute("content", resolvedTheme === "dark" ? DARK_THEME_COLOR : LIGHT_THEME_COLOR);
+  const branding = getBranding();
+  themeColor?.setAttribute("content", branding.isCustom
+    ? brandThemeColor(branding, resolvedTheme)
+    : resolvedTheme === "dark" ? DARK_THEME_COLOR : LIGHT_THEME_COLOR);
   return resolvedTheme;
 };
 

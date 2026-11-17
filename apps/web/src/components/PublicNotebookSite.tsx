@@ -4,6 +4,7 @@ import { useAppearanceTheme, type ThemePreference } from "./ThemeProvider";
 import { ButtonTooltip } from "./ui/button-tooltip";
 import "./notebook-site.css";
 import { getMemoDisplayTitle } from "@edgeever/shared";
+import { BRAND_FONTS, withBrandName } from "@edgeever/shared/branding";
 import {
   ArrowLeft,
   ArrowRight,
@@ -236,7 +237,10 @@ export const PublicNotebookSite = ({ share, token, selectedId, children }: {
 }) => {
   const { t } = useTranslation();
   const { hash } = useLocation();
-  const { preference, setPreference } = useAppearanceTheme();
+  const { preference, setPreference, resolvedTheme } = useAppearanceTheme();
+  const branding = share.branding;
+  const siteLogo = (resolvedTheme === "dark" ? branding?.logoDarkUrl : branding?.logoUrl) || share.settings?.logoUrl || undefined;
+  const siteFont = branding && branding.fonts.body !== "system" ? BRAND_FONTS[branding.fonts.body] : undefined;
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -294,13 +298,13 @@ export const PublicNotebookSite = ({ share, token, selectedId, children }: {
       {share.settings?.homeMemoId && <Link to={directory} onClick={navigate} className={`${linkClass} block px-3 py-2 text-sm`}>{t("notebookSite.directory")}</Link>}
       {sections[0] && <NavigationNotes memos={sections[0].memos} selectedId={selectedId} href={href} onNavigate={navigate} />}
       {sections.slice(1).filter((section) => section.memos.length).map((section) => <NavigationSection key={section.notebook.id} section={section} selectedId={selectedId} containsSelection={section.memos.some((memo) => memo.id === selectedId)} href={href} onNavigate={navigate} />)}
-    </nav><div className="px-8 py-5 text-[11px] text-muted-foreground">{t("sharing.sitePoweredBy")}</div>
+    </nav><div className="px-8 py-5 text-[11px] text-muted-foreground">{withBrandName(t("sharing.sitePoweredBy"), branding?.name ?? "RTNote")}</div>
   </div>;
   return <NotebookSiteSearchContext.Provider value={(selectedTag) => { setTag(selectedTag ?? ""); setSearchOpen(true); }}><TooltipProvider delayDuration={400}>
-    <div data-site-theme="default" className="edgeever-notebook-site min-h-[100dvh] bg-card text-foreground">
+    <div data-site-theme="default" className="edgeever-notebook-site edgeever-public-page min-h-[100dvh] bg-card text-foreground" style={siteFont ? { fontFamily: siteFont } : undefined}>
       <a href="#notebook-site-content" className="sr-only z-[60] rounded-md bg-card p-3 focus:not-sr-only focus:fixed focus:left-4 focus:top-4">{t("sharing.siteSkipToContent")}</a>
       <header className="sticky top-0 z-30 flex min-h-16 flex-wrap items-center justify-between gap-3 border-b bg-card/95 px-4 py-3 backdrop-blur sm:px-6">
-        <Link to={root} onClick={navigate} className={`${linkClass} flex min-w-0 items-center gap-3 font-semibold`}><SiteLogo key={share.settings?.logoUrl} src={share.settings?.logoUrl} /><span className="max-w-[40vw] truncate">{share.name}</span></Link>
+        <Link to={root} onClick={navigate} className={`${linkClass} flex min-w-0 items-center gap-3 font-semibold`}><SiteLogo key={siteLogo} src={siteLogo} /><span className="max-w-[40vw] truncate">{share.name}</span></Link>
         <div className="flex flex-wrap items-center gap-3">
           <nav className="flex flex-wrap gap-3 text-xs">{share.settings?.headerLinks.map((link, i) => <a key={i} href={link.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">{link.label}</a>)}</nav>
           <select aria-label={t("notebookSite.theme")} value={preference} onChange={(event) => setPreference(event.target.value as ThemePreference)} className="max-w-28 rounded border bg-background px-1 py-1 text-xs">{(["light", "dark", "system"] as const).map((value) => <option key={value} value={value}>{t(`notebookSite.${value}`)}</option>)}</select>
@@ -319,7 +323,12 @@ export const PublicNotebookSite = ({ share, token, selectedId, children }: {
               {notes[index + 1] && <Link to={href(notes[index + 1].memo.id)} onClick={navigate} className={`${linkClass} min-w-0 p-3 text-right hover:bg-muted`}><span className="mb-2 flex items-center justify-end gap-2 text-xs text-muted-foreground">{t("sharing.siteNext")}<ArrowRight className="size-3.5" /></span><NoteTitle memo={notes[index + 1].memo} /></Link>}
             </nav>}
           </>}
-          {share.settings?.footerText && <footer className="whitespace-pre-wrap border-t px-5 py-6 text-sm text-muted-foreground">{share.settings.footerText}</footer>}
+          {branding
+            ? (branding.footer.text || branding.footer.links.length > 0) && <footer className="whitespace-pre-wrap border-t px-5 py-6 text-sm text-muted-foreground">
+              {branding.footer.text}
+              {branding.footer.links.length > 0 && <nav className="mt-2 flex flex-wrap gap-3 text-xs">{branding.footer.links.map((link) => <a key={`${link.label}-${link.url}`} href={link.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">{link.label}</a>)}</nav>}
+            </footer>
+            : share.settings?.footerText && <footer className="whitespace-pre-wrap border-t px-5 py-6 text-sm text-muted-foreground">{share.settings.footerText}</footer>}
         </main>
       </div>
     </div>

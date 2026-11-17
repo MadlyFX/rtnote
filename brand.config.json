@@ -1,0 +1,13 @@
+{
+  "$comment": "Build-time identity: installer and home-screen name, app icon colours and sources. Run `bun run prepare:brand` after editing. Branding that can change without a rebuild (name, logo and colours inside the app and on shared pages) lives on the server; see docs/branding.md.",
+  "name": "RTNote",
+  "shortName": "RTNote",
+  "description": "RTNote: an open-source, rich-text notes workspace you can self-host on Cloudflare or Docker.",
+  "tileColor": "#16a06e",
+  "manifestThemeColor": "#0f172a",
+  "manifestBackgroundColor": "#0f172a",
+  "icon": "assets/brand/rtnote-icon.svg",
+  "mark": "assets/brand/rtnote-mark.svg",
+  "adaptiveIconForeground": "apps/mobile/assets/adaptive-icon-foreground.svg",
+  "adaptiveIconTransparent": "apps/mobile/assets/adaptive-icon-transparent.svg"
+}

@@ -19,7 +19,8 @@ struct LoginView: View {
     @State private var mfaError: String?
     @State private var mfaSubmitting = false
 
-    private let submitFill = Color(hex: 0x047857)
+    /// #047857 by default; follows a custom branding accent.
+    private var submitFill: Color { AppTheme.primaryFill }
 
     private var canSubmit: Bool {
         !baseUrl.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -53,16 +54,18 @@ struct LoginView: View {
 
                     // Header row: logo + title
                     HStack(spacing: 14) {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .fill(AppTheme.searchFill)
-                                .frame(width: 48, height: 48)
-                            Image(systemName: "lock.fill")
-                                .font(.system(size: 20, weight: .semibold))
-                                .foregroundStyle(AppTheme.slate)
+                        BrandLogoView(branding: env.branding, size: 48) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .fill(AppTheme.searchFill)
+                                    .frame(width: 48, height: 48)
+                                Image(systemName: "lock.fill")
+                                    .font(.system(size: 20, weight: .semibold))
+                                    .foregroundStyle(AppTheme.slate)
+                            }
                         }
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("RTNote")
+                            Text(env.branding.name)
                                 .font(.system(size: 22, weight: .heavy))
                                 .foregroundStyle(AppTheme.title)
                             Text(env.preferences.t("连接你的自托管笔记空间", en: "Connect your self-hosted notes", ja: "セルフホストのノート空間に接続", pl: "Połącz się ze swoimi samodzielnie hostowanymi notatkami"))
@@ -97,6 +100,23 @@ struct LoginView: View {
             ))
         }
         .preferredColorScheme(env.preferences.colorScheme)
+        // Instance branding for the typed server, debounced while typing.
+        .task(id: baseUrl.trimmingCharacters(in: .whitespacesAndNewlines)) {
+            await loadPublicBranding()
+        }
+    }
+
+    private func loadPublicBranding() async {
+        let trimmed = baseUrl.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            env.branding.clearPublic()
+            return
+        }
+        try? await Task.sleep(nanoseconds: 700_000_000)
+        guard !Task.isCancelled,
+              let url = try? EdgeEverURLNormalizer.normalizeInstanceURL(trimmed)
+        else { return }
+        await env.branding.refreshPublic(baseURL: url)
     }
 
     @ViewBuilder

@@ -2,6 +2,9 @@ import { getMemoDisplayTitle } from "@edgeever/shared/memo-title";
 import { PUBLIC_PAGE_HEADERS, PUBLIC_PAGE_ROBOTS } from "@edgeever/shared/public-page-headers";
 import type { DatabaseAdapter } from "./storage-contract";
 import { getNotebookSite, publicTreeSql, resolveNotebookSiteToken } from "./notebook-site-service";
+import { resolveNotebookBranding } from "./branding-service";
+import { brandedTitle, brandingHeadMarkup, stripBrandableHead } from "./public-page-branding";
+import type { ResolvedBranding } from "@edgeever/shared";
 
 export const isNotebookSitePagePath = (path: string) => /^\/(?:share\/notebook|s)\/[^/]+(?:\/[^/]+)?\/?$/.test(path);
 const escapeHtml = (text: string) => text.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]!);
@@ -26,18 +29,20 @@ export const renderNotebookSitePage = async (
   let indexable = false;
   let canonical = `${url.origin}${url.pathname}`;
   let image = new URL("/apple-touch-icon.png", url).href;
+  let branding: ResolvedBranding | null = null;
   if (site && !site.password_hash) {
     const selected = memoId || site.settings.homeMemoId;
     const note = selected ? await db.prepare(`${publicTreeSql} SELECT title, excerpt FROM visible_memos WHERE id = ?`)
       .bind(site.token, selected).first<{ title: string | null; excerpt: string }>() : null;
     if (memoId && !note) status = 404;
     if (status === 200) {
-      title = `${getMemoDisplayTitle(note?.title, site.name)} · RTNote`;
+      branding = await resolveNotebookBranding(db, site.workspace_id, site.notebook_id, site.settings);
+      title = brandedTitle(getMemoDisplayTitle(note?.title, site.name), branding);
       description = note?.excerpt || site.name;
       indexable = alias && site.settings.allowIndexing;
       const base = site.site_slug ? `/s/${encodeURIComponent(site.site_slug)}` : `/share/notebook/${encodeURIComponent(site.token)}`;
       canonical = `${url.origin}${base}${memoId ? `/${encodeURIComponent(memoId)}` : ""}`;
-      image = site.settings.logoUrl || image;
+      image = branding.logoUrl ? new URL(branding.logoUrl, url).href : image;
     }
   }
   const robots = indexable ? "index, follow" : PUBLIC_PAGE_ROBOTS;
@@ -53,10 +58,11 @@ export const renderNotebookSitePage = async (
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="${escapeHtml(title)}">
 <meta name="twitter:description" content="${escapeHtml(description)}">
-<meta name="twitter:image" content="${escapeHtml(image)}">`;
+<meta name="twitter:image" content="${escapeHtml(image)}">
+${branding ? brandingHeadMarkup(branding) : ""}`;
   const template = await loadTemplate();
   if (!template.ok) return template;
-  const html = (await template.text())
+  const html = stripBrandableHead(await template.text(), branding)
     .replace(/<title\b[^>]*>[\s\S]*?<\/title>/gi, "")
     .replace(/<meta\b[^>]*(?:name|property)=["'](?:description|robots|og:[^"']+|twitter:[^"']+)["'][^>]*>/gi, "")
     .replace(/<link\b[^>]*rel=["']canonical["'][^>]*>/gi, "")

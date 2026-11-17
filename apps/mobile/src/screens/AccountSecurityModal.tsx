@@ -7,7 +7,7 @@ import {
   View,
 } from "react-native";
 import { Pressable, Text, TextInput } from "../components/LocalizedText";
-import { resolveMobileThemeStyles, useMobileTheme, type MobileResolvedTheme } from "../lib/mobile-theme";
+import { mobileThemeStylesKey, resolveMobileThemeStyles, useMobileTheme, type MobileResolvedTheme } from "../lib/mobile-theme";
 import { useSession } from "../lib/session";
 import { TotpSettingsPanel } from "./TotpSettingsPanel";
 
@@ -130,11 +130,12 @@ const baseAccountSecurityStyles = StyleSheet.create({
 });
 
 let styles = baseAccountSecurityStyles;
-let accountSecurityStylesTheme: MobileResolvedTheme = "light";
+// Theme plus branding colours the cached styles were resolved for.
+let accountSecurityStylesTheme = "light";
 
 const refreshAccountSecurityThemeStyles = (theme: MobileResolvedTheme) => {
-  if (accountSecurityStylesTheme !== theme) {
+  if (accountSecurityStylesTheme !== mobileThemeStylesKey(theme)) {
     styles = resolveMobileThemeStyles(baseAccountSecurityStyles, theme);
-    accountSecurityStylesTheme = theme;
+    accountSecurityStylesTheme = mobileThemeStylesKey(theme);
   }
 };

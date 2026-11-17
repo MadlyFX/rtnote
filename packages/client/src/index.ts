@@ -1,5 +1,5 @@
 import type { ImportMemosInput, ImportMemosResponse } from "@edgeever/shared/note-import/types";
-import type { NotebookUpdateInput } from "@edgeever/shared";
+import type { BrandAsset, BrandingOverview, BrandingSettings, NotebookBranding, NotebookUpdateInput, ResolvedBranding } from "@edgeever/shared";
 
 import { createPluginCapabilities } from './plugin-capabilities';
 import type {
@@ -706,6 +706,23 @@ export const createEdgeEverClient = (options: EdgeEverClientOptions = {}) => {
 
     getNoteProse: () => request<AccountNoteProse>("/api/v1/me/note-prose"),
 
+    /** Instance default branding, for the sign-in page. No session needed. */
+    getPublicBranding: () => request<{ branding: ResolvedBranding }>("/api/public/branding"),
+    getBranding: () => request<BrandingOverview>("/api/v1/branding"),
+    updateInstanceBranding: (settings: BrandingSettings) =>
+      request<BrandingOverview>("/api/v1/branding/instance", { method: "PUT", body: JSON.stringify({ settings }) }),
+    updateWorkspaceBranding: (settings: BrandingSettings) =>
+      request<BrandingOverview>("/api/v1/branding/workspace", { method: "PUT", body: JSON.stringify({ settings }) }),
+    uploadBrandingAsset: (file: Blob, scope: "instance" | "workspace" = "workspace") => {
+      const form = new FormData();
+      form.append("file", file, file instanceof File && file.name ? file.name : "logo");
+      return request<{ asset: BrandAsset }>(`/api/v1/branding/assets?scope=${scope}`, { method: "POST", body: form });
+    },
+    getNotebookBranding: (notebookId: string) =>
+      request<NotebookBranding>(`/api/v1/notebooks/${encodeURIComponent(notebookId)}/branding`),
+    updateNotebookBranding: (notebookId: string, settings: BrandingSettings) =>
+      request<NotebookBranding>(`/api/v1/notebooks/${encodeURIComponent(notebookId)}/branding`, { method: "PUT", body: JSON.stringify({ settings }) }),
+
     updateNoteProse: (patch: NoteProsePatch) =>
       request<AccountNoteProse>("/api/v1/me/note-prose", {
         method: "PUT",
@@ -1232,7 +1249,7 @@ export const createEdgeEverClient = (options: EdgeEverClientOptions = {}) => {
         body: JSON.stringify({}),
       }),
 
-    updateMemoShare: (memoId: string, payload: { passwordProtected?: boolean; password?: string; slug?: string | null; showUpdatedAt?: boolean; showBranding?: boolean; expiresAt?: string | null }) =>
+    updateMemoShare: (memoId: string, payload: { passwordProtected?: boolean; password?: string; slug?: string | null; showUpdatedAt?: boolean; showBranding?: boolean; brandingNotebookId?: string | null; expiresAt?: string | null }) =>
       request<{ share: MemoShare }>(`/api/v1/memos/${encodeURIComponent(memoId)}/share`, {
         method: "PATCH",
         body: JSON.stringify(payload),
