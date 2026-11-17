@@ -24,7 +24,6 @@ const allowed = [
   { file: "apps/desktop/src/main/desktop-copy.mjs", line: "if (language === ", reason: "locale resolver of the desktop main process, which cannot import the shared one" },
   { file: "apps/web/src/lib/bilingual-content-locale.ts", line: 'matchSupportedLocale(locale) === "zh-CN"', reason: "single helper for bundled content that exists only in Chinese and English" },
   { file: "apps/web/src/lib/bilingual-content-locale.ts", line: 'bilingualContentLocale(locale) === "zh-CN";', reason: "same helper" },
-  { file: "apps/web/src/lib/infographic-samples.ts", line: "if (lang && lang.toLowerCase().startsWith(", reason: "sample titles and descriptions are authored only in Chinese, English and Japanese" },
   { file: "apps/extension/src/video/transcript.ts", line: "if (normalized.startsWith(", reason: "groups subtitle tracks by content language" },
   { file: "apps/extension/src/video/read-youtube-in-page.ts", line: "if (normalized.startsWith(", reason: "groups subtitle tracks by content language" },
   { file: "apps/extension/src/video/read-bilibili-in-page.ts", line: "if (normalized.startsWith(", reason: "groups subtitle tracks by content language" },
@@ -37,7 +36,7 @@ const sourceFiles = (directory) => readdirSync(directory, { withFileTypes: true 
 });
 
 const findings = () => scanned.flatMap((directory) => sourceFiles(join(root, directory)).flatMap((path) => {
-  const file = relative(root, path);
+  const file = relative(root, path).replaceAll("\\", "/");
   return readFileSync(path, "utf8").split("\n").flatMap((line, index) => (
     languagePatterns.some((pattern) => pattern.test(line))
     && !allowed.some((entry) => entry.file === file && line.includes(entry.line))

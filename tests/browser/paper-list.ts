@@ -58,7 +58,7 @@ try {
         const blob = await renderPosterBlob(design, async () => { throw new Error('No resources expected'); }, 'png', false);
         const img = document.createElement('img');
         img.src = URL.createObjectURL(blob);
-        img.alt = zh ? '书页清单中文 PNG 导出' : 'Bookish list English PNG export';
+        img.alt = zh ? 'Bookish list Chinese PNG export' : 'Bookish list English PNG export';
         img.style.width = '400px';
         document.querySelector('main')!.append(img);
         await img.decode();
@@ -94,7 +94,7 @@ try {
   const referenceBlob = await renderPosterBlob(reference, async () => { throw new Error('No resources expected'); }, 'png', false);
   const referenceImage = document.createElement('img');
   referenceImage.src = URL.createObjectURL(referenceBlob);
-  referenceImage.alt = '原图同文案排版对照';
+  referenceImage.alt = 'Layout comparison with the reference copy';
   referenceImage.style.width = '400px';
   document.querySelector('main')!.append(referenceImage);
   await referenceImage.decode();
@@ -103,7 +103,7 @@ try {
   metrics.textContent = JSON.stringify(reference.elements.filter(element => element.type === 'text' && element.name.startsWith('paper-list:row:')).map(element => ({ name: element.name, x: element.x, y: element.y, height: element.height, fontSize: element.type === 'text' ? element.fontSize : 0, text: element.type === 'text' ? element.text : '' })), null, 2);
   const measurements = document.createElement('details');
   const measurementsLabel = document.createElement('summary');
-  measurementsLabel.textContent = '同文案版心测量（px）';
+  measurementsLabel.textContent = 'Reference copy layout measurements (px)';
   measurements.append(measurementsLabel, metrics);
   document.body.append(measurements);
   const title = reference.elements.find(element => element.role === 'title');
@@ -114,7 +114,7 @@ try {
   assert(firstHeading && firstSubheading && firstBody && firstBody.x < firstHeading.x && firstHeading.x < firstSubheading.x, 'Reference book, subtitle and body have distinct left edges');
   assert(firstBody?.type === 'text' && firstBody.text.split('\n').length === 4, 'Reference opening paragraph must occupy four lines');
   assert(firstBody && Math.abs(firstBody.y / 1440 - 0.33) < 0.035, 'Reference body must begin near one third of the page');
-  status.textContent = 'PASS：同文案版心对照、粗体段首、真实模板选择、中英文 × 4 种尺寸、宋体数字、段间留白、裁切水印、编辑保留与 PNG 导出均通过。';
+  status.textContent = 'PASS: reference layout comparison, bold lead-ins, real template selection, Chinese and English × 4 sizes, serif numerals, paragraph spacing, cropped watermark, edit preservation and PNG export.';
 } catch (error) {
   status.textContent = `FAIL: ${String(error)}`;
   console.error(error);

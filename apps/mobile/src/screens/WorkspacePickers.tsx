@@ -118,8 +118,8 @@ export const NotebookPickerModal = ({
     ? filterNotebookOptionsById(notebookOptions, getMobileNotebookSearchVisibleIds(notebooks, searchText))
     : filterCollapsedNotebookOptions(notebookOptions, collapsedNotebookIds);
   const activeNotebookName = activeNotebookId === ALL_NOTES_ID
-    ? "全部笔记"
-    : notebooks.find((notebook) => notebook.id === activeNotebookId)?.name ?? "全部笔记";
+    ? "All notes"
+    : notebooks.find((notebook) => notebook.id === activeNotebookId)?.name ?? "All notes";
   const allNotebookBranchesExpanded = childNotebookIds.size > 0 && Array.from(childNotebookIds).every((notebookId) => !collapsedNotebookIds.has(notebookId));
 
   useEffect(() => {
@@ -145,7 +145,7 @@ export const NotebookPickerModal = ({
       const notebookId = await onCreate(name, newNotebookParentId);
       onSelect(notebookId);
     } catch (error) {
-      setCreateError(error instanceof Error ? error.message : "创建笔记本失败，请重试");
+      setCreateError(error instanceof Error ? error.message : "Could not create the notebook. Try again.");
     } finally {
       createInFlight.current = false;
       setIsSavingNotebook(false);
@@ -177,36 +177,36 @@ export const NotebookPickerModal = ({
           <View style={styles.actionSheetHandle} />
           <View style={styles.notebookPickerHeader}>
             <View style={styles.notebookPickerHeaderText}>
-              <Text style={styles.actionSheetTitle}>切换笔记本</Text>
-              <Text style={styles.panelLabel}>{translate(`当前：${activeNotebookName}`)}</Text>
+              <Text style={styles.actionSheetTitle}>Switch notebook</Text>
+              <Text style={styles.panelLabel}>{translate(`Current: ${activeNotebookName}`)}</Text>
             </View>
-            <Pressable accessibilityLabel="关闭" accessibilityRole="button" onPress={onClose} style={styles.notebookPickerCloseButton}>
+            <Pressable accessibilityLabel="Close" accessibilityRole="button" onPress={onClose} style={styles.notebookPickerCloseButton}>
               <X color="#0f172a" size={20} />
             </Pressable>
           </View>
 
           {onCreate ? (
             <View style={styles.notebookCreateWrap}>
-              <Pressable accessibilityLabel="新建笔记本" accessibilityRole="button" onPress={() => { setCreating((value) => !value); setCreateError(""); }} style={styles.notebookCreateToggle}>
+              <Pressable accessibilityLabel="New notebook" accessibilityRole="button" onPress={() => { setCreating((value) => !value); setCreateError(""); }} style={styles.notebookCreateToggle}>
                 <Plus color="#059669" size={18} />
-                <Text style={styles.notebookCreateToggleText}>新建笔记本</Text>
+                <Text style={styles.notebookCreateToggleText}>New notebook</Text>
               </Pressable>
               {creating ? (
                 <View style={styles.notebookCreateForm}>
-                  <TextInput accessibilityLabel="笔记本名称" autoFocus maxLength={80} onChangeText={setNewNotebookName} placeholder="笔记本名称" placeholderTextColor="#94a3b8" returnKeyType="done" style={styles.notebookCreateInput} value={newNotebookName} />
+                  <TextInput accessibilityLabel="Notebook name" autoFocus maxLength={80} onChangeText={setNewNotebookName} placeholder="Notebook name" placeholderTextColor="#94a3b8" returnKeyType="done" style={styles.notebookCreateInput} value={newNotebookName} />
                   <View style={styles.notebookCreateParentRow}>
                     <Pressable accessibilityRole="button" accessibilityState={{ selected: newNotebookParentId === null }} onPress={() => setNewNotebookParentId(null)} style={[styles.notebookCreateParentChoice, newNotebookParentId === null && styles.notebookCreateParentChoiceActive]}>
-                      <Text style={styles.notebookCreateParentText}>顶层笔记本</Text>
+                      <Text style={styles.notebookCreateParentText}>Top level</Text>
                     </Pressable>
                     {activeNotebookId !== ALL_NOTES_ID ? (
                       <Pressable accessibilityRole="button" accessibilityState={{ selected: newNotebookParentId === activeNotebookId }} onPress={() => setNewNotebookParentId(activeNotebookId)} style={[styles.notebookCreateParentChoice, newNotebookParentId === activeNotebookId && styles.notebookCreateParentChoiceActive]}>
-                        <Text numberOfLines={1} style={styles.notebookCreateParentText}>{translate(`位于「${activeNotebookName}」下`)}</Text>
+                        <Text numberOfLines={1} style={styles.notebookCreateParentText}>{translate(`Under ${activeNotebookName}`)}</Text>
                       </Pressable>
                     ) : null}
                   </View>
                   {createError ? <Text accessibilityRole="alert" style={styles.notebookCreateError}>{createError}</Text> : null}
-                  <Pressable accessibilityLabel="创建笔记本" accessibilityRole="button" accessibilityState={{ disabled: !newNotebookName.trim() || isSavingNotebook }} disabled={!newNotebookName.trim() || isSavingNotebook} onPress={() => void submitNewNotebook()} style={styles.notebookCreateSubmit}>
-                    {isSavingNotebook ? <ActivityIndicator color="#ffffff" size="small" /> : <Text style={styles.notebookCreateSubmitText}>创建笔记本</Text>}
+                  <Pressable accessibilityLabel="Create notebook" accessibilityRole="button" accessibilityState={{ disabled: !newNotebookName.trim() || isSavingNotebook }} disabled={!newNotebookName.trim() || isSavingNotebook} onPress={() => void submitNewNotebook()} style={styles.notebookCreateSubmit}>
+                    {isSavingNotebook ? <ActivityIndicator color="#ffffff" size="small" /> : <Text style={styles.notebookCreateSubmitText}>Create notebook</Text>}
                   </Pressable>
                 </View>
               ) : null}
@@ -222,11 +222,11 @@ export const NotebookPickerModal = ({
           <View style={styles.notebookPickerSearchBox}>
             <Search color="#64748b" size={18} />
             <TextInput
-              accessibilityLabel="搜索笔记本"
+              accessibilityLabel="Search notebooks"
               autoCapitalize="none"
               autoCorrect={false}
               onChangeText={setSearchText}
-              placeholder="搜索笔记本"
+              placeholder="Search notebooks"
               placeholderTextColor="#94a3b8"
               style={styles.notebookPickerSearchInput}
               value={searchText}
@@ -240,7 +240,7 @@ export const NotebookPickerModal = ({
 
           {includeAllNotes ? (
           <Pressable
-            accessibilityLabel={activeNotebookId === ALL_NOTES_ID ? "当前：全部笔记" : "切换到全部笔记"}
+            accessibilityLabel={activeNotebookId === ALL_NOTES_ID ? "Current: all notes" : "Switch to all notes"}
             accessibilityRole="button"
             accessibilityState={{ selected: activeNotebookId === ALL_NOTES_ID }}
             onLayout={(event) => selectedScroll.onRowLayout(ALL_NOTES_ID, event)}
@@ -249,7 +249,7 @@ export const NotebookPickerModal = ({
           >
             <View style={styles.moveNotebookText}>
               <Text numberOfLines={1} style={styles.panelValue}>
-                全部笔记
+                All notes
               </Text>
             </View>
             {activeNotebookId === ALL_NOTES_ID ? <Check color="#0f172a" size={18} /> : null}
@@ -257,15 +257,15 @@ export const NotebookPickerModal = ({
           ) : null}
 
           <View style={styles.notebookPickerSectionHeader}>
-            <Text style={styles.label}>{searchQuery ? "匹配的笔记本" : "笔记本"}</Text>
+            <Text style={styles.label}>{searchQuery ? "Matching notebooks" : "Notebooks"}</Text>
             {!searchQuery && childNotebookIds.size > 0 ? (
               <Pressable
-                accessibilityLabel={allNotebookBranchesExpanded ? "收起全部笔记本" : "展开全部笔记本"}
+                accessibilityLabel={allNotebookBranchesExpanded ? "Collapse all notebooks" : "Expand all notebooks"}
                 accessibilityRole="button"
                 onPress={toggleAllNotebookBranches}
                 style={styles.notebookPickerToggleAll}
               >
-                <Text style={styles.notebookPickerToggleAllText}>{allNotebookBranchesExpanded ? "收起全部" : "展开全部"}</Text>
+                <Text style={styles.notebookPickerToggleAllText}>{allNotebookBranchesExpanded ? "Collapse all" : "Expand all"}</Text>
               </Pressable>
             ) : null}
           </View>
@@ -277,7 +277,7 @@ export const NotebookPickerModal = ({
             >
               {childNotebookIds.has(notebook.id) && !searchQuery ? (
                 <Pressable
-                  accessibilityLabel={`${collapsedNotebookIds.has(notebook.id) ? "展开" : "收起"} ${notebook.name}`}
+                  accessibilityLabel={`${collapsedNotebookIds.has(notebook.id) ? "Expand" : "Collapse"} ${notebook.name}`}
                   accessibilityRole="button"
                   accessibilityState={{ expanded: !collapsedNotebookIds.has(notebook.id) }}
                   onPress={() => toggleNotebookCollapsed(notebook.id)}
@@ -289,7 +289,7 @@ export const NotebookPickerModal = ({
                 <View style={styles.notebookTreeTogglePlaceholder} />
               )}
               <Pressable
-                accessibilityLabel={`${activeNotebookId === notebook.id ? "当前" : "切换到"} ${notebook.name}`}
+                accessibilityLabel={`${activeNotebookId === notebook.id ? "Current:" : "Switch to"} ${notebook.name}`}
                 accessibilityRole="button"
                 accessibilityState={{ selected: activeNotebookId === notebook.id }}
                 onPress={() => onSelect(notebook.id)}
@@ -305,7 +305,7 @@ export const NotebookPickerModal = ({
           {visibleNotebookOptions.length === 0 ? (
             <View style={styles.emptyInlinePanel}>
               <Folder color="#94a3b8" size={28} />
-              <Text style={styles.mutedText}>没有匹配的笔记本</Text>
+              <Text style={styles.mutedText}>No matching notebooks</Text>
             </View>
           ) : null}
           </ScrollView>
@@ -318,7 +318,7 @@ export const NotebookPickerModal = ({
 export const TagPickerModal = ({
   allowCreate = true,
   dataScope,
-  description = "点选已有标签，或输入名称创建新标签",
+  description = "Select existing tags or enter a name to create a new one",
   headerContent,
   footerContent,
   disabled = false,
@@ -326,7 +326,7 @@ export const TagPickerModal = ({
   onChange,
   onClose,
   selectedTags,
-  title = "选择标签",
+  title = "Choose tags",
   visible,
 }: {
   allowCreate?: boolean;
@@ -386,7 +386,7 @@ export const TagPickerModal = ({
               <Text style={styles.actionSheetTitle}>{translate(title)}</Text>
               <Text style={styles.panelLabel}>{translate(description)}</Text>
             </View>
-            <Pressable accessibilityLabel="关闭" accessibilityRole="button" disabled={disabled} onPress={onClose} style={styles.notebookPickerCloseButton}>
+            <Pressable accessibilityLabel="Close" accessibilityRole="button" disabled={disabled} onPress={onClose} style={styles.notebookPickerCloseButton}>
               <X color="#0f172a" size={20} />
             </Pressable>
           </View>
@@ -394,9 +394,9 @@ export const TagPickerModal = ({
           <ScrollView contentContainerStyle={styles.notebookPickerContent} keyboardShouldPersistTaps="handled" style={styles.notebookPickerScroll}>
             {headerContent}
             {selectedTags.length > 0 ? (
-              <View accessibilityLabel="已选标签" style={styles.tagPickerSelectedList}>
+              <View accessibilityLabel="Selected tags" style={styles.tagPickerSelectedList}>
                 {selectedTags.map((tag) => (
-                  <Pressable key={tag} accessibilityLabel={`移除标签 ${tag}`} accessibilityRole="button" disabled={disabled} onPress={() => toggleTag(tag)} style={styles.tagPickerChip}>
+                  <Pressable key={tag} accessibilityLabel={`Remove tag ${tag}`} accessibilityRole="button" disabled={disabled} onPress={() => toggleTag(tag)} style={styles.tagPickerChip}>
                     <Text style={styles.tagPickerChipText}>#{tag}</Text>
                     <X color="#047857" size={14} />
                   </Pressable>
@@ -407,21 +407,21 @@ export const TagPickerModal = ({
             <View style={styles.notebookPickerSearchBox}>
               <Search color="#64748b" size={18} />
               <TextInput
-                accessibilityLabel={allowCreate ? "搜索或输入新标签" : "搜索标签"}
+                accessibilityLabel={allowCreate ? "Search or enter a new tag" : "Search tags"}
                 autoCapitalize="none"
                 autoCorrect={false}
                 editable={!disabled}
                 onChangeText={setSearchText}
                 onSubmitEditing={allowCreate ? createTag : undefined}
-                placeholder={allowCreate ? "搜索或输入新标签" : "搜索标签"}
+                placeholder={allowCreate ? "Search or enter a new tag" : "Search tags"}
                 placeholderTextColor="#94a3b8"
                 returnKeyType={allowCreate ? "done" : "search"}
                 style={styles.notebookPickerSearchInput}
                 value={searchText}
               />
               {allowCreate && normalizedSearch && !exactMatch && selectedTags.length < maxSelections ? (
-                <Pressable accessibilityLabel={`新建标签 ${normalizedSearch}`} accessibilityRole="button" disabled={disabled} onPress={createTag}>
-                  <Text style={styles.tagPickerCreateText}>{translate("新建")}</Text>
+                <Pressable accessibilityLabel={`Create tag ${normalizedSearch}`} accessibilityRole="button" disabled={disabled} onPress={createTag}>
+                  <Text style={styles.tagPickerCreateText}>{translate("Create")}</Text>
                 </Pressable>
               ) : null}
             </View>
@@ -431,14 +431,14 @@ export const TagPickerModal = ({
             ) : visibleTags.length === 0 ? (
               <View style={styles.emptyInlinePanel}>
                 <Tag color="#94a3b8" size={28} />
-                <Text style={styles.mutedText}>{translate(allowCreate ? "没有匹配的现有标签，可直接新建" : "没有匹配的标签")}</Text>
+                <Text style={styles.mutedText}>{translate(allowCreate ? "No matching tags. You can create a new one." : "No matching tags")}</Text>
               </View>
             ) : visibleTags.map((tag) => {
               const selected = selectedTags.includes(tag.name);
               return (
                 <Pressable
                   key={tag.name}
-                  accessibilityLabel={`标签 ${tag.name}`}
+                  accessibilityLabel={`Tag ${tag.name}`}
                   accessibilityRole="button"
                   accessibilityState={{ selected }}
                   disabled={disabled}
@@ -449,7 +449,7 @@ export const TagPickerModal = ({
                     {selected ? <Check color="#ffffff" size={14} /> : null}
                   </View>
                   <Text numberOfLines={1} style={styles.tagPickerRowText}>#{tag.name}</Text>
-                  <Text style={styles.panelLabel}>{translate(`${tag.memoCount} 条笔记`)}</Text>
+                  <Text style={styles.panelLabel}>{translate(`${tag.memoCount} notes`)}</Text>
                 </Pressable>
               );
             })}
@@ -497,10 +497,10 @@ export const MoveSelectionModal = ({
           <View style={styles.actionSheetHandle} />
           <View style={styles.listActionSheetHeader}>
             <View style={styles.listActionSheetHeaderText}>
-              <Text style={styles.actionSheetTitle}>移动到笔记本</Text>
-              <Text style={styles.actionSheetSubtitle}>{selectedCount > 0 ? `已选择 ${selectedCount} 条` : "选择笔记"}</Text>
+              <Text style={styles.actionSheetTitle}>Move to notebook</Text>
+              <Text style={styles.actionSheetSubtitle}>{selectedCount > 0 ? `${selectedCount} selected` : "Select note"}</Text>
             </View>
-            <Pressable accessibilityLabel="关闭" accessibilityRole="button" onPress={onClose} style={styles.sheetCloseButton}>
+            <Pressable accessibilityLabel="Close" accessibilityRole="button" onPress={onClose} style={styles.sheetCloseButton}>
               <X color="#0f172a" size={18} />
             </Pressable>
           </View>
@@ -511,7 +511,7 @@ export const MoveSelectionModal = ({
                 autoCapitalize="none"
                 autoCorrect={false}
                 onChangeText={setSearchText}
-                placeholder="搜索笔记本"
+                placeholder="Search notebooks"
                 placeholderTextColor="#94a3b8"
                 style={styles.searchInput}
                 value={searchText}
@@ -603,7 +603,7 @@ const NotebookTreeOptionRows = ({
     return (
       <View style={styles.emptyInlinePanel}>
         <Folder color="#94a3b8" size={emptyIconSize} />
-        <Text style={styles.mutedText}>没有匹配的笔记本</Text>
+        <Text style={styles.mutedText}>No matching notebooks</Text>
       </View>
     );
   }
@@ -637,7 +637,7 @@ const NotebookTreeOptionRows = ({
             <Text numberOfLines={1} style={[styles.panelValue, compact && selectedNotebookId === notebook.id && styles.moveNotebookTextCompactActive]}>
               {showDepthPrefix && depth > 0 ? `${"· ".repeat(depth)}${notebook.name}` : notebook.name}
             </Text>
-            {showMemoCount ? <Text style={styles.panelLabel}>{notebook.memoCount} 条笔记</Text> : null}
+            {showMemoCount ? <Text style={styles.panelLabel}>{`${notebook.memoCount} notes`}</Text> : null}
           </Pressable>
           {selectedNotebookId === notebook.id ? <Check color={compact ? "#059669" : "#0f172a"} size={18} /> : null}
         </View>

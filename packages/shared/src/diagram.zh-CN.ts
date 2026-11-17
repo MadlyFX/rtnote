@@ -1,0 +1,21 @@
+/** The Simplified Chinese starter diagram labels, the labels the starter node sizes were chosen for. */
+export const DIAGRAM_SEED_LABELS_ZH_CN = {
+  mindMapRoot: "核心主题",
+  mindMapCapture: "采集想法",
+  mindMapOrganize: "整理结构",
+  mindMapShare: "输出分享",
+  mindMapQuickNotes: "快速记录",
+  mindMapSync: "跨设备同步",
+  mindMapNotebooks: "笔记本",
+  mindMapPublicLinks: "公开链接",
+  architectureSystem: "应用系统",
+  architectureClient: "Web 客户端",
+  architectureApi: "API 服务",
+  architectureDatabase: "数据库",
+  architectureStorage: "对象存储",
+  architectureQuery: "查询 / 写入",
+  architectureFiles: "文件",
+  flowchartStart: "开始",
+  flowchartProcess: "处理步骤",
+  flowchartEnd: "结束",
+};

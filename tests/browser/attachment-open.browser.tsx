@@ -26,7 +26,7 @@ Object.defineProperty(window, "edgeeverDesktop", { configurable: true, value: {
 } });
 const editor = new Editor({ extensions: [StarterKit, FileAttachment], content: {
   type: "doc", content: [{ type: "paragraph", content: [{ type: FileAttachment.name, attrs: {
-    url: "edgeever-resource://resource/sheet_1", label: "训练.xlsx", filename: "训练.xlsx",
+    url: "edgeever-resource://resource/sheet_1", label: "Training plan.xlsx", filename: "Training plan.xlsx",
     mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", byteSize: 6440,
   } }] }],
 } });
@@ -34,22 +34,22 @@ const Fixture = () => {
   const [desktop, setDesktop] = useState(true);
   return <I18nextProvider i18n={i18n}>
     <div className="my-4 flex flex-wrap gap-3">
-      <button onClick={() => resolveOpen?.({ ok: true })}>完成打开</button>
-      <button onClick={() => resolveOpen?.({ ok: false, code: "unavailable" })}>模拟离线无缓存</button>
-      <button onClick={() => resolveOpen?.({ ok: false, code: "blocked" })}>模拟受限文件</button>
-      <button onClick={() => resolveOpen?.({ ok: false, code: "open-failed" })}>模拟无关联应用</button>
+      <button onClick={() => resolveOpen?.({ ok: true })}>Finish opening</button>
+      <button onClick={() => resolveOpen?.({ ok: false, code: "unavailable" })}>Simulate offline without cache</button>
+      <button onClick={() => resolveOpen?.({ ok: false, code: "blocked" })}>Simulate blocked file</button>
+      <button onClick={() => resolveOpen?.({ ok: false, code: "open-failed" })}>Simulate no associated app</button>
       <button onClick={() => {
         const next = !desktop;
         window.edgeeverDesktop!.isAvailable = next;
         editor.commands.setContent({ type: "doc", content: [{ type: "paragraph", content: [{ type: FileAttachment.name, attrs: {
           url: next ? "edgeever-resource://resource/sheet_1" : "/api/v1/resources/sheet_1/blob",
-          label: "训练.xlsx", filename: "训练.xlsx", byteSize: 6440,
+          label: "Training plan.xlsx", filename: "Training plan.xlsx", byteSize: 6440,
         } }] }] });
         setDesktop(next);
-      }}>运行环境：{desktop ? "桌面" : "Web"}</button>
+      }}>Runtime: {desktop ? "Desktop" : "Web"}</button>
     </div>
     <EditorContent editor={editor} />
-    <PdfViewer url={desktop ? "edgeever-staged://pdf_1" : "/api/v1/resources/pdf_1/blob"} label="报告.pdf" filename="报告.pdf" byteSize={1000} />
+    <PdfViewer url={desktop ? "edgeever-staged://pdf_1" : "/api/v1/resources/pdf_1/blob"} label="Report.pdf" filename="Report.pdf" byteSize={1000} />
     <pre id="calls" className="mt-5 whitespace-pre-wrap text-xs">[]</pre>
   </I18nextProvider>;
 };

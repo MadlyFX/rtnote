@@ -40,8 +40,8 @@ describe("RTNote MCP stdio adapter headers", () => {
       "MCP-Protocol-Version": "2025-11-25",
       "Mcp-Method": "tools/list",
     });
-    expect(encodeMirroredHeader("笔记/今天")).toBe(
-      `=?base64?${Buffer.from("笔记/今天", "utf8").toString("base64")}?=`,
+    expect(encodeMirroredHeader("Notes/Café ✓")).toBe(
+      `=?base64?${Buffer.from("Notes/Café ✓", "utf8").toString("base64")}?=`,
     );
     expect(encodeMirroredHeader("=?base64?literal?=")).toBe(
       `=?base64?${Buffer.from("=?base64?literal?=", "utf8").toString("base64")}?=`,

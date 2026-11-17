@@ -1,4 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
+import { DEMO_FEATURES_NOTEBOOK_NAME_ZH } from "../../apps/api/src/demo-seed-data.zh-CN";
+import { ui } from "./fixtures/ui-labels";
 
 const installDarkTheme = (page: Page) => page.addInitScript(() => {
   localStorage.setItem("edgeever.theme", "dark");
@@ -86,21 +88,21 @@ test.describe("dark mode visual contracts", () => {
     await expect(page.locator(".ProseMirror")).toBeVisible();
     expect(await auditVisibleTextContrast(page)).toEqual([]);
 
-    const titleInput = page.getByPlaceholder("无标题笔记", { exact: true });
+    const titleInput = page.getByPlaceholder(ui.common.untitledMemo, { exact: true });
     await titleInput.focus();
     await expect(titleInput).toBeFocused();
     expect(await auditVisibleTextContrast(page)).toEqual([]);
 
-    await page.getByRole("button", { name: "个人中心", exact: true }).click();
-    await expect(page.getByRole("heading", { name: "我的", exact: true })).toBeVisible();
+    await page.getByRole("button", { name: ui.notebookPane.profile, exact: true }).click();
+    await expect(page.getByRole("heading", { name: ui.settings.title, exact: true })).toBeVisible();
     expect(await auditVisibleTextContrast(page)).toEqual([]);
   });
 
   test("notebook move picker keeps highlighted options dark and selected labels clean", async ({ page }) => {
     await page.goto("/");
-    const selectMemosButton = page.getByRole("button", { name: "选择笔记", exact: true });
+    const selectMemosButton = page.getByRole("button", { name: ui.memoList.selectMemo, exact: true });
     if (await selectMemosButton.isDisabled()) {
-      await page.getByRole("button", { name: "手动同步笔记", exact: true }).click();
+      await page.getByRole("button", { name: ui.memoList.manualSync, exact: true }).click();
     }
     await expect(selectMemosButton).toBeEnabled({ timeout: 20_000 });
     await selectMemosButton.click();
@@ -111,18 +113,18 @@ test.describe("dark mode visual contracts", () => {
     await expect.poll(async () => (await actionCard.boundingBox())?.y ?? Number.POSITIVE_INFINITY).toBeLessThan(120);
 
     const notebookSelect = actionBar.getByRole("combobox");
-    await expect(notebookSelect).toContainText("功能演示");
+    await expect(notebookSelect).toContainText(DEMO_FEATURES_NOTEBOOK_NAME_ZH);
     await expect(notebookSelect).not.toContainText("└");
     await notebookSelect.click();
 
-    const nestedNotebook = page.getByRole("option", { name: /功能演示/ });
+    const nestedNotebook = page.getByRole("option", { name: DEMO_FEATURES_NOTEBOOK_NAME_ZH });
     await nestedNotebook.hover();
     await expect.poll(() => nestedNotebook.evaluate((element) => getComputedStyle(element).backgroundColor))
       .not.toBe("rgb(241, 245, 249)");
     expect(await auditVisibleTextContrast(page)).toEqual([]);
 
     await nestedNotebook.click();
-    await expect(notebookSelect).toHaveText("功能演示");
+    await expect(notebookSelect).toHaveText(DEMO_FEATURES_NOTEBOOK_NAME_ZH);
   });
 
   test("public share content remains readable in dark mode", async ({ page }) => {

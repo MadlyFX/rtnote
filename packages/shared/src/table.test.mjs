@@ -23,8 +23,8 @@ import {
 describe("structured table documents", () => {
   test("round-trips fields, records, filters, and sort through the markdown envelope", () => {
     const seeded = createDefaultTableDocument();
-    const withView = replaceTableView(updateTableCell(seeded, "rec_sample", "fld_name", "阅读清单"), {
-      filters: [{ fieldId: "fld_status", operator: "eq", value: "未开始" }],
+    const withView = replaceTableView(updateTableCell(seeded, "rec_sample", "fld_name", "Reading list"), {
+      filters: [{ fieldId: "fld_status", operator: "eq", value: "Not started" }],
       sort: { fieldId: "fld_name", direction: "asc" },
     });
     const markdown = serializeTableDocument(withView);
@@ -39,22 +39,22 @@ describe("structured table documents", () => {
     const markdown = `${tableFallbackMarkdown(createDefaultTableDocument())}\n\n<!-- edgeever-table-v1:not-json -->`;
     expect(parseTableDocument(markdown)).toBeNull();
     expect(hasTableDocumentMarker(markdown)).toBe(true);
-    expect(stripTableDocumentMarker(markdown)).toContain("| 名称 |");
+    expect(stripTableDocumentMarker(markdown)).toContain("| Name |");
     expect(getTableSummary(markdown)).toEqual({ structuredTable: false });
   });
 
   test("filters, sorts, and keeps an ordinary markdown table untouched", () => {
     let document = createDefaultTableDocument();
     document = addTableRecord(document, "rec_next");
-    document = updateTableCell(document, "rec_next", "fld_name", "已完成的书");
-    document = updateTableCell(document, "rec_next", "fld_status", "完成");
+    document = updateTableCell(document, "rec_next", "fld_name", "Finished book");
+    document = updateTableCell(document, "rec_next", "fld_status", "Done");
     document = updateTableCell(document, "rec_next", "fld_date", "2026-09-01");
     document = replaceTableView(document, {
-      filters: [{ fieldId: "fld_name", operator: "contains", value: "书" }],
+      filters: [{ fieldId: "fld_name", operator: "contains", value: "book" }],
       sort: { fieldId: "fld_date", direction: "desc" },
     });
     expect(applyTableView(document).map((record) => record.id)).toEqual(["rec_next"]);
-    expect(parseTableDocument("| 名称 |\n| --- |\n| 普通表格 |")).toBeNull();
+    expect(parseTableDocument("| Name |\n| --- |\n| Plain table |")).toBeNull();
   });
 
   test("coerces cells when a field type changes and refuses to remove the last field", () => {
@@ -65,22 +65,22 @@ describe("structured table documents", () => {
   });
 
   test("exports csv for the rows currently in view and escapes commas", () => {
-    const document = updateTableCell(createDefaultTableDocument(), "rec_sample", "fld_name", "甲,乙");
-    expect(tableDocumentToCsv(document)).toContain('"甲,乙"');
+    const document = updateTableCell(createDefaultTableDocument(), "rec_sample", "fld_name", "Alpha,Beta");
+    expect(tableDocumentToCsv(document)).toContain('"Alpha,Beta"');
     expect(tableDocumentToCsv(document).charCodeAt(0)).toBe(0xfeff);
   });
 
   test("summarizes a table note for the memo list", () => {
     expect(getTableSummary(serializeTableDocument(createDefaultTableDocument()))).toEqual({
       structuredTable: true,
-      tablePreview: { fieldCount: 3, recordCount: 1, fieldNames: ["名称", "状态", "日期"] },
+      tablePreview: { fieldCount: 3, recordCount: 1, fieldNames: ["Name", "Status", "Date"] },
     });
   });
 
   test("adds a field onto every existing record", () => {
-    const document = addTableField(createDefaultTableDocument(), { id: "fld_url", name: "链接", type: "url" });
+    const document = addTableField(createDefaultTableDocument(), { id: "fld_url", name: "Link", type: "url" });
     expect(document.records[0]?.cells.fld_url).toBe("");
-    expect(document.fields.at(-1)?.name).toBe("链接");
+    expect(document.fields.at(-1)?.name).toBe("Link");
   });
 
   test("stores attachment references and writes filename links into the readable table", () => {
@@ -88,7 +88,7 @@ describe("structured table documents", () => {
       { resourceId: "res_brief", filename: "brief.pdf", mimeType: "application/pdf", byteSize: 12 },
       { resourceId: "res_shot", filename: "shot.png", mimeType: "image/png", byteSize: 34 },
     ];
-    let document = addTableField(createDefaultTableDocument(), { id: "fld_files", name: "附件", type: "attachment" });
+    let document = addTableField(createDefaultTableDocument(), { id: "fld_files", name: "Files", type: "attachment" });
     document = updateTableCell(document, "rec_sample", "fld_files", files);
     expect(document.records[0]?.cells.fld_files).toEqual(files);
     expect(listTableAttachmentResourceIds(document)).toEqual(new Set(["res_brief", "res_shot"]));
@@ -111,7 +111,7 @@ describe("structured table documents", () => {
       byteSize: index,
     }));
     files.push({ resourceId: "res_0", filename: "duplicate.txt", mimeType: "text/plain", byteSize: 1 });
-    let document = addTableField(createDefaultTableDocument(), { id: "fld_files", name: "附件", type: "attachment" });
+    let document = addTableField(createDefaultTableDocument(), { id: "fld_files", name: "Files", type: "attachment" });
     document = updateTableCell(document, "rec_sample", "fld_files", files);
     expect(document.records[0]?.cells.fld_files).toHaveLength(10);
     document = updateTableField(document, "fld_files", { type: "text" });

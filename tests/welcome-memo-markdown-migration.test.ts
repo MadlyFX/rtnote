@@ -126,7 +126,7 @@ describe("welcome Markdown repair", () => {
   test("preserves other notes containing the exact same content", () => {
     const db = legacy();
     db.exec(`INSERT INTO memos (id, notebook_id, title, created_by, updated_by)
-      VALUES ('memo_user', 'nb_inbox', '欢迎来到 EdgeEver', 'system', 'system');
+      SELECT 'memo_user', 'nb_inbox', title, 'system', 'system' FROM memos WHERE id = 'memo_welcome';
       INSERT INTO memo_contents (memo_id, content_json, content_markdown, content_text, content_hash)
       SELECT 'memo_user', content_json, content_markdown, content_text, content_hash
       FROM memo_contents WHERE memo_id = 'memo_welcome'`);

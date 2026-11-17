@@ -11,7 +11,7 @@ describe("RTNote client HTTP contract", () => {
   test("sends optional export cursors without changing legacy offset requests", async () => {
     const calls = [];
     const client = createEdgeEverClient({ baseUrl: "https://notes.example", fetch: async input => { calls.push(new URL(input)); return jsonResponse({}); } });
-    const cursor = JSON.stringify({ id: "memo_续页", createdAt: "2020-01-01T00:00:00.000Z", offset: 25 });
+    const cursor = JSON.stringify({ id: "memo_página", createdAt: "2020-01-01T00:00:00.000Z", offset: 25 });
     await client.getJsonBackupPage(25, 25, cursor);
     await client.getMarkdownExportPage(25, 25, ["memo_1"], cursor);
     expect(calls.map(url => url.searchParams.get("cursor"))).toEqual([cursor, cursor]);
@@ -369,7 +369,7 @@ describe("RTNote client HTTP contract", () => {
         return jsonResponse({ resource: { id: "image_1" } }, { status: 201 });
       },
     });
-    const file = new File(["webp bytes"], "截图.webp", { type: "image/webp" });
+    const file = new File(["webp bytes"], "captura-de-página.webp", { type: "image/webp" });
     expect((await client.uploadMemoResource("memo/1", file)).resource.id).toBe("image_1");
     expect(calls).toHaveLength(1);
     expect(calls[0].path).toBe("/api/v1/memos/memo%2F1/resources");
@@ -451,9 +451,9 @@ describe("RTNote client HTTP contract", () => {
       },
     });
 
-    await client.listMemos({ tag: "产品 和 交互" });
+    await client.listMemos({ tag: "Produkt und Café" });
 
-    expect(requestUrl).toBe("/api/v1/memos?tag=%E4%BA%A7%E5%93%81+%E5%92%8C+%E4%BA%A4%E4%BA%92");
+    expect(requestUrl).toBe("/api/v1/memos?tag=Produkt+und+Caf%C3%A9");
   });
 
   test("preserves API error codes and invokes unauthorized handling", async () => {

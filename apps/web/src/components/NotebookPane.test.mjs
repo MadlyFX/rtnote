@@ -182,12 +182,12 @@ describe("NotebookTreeItem inbox delete affordance", () => {
 
     expect(treeItemSource).toContain('const isInbox = node.slug === "inbox"');
 
-    // 说明必须是始终可见的 inline 文本：原生 title 在 disabled 项上不可达（pointer-events-none，
-    // 且键盘焦点会跳过 disabled 项）。
+    // The hint must be always-visible inline text: a native title is unreachable on disabled items
+    // (pointer-events-none, and keyboard focus skips disabled items).
     expect(treeItemSource).not.toContain('title={t("notebookTree.inboxDeleteHint")}');
     expect(treeItemSource.split('t("notebookTree.inboxDeleteHint")').length - 1).toBe(2);
 
-    // 两个菜单各一份：行内操作菜单 + 右键菜单
+    // One copy in each menu: the inline action menu and the context menu.
     expect(treeItemSource).toContain(CLICK_GUARD);
     expect(treeItemSource).toContain('<ContextMenuSeparator className="my-1 h-px bg-slate-100" />\n              <div');
 

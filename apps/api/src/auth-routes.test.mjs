@@ -19,6 +19,9 @@ import {
 import { sha256 } from "./hash-utils.ts";
 import { createSelfHostedStorageAdapter } from "./self-hosted-storage-adapter.ts";
 import { ensureUserWorkspace } from "./workspace-provisioning.ts";
+import { DEFAULT_NOTEBOOK_SEEDS } from "@edgeever/shared/default-workspace-seeds";
+
+const seededInboxName = (locale) => DEFAULT_NOTEBOOK_SEEDS.find((seed) => seed.key === "inbox").names[locale];
 
 const interactiveAuth = {
   kind: "user",
@@ -239,12 +242,13 @@ describe("first sign-in seed localization", () => {
 
   test("falls back to Accept-Language for clients that do not send a locale", async () => {
     expect(await signIn({ headers: { "Accept-Language": "ja-JP,ja;q=0.9" } }))
-      .toEqual({ status: 200, inbox: "受信トレイ", pending: 0 });
+      .toEqual({ status: 200, inbox: seededInboxName("ja"), pending: 0 });
   });
 
   test("keeps the demo's own seed in the visitor's language", async () => {
+    // The demo keeps the zh-CN names that the installation migrations seed.
     expect(await signIn({ demo: true, body: { locale: "en-US" } }))
-      .toEqual({ status: 200, inbox: "等待分类", pending: 0 });
+      .toEqual({ status: 200, inbox: seededInboxName("zh-CN"), pending: 0 });
   });
 });
 

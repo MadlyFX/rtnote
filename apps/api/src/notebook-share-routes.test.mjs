@@ -11,6 +11,7 @@ import { hashPassword } from "./auth-crypto";
 import { registerPublicShareRoutes } from "./share-routes";
 import { renderNotebookSitePage } from "./notebook-site-page";
 import { PUBLIC_PAGE_ROBOTS } from "@edgeever/shared/public-page-headers";
+import { DEFAULT_MEMO_TITLE, LEGACY_DEFAULT_MEMO_TITLES } from "@edgeever/shared/memo-title";
 
 const databases = [];
 afterEach(() => databases.splice(0).forEach((db) => db.close()));
@@ -334,11 +335,13 @@ describe("public notebook site controls", () => {
       expect(tokenHtml).toContain(`<meta name="robots" content="${PUBLIC_PAGE_ROBOTS}">`);
       expect(tokenHtml).toContain(`rel="canonical" href="https://example.org/s/docs${suffix}"`);
     }
-    // The stored zh-CN default title means "untitled"; the page falls back to the notebook name.
-    f.db.run("UPDATE memos SET title = ? WHERE id = 'memo_child'", ["无标题笔记"]);
-    const untitledHtml = await (await render("/s/docs/memo_child")).text();
-    expect(untitledHtml).not.toContain("无标题笔记");
-    expect(untitledHtml).toMatch(/<title>[^<]+ · RTNote<\/title>/);
+    // A stored default title, RTNote's or EdgeEver's, means "untitled"; the page falls back to the notebook name.
+    for (const defaultTitle of [DEFAULT_MEMO_TITLE, ...LEGACY_DEFAULT_MEMO_TITLES]) {
+      f.db.run("UPDATE memos SET title = ? WHERE id = 'memo_child'", [defaultTitle]);
+      const untitledHtml = await (await render("/s/docs/memo_child")).text();
+      expect(untitledHtml).not.toContain(defaultTitle);
+      expect(untitledHtml).toMatch(/<title>[^<]+ · RTNote<\/title>/);
+    }
     await manage(f, "/memos/memo_child", { excluded: true });
     const hidden = await render("/s/docs/memo_child");
     expect(hidden.status).toBe(404);

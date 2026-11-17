@@ -19,6 +19,7 @@ import {
   DEMO_SEED_MEMOS,
   DEMO_SEED_REVISIONS,
 } from "./demo-seed-data";
+import { DEMO_FEATURES_NOTEBOOK_NAME_ZH, DEMO_RESET_TIP_MARKER_ZH } from "./demo-seed-data.zh-CN";
 import { isDemoModeEnabled } from "./demo-mode";
 import { isoNow } from "./entity-utils";
 import { sha256, sha256Bytes } from "./hash-utils";
@@ -26,7 +27,7 @@ import { upsertMemoSearchDocumentStatement } from "./memo-search-index";
 import type { DatabaseAdapter, PreparedStatementAdapter } from "./storage-contract";
 
 const EXAMPLE_NOTEBOOKS = [
-  { id: "nb_demo_features", slug: "demo-features", name: "功能演示", sortOrder: 21 },
+  { id: "nb_demo_features", slug: "demo-features", name: DEMO_FEATURES_NOTEBOOK_NAME_ZH, sortOrder: 21 },
   { id: "nb_demo_features_en", slug: "feature-demos", name: "Feature Demos", sortOrder: 22 },
 ] as const;
 
@@ -38,7 +39,7 @@ const DEFAULT_BUCKET_NAME = "edgeever-resources";
 // instance has no such action, so that tip is left out of the copied notes.
 export const omitInstanceUnavailableExampleTips = (markdown: string) => markdown
   .split("\n")
-  .filter((line) => !line.includes("恢复 Demo 数据") && !line.includes("Reset Demo Data"))
+  .filter((line) => !line.includes(DEMO_RESET_TIP_MARKER_ZH) && !line.includes("Reset Demo Data"))
   .join("\n");
 
 export const markWorkspaceExampleSeedPendingStatement = (

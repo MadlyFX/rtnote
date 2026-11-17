@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import type { Editor } from "@tiptap/react";
+import { useTranslation } from "react-i18next";
+import { stripHeadingNumberPrefix } from "@/lib/heading-numbering.zh-CN";
+import { magazineChromeLabel } from "@/lib/magazine-chrome-copy";
 
 type SectionItem = {
   index: number;
@@ -8,13 +11,8 @@ type SectionItem = {
   subTitle: string;
 };
 
-const cleanHeadingText = (raw: string) =>
-  raw
-    .replace(/^\s*(?:第[一二三四五六七八九十百\d]+[章节部分篇]\s*[：:·.\s]*|\d+\s*[.、·:：]\s*|[一二三四五六七八九十]+\s*[、.．]\s*)/u, "")
-    .trim();
-
-const deriveShortAndSubTitle = (raw: string, index: number) => {
-  const cleaned = cleanHeadingText(raw) || raw.trim() || `章节 ${index + 1}`;
+const deriveShortAndSubTitle = (raw: string, index: number, locale: string) => {
+  const cleaned = stripHeadingNumberPrefix(raw) || raw.trim() || magazineChromeLabel("sectionFallback", locale, { number: index + 1 });
   const parts = cleaned.split(/[：:，,——·\s]+/).filter(Boolean);
   if (parts.length >= 2 && parts[0].length <= 8) {
     return {
@@ -34,10 +32,10 @@ const deriveShortAndSubTitle = (raw: string, index: number) => {
   };
 };
 
-const splitCoverTitle = (rawTitle: string) => {
+const splitCoverTitle = (rawTitle: string, locale: string) => {
   const trimmed = rawTitle.trim();
   if (!trimmed) {
-    return { primary: "深度实测与结构化指南", highlight: "" };
+    return { primary: magazineChromeLabel("coverTitleFallback", locale), highlight: "" };
   }
   const colonMatch = trimmed.match(/^([^：:，,——]+)[：:，,——]\s*(.+)$/);
   if (colonMatch) {
@@ -79,6 +77,8 @@ export const EditorMagazineHeader = ({
   updatedAt?: string;
   palette?: string;
 }) => {
+  const { i18n } = useTranslation();
+  const locale = i18n.resolvedLanguage ?? i18n.language;
   const isNative = !palette || palette === "native";
   const [sections, setSections] = useState<SectionItem[]>([]);
   const [leadSummary, setLeadSummary] = useState("");
@@ -95,7 +95,7 @@ export const EditorMagazineHeader = ({
       const dom = editor.view.dom;
       const h2Elements = Array.from(dom.querySelectorAll<HTMLElement>("h2"));
       const nextSections = h2Elements.map((el, index) => {
-        const { shortTitle, subTitle } = deriveShortAndSubTitle(el.textContent || "", index);
+        const { shortTitle, subTitle } = deriveShortAndSubTitle(el.textContent || "", index, locale);
         return {
           index,
           num: String(index + 1).padStart(2, "0"),
@@ -117,17 +117,17 @@ export const EditorMagazineHeader = ({
       editor.off("update", sync);
       editor.off("create", sync);
     };
-  }, [editor]);
+  }, [editor, locale]);
 
-  const { primary, highlight } = splitCoverTitle(title || "");
+  const { primary, highlight } = splitCoverTitle(title || "", locale);
   const topTag = tags.length > 0
     ? tags.slice(0, 2).map((tag) => tag.replace(/^#/, "")).join(" · ").toUpperCase()
-    : "实测 · 深度梳理";
+    : magazineChromeLabel("topTagFallback", locale);
   const dateLabel = formatYearMonth(updatedAt);
   const subtitleText = leadSummary
     || (sections.length > 0
-      ? `${sections.length} 个核心章节，从全局脉络到关键细节完整拆解`
-      : "结构化核心脉络与实战要点梳理");
+      ? magazineChromeLabel("subtitleWithSections", locale, { count: sections.length })
+      : magazineChromeLabel("subtitleFallback", locale));
 
   const scrollToSection = (index: number) => {
     if (!editor || editor.isDestroyed) return;
@@ -254,7 +254,7 @@ export const EditorMagazineHeader = ({
               letterSpacing: "0.5px",
             }}
           >
-            {notebookName?.trim() || "RTNote 专栏"}
+            {notebookName?.trim() || magazineChromeLabel("columnFallback", locale)}
           </span>
           <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
             {sections.length > 0 ? (
@@ -269,7 +269,7 @@ export const EditorMagazineHeader = ({
                   fontWeight: 600,
                 }}
               >
-                {sections.length} 个章节
+                {magazineChromeLabel("sectionCount", locale, { count: sections.length })}
               </span>
             ) : null}
             {tags.slice(0, 2).map((tag) => (
@@ -312,7 +312,7 @@ export const EditorMagazineHeader = ({
                 fontWeight: 600,
               }}
             >
-              {sections.length} PARTS · 章节导览
+              {magazineChromeLabel("editorOutline", locale, { count: sections.length })}
             </span>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>

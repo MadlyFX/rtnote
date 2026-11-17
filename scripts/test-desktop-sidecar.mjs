@@ -110,7 +110,7 @@ await request("sync.apply", {
       entityType: "notebook",
       operation: "upsert",
       entityId: "ws_1_inbox",
-      notebook: notebookPayload("ws_1_inbox", { name: "收集箱", slug: "shou-ji-xiang" }),
+      notebook: notebookPayload("ws_1_inbox", { name: "Renamed inbox", slug: "renamed-inbox" }),
       memo: null,
     },
   ],
@@ -194,14 +194,14 @@ assert.equal(Object.hasOwn(search.memos[0], "contentMarkdown"), false, "list row
 // #751: the editor sends an empty title for an untitled note. Local saves keep
 // that as null, while the server returns the canonical default after sync.
 const untitled = (await request("memo.create", {
-  notebookId: inbox.id, title: "无标题笔记", contentMarkdown: "English 正文", tags: [],
+  notebookId: inbox.id, title: "Untitled note", contentMarkdown: "English body", tags: [],
 })).memo;
-const searchUntitled = () => request("memo.list", { notebookId: inbox.id, q: "无标题笔记", limit: 20 });
+const searchUntitled = () => request("memo.list", { notebookId: inbox.id, q: "Untitled note", limit: 20 });
 assert.deepEqual((await searchUntitled()).memos.map((memo) => memo.id), [untitled.id]);
 const editedUntitled = (await request("memo.update", {
   memoId: untitled.id, expectedRevision: untitled.revision, expectedContentHash: untitled.contentHash,
-  title: "", contentJson: { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "English 正文 edited" }] }] },
-  contentMarkdown: "English 正文 edited", contentText: "English 正文 edited", tags: [],
+  title: "", contentJson: { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "English body edited" }] }] },
+  contentMarkdown: "English body edited", contentText: "English body edited", tags: [],
 })).memo;
 assert.equal(editedUntitled.title, null, "search must not rewrite the saved title");
 const untitledResults = await searchUntitled();
@@ -229,8 +229,8 @@ const assertListMetadata = async (title, markdown) => {
 };
 await assertListMetadata("Infographic list icon", serializeInfographicDocument({
   schemaVersion: 1,
-  syntax: "infographic chart-column-simple\ndata\n  title 季度营收",
-  history: [{ id: "one", prompt: "换成小米", createdAt: "2026-10-02T00:37:00.000Z", kind: "refined", resultTitle: "小米集团2024年季度营收", response: "已替换。" }],
+  syntax: "infographic chart-column-simple\ndata\n  title Quarterly revenue",
+  history: [{ id: "one", prompt: "Switch to Xiaomi", createdAt: "2026-10-02T00:37:00.000Z", kind: "refined", resultTitle: "Xiaomi Group 2024 quarterly revenue", response: "Replaced." }],
 }));
 await assertListMetadata("Empty infographic list icon", serializeInfographicDocument(createDefaultInfographicDocument()));
 await assertListMetadata("Mind map list icon", serializeDiagramDocument(createDefaultDiagramDocument("mind-map")));
@@ -531,17 +531,17 @@ assert.ok((await request("sync.outbox.list", { limit: 200, includeConflicts: tru
 await request("sync.outbox.discard", { id: conflictCandidate.id });
 assert.equal((await request("sync.status")).conflict, 0);
 
-const examNotebook = (await request("notebook.create", { name: "注册考试" })).notebook;
-const lawNotebook = (await request("notebook.create", { name: "法律法规", parentId: examNotebook.id })).notebook;
-const historyNotebook = (await request("notebook.create", { name: "建筑史", parentId: examNotebook.id })).notebook;
+const examNotebook = (await request("notebook.create", { name: "Certification exam" })).notebook;
+const lawNotebook = (await request("notebook.create", { name: "Laws and regulations", parentId: examNotebook.id })).notebook;
+const historyNotebook = (await request("notebook.create", { name: "Architectural history", parentId: examNotebook.id })).notebook;
 await request("notebook.delete", { notebookId: examNotebook.id });
 const remainingNotebookIds = new Set((await request("notebook.list")).notebooks.map((notebook) => notebook.id));
 assert.equal(remainingNotebookIds.has(examNotebook.id), false, "an empty parent notebook should be deleted with its children");
 assert.equal(remainingNotebookIds.has(lawNotebook.id), false, "an empty child notebook should be deleted with its parent");
 assert.equal(remainingNotebookIds.has(historyNotebook.id), false, "every empty descendant should be deleted with the parent");
-const blockedNotebook = (await request("notebook.create", { name: "仍有笔记" })).notebook;
-const blockedChild = (await request("notebook.create", { name: "子笔记本", parentId: blockedNotebook.id })).notebook;
-await request("memo.create", { notebookId: blockedChild.id, title: "还在", contentMarkdown: "keep", tags: [] });
+const blockedNotebook = (await request("notebook.create", { name: "Still has notes" })).notebook;
+const blockedChild = (await request("notebook.create", { name: "Child notebook", parentId: blockedNotebook.id })).notebook;
+await request("memo.create", { notebookId: blockedChild.id, title: "Still here", contentMarkdown: "keep", tags: [] });
 await assert.rejects(request("notebook.delete", { notebookId: blockedNotebook.id }), /notebook_not_empty/);
 const blockedNotebookIds = new Set((await request("notebook.list")).notebooks.map((notebook) => notebook.id));
 assert.equal(blockedNotebookIds.has(blockedNotebook.id), true, "a notebook with notes in a child should stay");

@@ -478,7 +478,7 @@ enum TipTapResourceLoader {
     </style>
     </head>
     <body>
-    <div id="editor" contenteditable="false" data-placeholder="开始书写…"></div>
+    <div id="editor" contenteditable="false" data-placeholder="Start writing…"></div>
     <script>
     (function(){
       const editor = document.getElementById('editor');

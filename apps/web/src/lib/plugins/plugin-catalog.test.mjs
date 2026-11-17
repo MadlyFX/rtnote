@@ -140,22 +140,22 @@ describe("plugin catalog items", () => {
       id: "org.edgeever.plugins.ai-rss",
       marketplaceEntry: marketplaceEntry({
         locales: {
-          "zh-CN": { name: "RTNote AI 订阅", description: "市场中文说明" },
-          ja: { description: "マーケット説明" },
+          "zh-CN": { name: "RTNote AI digest (zh-CN)", description: "Marketplace description (zh-CN)" },
+          ja: { description: "Marketplace description (ja)" },
         },
       }),
       extension: extension({
         manifest: {
           locales: {
-            zh: { description: "插件中文说明" },
+            zh: { description: "Plugin description (zh)" },
           },
         },
       }),
     };
 
-    expect(getPluginCatalogName(item, "zh-CN")).toBe("RTNote AI 订阅");
-    expect(getPluginCatalogDescription(item, "zh-CN")).toBe("插件中文说明");
-    expect(getPluginCatalogDescription(item, "ja-JP")).toBe("マーケット説明");
+    expect(getPluginCatalogName(item, "zh-CN")).toBe("RTNote AI digest (zh-CN)");
+    expect(getPluginCatalogDescription(item, "zh-CN")).toBe("Plugin description (zh)");
+    expect(getPluginCatalogDescription(item, "ja-JP")).toBe("Marketplace description (ja)");
     expect(getPluginCatalogDescription(item, "fr-FR")).toBe("Installed RSS digest");
   });
 });

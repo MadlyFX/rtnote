@@ -1,6 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { buildEditContextMenuTemplate } from "./edit-context-menu.mjs";
 import { desktopMenuCopy } from "./desktop-menu.mjs";
+import * as zhCN from "./desktop-menu.zh-CN.mjs";
+import * as zhTW from "./desktop-menu.zh-TW.mjs";
 
 const copy = desktopMenuCopy("en-US");
 const allowAll = { canCut: true, canCopy: true, canPaste: true, canSelectAll: true };
@@ -96,7 +98,7 @@ describe("desktop edit context menu", () => {
   });
 
   test("context menu labels are localized for Chinese and Polish", () => {
-    expect(desktopMenuCopy("zh-CN").pasteAsPlainText).toBe("粘贴为纯文本");
+    expect(desktopMenuCopy("zh-CN").pasteAsPlainText).toBe(zhCN.menuCopy.pasteAsPlainText);
     expect(desktopMenuCopy("en").pasteAsPlainText).toBe("Paste as Plain Text");
     const pl = desktopMenuCopy("pl-PL");
     expect([pl.cut, pl.copy, pl.paste, pl.pasteAsPlainText, pl.selectAll, pl.addToDictionary, pl.copyLinkAddress]).toEqual([
@@ -113,7 +115,7 @@ describe("desktop edit context menu", () => {
     expect(desktopMenuCopy("ru-RU").edit).toBe("Правка");
     expect(desktopMenuCopy("es").file).toBe("Archivo");
     expect(desktopMenuCopy("de").file).toBe("Datei");
-    expect(desktopMenuCopy("zh-TW").file).toBe("檔案");
+    expect(desktopMenuCopy("zh-TW").file).toBe(zhTW.menuCopy.file);
   });
 
   test("every locale defines the same menu keys", () => {

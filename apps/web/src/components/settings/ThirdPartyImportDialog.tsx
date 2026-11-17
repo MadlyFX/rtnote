@@ -12,17 +12,19 @@ import type { Notebook } from "@edgeever/shared";
 import type { ImportFile, ImportFormat, ImportIssue } from "@edgeever/shared/note-import/types";
 import type { NoteImportController, NoteImportSnapshot } from "@/lib/note-import/controller";
 import { EVERNOTE_MIGRATION_BLOG_URL } from "@/lib/routes";
+import { prefersChineseContent } from "@/lib/bilingual-content-locale";
+import { IMPORT_SOURCE_COPY_ZH_CN } from "./third-party-import-sources.zh-CN";
 
 const importSources = {
   evernote: {
-    label: "Evernote / 印象笔记",
+    label: "Evernote",
     logo: evernoteLogo,
     formatHint: ".enex · .zip",
   },
   obsidian: {
     label: "Obsidian",
     logo: obsidianLogo,
-    formatHint: "Vault 目录 · .zip",
+    formatHint: "Vault folder · .zip",
   },
   joplin: {
     label: "Joplin",
@@ -45,7 +47,8 @@ const acceptedFiles: Record<ImportFormat, string> = {
 };
 
 export const ThirdPartyImportDialog = ({ controller, state, onOpenMemo }: { controller: NoteImportController; state: NoteImportSnapshot; onOpenMemo: (memoId: string, notebookId: string) => void }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const chineseCopy = prefersChineseContent(i18n.resolvedLanguage ?? i18n.language);
   const files = useRef<HTMLInputElement>(null);
   const directory = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -228,7 +231,9 @@ export const ThirdPartyImportDialog = ({ controller, state, onOpenMemo }: { cont
                   }}
                 >
                   {Object.entries(importSources).map(([format, source]) => {
-                    const { label, formatHint } = source;
+                    const zhCopy = chineseCopy ? IMPORT_SOURCE_COPY_ZH_CN[format] : undefined;
+                    const label = zhCopy?.label ?? source.label;
+                    const formatHint = zhCopy?.formatHint ?? source.formatHint;
                     const active = state.format === format;
                     return (
                       <ToggleGroupItem

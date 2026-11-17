@@ -1,4 +1,5 @@
 import { expect, test, type Page, type Route } from "@playwright/test";
+import { ui } from "./fixtures/ui-labels";
 
 type StoredQueueItem = {
   kind?: string;
@@ -91,9 +92,9 @@ const holdNextMemoCreateResponse = async (page: Page) => {
 };
 
 const editNewMemo = async (page: Page, title: string, content: string) => {
-  await page.getByRole("button", { name: "新建笔记", exact: true }).click();
+  await page.getByRole("button", { name: ui.memoList.newMemo, exact: true }).click();
 
-  const titleInput = page.getByPlaceholder("无标题");
+  const titleInput = page.getByPlaceholder(ui.common.untitledMemo);
   const editor = page.locator(".ProseMirror[contenteditable='true']");
   await expect(titleInput).toBeEditable();
   await expect(editor).toBeEditable();
@@ -190,13 +191,13 @@ const finishSyncAndVerifyReload = async (
       const serializedContent = JSON.stringify(body.memo.contentJson);
       return body.memo.title === title && serializedContent.includes(content) && serializedContent.includes(followUp);
     }).toBe(true);
-    await expect(page.getByText("有冲突", { exact: true })).toHaveCount(0);
+    await expect(page.getByText(ui.editor.saveState.conflict, { exact: true })).toHaveCount(0);
 
     await page.reload();
     const memoCard = page.locator(`[data-memo-id="${memoId}"]`);
     await expect(memoCard).toContainText(title);
     await memoCard.locator("button").first().click();
-    await expect(page.getByPlaceholder("无标题")).toHaveValue(title);
+    await expect(page.getByPlaceholder(ui.common.untitledMemo)).toHaveValue(title);
     await expect(page.locator(".ProseMirror[contenteditable='true']")).toContainText(content);
     await expect(page.locator(".ProseMirror[contenteditable='true']")).toContainText(followUp.trim());
   } finally {
@@ -212,7 +213,7 @@ test.describe("new memo synchronization", () => {
 
     try {
       await page.goto("/");
-      await page.getByRole("button", { name: "新建笔记", exact: true }).click();
+      await page.getByRole("button", { name: ui.memoList.newMemo, exact: true }).click();
       const createdMemo = await heldCreate.createdMemo;
       memoId = createdMemo.id;
 

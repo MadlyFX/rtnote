@@ -1,4 +1,5 @@
 import { platformHtmlCopy, platformHtmlMarkdown, platformReadableCopy, platformTarget, platformText, publishedTime, safePlatformUrl, type PlatformRead, type PlatformTarget } from "./platform-clip";
+import { XUEQIU_TOPIC_TAG } from "./xueqiu-tag";
 
 export const XUEQIU_CARD_SELECTOR = '.article__container, .timeline__item__main, [class*="timeline__item__main_"]';
 const headerSelector = '.article__author, .timeline__item__info, [class*="timeline__item__info_"]';
@@ -73,5 +74,5 @@ export const readXueqiu = (doc: Document, target: PlatformTarget, sourceUrl: str
   const cleanTime = timeLink ? platformReadableCopy(timeLink) : null;
   const published = cleanTime && platformText(cleanTime).startsWith("发布于") ? publishedTime(cleanTime.querySelector("time")) : undefined;
   return { ok: true, clip: { ...target, title, author: author ? platformText(platformReadableCopy(author)) || undefined : undefined, publishedAt: published,
-    markdown, tags: ["web-clip", "xueqiu", "投资", ...xueqiuStocks(clean, target.url)], completeness: "complete" } };
+    markdown, tags: ["web-clip", "xueqiu", XUEQIU_TOPIC_TAG, ...xueqiuStocks(clean, target.url)], completeness: "complete" } };
 };

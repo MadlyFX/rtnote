@@ -1,5 +1,24 @@
 import Foundation
 
+/// Default note titles. Mirrors `packages/shared/src/memo-title.ts`.
+enum MemoTitle {
+    /// Title stored for notes the user did not name.
+    static let defaultTitle = "Untitled note"
+
+    /// True when a stored title is empty, RTNote's default title or EdgeEver's legacy one.
+    static func isDefault(_ title: String?) -> Bool {
+        let trimmed = title?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return trimmed.isEmpty
+            || trimmed == defaultTitle
+            || EdgeEverLegacyValues.defaultMemoTitles.contains(trimmed)
+    }
+
+    /// Title to show for a note: default titles are replaced by the reader's localized label.
+    static func displayTitle(_ title: String?, untitledLabel: String) -> String {
+        isDefault(title) ? untitledLabel : (title ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+}
+
 // MARK: - Auth
 
 struct AuthUser: Codable, Equatable, Sendable, Identifiable {
@@ -126,8 +145,7 @@ struct MemoDetail: Codable, Equatable, Sendable, Identifiable {
     var schemaVersion: Int? = nil
 
     var displayTitle: String {
-        let t = title?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        return t.isEmpty ? "无标题笔记" : t
+        MemoTitle.displayTitle(title, untitledLabel: MemoTitle.defaultTitle)
     }
 
     func asSummary() -> MemoSummary {

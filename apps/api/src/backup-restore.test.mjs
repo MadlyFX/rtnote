@@ -4,7 +4,7 @@ import { globSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:f
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Hono } from "hono";
-import { DEFAULT_MEMO_TITLE, emptyDoc } from "@edgeever/shared";
+import { DEFAULT_MEMO_TITLE, LEGACY_DEFAULT_MEMO_TITLES, emptyDoc } from "@edgeever/shared";
 import { AppError } from "./app-error.ts";
 import { registerBackupRoutes } from "./backup-routes.ts";
 import { apiError } from "./http-errors.ts";
@@ -297,6 +297,43 @@ describe("JSON backup and restore", () => {
     const untitled = await getMemoDetail(target.storage.db, WORKSPACE_ID, "memo_untitled");
     expect(untitled.title).toBe(DEFAULT_MEMO_TITLE);
     expect(untitled.tags).toEqual(["travel", "Work"]);
+  });
+
+  test("maps EdgeEver's default title to RTNote's when restoring notes and revisions", async () => {
+    const target = installation();
+    const inbox = target.sqlite.query("SELECT id FROM notebooks WHERE workspace_id = ? AND slug = 'inbox'").get(WORKSPACE_ID).id;
+    const [legacyTitle] = LEGACY_DEFAULT_MEMO_TITLES;
+    const timestamp = "2026-04-01T00:00:00.000Z";
+    const memo = (id, title, revisions = []) => ({
+      memo: {
+        id, notebookId: inbox, title, excerpt: "", tags: [], isPinned: false, isArchived: false, isDeleted: false,
+        revision: revisions.length, createdAt: timestamp, updatedAt: timestamp, deletedAt: null,
+        contentJson: { type: "doc", content: [] }, contentMarkdown: "Body", contentText: "Body", contentHash: "",
+        sourceMemoIds: [], mergeSourceCount: 0, mergedIntoMemoId: null,
+      },
+      revisions,
+      resources: [],
+    });
+    const revision = (id, memoId, title) => ({
+      id, memoId, revision: 0, title, tags: [], contentJson: { type: "doc", content: [] },
+      contentMarkdown: "Earlier body", contentText: "Earlier body", contentHash: "", createdBy: "admin", createdAt: timestamp,
+    });
+
+    const response = await target.postJson("/api/v1/restores/json/memos", {
+      memos: [
+        memo("memo_edgeever_untitled", ` ${legacyTitle} `, [revision("rev_edgeever_untitled", "memo_edgeever_untitled", legacyTitle)]),
+        memo("memo_named", "Trip plan", [revision("rev_named", "memo_named", "Trip draft")]),
+      ],
+    });
+    expect(response.status).toBe(200);
+
+    expect((await getMemoDetail(target.storage.db, WORKSPACE_ID, "memo_edgeever_untitled")).title).toBe(DEFAULT_MEMO_TITLE);
+    expect((await getMemoDetail(target.storage.db, WORKSPACE_ID, "memo_named")).title).toBe("Trip plan");
+    const revisionTitles = target.sqlite.query("SELECT id, title FROM memo_revisions ORDER BY id").all();
+    expect(revisionTitles).toEqual([
+      { id: "rev_edgeever_untitled", title: DEFAULT_MEMO_TITLE },
+      { id: "rev_named", title: "Trip draft" },
+    ]);
   });
 
   test("rejects a backup that would take over another user's notebooks or notes", async () => {

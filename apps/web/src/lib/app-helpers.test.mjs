@@ -1,6 +1,7 @@
 import { afterAll, afterEach, beforeAll, describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { parseHTML } from "linkedom";
+import { LEGACY_DEFAULT_MEMO_TITLES } from "@edgeever/shared/memo-title";
 import {
   DEFAULT_MEMO_TITLE,
   EDITOR_HEADING_LEVELS,
@@ -1099,7 +1100,11 @@ describe("memo titles", () => {
     expect(isDefaultMemoTitle(DEFAULT_MEMO_TITLE)).toBe(true);
     expect(isDefaultMemoTitle(`  ${DEFAULT_MEMO_TITLE}  `)).toBe(true);
     expect(isDefaultMemoTitle("Plan")).toBe(false);
-    expect(isDefaultMemoTitle(null)).toBe(false);
+    expect(isDefaultMemoTitle(null)).toBe(true);
+    for (const legacy of LEGACY_DEFAULT_MEMO_TITLES) {
+      expect(isDefaultMemoTitle(legacy)).toBe(true);
+      expect(getEditableMemoTitle(legacy)).toBe("");
+    }
 
     expect(getEditableMemoTitle(DEFAULT_MEMO_TITLE)).toBe("");
     expect(getEditableMemoTitle("  Plan  ")).toBe("Plan");

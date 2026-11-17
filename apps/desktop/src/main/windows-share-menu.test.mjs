@@ -9,16 +9,19 @@ import {
   windowsShareMenuCommands,
   windowsShareMenuLabel,
 } from "./windows-share-menu.mjs";
+import { dialogCopy as jaDialogCopy } from "./desktop-copy.ja.mjs";
+import { dialogCopy as zhCNDialogCopy } from "./desktop-copy.zh-CN.mjs";
+import { dialogCopy as zhTWDialogCopy } from "./desktop-copy.zh-TW.mjs";
 
 const exePath = "C:\\Users\\Example\\AppData\\Local\\Programs\\RTNote\\RTNote.exe";
 
 describe("Windows share menu", () => {
   test("names the verb in the desktop locale", () => {
-    expect(windowsShareMenuLabel("zh-CN")).toBe("发送到 RTNote");
-    expect(windowsShareMenuLabel("zh-TW")).toBe("傳送至 RTNote");
+    expect(windowsShareMenuLabel("zh-CN")).toBe(zhCNDialogCopy.shareMenuLabel);
+    expect(windowsShareMenuLabel("zh-TW")).toBe(zhTWDialogCopy.shareMenuLabel);
     expect(windowsShareMenuLabel("es-ES")).toBe("Enviar a RTNote");
     expect(windowsShareMenuLabel("de-DE")).toBe("An RTNote senden");
-    expect(windowsShareMenuLabel("ja-JP")).toBe("RTNote に送る");
+    expect(windowsShareMenuLabel("ja-JP")).toBe(jaDialogCopy.shareMenuLabel);
     expect(windowsShareMenuLabel("en-US")).toBe("Send to RTNote");
     expect(windowsShareMenuLabel("pl-PL")).toBe("Wyślij do RTNote");
     expect(windowsShareMenuLabel("ru-RU")).toBe("Отправить в RTNote");
@@ -29,8 +32,8 @@ describe("Windows share menu", () => {
     expect(shareFilePathsFromCommandLine([
       exePath,
       "--share-file",
-      "D:\\Notes\\功能梳理表.xlsx",
-    ])).toEqual(["D:\\Notes\\功能梳理表.xlsx"]);
+      "D:\\Notes\\Résumé メモ.xlsx",
+    ])).toEqual(["D:\\Notes\\Résumé メモ.xlsx"]);
     expect(shareFilePathsFromCommandLine(["--share-file"])).toEqual([]);
     expect(shareFilePathsFromCommandLine(["--share-file", "--flag"])).toEqual([]);
   });

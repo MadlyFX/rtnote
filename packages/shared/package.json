@@ -8,6 +8,7 @@
     "./diagram-canvas": "./src/diagram-canvas.ts",
     "./public-demo": "./src/public-demo.ts",
     "./memo-title": "./src/memo-title.ts",
+    "./edgeever-legacy-values": "./src/edgeever-legacy-values.ts",
     "./branding": "./src/branding.ts",
     "./share-slug": "./src/share-slug.ts",
     "./diagram-layout": "./src/diagram-layout.ts",

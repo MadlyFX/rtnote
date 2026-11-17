@@ -6,6 +6,7 @@ import { FILE_ATTACHMENT_NODE_TYPE } from "./file-attachment";
 import { parseImageWidth } from "./image-display";
 import { alignedImageToHtml, parseImageAlignment, type ImageAlignment } from "./image-alignment";
 import { getResourceIdFromUrl } from "./resource-links";
+import { ATTACHMENT_TEXT_PREFIX } from "./edgeever-legacy-values";
 
 export const DETAILS_NODE_TYPE = "details" as const;
 export const DETAILS_SUMMARY_NODE_TYPE = "detailsSummary" as const;
@@ -143,7 +144,7 @@ const remoteVideoFromSrc = (src: string): RemoteVideo | null => {
   const filename = segment || "video";
   return {
     src: url,
-    label: `附件：${filename}`,
+    label: `${ATTACHMENT_TEXT_PREFIX}${filename}`,
     filename,
     mimeType: resolveVideoMimeType(null, filename) ?? "video/mp4",
   };

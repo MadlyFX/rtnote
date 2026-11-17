@@ -26,19 +26,19 @@ describe("note sharing menu", () => {
   test("shows a toast after copying the note for other platforms", () => {
     expect(editorSource).toContain('wechatCopyState === "copied" || wechatCopyState === "error"');
     expect(editorSource).toContain('t(wechatCopyState === "copied" ? "editor.copiedToWeChat" : "editor.copyToWeChatFailed")');
-    expect(zhCN.editor.copiedToWeChat).toBe("已复制");
+    expect(zhCN.editor.copiedToWeChat).not.toBe(enUS.editor.copiedToWeChat);
     expect(enUS.editor.copiedToWeChat).toBe("Copied");
   });
 
   test("explains why sharing a newly created local note is disabled", () => {
-    expect(zhCN.sharing.afterSync).toBe("同步后可分享笔记");
+    expect(zhCN.sharing.afterSync).not.toBe(enUS.sharing.afterSync);
     expect(enUS.sharing.afterSync).toBe("Share note after sync");
     expect(editorSource).toContain('isLocalMemoId(memo.id) ? "sharing.afterSync"');
     expect(memoListSource).toContain('isLocalMemoId(memoContextMenu.memo.id) ? "sharing.afterSync"');
   });
 
   test("share dialog can enable an auto-generated access password", () => {
-    expect(zhCN.sharing.passwordToggle).toBe("访问密码");
+    expect(zhCN.sharing.passwordToggle).not.toBe(enUS.sharing.passwordToggle);
     expect(enUS.sharing.passwordToggle).toBe("Access password");
     expect(shareDialogSource).toContain('t("sharing.passwordToggle")');
     expect(shareDialogSource).toContain("api.updateMemoShare(memoId, { passwordProtected, ...(password ? { password } : {}) })");

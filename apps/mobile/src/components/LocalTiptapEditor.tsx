@@ -3,6 +3,7 @@
 import { prepareNoteImageAssets } from "@edgeever/shared/note-image-fonts";
 import { noteImageAssetUrls } from "./note-image-asset-urls";
 import "katex/dist/katex.min.css";
+import { stripMobileAttachmentPrefix } from "../lib/mobile-attachment-prefix";
 import { attachMobileReaderScroll } from "../lib/mobile-reader-scroll";
 import { Graph } from "@antv/x6";
 import Image from "@tiptap/extension-image";
@@ -202,7 +203,7 @@ const parseMobileResourceTarget = (value: string): EditorResourceTarget | null =
 };
 
 const normalizeEditorAttachmentFilename = (label: string, resourceId: string) =>
-  label.replace(/^\s*(?:附件[：:]|Attachment:)\s*/i, "").trim() || resourceId;
+  stripMobileAttachmentPrefix(label) || resourceId;
 
 /** Accept both `/api/v1/resources/:id/blob` and bare `/api/v1/resources/:id` image srcs. */
 const getMobileImageResourceId = (href: string): string | null => {

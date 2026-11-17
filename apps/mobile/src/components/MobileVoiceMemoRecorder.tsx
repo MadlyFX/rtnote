@@ -126,8 +126,8 @@ export const MobileVoiceMemoRecorder = ({
         dispatch({ type: "fail", error: copy.micDenied });
         if (!permission.canAskAgain) {
           Alert.alert(copy.name, copy.micDenied, [
-            { text: "取消", style: "cancel" },
-            { text: "前往设置", onPress: () => void Linking.openSettings() },
+            { text: "Cancel", style: "cancel" },
+            { text: "Open settings", onPress: () => void Linking.openSettings() },
           ]);
         }
         return;
@@ -180,7 +180,7 @@ export const MobileVoiceMemoRecorder = ({
 
   const discard = () => {
     Alert.alert(copy.discardConfirm, undefined, [
-      { text: "取消", style: "cancel" },
+      { text: "Cancel", style: "cancel" },
       {
         text: copy.discard,
         style: "destructive",

@@ -1,4 +1,6 @@
 import { expect, test } from "@playwright/test";
+import { DEMO_FEATURES_NOTEBOOK_NAME_ZH } from "../../apps/api/src/demo-seed-data.zh-CN";
+import { ui } from "./fixtures/ui-labels";
 
 test("keeps All notes selected when the demo notebook loads late", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
@@ -29,14 +31,14 @@ test("keeps All notes selected when the demo notebook loads late", async ({ page
 
   try {
     await page.goto("/");
-    const allNotes = page.getByRole("button", { name: "全部笔记", exact: true });
+    const allNotes = page.getByRole("button", { name: ui.notebookPane.allMemos, exact: true });
     await allNotes.click();
-    await page.getByPlaceholder("搜索笔记").fill(title);
+    await page.getByPlaceholder(ui.memoList.searchPlaceholder).fill(title);
     const row = page.locator(`article[data-memo-id="${memo.id}"]`);
     await expect(row).toBeVisible();
     expect(await row.boundingBox()).not.toBeNull();
     releaseNotebooks();
-    await expect(page.getByRole("button", { name: /功能演示/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: DEMO_FEATURES_NOTEBOOK_NAME_ZH })).toBeVisible();
     await expect(allNotes).toHaveAttribute("aria-current", "page");
     await expect(row).toBeVisible();
   } finally {

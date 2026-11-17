@@ -1,5 +1,5 @@
 import type { MemoSummary, Notebook } from "@edgeever/shared";
-import { DEFAULT_MEMO_TITLE } from "@edgeever/shared";
+import { DEFAULT_MEMO_TITLE, isDefaultMemoTitle } from "@edgeever/shared";
 import { getMobileNotebookSearchVisibleIds } from "@edgeever/shared/mobile-ui";
 import type { MemoFilterMode, MemoSortMode } from "@edgeever/client";
 import { buildNotebookTree, type NotebookNode, type NotebookNodeComparator } from "./utils";
@@ -273,7 +273,8 @@ const SHORTCUT_ACTION_VALUES: ShortcutAction[] = [
   "focusBody",
 ];
 
-export const isDefaultMemoTitle = (title: string | null | undefined) => title?.trim() === DEFAULT_MEMO_TITLE;
+// Blank, "Untitled note" and EdgeEver's stored Chinese default all count as untitled.
+export { isDefaultMemoTitle };
 
 export const getEditableMemoTitle = (title: string | null | undefined) =>
   isDefaultMemoTitle(title) ? "" : title?.trim() || "";

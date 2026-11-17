@@ -72,7 +72,7 @@ describe("dependency security at the actual consumer", () => {
       [consumerRequire(builderRequire, "@electron/osx-sign"), "plist"],
       [consumerRequire(builderRequire, "@electron/universal"), "plist"],
     ];
-    const fixture = { CFBundleIdentifier: "com.edgeever.app", label: "中文 & <RTNote>", enabled: true, count: 42, values: ["a", "b"] };
+    const fixture = { CFBundleIdentifier: "com.edgeever.app", label: "Ünïcode & <RTNote>", enabled: true, count: 42, values: ["a", "b"] };
     for (const [require, name] of consumers) {
       const plistModule = require(name);
       const plist = plistModule.default ?? plistModule;
@@ -93,10 +93,10 @@ describe("dependency security at the actual consumer", () => {
     const directory = mkdtempSync(join(tmpdir(), "edgeever-firefox-profile-"));
     const profile = new FirefoxProfile({ destinationDirectory: directory });
     try {
-      profile.setPreference("edgeever.security.test", "中文 & value");
+      profile.setPreference("edgeever.security.test", "Ünïcode & value");
       const encoded = await new Promise((resolve, reject) => profile.encoded((error, data) => error ? reject(error) : resolve(data)));
       const zip = new AdmZip(Buffer.from(encoded, "base64"));
-      expect(zip.readAsText("user.js")).toContain('user_pref("edgeever.security.test", "中文 & value");');
+      expect(zip.readAsText("user.js")).toContain('user_pref("edgeever.security.test", "Ünïcode & value");');
     } finally {
       process.removeListener("exit", profile.onExit);
       process.removeListener("SIGINT", profile.onSigInt);

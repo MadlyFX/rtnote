@@ -19,6 +19,7 @@
 		08D0159B8F194E04C02B69BF /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = AB02424D0412FE36C4BCD116 /* index.html */; };
 		0D67F968CAFCC17F28A5555C /* URLNormalizeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B15501968A29C372E7B3BB /* URLNormalizeTests.swift */; };
 		100A3242D8AA714261236773 /* ChromeParityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213837D2B2F025307A5EBB69 /* ChromeParityTests.swift */; };
+		4DF219625DADC53D00129774 /* EdgeEverLegacyValuesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C41265B072B3977F81F595A /* EdgeEverLegacyValuesTests.swift */; };
 		1186BE3109942FCBAB59E6B4 /* TipTapWarmPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36831A94478123A1EE9BB538 /* TipTapWarmPool.swift */; };
 		12F0F0D1E937AA88C33222FF /* ApiTokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73FA569C71080B6F9989AA03 /* ApiTokensView.swift */; };
 		132BA05FF9673B95D3E3959A /* JSONCoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD904708FC1AD8971439BD90 /* JSONCoding.swift */; };
@@ -96,6 +97,7 @@
 		B2E4D8F36CAE5F109D7B3C28 /* PendingVoiceMemoStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F3C7E25B9D4E0F8C6A2B17 /* PendingVoiceMemoStore.swift */; };
 		D406FA158EC07132BF9D5E4A /* VoiceMemoRecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F5E9047DBF6021AE8C4D39 /* VoiceMemoRecorderView.swift */; };
 		CF3BBC34412C41B5E41138EC /* Branding.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB04D3464AFF369505A65F0E /* Branding.swift */; };
+		1826E70B2AF0EAFEE80FC19B /* EdgeEverLegacyValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E2558D82A55694ACB3AB9A0 /* EdgeEverLegacyValues.swift */; };
 		AB99CEB73484CBF39D86F640 /* BrandingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E243DEA1085FD00F2F7426C /* BrandingStore.swift */; };
 		C77494EBC6DD04A226703F43 /* BrandTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9F40669B71CF33FCA89885B /* BrandTheme.swift */; };
 		17BD88A41F8488E23CD31CC7 /* BrandLogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2A64EFA22C957AAD711BFCB /* BrandLogoView.swift */; };
@@ -153,6 +155,7 @@
 		2080FD276D6ED7161B7DB973 /* MemoEditViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoEditViewModelTests.swift; sourceTree = "<group>"; };
 		E517AB269FD18243C0AE6F5B /* VoiceMemoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceMemoTests.swift; sourceTree = "<group>"; };
 		213837D2B2F025307A5EBB69 /* ChromeParityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChromeParityTests.swift; sourceTree = "<group>"; };
+		6C41265B072B3977F81F595A /* EdgeEverLegacyValuesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeEverLegacyValuesTests.swift; sourceTree = "<group>"; };
 		22941D02A07C4B75AE89B053 /* ShareExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShareExtension.entitlements; sourceTree = "<group>"; };
 		243811C4B4CBF13982976A56 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		2829CE5DF5C15ACF41CC17DA /* EditFabButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditFabButton.swift; sourceTree = "<group>"; };
@@ -227,6 +230,7 @@
 		F9182F742B06FB1713E27C2A /* ResourceActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResourceActions.swift; sourceTree = "<group>"; };
 		FDEF3A661FA08F338EC96C74 /* LocalMirrorRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalMirrorRepository.swift; sourceTree = "<group>"; };
 		AB04D3464AFF369505A65F0E /* Branding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Branding.swift; sourceTree = "<group>"; };
+		3E2558D82A55694ACB3AB9A0 /* EdgeEverLegacyValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeEverLegacyValues.swift; sourceTree = "<group>"; };
 		1E243DEA1085FD00F2F7426C /* BrandingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandingStore.swift; sourceTree = "<group>"; };
 		C9F40669B71CF33FCA89885B /* BrandTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandTheme.swift; sourceTree = "<group>"; };
 		D2A64EFA22C957AAD711BFCB /* BrandLogoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandLogoView.swift; sourceTree = "<group>"; };
@@ -497,6 +501,7 @@
 			isa = PBXGroup;
 			children = (
 				AB04D3464AFF369505A65F0E /* Branding.swift */,
+				3E2558D82A55694ACB3AB9A0 /* EdgeEverLegacyValues.swift */,
 				F1F36ACF8073C8A61AE397CD /* MemoTemplates.swift */,
 				C5126510AFB9AFBF7ABADB45 /* Models.swift */,
 				9886D42194377CACC82BD6C8 /* TotpModels.swift */,
@@ -540,6 +545,7 @@
 			children = (
 				E51662F4FDA270770C880BCE /* BrandingTests.swift */,
 				213837D2B2F025307A5EBB69 /* ChromeParityTests.swift */,
+				6C41265B072B3977F81F595A /* EdgeEverLegacyValuesTests.swift */,
 				4BEF7AFA15A0972ED3475F23 /* EditorBundleTests.swift */,
 				57312B99FFBD9A2186A8C0D0 /* LiveLocalAPITests.swift */,
 				2035E878FD92B74D889D6047 /* LocalMirrorTests.swift */,
@@ -700,6 +706,7 @@
 				3E20F8406FE46B5DEDB63E47 /* TotpDecodingTests.swift in Sources */,
 				AE18EA7685A582E9C4B7FDCE /* BrandingTests.swift in Sources */,
 				100A3242D8AA714261236773 /* ChromeParityTests.swift in Sources */,
+				4DF219625DADC53D00129774 /* EdgeEverLegacyValuesTests.swift in Sources */,
 				E51CD822863D3494E35ADB27 /* EditorBundleTests.swift in Sources */,
 				F51F6C5ED7C2B0E68DF5A55D /* LiveLocalAPITests.swift in Sources */,
 				8785D0133655387F399C3C58 /* LocalMirrorTests.swift in Sources */,
@@ -721,6 +728,7 @@
 			files = (
 				77C3F06708AC36BF9F6F16EA /* TotpModels.swift in Sources */,
 				CF3BBC34412C41B5E41138EC /* Branding.swift in Sources */,
+				1826E70B2AF0EAFEE80FC19B /* EdgeEverLegacyValues.swift in Sources */,
 				AB99CEB73484CBF39D86F640 /* BrandingStore.swift in Sources */,
 				C77494EBC6DD04A226703F43 /* BrandTheme.swift in Sources */,
 				17BD88A41F8488E23CD31CC7 /* BrandLogoView.swift in Sources */,

@@ -48,24 +48,24 @@ beforeAll(async () => {
 });
 
 const MARKDOWN = `
-> **RTNote** 把笔记留在你自己的账号里。
+> **RTNote** keeps your notes in your own account.
 
-正文里的行内代码是 \`#memo=<笔记ID>\`，起步价（$10+/月）。
+Inline code in the body is \`#memo=<note ID>\`, starting at ($10+/mo).
 
-| 成本 | 商业订阅高昂（$10+/月） | 官方云同步收费（$5+/月） |
+| Cost | Commercial subscription ($10+/mo) | Official cloud sync ($5+/mo) |
 | --- | --- | --- |
 
-- **行内公式**：例如质能方程 $E = mc^2$。
-- **多行独立公式块**：
+- **Inline formula**: for example, mass-energy equivalence $E = mc^2$.
+- **Multi-line display formula**:
 $$
 \\oint_{\\partial \\Omega} \\mathbf{E} \\cdot d\\mathbf{S} = \\frac{1}{\\varepsilon_0} \\iiint_{\\Omega} \\rho \\, dV
 $$
 
-- [x] 已完成的待办
-- [ ] 未完成的待办
+- [x] Completed task
+- [ ] Open task
 
 \`\`\`sh
-# 官方 GHCR 镜像
+# Official GHCR image
 curl -fsSL https://edgeever.org/install.sh | bash
 \`\`\`
 `;
@@ -94,8 +94,8 @@ describe("preparePublishArticle", () => {
       expect(context.colors.surface).toBe("#F4F4F5");
       expect(context.colors.divider).toBe("#E1DEFF");
       const root = preparePublishArticle([
-        "<p><strong>重点</strong> <code>Cmd/Ctrl + E</code></p>",
-        "<table><thead><tr><th>表头</th></tr></thead><tbody><tr><td>第1行</td></tr><tr><td>第2行</td></tr></tbody></table>",
+        "<p><strong>Key point</strong> <code>Cmd/Ctrl + E</code></p>",
+        "<table><thead><tr><th>Header</th></tr></thead><tbody><tr><td>Row 1</td></tr><tr><td>Row 2</td></tr></tbody></table>",
       ].join(""), container);
       expect(css(root.querySelector("strong"))).toContain("color:#7351CF");
       expect(css(root.querySelector("code"))).toContain("color:#1f2937");
@@ -126,8 +126,8 @@ describe("preparePublishArticle", () => {
       for (const palette of ["violet", "native"]) {
         container.dataset.notePalette = palette;
         const root = preparePublishArticle(
-          '<p>正文</p><table><tbody><tr><th><p>表头 <strong>重点</strong></p></th></tr>' +
-          '<tr><td><p>内容 <strong>重点</strong></p><p>第二段</p></td></tr></tbody></table>', container,
+          '<p>Body</p><table><tbody><tr><th><p>Header <strong>key point</strong></p></th></tr>' +
+          '<tr><td><p>Content <strong>key point</strong></p><p>Second paragraph</p></td></tr></tbody></table>', container,
         );
         const header = root.querySelector("th p");
         expect(css(header)).toContain(`color:${palette === "violet" ? "#ffffff" : "#111827"}`);
@@ -149,15 +149,15 @@ describe("preparePublishArticle", () => {
 
   test("matches the light editor instead of the old rose-and-green paste", () => {
     const root = preparePublishArticle([
-      "<blockquote><p>引用</p></blockquote>",
-      "<p>正文 <strong>重点</strong> <code>token</code></p>",
-      "<h2>标题</h2>",
+      "<blockquote><p>Quote</p></blockquote>",
+      "<p>Body <strong>key point</strong> <code>token</code></p>",
+      "<h2>Heading</h2>",
       "<hr>",
       "<hr data-edgeever-merge-divider>",
-      "<pre><code class=\"language-sh\"># 官方 GHCR 镜像\\ncurl</code></pre>",
-      "<ul data-type=\"taskList\"><li data-checked=\"true\"><label><input type=\"checkbox\" checked></label><div><p>已完成</p></div></li></ul>",
+      "<pre><code class=\"language-sh\"># Official GHCR image\\ncurl</code></pre>",
+      "<ul data-type=\"taskList\"><li data-checked=\"true\"><label><input type=\"checkbox\" checked></label><div><p>Done</p></div></li></ul>",
       "<span data-type=\"inline-math\" data-latex=\"E = mc^2\"></span>",
-      "<p>#memo 话题</p>",
+      "<p>#memo topic</p>",
       "<img src=\"https://example.com/test.png\" alt=\"pic\">",
     ].join(""));
 
@@ -192,15 +192,15 @@ describe("preparePublishArticle", () => {
     expect(math?.textContent).not.toContain("$E");
     expect(root.querySelector("input")).toBeNull();
     expect(root.querySelector("[data-ee-task='checked']")?.textContent).toBe("☑ ");
-    expect(root.textContent).toContain("已完成");
+    expect(root.textContent).toContain("Done");
     const checked = root.querySelector("[data-ee-task='checked']")?.parentElement;
     expect(css(checked)).toContain("color:#737373");
     expect(css(checked)).toContain("line-through");
 
     const highlighted = root.querySelector("pre code");
     expect(highlighted?.querySelector("span[style*='color']")).toBeTruthy();
-    expect(highlighted?.textContent).toContain("# 官方");
-    expect(highlighted?.textContent).not.toContain("#\u200b官方");
+    expect(highlighted?.textContent).toContain("# Official");
+    expect(highlighted?.textContent).not.toContain("#\u200bOfficial");
     expect(root.textContent).toContain("#\u200bmemo");
     expect(root.innerHTML).not.toContain("#be123c");
     expect(root.innerHTML).not.toContain("#10b981");
@@ -226,15 +226,15 @@ describe("preparePublishArticle", () => {
     });
     try {
       const root = preparePublishArticle([
-        "<h2>章节标题</h2>",
-        "<h3>小节胶囊</h3>",
-        "<blockquote><p><strong>摸鱼绿虚线引用框</strong></p></blockquote>",
-        "<p><strong>翡翠重点</strong> <u>薄荷底线</u> <mark>暖黄高亮</mark> <code>neutralCode</code></p>",
+        "<h2>Section heading</h2>",
+        "<h3>Subsection pill</h3>",
+        "<blockquote><p><strong>Green dashed quote box</strong></p></blockquote>",
+        "<p><strong>Emerald emphasis</strong> <u>Mint underline</u> <mark>Warm yellow highlight</mark> <code>neutralCode</code></p>",
       ].join(""), container);
       const h2 = root.querySelector("h2");
       expect(h2?.textContent).toContain("01");
       expect(h2?.textContent).toContain("PART");
-      expect(h2?.textContent).toContain("章节标题");
+      expect(h2?.textContent).toContain("Section heading");
       expect(h2?.querySelector("[data-ee-heading-number]")?.innerHTML).toContain("#059669");
       const h3 = root.querySelector("h3");
       expect(css(h3)).not.toContain("border-radius:1em");
@@ -267,13 +267,13 @@ describe("preparePublishArticle", () => {
         globalThis.getComputedStyle = () => ({
           getPropertyValue: (name) => name === "--editor-body-font-size" ? `${size}px` : "",
         });
-        const root = preparePublishArticle("<h2>章节</h2><h3>包含 <strong>强调</strong> 的长标题</h3><h4>子标题</h4><p>正文</p>", container);
+        const root = preparePublishArticle("<h2>Section</h2><h3>A long heading with <strong>emphasis</strong></h3><h4>Subheading</h4><p>Body</p>", container);
         expect(root.querySelector("h3").style.fontSize).toBe(`${Math.round(size * 1.15)}px`);
         expect(root.querySelector("h4").style.fontSize).toBe(`${size}px`);
         expect(root.querySelector("p:not([data-ee-publish-chrome])").style.fontSize).toBe(`${size}px`);
-        const h2Title = Array.from(root.querySelectorAll("h2 p")).find((p) => p.textContent === "章节");
+        const h2Title = Array.from(root.querySelectorAll("h2 p")).find((p) => p.textContent === "Section");
         expect(h2Title.style.fontSize).toBe(`${size * 1.4}px`);
-        expect(root.querySelector("h3 strong").textContent).toBe("强调");
+        expect(root.querySelector("h3 strong").textContent).toBe("emphasis");
         expect(root.querySelectorAll("[data-ee-pill-dot]").length).toBe(0);
       }
     } finally {
@@ -293,7 +293,7 @@ describe("preparePublishArticle", () => {
           "--editor-body-text-align": "justify",
           "--editor-body-letter-spacing": "0.5px",
         })[name] ?? "" });
-        const root = preparePublishArticle("<h3>标题</h3><p>正文</p><table><tbody><tr><td><p>单元格</p></td></tr></tbody></table>", container);
+        const root = preparePublishArticle("<h3>Heading</h3><p>Body</p><table><tbody><tr><td><p>Cell</p></td></tr></tbody></table>", container);
         const body = root.querySelector(":scope > p");
         expect(body.style.margin).toBe("0 0 12px");
         expect(body.style.textAlign).toBe("justify");
@@ -312,7 +312,7 @@ describe("preparePublishArticle", () => {
     container.dataset.notePalette = "emerald";
     container.dataset.noteHeadingStyle = "numbered";
     container.dataset.noteMagazineCover = "true";
-    container.dataset.noteTitle = "深度评测文章";
+    container.dataset.noteTitle = "In-depth review";
     const previous = globalThis.getComputedStyle;
     globalThis.getComputedStyle = () => ({
       getPropertyValue: (name) => ({
@@ -327,13 +327,13 @@ describe("preparePublishArticle", () => {
     });
     try {
       const root = preparePublishArticle([
-        "<h2>效率工具箱：斜杠指令、双链与数学公式</h2>",
-        "<p>内容一</p>",
-        "<h2>多媒体管理、无损备份与零成本自建</h2>",
-        "<p>内容二</p>",
+        "<h2>Productivity toolbox: slash commands, backlinks and math</h2>",
+        "<p>Content one</p>",
+        "<h2>Media management, lossless backups and free self-hosting</h2>",
+        "<p>Content two</p>",
       ].join(""), container);
       expect(root.querySelector("[data-ee-cover-card]")).not.toBeNull();
-      expect(root.querySelector("[data-ee-cover-card]")?.textContent).toContain("深度评测文章");
+      expect(root.querySelector("[data-ee-cover-card]")?.textContent).toContain("In-depth review");
       expect(root.querySelector("[data-ee-toc-cards]")).not.toBeNull();
       expect(root.querySelector("[data-ee-toc-cards]")?.textContent).toContain("2 PARTS");
       const card = root.querySelector('[data-ee-toc-cards] section[style*="width: 136px"]');
@@ -380,15 +380,15 @@ describe("prepareMarkdownPublishArticle", () => {
     const taskList = root.querySelector("[data-ee-task]")?.closest("ul");
     expect(css(taskList)).not.toContain("list-style-type");
     expect(css(taskList)).toContain("list-style:none");
-    expect(html).toContain("$10+/月");
-    expect(html).toContain("$5+/月");
+    expect(html).toContain("$10+/mo");
+    expect(html).toContain("$5+/mo");
     expect(html).not.toContain("$E = mc^2$");
     expect(root.querySelector("input[type='checkbox']")).toBeNull();
     expect(root.textContent).toContain("☑ ");
     expect(root.textContent).toContain("☐ ");
     expect(root.textContent).toContain("#\u200bmemo");
     const code = root.querySelector("pre code");
-    expect(code?.textContent).toContain("# 官方 GHCR 镜像");
+    expect(code?.textContent).toContain("# Official GHCR image");
     expect(code?.textContent).not.toContain("#\u200b");
     expect(code?.querySelector("span[style*='#6a737d']")).toBeTruthy();
     expect(css(root.querySelector("blockquote"))).toContain("background:#f3f5f7");

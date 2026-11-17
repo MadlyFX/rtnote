@@ -166,7 +166,7 @@ describe("sync route contracts", () => {
       );
       INSERT INTO workspaces VALUES ('ws_1', '2026-09-10T00:00:00.000Z');
       INSERT INTO notebooks (id, workspace_id, name, slug, is_deleted, created_at, updated_at) VALUES
-        ('ws_1_inbox', 'ws_1', '收集箱', 'shou-ji-xiang', 0, '2026-09-10T00:00:00.000Z', '2026-09-10T00:00:00.000Z');
+        ('ws_1_inbox', 'ws_1', 'Collection box', 'collection-box', 0, '2026-09-10T00:00:00.000Z', '2026-09-10T00:00:00.000Z');
       INSERT INTO memos (
         id, workspace_id, notebook_id, title, is_deleted, created_at, updated_at, deleted_at
       ) VALUES (

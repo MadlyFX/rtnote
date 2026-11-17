@@ -36,7 +36,7 @@ Extension pages use React, shared shadcn/ui-style Button and Input components, a
 
 The extension uses the cross-browser `chrome.i18n` compatibility namespace. English is the fallback locale. Simplified Chinese, Japanese, and Polish are available for browsers whose UI language matches.
 
-User-visible strings live in `public/_locales/<locale>/messages.json`. Add or update every supported locale when changing interface copy. Chrome Web Store listing translations are maintained separately in the developer dashboard; ready-to-paste English and Simplified Chinese copy is available in `STORE_LISTING.md`.
+User-visible strings live in `public/_locales/<locale>/messages.json`. Add or update every supported locale when changing interface copy. Chrome Web Store listing translations are maintained separately in the developer dashboard; ready-to-paste English copy is in `STORE_LISTING.md` and the Simplified Chinese translation in `STORE_LISTING.zh-CN.md`.
 
 ## Development
 

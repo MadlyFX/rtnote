@@ -9,7 +9,7 @@ import { VoiceMemoEditorContext, VoiceMemoExtension, insertVoiceMemoAndRecord, t
 import Image from "@tiptap/extension-image";
 import { mergeAttributes } from "@tiptap/core";
 import Placeholder from "@tiptap/extension-placeholder";
-import { ImageGallery, createExcerpt, createEdgeEverDocumentExtensions, docToMarkdown, docToText, emptyDoc, getImageReferrerPolicy, isPdfAttachment, wrapDetailsContentHtml, type MemoDetail, type MemoEditSession, type Notebook, type TagSummary, type TiptapDoc } from "@edgeever/shared";
+import { ATTACHMENT_TEXT_PREFIX, ImageGallery, createExcerpt, createEdgeEverDocumentExtensions, docToMarkdown, docToText, emptyDoc, getImageReferrerPolicy, isPdfAttachment, wrapDetailsContentHtml, type MemoDetail, type MemoEditSession, type Notebook, type TagSummary, type TiptapDoc } from "@edgeever/shared";
 import { createEdgeEverMathematics } from "@edgeever/shared/mathematics";
 import { createNativeImageGalleryView, NATIVE_IMAGE_GALLERY_CSS } from "@edgeever/shared/native-image-gallery";
 import { NEW_IMAGE_WIDTH_PERCENT } from "@edgeever/shared/image-display";
@@ -671,7 +671,7 @@ export const MobileStandaloneTiptapEditor = ({
               type: "edgeeverPdfAttachment",
               attrs: {
                 url: resource.url,
-                label: `附件：${resource.filename || file.name}`,
+                label: `${ATTACHMENT_TEXT_PREFIX}${resource.filename || file.name}`,
                 filename: resource.filename || file.name,
                 mimeType: resource.mimeType || file.type || "application/pdf",
                 byteSize: resource.byteSize,
@@ -691,7 +691,7 @@ export const MobileStandaloneTiptapEditor = ({
               type: "edgeeverFileAttachment",
               attrs: {
                 url: resource.url,
-                label: `附件：${filename}`,
+                label: `${ATTACHMENT_TEXT_PREFIX}${filename}`,
                 filename,
                 mimeType: file.type,
                 byteSize: resource.byteSize,

@@ -1,4 +1,5 @@
 import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
+import { format, ui } from "./fixtures/ui-labels";
 
 type SyncMetaRow = { key?: string; value?: string };
 
@@ -103,7 +104,7 @@ test("an existing browser mirror catches up after an import larger than one sync
 
   try {
     await page.goto("/");
-    await expect(page.getByRole("button", { name: "正在同步笔记", exact: true })).toHaveCount(0, { timeout: 20_000 });
+    await expect(page.getByRole("button", { name: ui.memoList.manualSyncing, exact: true })).toHaveCount(0, { timeout: 20_000 });
     await expect.poll(() => readLocalSyncCursor(page), { timeout: 20_000 }).not.toBeNull();
     const cursorBeforeImport = await readLocalSyncCursor(page);
     expect(cursorBeforeImport).not.toBeNull();
@@ -155,9 +156,9 @@ test("an existing browser mirror catches up after an import larger than one sync
       { timeout: 30_000 },
     ).toBe(importedMemoCount);
 
-    await page.getByRole("button", { name: "全部笔记", exact: true }).click();
-    await page.getByPlaceholder("搜索笔记").fill(marker);
-    await expect(page.getByText(`${importedMemoCount} 条结果`, { exact: true })).toBeVisible();
+    await page.getByRole("button", { name: ui.notebookPane.allMemos, exact: true }).click();
+    await page.getByPlaceholder(ui.memoList.searchPlaceholder).fill(marker);
+    await expect(page.getByText(format(ui.memoList.searchResults, { count: importedMemoCount }), { exact: true })).toBeVisible();
   } finally {
     if (createdMemoIds.length === 0) {
       createdMemoIds = await listMemoIdsWithMarker(page.request, marker);

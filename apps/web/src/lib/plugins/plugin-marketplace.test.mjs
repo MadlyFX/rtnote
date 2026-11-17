@@ -106,8 +106,8 @@ describe("bundled plugin marketplace", () => {
       settingsUi: "host",
       description: "Live release description",
       locales: {
-        "zh-CN": { description: "实时发行版中文说明" },
-        ja: { description: "ライブリリースの日本語説明" },
+        "zh-CN": { description: "Live release description (zh-CN)" },
+        ja: { description: "Live release description (ja)" },
       },
       entry: "./main.js",
       permissions: ["ui:notices"],
@@ -150,8 +150,8 @@ describe("bundled plugin marketplace", () => {
     expect(resolved.entries[0]).toMatchObject({
       description: "Live release description",
       locales: {
-        "zh-CN": { description: "实时发行版中文说明" },
-        ja: { description: "ライブリリースの日本語説明" },
+        "zh-CN": { description: "Live release description (zh-CN)" },
+        ja: { description: "Live release description (ja)" },
       },
     });
   });
@@ -185,7 +185,7 @@ describe("bundled plugin marketplace", () => {
           apiVersion: "2",
           settingsUi: "host",
           description: "Live release description",
-          locales: { ja: { description: "ライブリリースの日本語説明" } },
+          locales: { ja: { description: "Live release description (ja)" } },
           entry: "./main.js",
           permissions: ["ui:notices"],
         }));
@@ -201,7 +201,7 @@ describe("bundled plugin marketplace", () => {
     expect(resolved.entries[0].verification).toEqual({ version: "0.5.5", checksums });
     expect(resolved.entries[0]).toMatchObject({
       description: "Live release description",
-      locales: { ja: { description: "ライブリリースの日本語説明" } },
+      locales: { ja: { description: "Live release description (ja)" } },
     });
     expect(calls).toHaveLength(1);
   });

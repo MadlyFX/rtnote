@@ -1,6 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import { ApiRequestError } from "@edgeever/client";
 import { formatMobileLoginError, MISSING_MOBILE_SESSION_MESSAGE } from "./login-error.ts";
+import { mobileJa } from "./i18n/ja.ts";
+import { mobileZhCN } from "./i18n/zh-CN.ts";
+import { formatMobileCopy, getMobileCatalog } from "./mobile-locale.tsx";
+
+const zhLogin = getMobileCatalog("zh-CN").mobile.login;
 
 describe("mobile login error messages", () => {
   test("explains a Cloudflare challenge and preserves its Ray ID", () => {
@@ -10,7 +15,7 @@ describe("mobile login error messages", () => {
       rayId: "abc123-NRT",
     });
 
-    expect(formatMobileLoginError(error, "zh-CN")).toContain("Cloudflare 人机验证拦截了登录接口");
+    expect(formatMobileLoginError(error, "zh-CN")).toContain(zhLogin.cloudflareChallenge);
     expect(formatMobileLoginError(error, "zh-CN")).toContain("cloudflare_challenge · Ray ID: abc123-NRT");
     expect(formatMobileLoginError(error, "en-US")).toContain("A Cloudflare browser challenge intercepted the login API");
   });
@@ -21,19 +26,19 @@ describe("mobile login error messages", () => {
     expect(formatMobileLoginError(new TypeError("Failed to fetch"), "pl"))
       .toContain("Nie można połączyć się z instancją.");
     expect(formatMobileLoginError(new ApiRequestError("Unauthorized", 401), "ja"))
-      .toContain("ユーザー名またはパスワードが正しくありません。");
+      .toContain(getMobileCatalog("ja").mobile.login.invalidCredentials);
   });
 
   test("distinguishes credentials, edge security blocks, and RTNote 403 responses", () => {
     expect(formatMobileLoginError(new ApiRequestError("Unauthorized", 401), "zh-CN"))
-      .toContain("用户名或密码不正确");
+      .toContain(zhLogin.invalidCredentials);
 
     const blocked = new ApiRequestError("Forbidden", 403, undefined, undefined, {
       cloudflareMitigated: false,
       isEdgeEverApiError: false,
       rayId: "def456-SJC",
     });
-    expect(formatMobileLoginError(blocked, "zh-CN")).toContain("安全策略拦截");
+    expect(formatMobileLoginError(blocked, "zh-CN")).toContain(zhLogin.securityPolicyBlocked);
     expect(formatMobileLoginError(blocked, "zh-CN")).toContain("security_policy_blocked");
 
     const forbidden = new ApiRequestError("Forbidden", 403, "forbidden", undefined, {
@@ -47,17 +52,17 @@ describe("mobile login error messages", () => {
     expect(formatMobileLoginError(new TypeError("Failed to fetch"), "en-US"))
       .toContain("Unable to reach the instance");
     expect(formatMobileLoginError(new ApiRequestError("Unavailable", 503), "zh-CN"))
-      .toContain("实例服务异常（HTTP 503）");
+      .toContain(formatMobileCopy(zhLogin.serverError, { status: 503 }));
   });
 
   test("keeps the missing mobile session guidance in each language", () => {
     const error = new Error(MISSING_MOBILE_SESSION_MESSAGE);
-    expect(formatMobileLoginError(error, "zh-CN"))
-      .toBe(`${MISSING_MOBILE_SESSION_MESSAGE}\nmobile_session_missing`);
     expect(formatMobileLoginError(error, "en-US"))
-      .toBe("Signed in, but the server did not return a mobile session. Make sure the server is updated to a version that supports app sign-in.\nmobile_session_missing");
+      .toBe(`${MISSING_MOBILE_SESSION_MESSAGE}\nmobile_session_missing`);
+    expect(formatMobileLoginError(error, "zh-CN"))
+      .toBe(`${mobileZhCN[MISSING_MOBILE_SESSION_MESSAGE]}\nmobile_session_missing`);
     expect(formatMobileLoginError(error, "ja"))
-      .toContain("サーバーがモバイルセッションを返しませんでした");
+      .toBe(`${mobileJa[MISSING_MOBILE_SESSION_MESSAGE]}\nmobile_session_missing`);
     expect(formatMobileLoginError(error, "pl"))
       .toContain("serwer nie zwrócił sesji mobilnej");
     expect(formatMobileLoginError(new Error("Something else"), "en-US"))

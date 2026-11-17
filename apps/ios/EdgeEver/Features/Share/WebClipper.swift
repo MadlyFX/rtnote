@@ -26,18 +26,28 @@ struct WebClipLabels: Equatable, Sendable {
     var imageAlt: String
     var usesFullwidthColon: Bool
 
-    static let chinese = WebClipLabels(
-        sourceLabel: "来源",
-        capturedAtLabel: "剪藏时间",
-        unavailableBody: "正文暂时无法抓取，来源链接已保留，可稍后重试。",
-        fallbackTitle: "网页剪藏",
-        imageAlt: "图片",
-        usesFullwidthColon: true
+    /// Default labels. The app passes labels in the user's UI language.
+    static let english = WebClipLabels(
+        sourceLabel: "Source",
+        capturedAtLabel: "Captured at",
+        unavailableBody: "Could not extract the page text. The source link is kept so you can retry later.",
+        fallbackTitle: "Web clip",
+        imageAlt: "Image",
+        usesFullwidthColon: false
     )
 
     func labeledLine(_ label: String, value: String) -> String {
         usesFullwidthColon ? "\(label)：\(value)" : "\(label): \(value)"
     }
+}
+
+/// Failure messages from the rendered-page capture. The UI maps them to localized text;
+/// any other message (for example an error shown by the page itself) is shown as is.
+enum WebClipFailure {
+    static let timedOut = "The WeChat article took too long to load."
+    /// Also hard-coded in `WebClipCaptureView.Coordinator.captureScript`.
+    static let noContentAfterLoad = "The page finished loading, but there was no article text to clip."
+    static let noContent = "No article text was found to clip."
 }
 
 enum WebClipper {
@@ -63,7 +73,7 @@ enum WebClipper {
     static func build(
         _ sourceURL: URL,
         capturedAt: Date = Date(),
-        labels: WebClipLabels = .chinese,
+        labels: WebClipLabels = .english,
         session: URLSession = .shared
     ) async -> WebClipDraft {
         var request = URLRequest(url: sourceURL)
@@ -93,7 +103,7 @@ enum WebClipper {
         _ sourceURL: URL,
         page: RenderedWebPage,
         capturedAt: Date = Date(),
-        labels: WebClipLabels = .chinese
+        labels: WebClipLabels = .english
     ) -> WebClipDraft {
         let title = normalizedText(page.title).nilIfEmpty ?? hostnameTitle(sourceURL, fallbackTitle: labels.fallbackTitle)
         let markdown = htmlToMarkdown(
@@ -122,7 +132,7 @@ enum WebClipper {
     static func fallback(
         _ sourceURL: URL,
         capturedAt: Date = Date(),
-        labels: WebClipLabels = .chinese
+        labels: WebClipLabels = .english
     ) -> WebClipDraft {
         let sourceLink = "[\(escapeMarkdown(sourceURL.absoluteString))](\(sourceURL.absoluteString))"
         return WebClipDraft(
@@ -136,7 +146,7 @@ enum WebClipper {
         )
     }
 
-    static func htmlToMarkdown(_ html: String, baseURL: URL, imageAlt: String = "图片") -> String {
+    static func htmlToMarkdown(_ html: String, baseURL: URL, imageAlt: String = WebClipLabels.english.imageAlt) -> String {
         guard !html.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return "" }
         var value = replace(html, pattern: #"<!--[\s\S]*?-->"#) { _ in "" }
         value = replace(
@@ -309,7 +319,7 @@ struct WebClipCaptureView: UIViewRepresentable {
         func startTimeout() {
             completed = false
             timeout?.cancel()
-            let work = DispatchWorkItem { [weak self] in self?.finishFailure("微信文章加载超时。") }
+            let work = DispatchWorkItem { [weak self] in self?.finishFailure(WebClipFailure.timedOut) }
             timeout = work
             DispatchQueue.main.asyncAfter(deadline: .now() + 20, execute: work)
         }
@@ -337,7 +347,7 @@ struct WebClipCaptureView: UIViewRepresentable {
                     finalURL: body["finalUrl"] as? String ?? loadedURL?.absoluteString ?? ""
                 ))
             } else {
-                finishFailure(body["message"] as? String ?? "没有找到可剪藏的正文。")
+                finishFailure(body["message"] as? String ?? WebClipFailure.noContent)
             }
         }
 
@@ -361,7 +371,7 @@ struct WebClipCaptureView: UIViewRepresentable {
             }
             var error=text(".weui-msg__title")||text(".weui-msg__desc");
             if(error){send({status:"failed",message:error});return;}
-            attempts++; if(attempts>=50){send({status:"failed",message:"页面加载完成，但没有找到可剪藏的正文。"});return;}
+            attempts++; if(attempts>=50){send({status:"failed",message:"The page finished loading, but there was no article text to clip."});return;}
             setTimeout(capture,250);
           }
           capture();

@@ -107,7 +107,7 @@ struct SystemImagePicker: UIViewControllerRepresentable {
                         } else {
                             cont.resume(
                                 throwing: error
-                                    ?? APIError(status: 0, code: nil, message: "无法解码图片")
+                                    ?? APIError(status: 0, code: nil, message: AppUILocale.text("Could not decode the image", zh: "无法解码图片"))
                             )
                         }
                     }
@@ -133,7 +133,7 @@ struct SystemImagePicker: UIViewControllerRepresentable {
                 }
             }
 
-            throw APIError(status: 0, code: nil, message: "无法读取所选图片，请换一张重试。")
+            throw APIError(status: 0, code: nil, message: AppUILocale.text("Could not read the selected image. Try another one.", zh: "无法读取所选图片，请换一张重试。"))
         }
 
         private static func loadData(_ provider: NSItemProvider, typeIdentifier: String) async throws -> Data {
@@ -144,7 +144,7 @@ struct SystemImagePicker: UIViewControllerRepresentable {
                     } else {
                         cont.resume(
                             throwing: error
-                                ?? APIError(status: 0, code: nil, message: "读取图片数据失败")
+                                ?? APIError(status: 0, code: nil, message: AppUILocale.text("Could not read the image data", zh: "读取图片数据失败"))
                         )
                     }
                 }
@@ -170,7 +170,7 @@ struct SystemCameraPicker: UIViewControllerRepresentable {
         picker.allowsEditing = false
         guard Self.isAvailable else {
             DispatchQueue.main.async {
-                context.coordinator.finish(.failed("此设备没有可用相机。"))
+                context.coordinator.finish(.failed(AppUILocale.text("This device has no camera.", zh: "此设备没有可用相机。")))
             }
             return picker
         }
@@ -206,7 +206,7 @@ struct SystemCameraPicker: UIViewControllerRepresentable {
                   let data = image.jpegData(compressionQuality: 0.92),
                   !data.isEmpty
             else {
-                finish(.failed("无法读取拍摄的照片，请重试。"))
+                finish(.failed(AppUILocale.text("Could not read the photo. Try again.", zh: "无法读取拍摄的照片，请重试。")))
                 return
             }
             finish(.picked(data, filename: ImagePickerData.cameraFilename()))

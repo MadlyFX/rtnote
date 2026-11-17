@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { ui } from "./fixtures/ui-labels";
 
 type LocalMemoRecord = {
   id: string;
@@ -67,8 +68,8 @@ test("rebuilds a stale browser mirror when the server cursor rewinds", async ({ 
 
   try {
     await page.goto("/");
-    await page.getByRole("button", { name: "全部笔记", exact: true }).click();
-    await page.getByPlaceholder("搜索笔记").fill(serverTitle);
+    await page.getByRole("button", { name: ui.notebookPane.allMemos, exact: true }).click();
+    await page.getByPlaceholder(ui.memoList.searchPlaceholder).fill(serverTitle);
     await expect(page.locator(`[data-memo-id="${memoId}"]`)).toContainText(serverTitle);
     await expect.poll(async () => (await readLocalMemo(page, memoId))?.title ?? null).toBe(serverTitle);
 
@@ -80,8 +81,8 @@ test("rebuilds a stale browser mirror when the server cursor rewinds", async ({ 
     await page.reload();
 
     await expect.poll(async () => (await readLocalMemo(page, memoId))?.title ?? null).toBe(serverTitle);
-    await page.getByRole("button", { name: "全部笔记", exact: true }).click();
-    await page.getByPlaceholder("搜索笔记").fill(serverTitle);
+    await page.getByRole("button", { name: ui.notebookPane.allMemos, exact: true }).click();
+    await page.getByPlaceholder(ui.memoList.searchPlaceholder).fill(serverTitle);
     await expect(page.locator(`[data-memo-id="${memoId}"]`)).toContainText(serverTitle);
     await expect(page.getByText(staleTitle, { exact: true })).toHaveCount(0);
   } finally {

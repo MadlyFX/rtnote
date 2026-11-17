@@ -5,6 +5,7 @@
 @import "./publish-layout.css";
 @import "./note-prose.css";
 @import "./note-prose-styles.css";
+@import "./note-prose-styles.zh-CN.css";
 @import "./code-highlight-dark.css";
 @import "../../../../packages/shared/src/text-colors.css";
 @import "../../../../packages/shared/src/rich-formatting.css";

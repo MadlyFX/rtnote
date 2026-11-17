@@ -40,7 +40,7 @@ WorkBuddy and CodeBuddy share accounts and quota, but the desktop WorkBuddy inte
 
   WeChat sign-in, keeping the sign-in after a restart, and independence from WorkBuddy accounts were verified earlier with the same CLI (see #758).
 - macOS desktop UI (development Electron with the official v2.16.1 sidecar and an isolated app profile):
-  - With the signed-in CLI, the check reported a usable session. The logo and sign-in labels were correct ("微信登录（国内）"; other methods keep the CLI's names).
+  - With the signed-in CLI, the check reported a usable session. The logo and sign-in labels were correct ("WeChat sign-in (China)"; other methods keep the CLI's names).
   - With an empty CLI configuration, the card showed "Sign in to CodeBuddy".
   - Clicking the WeChat sign-in showed the in-progress hint, "Reopen sign-in page" and "Cancel sign-in".
   - Cancelling showed "Sign-in cancelled" and left no process.

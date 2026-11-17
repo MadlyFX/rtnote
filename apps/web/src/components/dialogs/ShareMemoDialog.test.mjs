@@ -14,7 +14,7 @@ describe("ShareMemoDialog raw markdown link support", () => {
       expect(`${url}.md`).toBe("/share/my-custom-note.md");
 
       globalThis.window = { location: { origin: "https://notes.example.com" } };
-      expect(getPublicShareUrl("我的笔记")).toBe(`https://notes.example.com/share/${encodeURIComponent("我的笔记")}`);
+      expect(getPublicShareUrl("Résumé notes")).toBe(`https://notes.example.com/share/${encodeURIComponent("Résumé notes")}`);
     } finally {
       if (originalWindow) Object.defineProperty(globalThis, "window", originalWindow);
       else delete globalThis.window;

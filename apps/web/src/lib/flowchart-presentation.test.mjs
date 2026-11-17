@@ -3,7 +3,7 @@ import { flowchartNodePresentation, compileDiagramIr } from './diagram-layout';
 
 test('long labels fit bounded nodes while keeping every character', () => {
   for (const shape of ['process', 'decision', 'terminator']) {
-    const label = 'Transformer 前向计算\n因果注意力＋前馈网络以及更长的说明文字';
+    const label = 'Transformer forward pass\nCausal attention + feed-forward network with a longer description';
     const presentation = flowchartNodePresentation(shape, label);
     expect(presentation.text.replaceAll('\n', '')).toBe(label.replaceAll('\n', ''));
     expect(presentation.width).toBeLessThanOrEqual(240);
@@ -12,9 +12,9 @@ test('long labels fit bounded nodes while keeping every character', () => {
 });
 
 test('MCP compilation reserves label geometry before arranging the graph', () => {
-  const label = '这是非常长的流程步骤'.repeat(12);
+  const label = 'This is a very long flowchart step '.repeat(12);
   const document = compileDiagramIr({ kind: 'flowchart', nodes: [
-    { id: 'a', type: 'process', label }, { id: 'b', type: 'end', label: '结束' },
+    { id: 'a', type: 'process', label }, { id: 'b', type: 'end', label: 'End' },
   ], edges: [{ source: 'a', target: 'b' }] });
   expect(document.nodes[0].label).toBe(label);
   expect(document.nodes[0].height).toBe(flowchartNodePresentation('process', label).height);

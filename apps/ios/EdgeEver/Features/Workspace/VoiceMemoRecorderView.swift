@@ -223,7 +223,7 @@ struct VoiceMemoRecorderSheet: View {
     var body: some View {
         VStack(spacing: 18) {
             HStack {
-                Text(env.preferences.t("语音备忘", en: "Voice memo", ja: "ボイスメモ", pl: "Notatka głosowa"))
+                Text(env.preferences.t("Voice memo", zh: "语音备忘", ja: "ボイスメモ", pl: "Notatka głosowa"))
                     .font(.system(size: 16, weight: .heavy))
                     .foregroundStyle(AppTheme.title)
                 Spacer()
@@ -237,7 +237,7 @@ struct VoiceMemoRecorderSheet: View {
                             .frame(width: 38, height: 38)
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel(env.preferences.t("关闭", en: "Close", ja: "閉じる", pl: "Zamknij"))
+                    .accessibilityLabel(env.preferences.t("Close", zh: "关闭", ja: "閉じる", pl: "Zamknij"))
                 }
             }
 
@@ -245,7 +245,7 @@ struct VoiceMemoRecorderSheet: View {
                 .font(.system(size: 44, weight: .semibold, design: .rounded))
                 .monospacedDigit()
                 .foregroundStyle(AppTheme.title)
-                .accessibilityLabel(env.preferences.t("录音时长", en: "Recording time", ja: "録音時間", pl: "Czas nagrania"))
+                .accessibilityLabel(env.preferences.t("Recording time", zh: "录音时长", ja: "録音時間", pl: "Czas nagrania"))
                 .accessibilityValue(VoiceMemoFiles.formatDuration(recorder.elapsed))
 
             levelMeter
@@ -257,7 +257,7 @@ struct VoiceMemoRecorderSheet: View {
                 .frame(maxWidth: .infinity)
 
             if recorder.phase == .permissionDenied {
-                Button(env.preferences.t("前往设置", en: "Open settings", ja: "設定を開く", pl: "Otwórz ustawienia")) {
+                Button(env.preferences.t("Open settings", zh: "前往设置", ja: "設定を開く", pl: "Otwórz ustawienia")) {
                     guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
                     UIApplication.shared.open(url)
                 }
@@ -284,15 +284,15 @@ struct VoiceMemoRecorderSheet: View {
             if reached { save() }
         }
         .confirmationDialog(
-            env.preferences.t("要丢弃这段录音吗？", en: "Discard this recording?", ja: "この録音を破棄しますか？", pl: "Odrzucić to nagranie?"),
+            env.preferences.t("Discard this recording?", zh: "要丢弃这段录音吗？", ja: "この録音を破棄しますか？", pl: "Odrzucić to nagranie?"),
             isPresented: $confirmDiscard,
             titleVisibility: .visible
         ) {
-            Button(env.preferences.t("丢弃", en: "Discard", ja: "破棄", pl: "Odrzuć"), role: .destructive) {
+            Button(env.preferences.t("Discard", zh: "丢弃", ja: "破棄", pl: "Odrzuć"), role: .destructive) {
                 recorder.discard()
                 dismiss()
             }
-            Button(env.preferences.t("取消", en: "Cancel", ja: "キャンセル", pl: "Anuluj"), role: .cancel) {}
+            Button(env.preferences.t("Cancel", zh: "取消", ja: "キャンセル", pl: "Anuluj"), role: .cancel) {}
         }
         .accessibilityIdentifier("voiceMemoRecorderSheet")
     }
@@ -308,7 +308,7 @@ struct VoiceMemoRecorderSheet: View {
         .frame(height: 48)
         .animation(.linear(duration: 0.1), value: recorder.levels)
         .accessibilityElement()
-        .accessibilityLabel(env.preferences.t("麦克风音量", en: "Microphone level", ja: "マイク音量", pl: "Poziom mikrofonu"))
+        .accessibilityLabel(env.preferences.t("Microphone level", zh: "麦克风音量", ja: "マイク音量", pl: "Poziom mikrofonu"))
         .accessibilityValue("\(Int((recorder.levels.last ?? 0) * 100))%")
     }
 
@@ -316,7 +316,7 @@ struct VoiceMemoRecorderSheet: View {
         HStack(spacing: 28) {
             controlButton(
                 systemImage: "trash",
-                label: env.preferences.t("丢弃", en: "Discard", ja: "破棄", pl: "Odrzuć"),
+                label: env.preferences.t("Discard", zh: "丢弃", ja: "破棄", pl: "Odrzuć"),
                 tint: AppTheme.danger,
                 prominent: false
             ) {
@@ -327,8 +327,8 @@ struct VoiceMemoRecorderSheet: View {
             controlButton(
                 systemImage: recorder.phase == .paused ? "mic.fill" : "pause.fill",
                 label: recorder.phase == .paused
-                    ? env.preferences.t("继续", en: "Resume", ja: "再開", pl: "Wznów")
-                    : env.preferences.t("暂停", en: "Pause", ja: "一時停止", pl: "Wstrzymaj"),
+                    ? env.preferences.t("Resume", zh: "继续", ja: "再開", pl: "Wznów")
+                    : env.preferences.t("Pause", zh: "暂停", ja: "一時停止", pl: "Wstrzymaj"),
                 tint: AppTheme.title,
                 prominent: false
             ) {
@@ -338,7 +338,7 @@ struct VoiceMemoRecorderSheet: View {
 
             controlButton(
                 systemImage: "stop.fill",
-                label: env.preferences.t("停止并保存", en: "Stop and save", ja: "停止して保存", pl: "Zatrzymaj i zapisz"),
+                label: env.preferences.t("Stop and save", zh: "停止并保存", ja: "停止して保存", pl: "Zatrzymaj i zapisz"),
                 tint: AppTheme.accent,
                 prominent: true
             ) {
@@ -380,23 +380,23 @@ struct VoiceMemoRecorderSheet: View {
         let p = env.preferences
         switch recorder.phase {
         case .idle, .preparing:
-            return p.t("正在启动麦克风…", en: "Starting the microphone…", ja: "マイクを起動しています…", pl: "Uruchamianie mikrofonu…")
+            return p.t("Starting the microphone…", zh: "正在启动麦克风…", ja: "マイクを起動しています…", pl: "Uruchamianie mikrofonu…")
         case .recording:
             let limit = VoiceMemoFiles.formatDuration(recorder.maxDuration)
-            return p.t("正在录音 · 将在 \(limit) 停止", en: "Recording · Stops at \(limit)", ja: "録音中 · \(limit) で停止します", pl: "Nagrywanie · Zatrzyma się po \(limit)")
+            return p.t("Recording · Stops at \(limit)", zh: "正在录音 · 将在 \(limit) 停止", ja: "録音中 · \(limit) で停止します", pl: "Nagrywanie · Zatrzyma się po \(limit)")
         case .paused:
-            return p.t("已暂停", en: "Paused", ja: "一時停止中", pl: "Wstrzymano")
+            return p.t("Paused", zh: "已暂停", ja: "一時停止中", pl: "Wstrzymano")
         case .finished:
-            return p.t("正在保存录音…", en: "Saving the recording…", ja: "録音を保存しています…", pl: "Zapisywanie nagrania…")
+            return p.t("Saving the recording…", zh: "正在保存录音…", ja: "録音を保存しています…", pl: "Zapisywanie nagrania…")
         case .permissionDenied:
             return p.t(
-                "麦克风权限被拒绝。请在系统设置中允许 RTNote 使用麦克风后重试。",
-                en: "Microphone access was denied. Allow RTNote to use the microphone in Settings, then try again.",
+                "Microphone access was denied. Allow RTNote to use the microphone in Settings, then try again.",
+                zh: "麦克风权限被拒绝。请在系统设置中允许 RTNote 使用麦克风后重试。",
                 ja: "マイクへのアクセスが拒否されました。設定で RTNote にマイクの使用を許可してから、もう一度お試しください。",
                 pl: "Odmówiono dostępu do mikrofonu. Zezwól RTNote na używanie mikrofonu w Ustawieniach i spróbuj ponownie."
             )
         case .unavailable:
-            return p.t("无法开始录音。", en: "Recording could not start.", ja: "録音を開始できませんでした。", pl: "Nie można rozpocząć nagrywania.")
+            return p.t("Recording could not start.", zh: "无法开始录音。", ja: "録音を開始できませんでした。", pl: "Nie można rozpocząć nagrywania.")
         }
     }
 

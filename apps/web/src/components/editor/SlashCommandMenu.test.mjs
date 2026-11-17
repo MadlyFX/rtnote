@@ -6,39 +6,43 @@ import {
   formatCurrentDateTime,
   formatCurrentTime,
 } from "./SlashCommandMenu.tsx";
+import { SLASH_COMMAND_KEYWORDS_ZH_CN } from "./slash-command-keywords.zh-CN.ts";
 
 const labels = {
-  menu: "插入功能菜单",
-  empty: "没有匹配的功能。",
-  close: "关闭菜单",
-  groups: { basic: "基本区块", insert: "插入" },
+  menu: "Insert menu",
+  empty: "No matching commands.",
+  close: "Close menu",
+  groups: { basic: "Basic blocks", insert: "Insert" },
   items: {
-    paragraph: "正文",
-    "heading-1": "标题 1",
-    "heading-2": "标题 2",
-    "heading-3": "标题 3",
-    "heading-4": "标题 4",
-    "heading-5": "标题 5",
-    "heading-6": "标题 6",
-    "bullet-list": "无序列表",
-    "ordered-list": "有序列表",
-    "task-list": "任务清单",
-    blockquote: "引用",
-    "code-block": "代码块",
-    divider: "分割线",
-    fold: "折叠块",
-    table: "表格",
-    "inline-math": "插入公式",
-    "block-math": "块级公式",
-    "current-date": "当前日期",
-    "current-time": "当前时间",
-    "current-date-time": "当前日期和时间",
-    attachment: "上传附件",
-    "voice-memo": "语音备忘",
-    "note-link": "引用笔记",
-    "external-link": "插入超链接",
+    paragraph: "Text",
+    "heading-1": "Heading 1",
+    "heading-2": "Heading 2",
+    "heading-3": "Heading 3",
+    "heading-4": "Heading 4",
+    "heading-5": "Heading 5",
+    "heading-6": "Heading 6",
+    "bullet-list": "Bulleted list",
+    "ordered-list": "Numbered list",
+    "task-list": "Task list",
+    blockquote: "Quote",
+    "code-block": "Code block",
+    divider: "Divider",
+    fold: "Toggle block",
+    table: "Table",
+    "inline-math": "Inline math",
+    "block-math": "Math block",
+    "current-date": "Current date",
+    "current-time": "Current time",
+    "current-date-time": "Current date and time",
+    attachment: "Upload attachment",
+    "voice-memo": "Voice memo",
+    "note-link": "Link note",
+    "external-link": "Insert link",
   },
 };
+
+// Chinese aliases come from the Simplified Chinese keyword file.
+const zh = (id, index) => SLASH_COMMAND_KEYWORDS_ZH_CN[id][index];
 
 describe("slash command menu", () => {
   const items = createSlashCommandItems(labels);
@@ -57,10 +61,10 @@ describe("slash command menu", () => {
 
   test("searches localized labels and aliases", () => {
     expect(filterSlashCommandItems(items, "AI").map((item) => item.id)).toEqual([]);
-    expect(filterSlashCommandItems(items, "待办").map((item) => item.id)).toEqual(["task-list"]);
+    expect(filterSlashCommandItems(items, zh("task-list", 1)).map((item) => item.id)).toEqual(["task-list"]);
     expect(filterSlashCommandItems(items, "h2").map((item) => item.id)).toEqual(["heading-2"]);
     expect(filterSlashCommandItems(items, "h5").map((item) => item.id)).toEqual(["heading-5"]);
-    expect(filterSlashCommandItems(items, "今天").map((item) => item.id)).toEqual(["current-date"]);
+    expect(filterSlashCommandItems(items, zh("current-date", 1)).map((item) => item.id)).toEqual(["current-date"]);
     expect(filterSlashCommandItems(items, "timestamp").map((item) => item.id)).toEqual(["current-date-time"]);
   });
 
@@ -93,14 +97,14 @@ describe("slash command menu", () => {
     ]);
     expect(items.every((item) => /^[a-z][a-z0-9]*$/.test(item.command))).toBe(true);
     expect(new Set(items.map((item) => item.command)).size).toBe(items.length);
-    expect(filterSlashCommandItems(items, "折叠").map((item) => item.id)).toEqual(["fold"]);
+    expect(filterSlashCommandItems(items, zh("fold", 0)).map((item) => item.id)).toEqual(["fold"]);
     expect(filterSlashCommandItems(items, "collapse").map((item) => item.id)).toEqual(["fold"]);
     expect(filterSlashCommandItems(items, "table").map((item) => item.id)).toEqual(["table"]);
     expect(filterSlashCommandItems(items, "task").map((item) => item.id)).toEqual(["task-list"]);
-    expect(filterSlashCommandItems(items, "公式").map((item) => item.id)).toEqual(["inline-math", "block-math"]);
+    expect(filterSlashCommandItems(items, zh("inline-math", 0)).map((item) => item.id)).toEqual(["inline-math", "block-math"]);
     expect(filterSlashCommandItems(items, "equation").map((item) => item.id)).toEqual(["block-math"]);
     expect(filterSlashCommandItems(items, "record").map((item) => item.id)).toEqual(["voice-memo"]);
-    expect(filterSlashCommandItems(items, "录音").map((item) => item.id)).toEqual(["voice-memo"]);
+    expect(filterSlashCommandItems(items, zh("voice-memo", 0)).map((item) => item.id)).toEqual(["voice-memo"]);
   });
 
   test("formats local date and time as stable static text", () => {

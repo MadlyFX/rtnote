@@ -9,11 +9,11 @@ export const IMAGE_WIDTH_PRESETS = [
   { id: "full", width: 100, labelKey: "editor.imageSizeFull" },
 ] as const;
 
-/** New uploads, and images with no stored width, use the large preset (较大). */
+/** New uploads, and images with no stored width, use the large preset. */
 export const NEW_IMAGE_WIDTH_PERCENT = IMAGE_WIDTH_PRESETS.find((preset) => preset.id === "large")!.width;
 
 /**
- * Phone columns are already narrow. A desktop percent such as 35% ("较小")
+ * Phone columns are already narrow. A desktop percent such as 35% (the small preset)
  * paints a stamp there, and the image action button covers most of it.
  * At or below this viewport, images fill the column. The stored percent stays
  * in the note for wide layouts.

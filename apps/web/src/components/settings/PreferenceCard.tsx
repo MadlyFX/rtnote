@@ -94,12 +94,14 @@ import {
   useMermaidTheme,
   type ThemePreference,
 } from "../ThemeProvider";
+import { prefersChineseContent } from "@/lib/bilingual-content-locale";
 
+// Chinese UI locales show each font's Chinese name next to the family name.
 const CUSTOM_FONT_SUGGESTIONS = [
-  { label: "苹方 (PingFang SC)", family: "PingFang SC" },
-  { label: "微软雅黑 (Microsoft YaHei)", family: "Microsoft YaHei" },
-  { label: "鸿蒙黑体 (HarmonyOS)", family: "HarmonyOS Sans SC" },
-  { label: "冬青黑体 (Hiragino)", family: "Hiragino Sans GB" },
+  { label: "PingFang SC", zh: "苹方 (PingFang SC)", family: "PingFang SC" },
+  { label: "Microsoft YaHei", zh: "微软雅黑 (Microsoft YaHei)", family: "Microsoft YaHei" },
+  { label: "HarmonyOS Sans", zh: "鸿蒙黑体 (HarmonyOS)", family: "HarmonyOS Sans SC" },
+  { label: "Hiragino Sans GB", zh: "冬青黑体 (Hiragino)", family: "Hiragino Sans GB" },
 ] as const;
 
 const LEGACY_NOTE_BODY_MENU_KEYS = {
@@ -137,7 +139,8 @@ const FontChoiceFields = ({
   preference: EditorBodyFontPreference;
   onChange: (preference: EditorBodyFontPreference) => void;
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const chineseFontNames = prefersChineseContent(i18n.resolvedLanguage ?? i18n.language);
   const [fontOpen, setFontOpen] = useState(false);
   const [fontRetry, setFontRetry] = useState(0);
   const loadState = includeCatalog ? editorFontLoadState : uiFontLoadState;
@@ -212,7 +215,7 @@ const FontChoiceFields = ({
                 className="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-slate-600 transition-colors hover:border-slate-300 hover:bg-slate-100 hover:text-slate-900"
                 onClick={() => onChange({ choice: "custom", customFamily: item.family })}
               >
-                {item.label}
+                {chineseFontNames ? item.zh : item.label}
               </button>
             ))}
           </div>

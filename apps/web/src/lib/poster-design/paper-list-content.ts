@@ -5,12 +5,21 @@ import {
   posterTemplateSampleCopy,
   type PosterTemplateCopy,
 } from "./template-sample-copy";
+import { PAPER_LIST_SUBTITLE_LABEL_ZH_CN } from "./template-sample-copy.zh-CN";
 
 export { legacyPosterSampleCopy, paperListSampleCopy, posterTemplateSampleCopy };
 
+// The subtitle row label in either sample language: "Subtitle:", or the Chinese
+// label followed by a full- or half-width colon.
+const CHINESE_SUBTITLE_LABEL = `${PAPER_LIST_SUBTITLE_LABEL_ZH_CN}[：:]`;
+const SUBTITLE_LABEL = `(?:${CHINESE_SUBTITLE_LABEL}|Subtitle:)`;
+const SUBTITLE_ROW = new RegExp(String.raw`^${SUBTITLE_LABEL}\s*(.*)$`, "i");
+const SUBTITLE_LINE = new RegExp(String.raw`\n${SUBTITLE_LABEL}\s*[^\n]*\n`, "g");
+const HAS_CHINESE_SUBTITLE_LABEL = new RegExp(CHINESE_SUBTITLE_LABEL);
+
 export function parsePaperListRow(row: string) {
   const [heading = "", ...lines] = row.split("\n");
-  const match = /^(?:副标题[：:]|Subtitle:)\s*(.*)$/i.exec(lines[0] ?? "");
+  const match = SUBTITLE_ROW.exec(lines[0] ?? "");
   return { heading, subtitle: match?.[1], body: (match ? lines.slice(1) : lines).join("\n") };
 }
 
@@ -27,7 +36,7 @@ export function posterTemplateSelectionCopy(
   starterCopy?: Pick<Copy, "title" | "subtitle">,
 ): Copy {
   const sample = paperListSampleCopy(zh);
-  const previousSample = sample.subtitle.replace(/\n(?:副标题[：:]|Subtitle:)\s*[^\n]*\n/g, "\n");
+  const previousSample = sample.subtitle.replace(SUBTITLE_LINE, "\n");
   // Upgrade the previous bundled example only when every word is untouched.
   if (
     !document.sourceMemoId &&
@@ -102,7 +111,7 @@ export function paperListCurrentCopy(document: PosterDocument, copy: Copy): Copy
             row.heading,
             row.subtitle === undefined
               ? undefined
-              : `${/副标题[：:]/.test(copy.subtitle) ? "副标题：" : "Subtitle: "}${row.subtitle}`,
+              : `${HAS_CHINESE_SUBTITLE_LABEL.test(copy.subtitle) ? `${PAPER_LIST_SUBTITLE_LABEL_ZH_CN}：` : "Subtitle: "}${row.subtitle}`,
             row.body,
             ...[...(row.paragraphs ?? [])]
               .sort(([a], [b]) => a - b)

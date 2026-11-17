@@ -37,7 +37,7 @@ const iosMarkdownManager = createEdgeEverMarkdownManager({
 
 describe("iOS document nodes share the web schema", () => {
   test("keeps literal ranges and double-tilde strike consistent with the shared codec (#698)", () => {
-    for (const source of ["成本 1~2~3 元", "10~20, 30~40", "~~a~b~~", "~a~~b~~c~"]) {
+    for (const source of ["cost 1~2~3 yuan", "10~20, 30~40", "~~a~b~~", "~a~~b~~c~"]) {
       expect(iosMarkdownManager.parse(source)).toEqual(markdownToDoc(source));
     }
   });

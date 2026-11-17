@@ -114,7 +114,7 @@ test("real Node background workers export encrypted and plain archives and resto
     const { resource } = await source.client.uploadMemoResource(memo.id, new File([bytes], "payload.bin", { type: "application/octet-stream" }));
     const sourceState = await (await fetch(`${source.baseUrl}/api/v1/backups/state`)).json();
     const root = await directory(); const archive = join(root, encrypted ? "backup.edgeever.enc" : "backup.zip");
-    const job = await launch({ operation: "export", context: { baseUrl: source.baseUrl, accountId: null, token: "", locale: "en-US" }, path: archive, password: encrypted ? "  备份 password  " : undefined, version: { edgeeverVersion: "2.2.0", buildId: "e2e" } });
+    const job = await launch({ operation: "export", context: { baseUrl: source.baseUrl, accountId: null, token: "", locale: "en-US" }, path: archive, password: encrypted ? "  バックアップ password  " : undefined, version: { edgeeverVersion: "2.2.0", buildId: "e2e" } });
     const done = await job.next("done");
     expect(done.result.manifest.counts).toEqual(sourceState.counts);
     source.server.stop(true);
@@ -130,7 +130,7 @@ test("real Node background workers export encrypted and plain archives and resto
       expect(await readdir(cancelledDirectory)).toEqual([]);
       expect(target.db.query("SELECT id FROM memos WHERE id = ?").get(memo.id)).toBeNull();
     }
-    const restore = await launch({ operation: "import", context: { baseUrl: target.baseUrl, accountId: null, token: "" }, path: archive, password: encrypted ? "  备份 password  " : undefined, stagingDirectory: await directory() });
+    const restore = await launch({ operation: "import", context: { baseUrl: target.baseUrl, accountId: null, token: "" }, path: archive, password: encrypted ? "  バックアップ password  " : undefined, stagingDirectory: await directory() });
     const ready = await restore.next("ready");
     expect(ready.result.manifest.counts).toEqual(sourceState.counts);
     expect(target.db.query("SELECT id FROM memos WHERE id = ?").get(memo.id)).toBeNull();

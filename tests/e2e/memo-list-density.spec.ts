@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { templatesRegExp, ui } from "./fixtures/ui-labels";
 
 const storageKey = "edgeever.memoListDensity";
 
@@ -21,11 +22,11 @@ const openRow = async (page: Page, density: "preview" | "compact", title: string
   await page.goto("/");
   // Startup auto-selects the demo notebook as soon as the notebook list loads. Wait for
   // that list before choosing All notes, or the late selection hides the note again.
-  const notebookRows = page.getByRole("button", { name: /^(当前|切换到 ).*条笔记/ });
+  const notebookRows = page.getByRole("button", { name: templatesRegExp(ui.notebookTree.currentWithCount, ui.notebookTree.switchToWithCount, ui.notebookTree.currentWithSplitCount, ui.notebookTree.switchToWithSplitCount) });
   await expect(notebookRows.first()).toBeVisible({ timeout: 30_000 });
-  await page.getByRole("button", { name: "全部笔记", exact: true }).click();
-  await expect(page.getByRole("button", { name: /^当前：.*条笔记/ })).toHaveCount(0);
-  await page.getByPlaceholder("搜索笔记").fill(title);
+  await page.getByRole("button", { name: ui.notebookPane.allMemos, exact: true }).click();
+  await expect(page.getByRole("button", { name: templatesRegExp(ui.notebookTree.currentWithCount, ui.notebookTree.currentWithSplitCount) })).toHaveCount(0);
+  await page.getByPlaceholder(ui.memoList.searchPlaceholder).fill(title);
   const row = page.locator(`article[data-memo-id="${memoId}"]`);
   await expect(row).toBeVisible();
   await expect(row.locator(`[data-memo-density="${density}"]`)).toHaveCount(1);
@@ -67,7 +68,7 @@ test("compact rows show title, date, summary and tags in two short lines", async
 
     // Hover actions float over the row instead of making it taller.
     await row.hover();
-    await expect(row.getByRole("button", { name: "更多操作" })).toBeVisible();
+    await expect(row.getByRole("button", { name: ui.memoCard.moreActions })).toBeVisible();
     expect((await boxOf(row)).height).toBeCloseTo(box.height, 0);
   } finally {
     // Permanent deletion only applies to notes already in the trash.

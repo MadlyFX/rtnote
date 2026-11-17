@@ -170,10 +170,12 @@ describe("native gallery editing", () => {
   test("labels the gallery layout controls in every app language", () => {
     expect(imageGalleryCopy("pl")).toMatchObject({ label: "Układ galerii obrazów", auto: "Auto", single: "1 kolumna" });
     expect(imageGalleryCopy("pl").columns("3")).toBe("3 kolumny");
-    expect(imageGalleryCopy("ja").columns("2")).toBe("2列");
-    expect(imageGalleryCopy("en-US").columns("2")).toBe("2 columns");
-    expect(imageGalleryCopy("zh-CN").columns("2")).toBe("2 栏");
-    // Unknown locales keep the previous Chinese copy.
-    expect(imageGalleryCopy("xx").label).toBe("图片画廊布局");
+    const twoColumns = { ja: "2列", "en-US": "2 columns", "zh-CN": "2 栏", "zh-TW": "2 栏" };
+    for (const [locale, label] of Object.entries(twoColumns)) {
+      expect({ locale, label: imageGalleryCopy(locale).columns("2") }).toEqual({ locale, label });
+    }
+    // Unknown locales fall back to English, the source language.
+    expect(imageGalleryCopy("xx").label).toBe("Image gallery layout");
+    expect(imageGalleryCopy("ru").label).toBe("Image gallery layout");
   });
 });

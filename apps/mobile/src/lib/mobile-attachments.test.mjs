@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { ATTACHMENT_TEXT_PREFIX, LEGACY_ATTACHMENT_PREFIXES } from "@edgeever/shared";
 import {
   buildMobileResourceDownloadRequest,
   deleteMobileAttachmentFromDoc,
@@ -15,6 +16,8 @@ import {
   resolveResourceMimeType,
 } from "./mobile-attachments.ts";
 
+// EdgeEver wrote a Chinese prefix before attachment links; notes still carry it.
+const legacyPrefix = LEGACY_ATTACHMENT_PREFIXES[0];
 const href = "/api/v1/resources/res_123/blob";
 const attachmentTarget = { filename: "report.pdf", href, kind: "attachment", resourceId: "res_123" };
 const doc = {
@@ -23,7 +26,7 @@ const doc = {
     type: "paragraph",
     content: [{
       type: "text",
-      text: "附件：report.pdf",
+      text: `${ATTACHMENT_TEXT_PREFIX}report.pdf`,
       marks: [{ type: "link", attrs: { href, class: "edgeever-attachment-link" } }],
     }],
   }],
@@ -41,11 +44,14 @@ describe("mobile attachments", () => {
   });
 
   test("recognizes resource links and attachment paragraphs", () => {
-    expect(getMobileAttachmentTarget(href, "📄 报告：report.pdf")).toEqual(attachmentTarget);
-    expect(getParagraphAttachmentTarget({
-      type: "paragraph",
-      children: [{ type: "text", content: "附件：" }, { type: "link", attributes: { href }, children: [{ type: "text", content: "report.pdf" }] }],
-    })).toEqual(attachmentTarget);
+    expect(getMobileAttachmentTarget(href, "📄 Report: report.pdf")).toEqual(attachmentTarget);
+    expect(getMobileAttachmentTarget(href, `${legacyPrefix}report.pdf`)).toEqual(attachmentTarget);
+    for (const prefix of [ATTACHMENT_TEXT_PREFIX, legacyPrefix]) {
+      expect(getParagraphAttachmentTarget({
+        type: "paragraph",
+        children: [{ type: "text", content: prefix }, { type: "link", attributes: { href }, children: [{ type: "text", content: "report.pdf" }] }],
+      })).toEqual(attachmentTarget);
+    }
   });
 
   test("validates attachment targets received from the DOM editor", () => {
@@ -55,8 +61,8 @@ describe("mobile attachments", () => {
   });
 
   test("renames the linked label", () => {
-    const updated = renameMobileAttachmentInDoc(doc, attachmentTarget, "final.pdf", "附件：");
-    expect(updated.content[0].content[0].text).toBe("附件：final.pdf");
+    const updated = renameMobileAttachmentInDoc(doc, attachmentTarget, "final.pdf", ATTACHMENT_TEXT_PREFIX);
+    expect(updated.content[0].content[0].text).toBe(`${ATTACHMENT_TEXT_PREFIX}final.pdf`);
   });
 
   test("removes a standalone attachment paragraph", () => {
@@ -64,6 +70,20 @@ describe("mobile attachments", () => {
       type: "doc",
       content: [{ type: "paragraph" }],
     });
+  });
+
+  test("removes the legacy prefix left beside a deleted attachment link", () => {
+    const legacyDoc = {
+      type: "doc",
+      content: [{
+        type: "paragraph",
+        content: [
+          { type: "text", text: legacyPrefix },
+          { type: "text", text: "report.pdf", marks: [{ type: "link", attrs: { href, class: "edgeever-attachment-link" } }] },
+        ],
+      }],
+    };
+    expect(deleteMobileAttachmentFromDoc(legacyDoc, attachmentTarget).content).toEqual([{ type: "paragraph" }]);
   });
 
   test("removes and renames file and PDF attachment nodes", () => {
@@ -82,7 +102,7 @@ describe("mobile attachments", () => {
             type: "edgeeverFileAttachment",
             attrs: {
               url: "edgeever-resource://resource/res_video",
-              label: "附件：clip.mp4",
+              label: `${legacyPrefix}clip.mp4`,
               filename: "clip.mp4",
               mimeType: "video/mp4",
             },
@@ -94,7 +114,7 @@ describe("mobile attachments", () => {
             type: "edgeeverPdfAttachment",
             attrs: {
               url: href,
-              label: "附件：report.pdf",
+              label: `${ATTACHMENT_TEXT_PREFIX}report.pdf`,
               filename: "report.pdf",
             },
           }],
@@ -102,12 +122,12 @@ describe("mobile attachments", () => {
       ],
     };
 
-    const renamed = renameMobileAttachmentInDoc(nodeDoc, videoTarget, "final.mp4", "附件：");
+    const renamed = renameMobileAttachmentInDoc(nodeDoc, videoTarget, "final.mp4", ATTACHMENT_TEXT_PREFIX);
     expect(renamed.content[0].content[0]).toEqual({
       type: "edgeeverFileAttachment",
       attrs: {
         url: "edgeever-resource://resource/res_video",
-        label: "附件：final.mp4",
+        label: `${ATTACHMENT_TEXT_PREFIX}final.mp4`,
         filename: "final.mp4",
         mimeType: "video/mp4",
       },
@@ -119,7 +139,7 @@ describe("mobile attachments", () => {
         type: "edgeeverPdfAttachment",
         attrs: {
           url: href,
-          label: "附件：report.pdf",
+          label: `${ATTACHMENT_TEXT_PREFIX}report.pdf`,
           filename: "report.pdf",
         },
       }],
@@ -139,7 +159,7 @@ describe("mobile attachments", () => {
       type: "doc",
       content: [{ type: "image", attrs: { alt: "photo.jpg", src: href, title: null } }],
     };
-    expect(renameMobileResourceInDoc(imageDoc, target, "passport.jpg", "附件：")).toEqual({
+    expect(renameMobileResourceInDoc(imageDoc, target, "passport.jpg", ATTACHMENT_TEXT_PREFIX)).toEqual({
       type: "doc",
       content: [{ type: "image", attrs: { alt: "passport.jpg", src: href, title: "passport.jpg" } }],
     });
@@ -151,8 +171,8 @@ describe("mobile attachments", () => {
 
   test("resolves export mime types and filenames for SAF", () => {
     expect(resolveResourceMimeType("photo.webp", "")).toBe("image/webp");
-    expect(resolveResourceMimeType("RTNote 极客猫猫", "image/svg+xml")).toBe("image/svg+xml");
-    expect(resolveExportFilename("RTNote 极客猫猫", "image/svg+xml")).toBe("RTNote 极客猫猫.svg");
+    expect(resolveResourceMimeType("RTNote geek cat", "image/svg+xml")).toBe("image/svg+xml");
+    expect(resolveExportFilename("RTNote geek cat", "image/svg+xml")).toBe("RTNote geek cat.svg");
     expect(resolveExportFilename("report.pdf", "application/pdf")).toBe("report.pdf");
   });
 

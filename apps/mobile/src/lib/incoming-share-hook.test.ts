@@ -202,7 +202,7 @@ test("workspace finishes the accepted clip when resolved payloads rerun its effe
   // with resolved payloads, even though the article URL has not changed.
   if (typeof cleanup === "function") cleanup();
   runEffect();
-  const draft = { title: "知乎", contentMarkdown: "来源链接" };
+  const draft = { title: "Example article", contentMarkdown: "Source link" };
   request.resolve([draft]);
   await request.promise;
   await new Promise((resolve) => setTimeout(resolve, 0));

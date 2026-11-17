@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { createDefaultDiagramDocument, serializeDiagramDocument } from "../../packages/shared/src/diagram";
+import { ui } from "./fixtures/ui-labels";
 
 const cases = (["flowchart", "mind-map", "architecture"] as const).flatMap((kind) =>
   [50, 100].flatMap((zoom) => (["left", "up"] as const).map((direction) => ({ kind, zoom, direction }))),
@@ -26,15 +27,15 @@ for (const { kind, zoom, direction } of cases) {
 
     try {
       await page.goto("/");
-      await page.getByRole("button", { name: "全部笔记", exact: true }).click();
-      await page.getByPlaceholder("搜索笔记").fill(title);
+      await page.getByRole("button", { name: ui.notebookPane.allMemos, exact: true }).click();
+      await page.getByPlaceholder(ui.memoList.searchPlaceholder).fill(title);
       await page.locator(`[data-memo-id="${memo.id}"]`).locator("button").first().click();
       const renderedNode = page.locator(`.x6-node[data-cell-id="${node.id}"]`);
       await expect(renderedNode).toBeVisible();
       await page.clock.pauseAt(await page.evaluate(() => Date.now()) + 1000);
       await page.clock.runFor(500);
 
-      const zoomInput = page.getByRole("textbox", { name: "缩放百分比" });
+      const zoomInput = page.getByRole("textbox", { name: ui.diagram.zoomPercent });
       await zoomInput.fill(String(zoom));
       await zoomInput.press("Enter");
       await page.clock.runFor(500);

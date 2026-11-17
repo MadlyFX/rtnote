@@ -1,6 +1,5 @@
 # Third-Party Notes Import Guide
 
-[简体中文](note-migration-guide.md) | [English](note-migration-guide.en-US.md)
 
 RTNote supports importing notes from other products directly. Two methods are available: **Native One-Click Import** and **AI Agent (MCP) Migration**.
 

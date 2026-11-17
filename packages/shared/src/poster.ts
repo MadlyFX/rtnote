@@ -1,5 +1,6 @@
 import { Base64 } from "js-base64";
 import { z } from "zod";
+import { POSTER_TEMPLATE_USES_ZH_CN } from "./poster.zh-CN";
 
 const MARKER = "edgeever-poster-v1";
 const COLOR = z.string().regex(/^#[0-9a-f]{6}$/i);
@@ -182,22 +183,22 @@ export type PosterTemplate = (typeof POSTER_TEMPLATES)[number];
 export const POSTER_TEMPLATE_DESCRIPTIONS = {
   editorial: {
     zh: "基础编辑风", en: "Basic editorial",
-    zhUse: "米白底、衬线标题、左对齐，适合读书、观点与文章封面。",
+    zhUse: POSTER_TEMPLATE_USES_ZH_CN.editorial,
     enUse: "Warm off-white background, serif headline and left-aligned text; reading, opinions and article covers.",
   },
   bold: {
     zh: "基础醒目风", en: "Basic bold",
-    zhUse: "深绿黑底、白色粗标题、亮绿点缀，适合科技、商业与重点公告。",
+    zhUse: POSTER_TEMPLATE_USES_ZH_CN.bold,
     enUse: "Dark green-black background, bold white headline and lime accents; technology, business and announcements.",
   },
   quote: {
     zh: "基础金句风", en: "Basic quote",
-    zhUse: "白底、衬线标题、左对齐，标题位置偏低，适合短引言、感悟与文学金句。",
+    zhUse: POSTER_TEMPLATE_USES_ZH_CN.quote,
     enUse: "White background, left-aligned serif headline placed lower on the canvas; short quotations, reflections and literary statements.",
   },
   minimal: {
     zh: "基础简约风", en: "Basic minimal",
-    zhUse: "白底、无衬线标题、居中排版，适合简洁封面、短口号与通用主题。",
+    zhUse: POSTER_TEMPLATE_USES_ZH_CN.minimal,
     enUse: "White background, sans-serif headline and centred text; simple covers, short slogans and general topics.",
   },
 } satisfies Record<PosterTemplate, { zh: string; en: string; zhUse: string; enUse: string }>;

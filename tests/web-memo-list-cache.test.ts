@@ -146,7 +146,8 @@ describe("desktop title list cache ordering (#750)", () => {
     test(`keeps distinct Chinese titles in sidecar order after a body-only save (${sort})`, () => {
       const queryClient = new QueryClient();
       const queryKey = ["memos", "notebook", "nb-inbox", "", "all", sort] as const;
-      const notes = ["中文笔记", "笔记整理", "阿尔法"].map((title, index) => memo({ id: `memo-${index}`, title }));
+      // Chinese titles ("Chinese note", "Note tidying", "Alpha") whose pinyin and code point orders differ.
+      const notes = ["\u4e2d\u6587\u7b14\u8bb0", "\u7b14\u8bb0\u6574\u7406", "\u963f\u5c14\u6cd5"].map((title, index) => memo({ id: `memo-${index}`, title }));
       const ordered = desktopOrder(notes, sort);
       queryClient.setQueryData(queryKey, queryData([ordered]));
 
@@ -172,7 +173,7 @@ describe("desktop title list cache ordering (#750)", () => {
       expect(queryClient.getQueryData<MemoListQueryData>(queryKey)!.pages[0]!.memos.map((item) => item.id))
         .toEqual(desktopOrder(notes.map((item) => item.id === updated.id ? updated : item), sort).map((item) => item.id));
 
-      const added = memo({ id: "new-note", title: "阿里" });
+      const added = memo({ id: "new-note", title: "\u963f\u91cc" }); // Chinese "Ali"
       updateMemoSummaryInLists(queryClient, added);
       expect(queryClient.getQueryData<MemoListQueryData>(queryKey)!.pages[0]!.memos.map((item) => item.id))
         .toEqual(desktopOrder([...notes.map((item) => item.id === updated.id ? updated : item), added], sort).map((item) => item.id));
@@ -198,7 +199,7 @@ describe("desktop title list cache ordering (#750)", () => {
     test(`inserts a new note in the order of all loaded pages without refetching (${sort})`, async () => {
       const queryClient = new QueryClient();
       const queryKey = ["memos", "notebook", "nb-inbox", "", "all", sort] as const;
-      const notes = Array.from({ length: 120 }, (_, index) => memo({ id: `memo-${index}`, title: `标题 ${String(index).padStart(3, "0")}` }));
+      const notes = Array.from({ length: 120 }, (_, index) => memo({ id: `memo-${index}`, title: `Title ${String(index).padStart(3, "0")}` }));
       const loaded = desktopOrder(notes, sort).slice(0, 100);
       const data = queryData([loaded.slice(0, 50), loaded.slice(50)], 120);
       data.pages[0]!.nextCursor = "50";
@@ -211,7 +212,7 @@ describe("desktop title list cache ordering (#750)", () => {
       });
       const unsubscribe = observer.subscribe(() => {});
       try {
-        const added = memo({ id: "memo-new", title: sort === "title-asc" ? "标题 075a" : "标题 045a" });
+        const added = memo({ id: "memo-new", title: sort === "title-asc" ? "Title 075a" : "Title 045a" });
         updateMemoSummaryInLists(queryClient, added);
 
         const cached = queryClient.getQueryData<MemoListQueryData>(queryKey)!;
@@ -227,9 +228,9 @@ describe("desktop title list cache ordering (#750)", () => {
     });
 
     test(`keeps an edited tail ordered when another page arrives (${sort})`, () => {
-      const notes = Array.from({ length: 120 }, (_, index) => memo({ id: `memo-${index}`, title: `标题 ${String(index).padStart(3, "0")}` }));
+      const notes = Array.from({ length: 120 }, (_, index) => memo({ id: `memo-${index}`, title: `Title ${String(index).padStart(3, "0")}` }));
       const ordered = desktopOrder(notes, sort);
-      const tail = { ...ordered[10]!, title: sort === "title-asc" ? "龥 changed tail" : "A changed tail" };
+      const tail = { ...ordered[10]!, title: sort === "title-asc" ? "\u9fa5 changed tail" : "A changed tail" };
       const changed = notes.map(item => item.id === tail.id ? tail : item);
       const cached = sortDesktopTitleMemoSummaries(ordered.slice(0, 50).map(item => item.id === tail.id ? tail : item), sort);
       const incoming = desktopOrder(changed, sort).slice(50, 100);
@@ -250,7 +251,7 @@ describe("desktop title list cache ordering (#750)", () => {
         const queryKey = ["memos", "notebook", "nb-inbox", "", "all", sort] as const;
         let source = Array.from({ length: 100 }, (_, index) => memo({
           id: `memo_${String(index).padStart(3, "0")}`,
-          title: mutation === "rename" ? `标题 ${String(index).padStart(3, "0")}` : "Same",
+          title: mutation === "rename" ? `Title ${String(index).padStart(3, "0")}` : "Same",
           ...(mutation === "older-timestamp" ? { updatedAt: "2030-01-01T00:00:00.000Z" } : {}),
         }));
         const first = desktopOrder(source, sort).slice(0, 50);
@@ -259,7 +260,7 @@ describe("desktop title list cache ordering (#750)", () => {
         queryClient.setQueryData(queryKey, data);
         const selected = first[10]!;
         const changed = mutation === "rename"
-          ? { ...selected, title: sort === "title-asc" ? "龥 tail" : "A tail" }
+          ? { ...selected, title: sort === "title-asc" ? "\u9fa5 tail" : "A tail" }
           : mutation === "remap" ? { ...selected, id: "memo_000-a" }
           : { ...selected, updatedAt: "2026-11-02T00:00:00.000Z", revision: 2 };
         source = source.map(item => item.id === selected.id ? changed : item);
@@ -303,7 +304,7 @@ describe("desktop title list cache ordering (#750)", () => {
   test("renames across loaded pages and remaps IDs without reading or refetching the library", async () => {
     const queryClient = new QueryClient();
     const queryKey = ["memos", "notebook", "nb-inbox", "", "all", "title-asc"] as const;
-    const notes = Array.from({ length: 120 }, (_, index) => memo({ id: `memo-${index}`, title: `中文笔记 ${String(index).padStart(3, "0")}` }));
+    const notes = Array.from({ length: 120 }, (_, index) => memo({ id: `memo-${index}`, title: `Note ${String(index).padStart(3, "0")}` }));
     const ordered = desktopOrder(notes, "title-asc");
     const data = queryData([ordered.slice(0, 50), ordered.slice(50, 100)], 120);
     data.pages[0]!.nextCursor = "50";

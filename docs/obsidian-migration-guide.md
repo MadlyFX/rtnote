@@ -1,6 +1,5 @@
 # Obsidian Migration Guide
 
-[简体中文](note-migration-guide.md) | [English](note-migration-guide.en-US.md)
 
 > 💡 **Notice**: All third-party note migration guides have been merged and updated into a unified guide:
 > 👉 **[Migrate from Third-Party Notes to RTNote: The Complete Guide](note-migration-guide.en-US.md)** (covering native GUI one-click import and AI Agent / MCP migration).

@@ -288,27 +288,31 @@ mod tests {
     #[test]
     fn merge_title_skips_untitled_sources() {
         assert_eq!(
-            resolve_custom_merge_title(["无标题笔记", "  手动标题  ", "另一个标题"]),
-            Some("手动标题".to_owned())
+            resolve_custom_merge_title(["Untitled note", "  Manual title  ", "Another title"]),
+            Some("Manual title".to_owned())
         );
-        assert_eq!(resolve_custom_merge_title(["无标题笔记", "  "]), None);
+        assert_eq!(resolve_custom_merge_title(["Untitled note", "  "]), None);
+        assert_eq!(
+            resolve_custom_merge_title([crate::memo::LEGACY_DEFAULT_MEMO_TITLE, "Manual title"]),
+            Some("Manual title".to_owned())
+        );
     }
 
     #[test]
     fn merge_content_falls_back_to_stored_text_when_markdown_is_empty() {
         assert_eq!(
-            resolve_sidecar_merge_markdown("", "正文仍然存在", r#"{"type":"doc","content":[]}"#)
+            resolve_sidecar_merge_markdown("", "Body text is still here", r#"{"type":"doc","content":[]}"#)
                 .unwrap(),
-            "正文仍然存在"
+            "Body text is still here"
         );
         assert_eq!(
             resolve_sidecar_merge_markdown(
-                "**保留格式**",
-                "保留格式",
+                "**Keep formatting**",
+                "Keep formatting",
                 r#"{"type":"doc","content":[]}"#
             )
             .unwrap(),
-            "**保留格式**"
+            "**Keep formatting**"
         );
         assert!(resolve_sidecar_merge_markdown(
             "",
@@ -653,8 +657,8 @@ mod tests {
                     "operation": "upsert",
                     "entityId": "ws_1_inbox",
                     "notebook": {
-                        "name": "收集箱",
-                        "slug": "shou-ji-xiang",
+                        "name": "Collection box",
+                        "slug": "collection-box",
                         "parentId": null,
                         "createdAt": "2026-09-10T00:00:00.000Z",
                         "updatedAt": "2026-09-10T00:00:00.000Z"
@@ -791,8 +795,8 @@ mod tests {
                     "operation": "upsert",
                     "entityId": "ws_1_inbox",
                     "notebook": {
-                        "name": "收集箱",
-                        "slug": "shou-ji-xiang",
+                        "name": "Collection box",
+                        "slug": "collection-box",
                         "parentId": null,
                         "createdAt": "2026-09-10T00:00:00.000Z",
                         "updatedAt": "2026-09-10T00:00:00.000Z"
@@ -880,7 +884,7 @@ mod tests {
                    updated_at TEXT NOT NULL DEFAULT 'now'
                  );
                  INSERT INTO notebooks (id, name, slug, is_deleted)
-                 VALUES ('nb_historical_inbox', '等待分类', 'inbox', 0);
+                 VALUES ('nb_historical_inbox', 'Inbox', 'inbox', 0);
                  INSERT INTO memos (
                    id, notebook_id, title, excerpt, tags_json, is_pinned, is_archived, is_deleted,
                    source_memo_ids, merge_source_count, created_at, updated_at
@@ -898,7 +902,7 @@ mod tests {
                 "operation": "upsert",
                 "entityId": "ws_default_inbox",
                 "notebook": {
-                    "name": "等待分类",
+                    "name": "Inbox",
                     "slug": "inbox",
                     "parentId": null,
                     "createdAt": "2026-09-10T00:00:00.000Z",

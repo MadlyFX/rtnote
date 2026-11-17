@@ -3,6 +3,8 @@ import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
 import { NodeSelection, type EditorState } from "@tiptap/pm/state";
 import { IMAGE_GALLERY_FITS, IMAGE_GALLERY_LAYOUTS, IMAGE_GALLERY_NODE_TYPE, resolveImageGalleryFit, resolveImageGalleryLayout } from "./image-gallery";
 import { mergeUploadedImagesIntoAdjacentGalleries } from "./image-gallery-editing";
+import { IMAGE_GALLERY_COPY_JA } from "./native-image-gallery.ja";
+import { IMAGE_GALLERY_COPY_ZH_CN } from "./native-image-gallery.zh-CN";
 
 /** Adding images while an image/gallery is selected must not replace that content. */
 export const getImageInsertionRange = (doc: ProseMirrorNode, selection: { from: number; to: number }) => {
@@ -76,15 +78,26 @@ export const groupUploadedImages = (editor: Editor, sources: readonly string[]):
   return true;
 };
 
-const IMAGE_GALLERY_COPY = {
-  "zh-CN": { label: "图片画廊布局", auto: "自动", single: "单列", columns: (count: string) => `${count} 栏`, width: "适应宽度", height: "适应高度" },
+export type ImageGalleryCopy = {
+  label: string;
+  auto: string;
+  single: string;
+  columns: (count: string) => string;
+  width: string;
+  height: string;
+};
+
+const IMAGE_GALLERY_COPY: Record<string, ImageGalleryCopy> = {
+  "zh-CN": IMAGE_GALLERY_COPY_ZH_CN,
+  // Traditional Chinese has no copy of its own yet; Simplified reads better for it than English.
+  "zh-TW": IMAGE_GALLERY_COPY_ZH_CN,
   "en-US": { label: "Image gallery layout", auto: "Auto", single: "Single", columns: (count: string) => `${count} columns`, width: "Fit width", height: "Fit height" },
-  ja: { label: "画像ギャラリーのレイアウト", auto: "自動", single: "1列", columns: (count: string) => `${count}列`, width: "幅に合わせる", height: "高さに合わせる" },
+  ja: IMAGE_GALLERY_COPY_JA,
   pl: { label: "Układ galerii obrazów", auto: "Auto", single: "1 kolumna", columns: (count: string) => `${count} kolumny`, width: "Dopasuj szerokość", height: "Dopasuj wysokość" },
 };
 
 export const imageGalleryCopy = (locale: string) =>
-  IMAGE_GALLERY_COPY[locale as keyof typeof IMAGE_GALLERY_COPY] ?? IMAGE_GALLERY_COPY["zh-CN"];
+  IMAGE_GALLERY_COPY[locale] ?? IMAGE_GALLERY_COPY["en-US"];
 
 /** A shared touch-sized, in-flow toolbar for Android and iOS WebView editors. */
 export const createNativeImageGalleryView = (getLocale: () => string): NodeViewRenderer => (

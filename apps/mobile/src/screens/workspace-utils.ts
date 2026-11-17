@@ -1,5 +1,6 @@
 import { DEFAULT_MEMO_TITLE, type MemoSummary, type Notebook } from "@edgeever/shared";
 import { resolveSupportedLocale } from "@edgeever/shared/i18n/locales";
+import { getMobileCatalog } from "../lib/mobile-locale";
 import type { MobileLocalePreference } from "../lib/preferences";
 
 export type NotebookOption = {
@@ -142,14 +143,7 @@ export const formatMemoPreviewDate = (value: string, localePreference: MobileLoc
     return new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }).format(date);
   }
   if (memoDay === today - 24 * 60 * 60 * 1000) {
-    if (locale === "ja") return "昨日";
-    if (locale === "pl") return "Wczoraj";
-    if (locale === "ru") return "Вчера";
-    if (locale === "es") return "Ayer";
-    if (locale === "de") return "Gestern";
-    if (locale === "fr") return "Hier";
-    if (locale === "en-US") return "Yesterday";
-    return "昨天";
+    return getMobileCatalog(locale).memoCard.yesterday;
   }
   return new Intl.DateTimeFormat(locale, { year: "numeric", month: "numeric", day: "numeric" }).format(date);
 };

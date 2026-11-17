@@ -12,7 +12,7 @@ final class WebClipperTests: XCTestCase {
             let source = try XCTUnwrap(URL(string: "https://example.com/\(path)"))
             let draft = await WebClipper.build(source, session: session)
             XCTAssertTrue(draft.contentMarkdown.contains("[\(source.absoluteString)](\(source.absoluteString))"))
-            XCTAssertTrue(draft.contentMarkdown.contains(WebClipLabels.chinese.unavailableBody))
+            XCTAssertTrue(draft.contentMarkdown.contains(WebClipLabels.english.unavailableBody))
             XCTAssertEqual(draft.tagsText, "web-clip")
         }
     }
@@ -33,7 +33,7 @@ final class WebClipperTests: XCTestCase {
                 title: nil,
                 imageFilename: "stored-image.jpg",
                 imageMimeType: "image/jpeg",
-                imageOriginalName: "知乎图片.jpg"
+                imageOriginalName: "shared photo.jpg"
             ),
             ShareHandoffStore.SharePayload(
                 text: nil,
@@ -49,7 +49,7 @@ final class WebClipperTests: XCTestCase {
             ShareHandoffStore.sharedImages(from: payloads, directory: directory),
             [ShareHandoffStore.SharedImage(
                 fileURL: imageURL,
-                filename: "知乎图片.jpg",
+                filename: "shared photo.jpg",
                 mimeType: "image/jpeg"
             )]
         )
@@ -85,7 +85,7 @@ final class WebClipperTests: XCTestCase {
         XCTAssertTrue(draft.contentMarkdown.contains("Hello **world**."))
         XCTAssertTrue(draft.contentMarkdown.contains("![Cover](https://example.com/cover.png)"))
         XCTAssertTrue(draft.contentMarkdown.contains("[Docs](https://example.com/docs)"))
-        XCTAssertTrue(draft.contentMarkdown.contains("来源：[https://example.com/articles/one]"))
+        XCTAssertTrue(draft.contentMarkdown.contains("Source: [https://example.com/articles/one]"))
     }
 
     func testWeChatRenderedPageUsesWechatTag() throws {
@@ -93,13 +93,13 @@ final class WebClipperTests: XCTestCase {
         let draft = WebClipper.buildRendered(
             source,
             page: RenderedWebPage(
-                title: "微信文章",
-                contentHTML: "<p>正文</p>",
+                title: "WeChat article",
+                contentHTML: "<p>Article body</p>",
                 finalURL: source.absoluteString
             )
         )
         XCTAssertEqual(draft.tagsText, "web-clip, wechat")
-        XCTAssertTrue(draft.contentMarkdown.contains("正文"))
+        XCTAssertTrue(draft.contentMarkdown.contains("Article body"))
     }
 
     func testEmptyRenderedBodyFallsBackButKeepsRenderedTitle() throws {
@@ -109,9 +109,9 @@ final class WebClipperTests: XCTestCase {
             page: RenderedWebPage(title: "Known title", contentHTML: "", finalURL: source.absoluteString)
         )
         XCTAssertEqual(draft.title, "Known title")
-        XCTAssertTrue(draft.contentMarkdown.contains("正文暂时无法抓取"))
-        XCTAssertTrue(draft.contentMarkdown.contains("来源："))
-        XCTAssertTrue(draft.contentMarkdown.contains("剪藏时间："))
+        XCTAssertTrue(draft.contentMarkdown.contains("Could not extract the page text"))
+        XCTAssertTrue(draft.contentMarkdown.contains("Source: "))
+        XCTAssertTrue(draft.contentMarkdown.contains("Captured at: "))
         XCTAssertTrue(draft.contentMarkdown.contains(source.absoluteString))
     }
 
@@ -139,17 +139,31 @@ final class WebClipperTests: XCTestCase {
         XCTAssertTrue(draft.contentMarkdown.contains("Source: [https://example.com/story](https://example.com/story)"))
         XCTAssertTrue(draft.contentMarkdown.contains("Captured at:"))
         XCTAssertTrue(draft.contentMarkdown.contains("![Image](https://example.com/a.png)"))
-        XCTAssertFalse(draft.contentMarkdown.contains("来源"))
+        XCTAssertFalse(draft.contentMarkdown.contains("\u{FF1A}"), "English labels use an ASCII colon")
     }
 
-    func testJapaneseFallbackKeepsTheSourceLink() throws {
+    func testFullwidthColonLabelsForChineseUI() throws {
+        let source = try XCTUnwrap(URL(string: "https://example.com/story"))
+        var labels = WebClipLabels.english
+        labels.usesFullwidthColon = true
+        let draft = WebClipper.buildRendered(
+            source,
+            page: RenderedWebPage(title: "Story", contentHTML: "", finalURL: source.absoluteString),
+            capturedAt: Date(timeIntervalSince1970: 0),
+            labels: labels
+        )
+
+        XCTAssertTrue(draft.contentMarkdown.contains("Source\u{FF1A}[https://example.com/story](https://example.com/story)"))
+    }
+
+    func testPolishFallbackKeepsTheSourceLink() throws {
         let source = try XCTUnwrap(URL(string: "https://example.com/missing"))
         let labels = WebClipLabels(
-            sourceLabel: "出典",
-            capturedAtLabel: "取り込み日時",
-            unavailableBody: "本文を取り込めませんでした。出典リンクは残してあるので、あとからやり直せます。",
-            fallbackTitle: "ウェブクリップ",
-            imageAlt: "画像",
+            sourceLabel: "Źródło",
+            capturedAtLabel: "Przechwycono",
+            unavailableBody: "Nie udało się wyodrębnić tekstu strony. Link źródłowy został zachowany, więc możesz spróbować ponownie później.",
+            fallbackTitle: "Wycinek strony",
+            imageAlt: "Obraz",
             usesFullwidthColon: false
         )
         let draft = WebClipper.buildRendered(
@@ -159,8 +173,8 @@ final class WebClipperTests: XCTestCase {
         )
 
         XCTAssertEqual(draft.title, "example.com")
-        XCTAssertTrue(draft.contentMarkdown.contains("出典: [https://example.com/missing](https://example.com/missing)"))
-        XCTAssertTrue(draft.contentMarkdown.contains("本文を取り込めませんでした"))
+        XCTAssertTrue(draft.contentMarkdown.contains("Źródło: [https://example.com/missing](https://example.com/missing)"))
+        XCTAssertTrue(draft.contentMarkdown.contains("Nie udało się wyodrębnić tekstu strony"))
     }
 }
 

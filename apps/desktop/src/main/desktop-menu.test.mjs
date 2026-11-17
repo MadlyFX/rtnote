@@ -1,23 +1,28 @@
 import { describe, expect, test } from "bun:test";
+import * as ja from "./desktop-menu.ja.mjs";
 import { desktopMenuCopy, screenshotRegionCopy } from "./desktop-menu.mjs";
+import * as zhCN from "./desktop-menu.zh-CN.mjs";
+import * as zhTW from "./desktop-menu.zh-TW.mjs";
 
 describe("desktop native menu localization", () => {
-  test("uses Chinese labels for Chinese Windows locales", () => {
-    const copy = desktopMenuCopy("zh-CN");
-    expect(copy.file).toBe("文件");
-    expect(copy.edit).toBe("编辑");
-    expect(copy.view).toBe("视图");
-    expect(copy.window).toBe("窗口");
-    expect(copy.restartToUpdate).toBe("重启以更新");
-    expect(copy.screenshotToNote).toBe("截取屏幕到笔记");
-    expect(screenshotRegionCopy("zh-CN").hint).toBe("拖拽选择区域，松开后保存为笔记");
-    expect(screenshotRegionCopy("zh-CN").full).toBe("双击截取整个屏幕");
+  test("uses the Simplified Chinese catalog for Chinese Windows locales", () => {
+    expect(desktopMenuCopy("zh-CN")).toBe(zhCN.menuCopy);
+    expect(screenshotRegionCopy("zh-CN")).toBe(zhCN.regionCopy);
     expect(screenshotRegionCopy("en-US").cancel).toBe("Esc to cancel");
-    expect(screenshotRegionCopy("ja").full).toContain("ダブルクリック");
+    expect(screenshotRegionCopy("ja")).toBe(ja.regionCopy);
   });
 
   test("recognizes other Chinese locale variants", () => {
-    expect(desktopMenuCopy("zh-TW").newMemo).toBe("新建筆記");
+    expect(desktopMenuCopy("zh-TW")).toBe(zhTW.menuCopy);
+  });
+
+  test("translations have exactly the English keys", () => {
+    const menuKeys = Object.keys(desktopMenuCopy("en-US")).sort();
+    const regionKeys = Object.keys(screenshotRegionCopy("en-US")).sort();
+    for (const catalog of [ja, zhCN, zhTW]) {
+      expect(Object.keys(catalog.menuCopy).sort()).toEqual(menuKeys);
+      expect(Object.keys(catalog.regionCopy).sort()).toEqual(regionKeys);
+    }
   });
 
   test("falls back to English for other or missing locales", () => {
@@ -33,8 +38,8 @@ describe("desktop native menu localization", () => {
 
   test("resolves region overlay copy for every desktop locale", () => {
     expect(screenshotRegionCopy("pl-PL").cancel).toBe("Esc anuluje");
-    expect(screenshotRegionCopy("ja-JP").cancel).toBe("Esc でキャンセル");
+    expect(screenshotRegionCopy("ja-JP")).toBe(ja.regionCopy);
     expect(screenshotRegionCopy("RU").cancel).toBe("Esc — отмена");
-    expect(screenshotRegionCopy("zh_Hant").cancel).toBe("Esc 取消");
+    expect(screenshotRegionCopy("zh_Hant")).toBe(zhTW.regionCopy);
   });
 });

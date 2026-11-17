@@ -3,6 +3,7 @@ import { NEW_IMAGE_WIDTH_PERCENT } from "./image-display.ts";
 import {
   countMemoCharacters,
   DEFAULT_MEMO_TITLE,
+  LEGACY_DEFAULT_MEMO_TITLES,
   getMemoDisplayTitle,
   docToMarkdown,
   docToText,
@@ -20,18 +21,26 @@ import {
   resolveMemoContentMarkdown,
   resolveMergedMemoTitle,
 } from "./content.ts";
+import { LEGACY_ATTACHMENT_PREFIXES } from "./edgeever-legacy-values.ts";
+
+const [LEGACY_UNTITLED] = LEGACY_DEFAULT_MEMO_TITLES;
+const [LEGACY_ATTACHMENT_PREFIX] = LEGACY_ATTACHMENT_PREFIXES;
 
 describe("merged memo title", () => {
   test("prefers an explicit title, then the first custom source title", () => {
-    const sources = [{ title: "无标题笔记" }, { title: "  手动标题  " }, { title: "另一个标题" }];
+    const sources = [{ title: DEFAULT_MEMO_TITLE }, { title: "  Manual title  " }, { title: "Another title" }];
 
-    expect(resolveMergedMemoTitle("  指定标题  ", sources)).toBe("指定标题");
-    expect(resolveMergedMemoTitle(undefined, sources)).toBe("手动标题");
+    expect(resolveMergedMemoTitle("  Chosen title  ", sources)).toBe("Chosen title");
+    expect(resolveMergedMemoTitle(undefined, sources)).toBe("Manual title");
+  });
+
+  test("skips EdgeEver's default title like RTNote's", () => {
+    expect(resolveMergedMemoTitle(undefined, [{ title: LEGACY_UNTITLED }, { title: "Manual title" }])).toBe("Manual title");
   });
 
   test("uses a dated merge title when every source is untitled", () => {
-    expect(resolveMergedMemoTitle(undefined, [{ title: null }, { title: "无标题笔记" }], new Date(2026, 7, 2)))
-      .toBe("合并笔记 2026/8/2");
+    expect(resolveMergedMemoTitle(undefined, [{ title: null }, { title: DEFAULT_MEMO_TITLE }, { title: LEGACY_UNTITLED }], new Date(2026, 7, 2)))
+      .toBe("Merged note 8/2/2026");
   });
 });
 
@@ -77,13 +86,13 @@ describe("PDF attachment Markdown compatibility", () => {
         type: "paragraph",
         content: [{
           type: "text",
-          text: "附件：报告.pdf",
+          text: "Attachment: report.pdf",
           marks: [{
             type: "link",
             attrs: {
               href: "/api/v1/resources/res_pdf/blob",
               class: "edgeever-attachment-link edgeever-attachment-kind-pdf",
-              attachmentFilename: "报告.pdf",
+              attachmentFilename: "report.pdf",
               attachmentMimeType: "application/pdf",
               attachmentByteSize: 12582912,
             },
@@ -95,7 +104,7 @@ describe("PDF attachment Markdown compatibility", () => {
     expect(doc.content[0]?.content?.[0]).toMatchObject({
       type: PDF_ATTACHMENT_NODE_TYPE,
       attrs: {
-        filename: "报告.pdf",
+        filename: "report.pdf",
         mimeType: "application/pdf",
         byteSize: 12582912,
       },
@@ -249,7 +258,7 @@ describe("file attachment Markdown compatibility", () => {
         type: "paragraph",
         content: [{
           type: "text",
-          text: "附件：archive.zip",
+          text: `${LEGACY_ATTACHMENT_PREFIX}archive.zip`,
           marks: [{ type: "link", attrs: { href: "/api/v1/resources/res_archive/blob" } }],
         }],
       }],
@@ -261,7 +270,7 @@ describe("file attachment Markdown compatibility", () => {
 
 describe("memo character count", () => {
   test("counts punctuation while excluding whitespace and formatting", () => {
-    const doc = markdownToDoc("你好， **EdgeEver**!\n\n下一行");
+    const doc = markdownToDoc("Hi, **EdgeEver**!\n\nNew");
 
     expect(countMemoCharacters(doc)).toBe(15);
   });
@@ -271,7 +280,7 @@ describe("memo character count", () => {
       type: "doc",
       content: [
         { type: "paragraph", content: [{ type: "text", text: "e\u0301 👨‍👩‍👧‍👦" }] },
-        { type: "image", attrs: { alt: "不计入" } },
+        { type: "image", attrs: { alt: "Not counted" } },
       ],
     };
 
@@ -319,16 +328,16 @@ describe("Markdown table conversion", () => {
 
 describe("legacy Markdown body recovery", () => {
   test("recovers a body when the stored JSON document is empty", () => {
-    const markdown = "权威和反中心化特征，即当一个人成为某种代表性的符号之后";
+    const markdown = "Authority and decentralisation: once a person becomes a representative symbol";
     const resolved = resolveMemoContentDoc(markdownToDoc(""), markdown);
 
     expect(docToText(resolved)).toContain(markdown);
   });
 
   test("recovers Markdown from rich content when the compatibility copy is empty", () => {
-    const richContent = markdownToDoc("这段正文只保存在富文本 JSON 中。");
+    const richContent = markdownToDoc("This body is stored only in the rich-text JSON.");
 
-    expect(resolveMemoContentMarkdown(richContent, "")).toContain("这段正文只保存在富文本 JSON 中。");
+    expect(resolveMemoContentMarkdown(richContent, "")).toContain("This body is stored only in the rich-text JSON.");
   });
 });
 
@@ -546,7 +555,7 @@ describe("Theme block compatibility", () => {
 describe("details fold blocks", () => {
   test("parses GitHub details HTML and round-trips through Markdown", () => {
     const markdown = `<details>
-<summary>展开看图</summary>
+<summary>Show the image</summary>
 
 hello **world**
 
@@ -558,7 +567,7 @@ hello **world**
       content: [
         {
           type: "detailsSummary",
-          content: [{ type: "text", text: "展开看图" }],
+          content: [{ type: "text", text: "Show the image" }],
         },
         {
           type: "detailsContent",
@@ -575,7 +584,7 @@ hello **world**
 
     const serialized = docToMarkdown(doc);
     expect(serialized).toContain("<details>");
-    expect(serialized).toContain("<summary>展开看图</summary>");
+    expect(serialized).toContain("<summary>Show the image</summary>");
     expect(serialized).toContain("hello **world**");
     expect(markdownToDoc(serialized)).toEqual(doc);
   });
@@ -601,7 +610,7 @@ hello **world**
 
   test("keeps an image inside a details block and writes it back as HTML", () => {
     const markdown = `<details>
-<summary>图</summary>
+<summary>Image</summary>
 
 ![pic](https://example.com/a.png)
 
@@ -617,7 +626,7 @@ hello **world**
 
   test("plays a remote video inside details through the existing attachment", () => {
     const markdown = `<details>
-<summary>片段</summary>
+<summary>Clip</summary>
 <video src="https://cdn.example.com/watch/clip.mp4" controls alt=" " title=" " width=45%></video>
 <video src="https://cdn.example.com/player?id=1" controls /></video>
 <video src="javascript:alert(1)" controls></video>
@@ -660,7 +669,7 @@ hello **world**
       content: [{
         type: "details",
         content: [
-          { type: "detailsSummary", content: [{ type: "text", text: "片段" }] },
+          { type: "detailsSummary", content: [{ type: "text", text: "Clip" }] },
           {
             type: "detailsContent",
             content: [{
@@ -669,7 +678,7 @@ hello **world**
                 type: FILE_ATTACHMENT_NODE_TYPE,
                 attrs: {
                   url: "/api/v1/resources/res_video/blob",
-                  label: "附件：clip.mp4",
+                  label: "Attachment: clip.mp4",
                   filename: "clip.mp4",
                   mimeType: "video/mp4",
                   displayMode: "inline",
@@ -682,13 +691,13 @@ hello **world**
     };
 
     const serialized = docToMarkdown(doc);
-    expect(serialized).toContain("[附件：clip.mp4](/api/v1/resources/res_video/blob)");
+    expect(serialized).toContain("[Attachment: clip.mp4](/api/v1/resources/res_video/blob)");
     expect(serialized).not.toContain("<video");
   });
 
   test("leaves a video sample inside a details code fence untouched", () => {
     const markdown = `<details>
-<summary>示例</summary>
+<summary>Example</summary>
 
 \`\`\`html
 <video src="https://cdn.example.com/clip.mp4" controls></video>
@@ -702,7 +711,7 @@ hello **world**
 
   test("recovers details from Markdown when JSON only kept the tags as text", () => {
     const markdown = `<details>
-<summary>提示</summary>
+<summary>Tip</summary>
 
 hidden
 
@@ -844,6 +853,7 @@ describe("getMemoDisplayTitle", () => {
 
   test("keeps real titles, including Chinese ones", () => {
     expect(getMemoDisplayTitle("  Plan  ", "Untitled note")).toBe("Plan");
-    expect(getMemoDisplayTitle("会议记录", "Untitled note")).toBe("会议记录");
+    expect(getMemoDisplayTitle("Meeting notes", "Untitled note")).toBe("Meeting notes");
+    expect(getMemoDisplayTitle(LEGACY_UNTITLED, "Untitled note")).toBe("Untitled note");
   });
 });

@@ -399,11 +399,11 @@ describe("copyResourceToClipboard", () => {
     };
 
     await expect(copyResourceToClipboard({
-      filename: "notes/报告.pdf",
+      filename: "notes/report.pdf",
       asImage: false,
       load: async () => ({ ok: true, blob: async () => pdf }),
     })).resolves.toBe(true);
-    expect(calls).toEqual([[new Uint8Array(await pdf.arrayBuffer()), "notes/报告.pdf"]]);
+    expect(calls).toEqual([[new Uint8Array(await pdf.arrayBuffer()), "notes/report.pdf"]]);
   });
 
   test("reports failure when the resource cannot be loaded", async () => {
@@ -460,7 +460,7 @@ describe("copyResourceToClipboard", () => {
     });
 
     await expect(copyResourceToClipboard({
-      filename: "报告.pdf",
+      filename: "report.pdf",
       asImage: false,
       load: async () => {
         throw new Error("should not fetch when the browser cannot hold the file");

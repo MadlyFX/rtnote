@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { LEGACY_ATTACHMENT_PREFIXES } from "@edgeever/shared/edgeever-legacy-values";
 import {
   getAttachmentFilenameFromLabel,
   getAttachmentResourceId,
@@ -17,7 +18,7 @@ describe("attachment links", () => {
   });
 
   test("extracts filenames from localized attachment labels", () => {
-    expect(getAttachmentFilenameFromLabel("附件：archive.zip")).toBe("archive.zip");
+    expect(getAttachmentFilenameFromLabel(`${LEGACY_ATTACHMENT_PREFIXES[0]}archive.zip`)).toBe("archive.zip");
     expect(getAttachmentFilenameFromLabel("Attachment: report.pdf")).toBe("report.pdf");
   });
 });

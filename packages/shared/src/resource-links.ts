@@ -1,4 +1,5 @@
 import { toMarkdown } from "mdast-util-to-markdown";
+import { ATTACHMENT_LABEL_PREFIX_PATTERN } from "./edgeever-legacy-values";
 
 const RESOURCE_PATH_PATTERN = /\/api\/v1\/resources\/([^/]+)\/blob(?:$|[?#])/;
 
@@ -34,7 +35,7 @@ export const getResourceIdFromUrl = (href: string): string | null => {
 };
 
 export const getAttachmentFilenameFromLabel = (label: string) =>
-  label.replace(/^\s*(?:附件[：:]|Attachment:)\s*/i, "").trim();
+  label.replace(ATTACHMENT_LABEL_PREFIX_PATTERN, "").trim();
 
 /** Match API, desktop protocol, and identical staged URLs for the same stored file. */
 export const resourceUrlsReferToSameAttachment = (left: string, right: string) => {

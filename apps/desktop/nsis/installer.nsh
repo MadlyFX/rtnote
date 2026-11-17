@@ -1,6 +1,6 @@
 ; Per-user Explorer verb. Runtime registration refreshes the label and exe path.
 !macro customInstall
-  WriteRegStr HKCU "Software\Classes\*\shell\RTNote" "" "发送到 RTNote"
+  WriteRegStr HKCU "Software\Classes\*\shell\RTNote" "" "Send to RTNote"
   WriteRegStr HKCU "Software\Classes\*\shell\RTNote" "Icon" "$\"$INSTDIR\${APP_EXECUTABLE_FILENAME}$\",0"
   WriteRegStr HKCU "Software\Classes\*\shell\RTNote" "MultiSelectModel" "Document"
   WriteRegStr HKCU "Software\Classes\*\shell\RTNote\command" "" "$\"$INSTDIR\${APP_EXECUTABLE_FILENAME}$\" --share-file $\"%1$\""

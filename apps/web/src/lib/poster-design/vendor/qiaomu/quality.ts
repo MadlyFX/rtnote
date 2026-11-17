@@ -69,6 +69,6 @@ export function thumbCheck(texts: ThumbText[], canvasWidth: number, platformId?:
     if (px < min) out.push({ role: t.role, kind: 'small', px, min });
   }
   const title = texts.find(t => t.role === 'title');
-  if (title) { const flat = title.text.replace(/\s+/g, ''); const units = /[぀-鿿]/.test(flat) ? [...flat].length : flat.length / 2.2; if (units > 15) out.push({ role: 'title', kind: 'long' }); }
+  if (title) { const flat = title.text.replace(/\s+/g, ''); const units = /[\u3040-\u9fff]/.test(flat) ? [...flat].length : flat.length / 2.2; if (units > 15) out.push({ role: 'title', kind: 'long' }); }
   return out;
 }
