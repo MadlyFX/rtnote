@@ -16,7 +16,7 @@ describe("brand.config.json", () => {
   test("is valid and the platform files already match it", () => {
     const config = readBrandConfig();
     expect(config.name).toBe("RTNote");
-    expect(config.tileColor).toBe("#16a06e");
+    expect(config.tileColor).toBe("#f26b1d");
     expect(applyBrandConfig({ check: true })).toEqual([]);
   });
 

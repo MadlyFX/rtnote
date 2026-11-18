@@ -48,8 +48,8 @@ for (const theme of NOTE_IMAGE_THEME_OPTIONS) {
       expect(result.width * result.height, label).toBeLessThanOrEqual(80_000_000);
       expect(result.opacity, label).toBe(1);
       expect(result.effects, label).toBe(false);
-      expect(result.tile, label).toBe('#16a06e');
-      expect(result.mark, label).toBe('#07130b');
+      expect(result.tile, label).toBe('#f26b1d');
+      expect(result.mark, label).toBe('#ffc629');
       expect(result.green, label).toBeGreaterThan(50);
       expect(result.dark, label).toBeGreaterThan(4);
       expect(result.overflow, label).toEqual([]);

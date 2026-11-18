@@ -223,8 +223,12 @@ export const buildNoteImageCardMarkup = ({
     : active === "frame" ? `<div class="edgeever-frame-toolbar">${dots}</div>` : "";
   const brandBadgeHtml = `<div class="edgeever-brand-badge">
         <svg class="edgeever-brand-logo" viewBox="0 0 1024 1024" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
-          <rect x="100" y="100" width="824" height="824" rx="188" fill="#16a06e" />
-          <path fill="#07130b" fill-rule="evenodd" d="M340 236H588L724 372V748Q724 788 684 788H340Q300 788 300 748V276Q300 236 340 236ZM412 344H560A40 40 0 0 1 560 424H412A40 40 0 0 1 412 344ZM400 496H624A28 28 0 0 1 624 552H400A28 28 0 0 1 400 496ZM400 624H532A28 28 0 0 1 532 680H400A28 28 0 0 1 400 624Z" />
+          <rect x="100" y="100" width="824" height="824" rx="188" fill="#f26b1d" />
+          <path fill="#ffc629" d="M300 260H724Q764 260 764 300V600L604 760H300Q260 760 260 720V300Q260 260 300 260Z" />
+          <path fill="#e09a12" d="M764 600H644Q604 600 604 640V760Z" />
+          <rect x="336" y="352" width="240" height="56" rx="28" fill="#24160a" />
+          <rect x="336" y="472" width="352" height="32" rx="16" fill="#24160a" />
+          <rect x="336" y="568" width="216" height="32" rx="16" fill="#24160a" />
         </svg>
         <span class="edgeever-brand-name">RTNote</span>
       </div>`;
