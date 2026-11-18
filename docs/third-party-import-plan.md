@@ -1,7 +1,7 @@
 # Third-party note import implementation plan
 
 
-Related: [Issue #657](https://github.com/MadlyFX/rtnote/issues/657). Sections 1–8 describe the implemented contract; section 9 describes the implemented D1 optimization and acceptance. [Acceptance scope and results](changes/evidence/2026-10-27-third-party-import/README.md).
+Originated upstream in EdgeEver issue #657. Sections 1–8 describe the implemented contract; section 9 describes the implemented D1 optimization and acceptance.
 
 ## 1. Approach and first-release boundaries
 
@@ -90,7 +90,7 @@ Add `apps/api/src/import-routes.ts` with:
 - `GET /api/v1/imports/capabilities`: protocol version and the existing batch limit, checked before any writes. An unsupported older server prompts an upgrade for this entry only; existing editing, sync, and backups remain usable.
 - `POST /api/v1/imports/memos`: accepts `importId`, format, destination notebook, items, and `dryRun`, validates them, and calls `importMemosRecord`. The server constructs `third-party-<format>-<importId>` as the source; each note uses a fixed preflight item ID, respecting existing source/external-ID limits of 80/512 characters. Return per-item created, skipped, and failed outcomes.
 
-Keep session authentication, workspace isolation, and existing note read/write permissions. Do not require MCP tokens or introduce authorization scopes. Use existing APIs for notebook creation, attachments, edit sessions, and document updates. Add corresponding client methods and optional `createdAt` / `updatedAt` update fields; existing callers gain no required arguments. Import needs no persistent import-task table. The companion large-library export repair adds the `0085` memo index described in the [change scope](changes/2026-10-27-third-party-import.md#large-library-reads-and-exports).
+Keep session authentication, workspace isolation, and existing note read/write permissions. Do not require MCP tokens or introduce authorization scopes. Use existing APIs for notebook creation, attachments, edit sessions, and document updates. Add corresponding client methods and optional `createdAt` / `updatedAt` update fields; existing callers gain no required arguments. Import needs no persistent import-task table. The companion large-library export repair adds the `0085` memo index described in section 9.
 
 ### Execution order
 
@@ -138,7 +138,7 @@ This is a high-risk data-writing feature. Worst outcomes include partially creat
 
 Feature rollback can remove the new entry and REST routes without changing old editing, sync, or backup protocols; imported data remains ordinary usable notes. Code rollback does not undo data already written. Any cleanup must be confirmed using actual IDs recorded for that import, not bulk deletion by name.
 
-The [acceptance conclusions](changes/evidence/2026-10-27-third-party-import/README.md) distinguish the current Web/API candidate, earlier macOS/Linux native flows, existing-instance Cloudflare upgrades and large-library measurements. Real Evernote 11.40.2 ENEX, Obsidian 1.14.5 Vault and Joplin 3.7.21 RAW/JEX/both Markdown exports preserve declared bodies, hierarchy, source timestamps and original resource bytes.
+The upstream acceptance conclusions distinguish the current Web/API candidate, earlier macOS/Linux native flows, existing-instance Cloudflare upgrades and large-library measurements. Real Evernote 11.40.2 ENEX, Obsidian 1.14.5 Vault and Joplin 3.7.21 RAW/JEX/both Markdown exports preserve declared bodies, hierarchy, source timestamps and original resource bytes.
 
 R27–R30 and the `0085` index are deployed to the existing Cloudflare instance. R31–R39 and `0086` are verified locally and are not deployed; earlier native acceptance does not cover these latest repairs. Windows native, physical mobile devices, older-client editing, AppImage installation/cross-version updates and Docker container deployment remain unverified. Fresh password login and saving a Web ZIP to the local filesystem were not covered by the latest Cloudflare acceptance; they require checks through those entries when that deployment is accepted.
 
@@ -148,7 +148,7 @@ R27–R30 and the `0085` index are deployed to the existing Cloudflare instance.
 
 Limit this iteration to a `(workspace_id, id)` memo index supporting consistent-backup memo pages and initial sync. It offers the largest measured benefit without API, client or backup-protocol changes. Treat unchanged-backup probing and search-index deduplication as separate follow-ups rather than changing these established paths together.
 
-Both endpoints continue by `id` without an index matching the workspace and ID range. Local D1 chooses the creation-time index's workspace prefix for backup and the archive index's workspace prefix for bootstrap, then repeatedly scans and sorts. Earlier SQLite VM measurements do not establish D1 row consumption in this environment; the [native row-count comparison](changes/evidence/2026-10-27-third-party-import/README.md#native-d1-row-count-comparison) supplements them.
+Both endpoints continue by `id` without an index matching the workspace and ID range. Local D1 chooses the creation-time index's workspace prefix for backup and the archive index's workspace prefix for bootstrap, then repeatedly scans and sorts. Earlier SQLite VM measurements do not establish D1 row consumption in this environment.
 
 For 4,047 notes, adding only the candidate index reduces full-backup reads from 1,356,449 to 50,073 and initial-sync reads from 195,818 to 24,412. Complete returned data and ordering match. These are local workerd D1 `meta.rows_read` values; equivalent production-scale validation remains outstanding.
 

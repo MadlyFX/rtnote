@@ -2,7 +2,7 @@
 
 
 > 💡 **Notice**: All third-party note migration guides have been merged and updated into a unified guide:
-> 👉 **[Migrate from Third-Party Notes to RTNote: The Complete Guide](note-migration-guide.en-US.md)** (covering native GUI one-click import and AI Agent / MCP migration).
+> 👉 **[Migrate from Third-Party Notes to RTNote: The Complete Guide](note-migration-guide.md)** (covering native GUI one-click import and AI Agent / MCP migration).
 
 Thanks to RTNote's native support for AI Agent and Model Context Protocol (MCP), if you want to migrate your Notion workspace to RTNote, the most elegant way is to use your AI assistant as a bridge. By mounting both the **Notion MCP** and **RTNote MCP** servers, you can achieve fully automatic cloud-to-cloud page migration.
 

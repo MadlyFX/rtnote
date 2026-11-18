@@ -1,7 +1,7 @@
 # Desktop scheduled backups and encrypted recovery
 
 
-Related: [Issue #650](https://github.com/MadlyFX/rtnote/issues/650) and [original request #61](https://github.com/MadlyFX/rtnote/issues/61). Updated: 2026-10-27. Status: implemented; see the [implementation audit](changes/2026-10-23-desktop-scheduled-backup.md#completion-audit) for evidence and outstanding acceptance.
+Originated upstream in EdgeEver issues #650 and #61. Updated: 2026-10-27. Status: implemented.
 
 The desktop app periodically saves the current account's knowledge base as an independent archive, with optional password encryption. Users can choose a folder managed by their existing cloud-drive client to transfer the archive off-site. If the original instance becomes unavailable, they can connect the desktop app to a new instance and restore it.
 
@@ -201,7 +201,7 @@ Release the implementation as a feature version. This design does not allocate a
 
 ## 10. Implementation order and acceptance
 
-Before implementation, record confirmed behavior in a bilingual change-scope document under `docs/changes/`. These steps form one delivery; encrypted scheduled backups cannot ship without decryption and recovery:
+These steps form one delivery; encrypted scheduled backups cannot ship without decryption and recovery:
 
 1. Implement the consistency protocol and migration, validating upgrades and old/new client contracts.
 2. Extract the shared archive capabilities and implement ZIP64, container encoding/decoding, and old ZIP compatibility.
@@ -230,7 +230,6 @@ Record platform, cross-version, and large-archive evidence separately. A small-f
 - [Backup routes](../apps/api/src/backup-routes.ts), [restore service](../apps/api/src/backup-service.ts), and [sync-change migration](../migrations/0013_mobile_sync_changes.sql): add complete revision coverage without redefining the synchronization cursor.
 - [Import/export card](../apps/web/src/components/settings/DataExportCard.tsx), [renderer hibernation](../apps/desktop/src/main/renderer-hibernate.mjs), and [account isolation](../apps/desktop/src/main/account-scope.mjs): retain existing entry points while keeping background work independent of the renderer.
 - [Cross-runtime storage contracts](../apps/api/src/storage-contract.ts) and [self-hosting architecture](self-hosting-architecture.md): do not implement consistency logic only in the Cloudflare entry point.
-- [Original backup and disaster-recovery proposal](backup-and-disaster-recovery-plan.md): retain the local-directory approach while specifying Issue #650's delivery boundaries and recovery requirements.
 
 ## 12. Off-site WebDAV copy (P2, Issue #723)
 

@@ -64,12 +64,10 @@ const exceptions: Exception[] = [
   { path: /^apps\/api\/src\/(?:mcp-management-tools|mcp-poster-tools|notebook-share-routes)\.test\.mjs$/, reason: "tests of CJK search and layout" },
   { path: /^tests\/e2e\/fixtures\/(?:mermaid-viewer\.js|note-image-(?:content\.ts|quality\.tsx))$/, reason: "Chinese text rendering samples" },
   { path: /^tests\/browser\/paper-list(?:-reference)?\.ts$/, reason: "Chinese poster layout compared against a reference" },
-  { path: /^scripts\/public-notebook-site-plan-ablation\.mjs$/, reason: "CJK substring search check" },
   // Real third-party exports used as import fixtures; some file names are Chinese.
   { path: /^tests\/fixtures\/note-import\//, reason: "third-party note export fixtures" },
   { path: /^tests\/note-import\.integration\.test\.mjs$/, reason: "asserts the note-import fixtures" },
-  // Historical records.
-  { path: /^docs\/changes\/evidence\//, reason: "captured output from EdgeEver builds; rewriting it would falsify the record" },
+  // Release notes.
   { path: /^release-summary\.json$/, reason: "release notes keyed by locale" },
   { path: /^tests\/english-source-guard\.test\.ts$/, reason: "this guard" },
 ];

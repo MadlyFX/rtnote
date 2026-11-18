@@ -13,7 +13,7 @@ import { _electron as electron, expect } from "@playwright/test";
 const require = createRequire(resolve("apps/desktop/package.json"));
 const directory = await mkdtemp(join(tmpdir(), "edgeever-writeback-desktop-"));
 const profile = join(directory, "profile");
-const evidence = resolve(process.argv[2] ?? "docs/changes/evidence/2026-11-04-attachment-writeback");
+const evidence = resolve(process.argv[2] ?? join(tmpdir(), "rtnote-writeback-evidence"));
 const webUrl = pathToFileURL(resolve("apps/web/dist/index.html")).href;
 let application, server, page, baseUrl, fixtureMemoId;
 const results = [];
