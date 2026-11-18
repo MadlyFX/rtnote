@@ -703,7 +703,7 @@ If using `@edgeever/plugin-api`, inline it into `main.js` during build.
 3. Attach `manifest.json`, `main.js`, and optional `styles.css` as Release assets.
 4. Users install it directly via the Plugin Marketplace page:
    ```text
-   https://github.com/owner/edgeever-plugin
+   https://github.com/owner/rtnote-plugin
    ```
 
 ### Local Testing

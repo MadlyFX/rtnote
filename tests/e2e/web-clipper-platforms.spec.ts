@@ -135,6 +135,15 @@ test("platform clips persist through the extension and local API; archived image
       await activate(url);
       return sender.evaluate(() => chrome.runtime.sendMessage({ type: "captureCurrentPage" }));
     };
+    // The manifest no longer preloads the pointer listener on Xueqiu and Jike;
+    // the save command injects it on demand. Inject it the same way here so the
+    // feed flow can be checked in one pass.
+    const injectSocialTarget = async (url: string) => {
+      await worker.evaluate(async (url) => {
+        const [tab] = await chrome.tabs.query({ url });
+        await chrome.scripting.executeScript({ target: { tabId: tab.id, frameIds: [0] }, files: ["assets/social-target.js"] });
+      }, url);
+    };
     const checkBossPopup = async (url: string, needsLogin: boolean) => {
       await activate(url);
       await sender.goto(worker.url().replace(/\/assets\/background\.js$/, '/popup.html'));
@@ -156,6 +165,7 @@ test("platform clips persist through the extension and local API; archived image
       if (platform.name === 'boss') await checkBossPopup(platform.url, false);
       let saved;
       if(platform.targetUrl) {
+        await injectSocialTarget(platform.url);
         if(platform.name === "xueqiu-feed") await article.locator('a[class*="date-and-source_"][href="/2754211668/411841572"]').dispatchEvent("contextmenu");
         else await article.locator(".post-item-li").nth(1).locator(".text").dispatchEvent("contextmenu");
         await expect(article.locator("[data-edgeever-social-target]")).toHaveAttribute("data-edgeever-social-target",platform.targetUrl);
@@ -354,6 +364,7 @@ test("platform clips persist through the extension and local API; archived image
       await article.goto(platform.url);
       if (platform.name === 'boss') await checkBossPopup(platform.url, true);
       if(platform.name === "xueqiu-feed") {
+        await injectSocialTarget(platform.url);
         await article.locator('a[class*="date-and-source_"][href="/2754211668/411841572"]').dispatchEvent("contextmenu");
         await worker.evaluate(async url=>{const [tab]=await chrome.tabs.query({url});(globalThis as any).__edgeeverTestMenuClick({menuItemId:"save-xueqiu",pageUrl:url,frameId:0},tab);},platform.url);
         await expect(article.locator('#edgeever-clipper-toast [data-sonner-toast][data-type="error"]')).toBeVisible();

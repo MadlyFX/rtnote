@@ -30,7 +30,7 @@ import {
   posterTemplateSampleCopy,
   posterTemplateSelectionCopy,
 } from "./paper-list-content";
-export { PLATFORMS, platformFor } from "./vendor/qiaomu/platforms";
+export { PICKER_PLATFORMS, PLATFORMS, platformFor } from "./vendor/qiaomu/platforms";
 export { posterTemplateSampleCopy };
 export const DESIGN_TEMPLATES = TEMPLATES;
 export { templatesFor };

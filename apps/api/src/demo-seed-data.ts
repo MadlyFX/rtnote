@@ -158,7 +158,7 @@ data
     - label v1.100 Dual Protocols & Web
       desc Desktop ACP for local agents, public notebook site publishing & full platform apps
     - label v1.120 Visual Canvas & Layout
-      desc Native poster notes & canvas layout, WeChat chat archiving & flexible self-hosting`;
+      desc Native poster notes & canvas layout, voice memos & flexible self-hosting`;
 
 export const DEMO_INFOGRAPHIC_DOCUMENT_EN: InfographicDocument = {
   schemaVersion: 1,
@@ -172,7 +172,7 @@ export const DEMO_POSTER_DOCUMENT_EN: PosterDocument = {
   background: "#f4efe4",
   templateId: "editorial",
   copy: {
-    badge: "EDGEEVER · KNOWLEDGE ART",
+    badge: "RTNOTE · KNOWLEDGE ART",
     title: "Next-Gen Second Brain\nfor Geeks & Creators",
     subtitle: "Revive the beloved three-pane workflow with native AI agents and total data ownership.",
   },
@@ -195,7 +195,7 @@ export const DEMO_POSTER_DOCUMENT_EN: PosterDocument = {
       name: "badge",
       type: "text",
       role: "badge",
-      text: "EDGEEVER · KNOWLEDGE ART",
+      text: "RTNOTE · KNOWLEDGE ART",
       x: 96,
       y: 150,
       width: 888,
@@ -456,7 +456,7 @@ export const DEMO_TABLE_DOCUMENT_EN: TableDocument = {
         fld_status: "Released",
         fld_verified: true,
         fld_date: "2026-09-28",
-        fld_docs: [{ resourceId: "res_demo_attachment_bundle_zip", filename: "edgeever-attachment-demo.zip", mimeType: "application/zip", byteSize: 153 }],
+        fld_docs: [{ resourceId: "res_demo_attachment_bundle_zip", filename: "rtnote-attachment-demo.zip", mimeType: "application/zip", byteSize: 153 }],
       },
     },
     {
@@ -478,7 +478,7 @@ export const DEMO_TABLE_DOCUMENT_EN: TableDocument = {
         fld_status: "Released",
         fld_verified: true,
         fld_date: "2026-09-20",
-        fld_docs: [{ resourceId: "res_demo_product_brief_pdf", filename: "edgeever-product-brief.pdf", mimeType: "application/pdf", byteSize: 349 }],
+        fld_docs: [{ resourceId: "res_demo_product_brief_pdf", filename: "rtnote-product-brief.pdf", mimeType: "application/pdf", byteSize: 349 }],
       },
     },
     {
@@ -495,7 +495,7 @@ export const DEMO_TABLE_DOCUMENT_EN: TableDocument = {
     {
       id: "rec_clipper",
       cells: {
-        fld_feature: "Web Clipper & WeChat Chat Archiving",
+        fld_feature: "Web Clipper & Article Capture",
         fld_category: "Cross-Platform",
         fld_status: "Released",
         fld_verified: true,
@@ -532,7 +532,7 @@ const DEMO_SEED_MEMOS_EN_BASE = [
 | **Hosting Cost** | Costly commercial subscriptions ($10+/mo) | Official cloud sync subscription ($5+/mo) | **100% Free Forever (Cloudflare Free Tier / Docker Self-Hosted)** |
 | **Data Ownership** | Proprietary lock-in, hard to export | Local Markdown, cumbersome mobile sync | **Full Ownership (D1 SQLite, R2 Storage, Lossless ZIP Archives)** |
 | **Writing & Expressive Matrix** | Rich text only, fragile formatting | Plain Markdown, lacks WYSIWYG flow | **Seamless Dual-View (WYSIWYG ⇄ Source) + Native Architecture/Flowchart/Mind-Map/AI Infographic/Structured Table/Poster Notes** |
-| **Publishing Ready** | No typography styling, loses format | Requires 3rd-party plugins or scripts | **One-Click Rich Copy for WeChat, Substack, Medium & WordPress** |
+| **Publishing Ready** | No typography styling, loses format | Requires 3rd-party plugins or scripts | **One-Click Rich Copy for Substack, Medium, WordPress & Email** |
 | **Social Poster Cards** | Basic screenshots without styling | Requires external tools or plugins | **8 Built-in Exquisite Poster Themes with Typography Options & PNG/JPEG Export** |
 | **Native AI Ecosystem** | Paywalled, limited features | Heavy plugin setup required | **Native MCP Server (\`/mcp\`), Desktop ACP Local Agent Integration & Inline AI** |
 | **Cross-Platform Matrix** | Restricts active free devices | Complex setup across platforms | **Web / PWA / Android / iOS / macOS / Windows / Linux AppImage** |
@@ -556,7 +556,7 @@ flowchart LR
     end
 
     subgraph BackendBox["AI Models & Data Storage"]
-        LLMs["LLM Providers (Direct BYOK)<br/>OpenAI · Gemini · DeepSeek"]
+        LLMs["LLM Providers (Direct BYOK)<br/>OpenAI · Claude · Gemini"]
         Storage[("Data & Object Storage<br/>Cloudflare D1 / SQLite · R2 / S3 Compatible")]
     end
 
@@ -580,8 +580,8 @@ RTNote is engineered to provide a distraction-free, elegant writing experience:
 - **Reading Protection Mode**: When reading or reviewing notes, press \`Cmd/Ctrl + E\` to toggle read-only protection, locking the editor to prevent accidental edits while browsing; press it again to seamlessly resume editing.
 
 ### Curated Typography Themes & Publishing Export
-- **Preset Editor Themes**: Switch effortlessly between \`WeChat Green\`, \`Fresh Mint\`, \`Minimal Jade\`, \`Lined Jade\`, and styles such as Warm Page, Lesson Page, and Navy Draft, with custom Chinese and interface typography.
-- **One-Click Publishing Export**: Built for publishers and bloggers. Click the **WeChat Icon** in the top bar to format your note with inline CSS. Paste directly into WeChat Official Account editor, Substack, Medium, or WordPress while preserving layout and syntax highlighting.
+- **Preset Editor Themes**: Switch effortlessly between \`Fresh Mint\`, \`Minimal Jade\`, \`Lined Jade\`, and styles such as Warm Page, Lesson Page, and Navy Draft, with custom body and interface typography.
+- **One-Click Publishing Export**: Built for publishers and bloggers. Choose **Copy as Rich Text** from the note menu to format your note with inline CSS. Paste directly into Substack, Medium, WordPress, or an email while preserving layout and syntax highlighting.
 
 ### 8 Exquisite Social Poster Themes
 Click **"Share as Card"** in the top-right menu to turn any note into an eye-catching poster card:
@@ -653,7 +653,7 @@ sequenceDiagram
     participant Client as RTNote Clients
     participant MCP as RTNote MCP Endpoint
     participant Agent as AI Agent (Claude / Cursor / Antigravity)
-    participant Database as Notion / Feishu Bitable
+    participant Database as Notion / Airtable
 
     User->>Client: Capture quick spark or meeting notes
     Agent->>MCP: tools/call memo_search (Query unprocessed memos)
@@ -669,12 +669,12 @@ Press the **\`Space\` bar** in an empty block, type **\`/ai\`**, use the **\`/\`
 - **Summarization & Action Items**: Condense documents into key takeaways, conclusions, and actionable todos;
 - **Format-Preserving Translation**: Translate accurately into multiple languages while strictly preserving Markdown, math equations, links, and code blocks;
 - **Rewriting & Continuation**: Polish phrasing, make writing concise, or continue writing seamlessly;
-- **BYOK Direct Key (Bring Your Own Key)**: Direct client-side connection with OpenAI, Anthropic Claude, Google Gemini, DeepSeek, and OpenAI-compatible relays with zero third-party data transit.
+- **BYOK Direct Key (Bring Your Own Key)**: Direct client-side connection with OpenAI, Anthropic Claude, Google Gemini, and OpenAI-compatible relays with zero third-party data transit.
 
 ### 2. Model Context Protocol (MCP) Integration
 Generate an API token in **Settings → MCP Settings** to connect RTNote directly with Claude Code, Cursor, Antigravity, OpenClaw, and other agent platforms:
 - **Direct Reading & Writing**: Connect via the \`/mcp\` endpoint (supports stateless \`2026-07-28\` protocol and handshake-based 2025 specs);
-- **Automated Workflows**: Let AI Agents read, organize, summarize, tag, and synchronize notes with Notion databases and Feishu Bitable.
+- **Automated Workflows**: Let AI Agents read, organize, summarize, tag, and synchronize notes with Notion databases and Airtable.
 
 ---
 
@@ -683,14 +683,13 @@ Generate an API token in **Settings → MCP Settings** to connect RTNote directl
 - **Cross-Platform Native Apps**:
   - **Web / PWA**: Full-featured in modern browsers with offline installation support;
   - **Android Native App**: Built with Expo & SQLite, available on Google Play and GitHub Releases;
-  - **iOS Native App**: Native Swift / SwiftUI with GRDB local mirror, available on the App Store (requires a non-mainland China Apple ID);
+  - **iOS Native App**: Native Swift / SwiftUI with GRDB local mirror, available on the App Store;
   - **macOS Desktop App**: Electron + Rust Sidecar for Apple Silicon & Intel Mac with silent background updates;
   - **Windows Desktop App**: Official x64 Preview released, featuring auto-launch, global hotkeys, and Windows Explorer context menu integration to send files to notes with one click.
 - **Browser Web Clipper**: Available on Chrome, Edge, and Firefox extension stores to extract clean, ad-free Markdown articles, selected text, high-res images, and full X (Twitter) posts directly from context menus.
-- **WeChat Ecosystem & External Imports**:
-  - **Mobile Article Clipper**: Share any WeChat article to RTNote on your phone to automatically extract and format it as an editable note;
-  - **WeChat Chat Forward Import**: Import forwarded chat records on the desktop client into cleanly formatted notes;
-  - **One-Click Publishing Export**: Click the WeChat icon in the toolbar to copy formatted rich text ready for publishing.
+- **Sharing & Publishing**:
+  - **Mobile Article Clipper**: Share any web article to RTNote from your phone to extract and format it as an editable note;
+  - **One-Click Publishing Export**: Choose **Copy as Rich Text** from the note menu to copy formatted rich text ready for publishing.
 - **Offline Drafts & Sync Queue**: Keep writing seamlessly without network connectivity; changes are queued locally and automatically synced once reconnected.
 
 ---
@@ -704,19 +703,19 @@ When pasting or dragging images into notes, RTNote compresses them to WebP local
 
 ### Universal File Attachments
 Embed Word documents, PDFs, spreadsheets, archives, and multimedia files directly in notes for preview or download:
-- [📝 Meeting notes Word: edgeever-meeting-notes.docx](/api/v1/resources/res_demo_meeting_notes_docx/blob)
-- [📄 Product brief PDF: edgeever-product-brief.pdf](/api/v1/resources/res_demo_product_brief_pdf/blob)
+- [📝 Meeting notes Word: rtnote-meeting-notes.docx](/api/v1/resources/res_demo_meeting_notes_docx/blob)
+- [📄 Product brief PDF: rtnote-product-brief.pdf](/api/v1/resources/res_demo_product_brief_pdf/blob)
 - [📊 Feature matrix CSV: feature-matrix.csv](/api/v1/resources/res_demo_feature_matrix_csv/blob)
-- [📦 Sample attachment archive: edgeever-attachment-demo.zip](/api/v1/resources/res_demo_attachment_bundle_zip/blob)
+- [📦 Sample attachment archive: rtnote-attachment-demo.zip](/api/v1/resources/res_demo_attachment_bundle_zip/blob)
 
 ### Zero-Cost Serverless & Docker Self-Hosting
 1. **Cloudflare Serverless (Recommended, 100% Free Forever)**: Runs entirely within Cloudflare's free tier (Workers + D1 SQLite + R2 Storage). No server bills, no VPS maintenance.
 2. **Docker One-Command Deployment (VPS / NAS / Home Server)**:
    \`\`\`sh
-   # Official GHCR image
-   curl -fsSL https://edgeever.org/install.sh | bash
+   # Build and start with Docker Compose
+   docker compose up -d --build
    \`\`\`
-   Configures Docker Compose and automated daily background updates with one command. Some network environments in mainland China may require an available network proxy or a trusted registry mirror to access GHCR.
+   Runs the same application on your own hardware with SQLite and local or S3-compatible storage.
 
 ### Complete Data Freedom: Lossless ZIP Portability
 Export your entire library at any time from **Profile → Import and export**. The archive contains pure Markdown files with standard YAML Front Matter, relative media paths, and full revision histories—compatible with Obsidian, VS Code, and any plain text editor.
@@ -729,7 +728,7 @@ Export your entire library at any time from **Profile → Import and export**. T
 > 3. Press **\`Cmd/Ctrl + E\`** to test reading protection mode against accidental edits;
 > 4. Press **\`Cmd/Ctrl + O\`** to summon the Quick Switcher;
 > 5. Try Notebook Web Publishing: right-click any notebook to publish it as a standalone knowledge base site;
-> 6. Click the **WeChat Icon** to copy formatted rich text ready for publishing;
+> 6. Choose **Copy as Rich Text** from the note menu to copy formatted text ready for publishing;
 > 7. Click **"Share as Card"** to export a stunning social poster card;
 > 8. Click **"Reset Demo Data"** in settings or the sidebar anytime to restore the demo workspace.
 `,

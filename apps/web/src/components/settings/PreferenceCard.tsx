@@ -97,11 +97,28 @@ import {
 import { prefersChineseContent } from "@/lib/bilingual-content-locale";
 
 // Chinese UI locales show each font's Chinese name next to the family name.
-const CUSTOM_FONT_SUGGESTIONS = [
+const CHINESE_CUSTOM_FONT_SUGGESTIONS = [
   { label: "PingFang SC", zh: "苹方 (PingFang SC)", family: "PingFang SC" },
   { label: "Microsoft YaHei", zh: "微软雅黑 (Microsoft YaHei)", family: "Microsoft YaHei" },
   { label: "HarmonyOS Sans", zh: "鸿蒙黑体 (HarmonyOS)", family: "HarmonyOS Sans SC" },
   { label: "Hiragino Sans GB", zh: "冬青黑体 (Hiragino)", family: "Hiragino Sans GB" },
+] as const;
+
+const CUSTOM_FONT_SUGGESTIONS = [
+  { label: "Georgia", family: "Georgia" },
+  { label: "Helvetica Neue", family: "Helvetica Neue" },
+  { label: "Segoe UI", family: "Segoe UI" },
+  { label: "Palatino", family: "Palatino" },
+] as const;
+
+const UI_FONT_MENU_CHINESE_FIRST = [
+  ["wenkai-screen", "wenkaiScreen"], ["source-han-serif", "sourceHanSerif"],
+  ["neo-zhi-song", "neoZhiSong"], ["source-han-sans", "sourceHanSans"], ["source-serif", "sourceSerif"],
+] as const;
+
+const UI_FONT_MENU_LATIN_FIRST = [
+  ["source-serif", "sourceSerif"], ["source-han-sans", "sourceHanSans"], ["source-han-serif", "sourceHanSerif"],
+  ["wenkai-screen", "wenkaiScreen"], ["neo-zhi-song", "neoZhiSong"],
 ] as const;
 
 const LEGACY_NOTE_BODY_MENU_KEYS = {
@@ -177,16 +194,13 @@ const FontChoiceFields = ({
           <SelectItem value="system">{t("settings.editorBodyFonts.system")}</SelectItem>
           {includeCatalog ? (
             <>
-              {noteBodyChineseMenuIds(legacyMenuChoice).map(noteBodyFontItem)}
+              {(chineseFontNames ? noteBodyChineseMenuIds : noteBodyLatinMenuIds)(legacyMenuChoice).map(noteBodyFontItem)}
               <SelectSeparator />
-              {noteBodyLatinMenuIds(legacyMenuChoice).map(noteBodyFontItem)}
+              {(chineseFontNames ? noteBodyLatinMenuIds : noteBodyChineseMenuIds)(legacyMenuChoice).map(noteBodyFontItem)}
             </>
           ) : (
             <>
-              {([
-                ["wenkai-screen", "wenkaiScreen"], ["source-han-serif", "sourceHanSerif"],
-                ["neo-zhi-song", "neoZhiSong"], ["source-han-sans", "sourceHanSans"], ["source-serif", "sourceSerif"],
-              ] as const).map(([id, key]) => <SelectItem key={id} value={id} textValue={t(`settings.editorBodyFonts.${key}`)}>
+              {(chineseFontNames ? UI_FONT_MENU_CHINESE_FIRST : UI_FONT_MENU_LATIN_FIRST).map(([id, key]) => <SelectItem key={id} value={id} textValue={t(`settings.editorBodyFonts.${key}`)}>
                 <FontLabel label={t(`settings.editorBodyFonts.${key}`)} fontId={id} enabled={fontOpen} visibleOnly />
               </SelectItem>)}
               {(["wenkai", "zhuque"] as const).map(catalogFontItem)}
@@ -208,14 +222,14 @@ const FontChoiceFields = ({
           />
           <div className="flex flex-wrap items-center gap-1 text-xs text-slate-500">
             <span className="shrink-0 text-slate-400">{t("settings.editorBodyFontSuggestions")}:</span>
-            {CUSTOM_FONT_SUGGESTIONS.map((item) => (
+            {(chineseFontNames ? CHINESE_CUSTOM_FONT_SUGGESTIONS : CUSTOM_FONT_SUGGESTIONS).map((item) => (
               <button
                 key={item.family}
                 type="button"
                 className="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-slate-600 transition-colors hover:border-slate-300 hover:bg-slate-100 hover:text-slate-900"
                 onClick={() => onChange({ choice: "custom", customFamily: item.family })}
               >
-                {chineseFontNames ? item.zh : item.label}
+                {"zh" in item ? item.zh : item.label}
               </button>
             ))}
           </div>

@@ -434,7 +434,7 @@ export const DEMO_TABLE_DOCUMENT_ZH: TableDocument = {
         fld_status: "已正式发布",
         fld_verified: true,
         fld_date: "2026-09-28",
-        fld_docs: [{ resourceId: "res_demo_attachment_bundle_zip", filename: "edgeever-attachment-demo.zip", mimeType: "application/zip", byteSize: 153 }],
+        fld_docs: [{ resourceId: "res_demo_attachment_bundle_zip", filename: "rtnote-attachment-demo.zip", mimeType: "application/zip", byteSize: 153 }],
       },
     },
     {
@@ -456,7 +456,7 @@ export const DEMO_TABLE_DOCUMENT_ZH: TableDocument = {
         fld_status: "已正式发布",
         fld_verified: true,
         fld_date: "2026-09-20",
-        fld_docs: [{ resourceId: "res_demo_product_brief_pdf", filename: "edgeever-product-brief.pdf", mimeType: "application/pdf", byteSize: 349 }],
+        fld_docs: [{ resourceId: "res_demo_product_brief_pdf", filename: "rtnote-product-brief.pdf", mimeType: "application/pdf", byteSize: 349 }],
       },
     },
     {
@@ -682,10 +682,10 @@ sequenceDiagram
 
 ### 多类型附件自由挂载
 支持在笔记中嵌入 Word 文档、PDF 文档、CSV 表格、压缩包及多媒体资源，点击即可在线预览或下载：
-- [📝 会议纪要 Word：edgeever-meeting-notes.docx](/api/v1/resources/res_demo_meeting_notes_docx/blob)
-- [📄 产品白皮书 PDF：edgeever-product-brief.pdf](/api/v1/resources/res_demo_product_brief_pdf/blob)
+- [📝 会议纪要 Word：rtnote-meeting-notes.docx](/api/v1/resources/res_demo_meeting_notes_docx/blob)
+- [📄 产品白皮书 PDF：rtnote-product-brief.pdf](/api/v1/resources/res_demo_product_brief_pdf/blob)
 - [📊 功能矩阵 CSV：feature-matrix.csv](/api/v1/resources/res_demo_feature_matrix_csv/blob)
-- [📦 示例附件压缩包：edgeever-attachment-demo.zip](/api/v1/resources/res_demo_attachment_bundle_zip/blob)
+- [📦 示例附件压缩包：rtnote-attachment-demo.zip](/api/v1/resources/res_demo_attachment_bundle_zip/blob)
 
 ### 自建部署方案：Serverless 与 Docker
 1. **Cloudflare Serverless（推荐，永久 100% 免费）**：基于 Workers + D1 数据库 + R2 对象存储构建，完全处于 Cloudflare 免费额度内，无需采购服务器，免运维、免证书续期。

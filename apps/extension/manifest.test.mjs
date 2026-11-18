@@ -7,6 +7,7 @@ import {
   FIREFOX_ANDROID_MIN_VERSION,
   FIREFOX_MIN_VERSION,
 } from "./manifest.ts";
+import { platformGroups } from "./src/ui/platforms.ts";
 
 describe("extension manifests", () => {
   test("keeps shared permissions and package version across targets", () => {
@@ -14,12 +15,10 @@ describe("extension manifests", () => {
       const manifest = buildExtensionManifest(target, extensionPackage.version);
       expect(manifest.version).toBe(extensionPackage.version);
       expect(manifest.permissions).toEqual(["activeTab", "contextMenus", "scripting", "storage", "declarativeNetRequestWithHostAccess"]);
-      expect(manifest.host_permissions).toEqual([
-        "https://*.doubanio.com/*",
-        "https://mmbiz.qpic.cn/*",
-        "https://cdnfile.sspai.com/*",
-        "https://cdn.bsky.app/*",
-      ]);
+      // China-only platforms are not advertised, so their hosts stay out of
+      // the install-time permission prompt. Their capture code still runs
+      // after a user-initiated save, through activeTab or optional access.
+      expect(manifest.host_permissions).toEqual(["https://cdn.bsky.app/*"]);
       expect(manifest.optional_host_permissions).toEqual([
         "https://*/*",
         "http://*/*",
@@ -40,24 +39,6 @@ describe("extension manifests", () => {
         },
         {
           matches: [
-            "https://www.xiaohongshu.com/*",
-            "https://xiaohongshu.com/*",
-          ],
-          js: ["assets/xhs-target.js"],
-          run_at: "document_start",
-        },
-        {
-          matches: [
-            "https://www.zhihu.com/*",
-            "https://zhihu.com/*",
-            "https://zhuanlan.zhihu.com/*",
-            "https://www.zhuanlan.zhihu.com/*",
-          ],
-          js: ["assets/zhihu-target.js"],
-          run_at: "document_start",
-        },
-        {
-          matches: [
             "https://reddit.com/*",
             "https://www.reddit.com/*",
             "https://old.reddit.com/*",
@@ -68,34 +49,36 @@ describe("extension manifests", () => {
           run_at: "document_start",
         },
         {
-          "matches": [
-                    "https://www.facebook.com/*",
-                    "https://facebook.com/*",
-                    "https://m.facebook.com/*",
-                    "https://www.instagram.com/*",
-                    "https://instagram.com/*",
-                    "https://www.linkedin.com/*",
-                    "https://linkedin.com/*",
-                    "https://www.threads.com/*",
-                    "https://threads.com/*",
-                    "https://www.threads.net/*",
-                    "https://threads.net/*",
-                    "https://bsky.app/*",
-                    "https://xueqiu.com/*",
-                    "https://www.xueqiu.com/*",
-          "https://m.okjike.com/topics/*",
-          "https://web.okjike.com/*",
-                    "https://book.douban.com/subject/*/comments*",
-                    "https://movie.douban.com/subject/*/comments*",
-                    "https://music.douban.com/subject/*/comments*"
+          matches: [
+            "https://www.facebook.com/*",
+            "https://facebook.com/*",
+            "https://m.facebook.com/*",
+            "https://www.instagram.com/*",
+            "https://instagram.com/*",
+            "https://www.linkedin.com/*",
+            "https://linkedin.com/*",
+            "https://www.threads.com/*",
+            "https://threads.com/*",
+            "https://www.threads.net/*",
+            "https://threads.net/*",
+            "https://bsky.app/*",
           ],
-          "js": [
-                    "assets/social-target.js"
-          ],
-          "run_at": "document_start"
-},
+          js: ["assets/social-target.js"],
+          run_at: "document_start",
+        },
       ]);
     }
+  });
+
+  test("does not advertise China-only platforms", () => {
+    const hidden = /xiaohongshu|zhihu|douban|weixin|wechat|bilibili|juejin|xueqiu|zhipin|sspai|csdn|okjike|jike|v2ex|xiaoyuzhou|qpic/i;
+    for (const target of ["chromium", "firefox"]) {
+      const manifest = buildExtensionManifest(target, extensionPackage.version);
+      expect(JSON.stringify(manifest)).not.toMatch(hidden);
+    }
+    const listed = platformGroups.flatMap((group) => group.platforms.map((platform) => `${platform.name} ${platform.icon}`));
+    expect(listed.length).toBeGreaterThan(0);
+    for (const entry of listed) expect(entry).not.toMatch(hidden);
   });
 
   test("uses a service worker for Chromium", () => {

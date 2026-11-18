@@ -1,2 +1,2 @@
-export { PLATFORMS, platformFor } from "@edgeever/shared";
+export { PICKER_PLATFORMS, PLATFORMS, platformFor } from "@edgeever/shared";
 export type { Platform, Zone } from "@edgeever/shared";

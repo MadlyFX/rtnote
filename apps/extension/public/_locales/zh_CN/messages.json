@@ -354,9 +354,6 @@
   "saveXhsToEdgeEver": {
     "message": "保存笔记到 RTNote"
   },
-  "xhsSaveHint": {
-    "message": "在小红书笔记正文上右键，选择“保存笔记到 RTNote”。标题、正文和笔记里的图片会存成一条新笔记，评论不会写入。右键图片仍然只保存这张图片。"
-  },
   "savingXhs": {
     "message": "正在保存这篇笔记……"
   },
@@ -413,9 +410,6 @@
   },
   "zhihuArticleBodyLabel": {
     "message": "正文"
-  },
-  "zhihuSaveHint": {
-    "message": "在知乎回答或文章的正文上右键，选择“保存回答/文章到 RTNote”。标题、作者、正文和图片会存成一条新笔记，评论不会写入。右键图片仍然只保存这张图片。"
   },
   "savingZhihu": {
     "message": "正在保存这篇知乎内容……"
@@ -633,12 +627,6 @@
   "adaptedPlatformsTitle": {
     "message": "深度适配平台"
   },
-  "platformXiaohongshu": {
-    "message": "小红书"
-  },
-  "platformBilibili": {
-    "message": "哔哩哔哩"
-  },
   "platformPosts": {
     "message": "帖子"
   },
@@ -682,7 +670,7 @@
     "message": "文章与社区"
   },
   "mediaPlatformsTitle": {
-    "message": "视频与播客"
+    "message": "视频"
   },
   "closeNotification": {
     "message": "关闭提示"

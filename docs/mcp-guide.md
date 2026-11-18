@@ -25,9 +25,9 @@ Paste the JSON from **Copy MCP config** into your client's MCP settings. The exa
 ### Claude Code
 
 ```bash
-claude mcp add --scope user --transport http edgeever https://notes.example.com/mcp \
+claude mcp add --scope user --transport http rtnote https://notes.example.com/mcp \
   --header "Authorization: Bearer <token>"
-claude mcp get edgeever   # should report "Connected"
+claude mcp get rtnote   # should report "Connected"
 ```
 
 Omit `--scope user` to register the server for the current project only.
@@ -41,7 +41,7 @@ Use `servers` and `type: "http"` in `.vscode/mcp.json` or your user-level `mcp.j
   "inputs": [
     {
       "type": "promptString",
-      "id": "edgeever-token",
+      "id": "rtnote-token",
       "description": "RTNote API token",
       "password": true
     }
@@ -50,7 +50,7 @@ Use `servers` and `type: "http"` in `.vscode/mcp.json` or your user-level `mcp.j
     "rtnote": {
       "type": "http",
       "url": "https://notes.example.com/mcp",
-      "headers": { "Authorization": "Bearer ${input:edgeever-token}" }
+      "headers": { "Authorization": "Bearer ${input:rtnote-token}" }
     }
   }
 }

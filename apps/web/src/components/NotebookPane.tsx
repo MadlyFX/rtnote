@@ -1203,9 +1203,6 @@ export const NotebookPane = ({
                         <AppStoreIcon />
                       </BrandIconContainer>
                       <span className="truncate font-medium">{t("pwa.sidebarIos") || "iOS"}</span>
-                      <span className="shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-xs font-medium text-slate-500  ">
-                        {t("pwa.sidebarIosRegionBadge")}
-                      </span>
                     </div>
                     <div className="flex shrink-0 items-center gap-1 text-slate-400 group-hover:text-slate-600 ">
                       <span className="text-xs">{t("pwa.sidebarIosBadge") || "App Store"}</span>

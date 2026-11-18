@@ -47,7 +47,7 @@ People who never touched this setting see left-aligned full width today. After t
 
 ### Body font size
 
-Font size is stored on the account. Web, the desktop editor and public shares use the same step. Headings keep their current ratio to body text: H1 is 1.5x body, H2 is 1.25x, and the other levels follow body text at their existing ratios. Line height is a multiplier, so spacing grows with the text. When copying to WeChat Official Accounts, the body font size is written as an inline style.
+Font size is stored on the account. Web, the desktop editor and public shares use the same step. Headings keep their current ratio to body text: H1 is 1.5x body, H2 is 1.25x, and the other levels follow body text at their existing ratios. Line height is a multiplier, so spacing grows with the text.
 
 Code and formulas stay monospaced, one step smaller than body text. Markdown source mode follows the body font size.
 
@@ -55,7 +55,7 @@ The title bar, sidebar, toolbar, document outline, mind maps and infographics do
 
 ### Line height
 
-Line height is stored on the account and applies, together with font size, to the editor and public shares. It only changes the spacing between lines within a paragraph. Paragraph spacing stays at 8px; to change it, use custom CSS. When copying to WeChat Official Accounts, body line height is written as an inline style. Column width does not reach share pages or WeChat.
+Line height is stored on the account and applies, together with font size, to the editor and public shares. It only changes the spacing between lines within a paragraph. Paragraph spacing stays at 8px; to change it, use custom CSS. Column width does not reach share pages.
 
 ### Fonts and colours
 
@@ -84,7 +84,7 @@ Orange and pink have no existing palette, so they follow the pattern of the neig
 | Orange | `#E07A2D` | `#FFF4EA` | `#3A2E28` | `#B45309` |
 | Pink | `#D4537E` | `#FDF2F6` | `#3A2E34` | `#BE185D` |
 
-The colour scheme is stored on the account, like custom CSS. The editor and the account's public shares both use it. When copying to WeChat Official Accounts, links, inline code and bold text follow the scheme; everything else keeps WeChat's defaults.
+The colour scheme is stored on the account, like custom CSS. The editor and the account's public shares both use it.
 
 Devices that had chosen a layout land on the closest hue:
 
@@ -106,7 +106,7 @@ Custom CSS exists for public shares. A stylesheet that only affects the author's
 
 Like the published body font, it is stored on the account, and every public share from that account uses the same stylesheet. When empty, share pages use native typography. The editor previews it at the same time, so authors see the result before sharing. The interface, sidebar and toolbar ignore it.
 
-Only typographic properties are allowed: fonts, letter spacing, colours, borders, margins and padding, alignment, indentation and similar. `url()` and rules that escape the note body are dropped. `font-size` and `line-height` are no longer accepted; they come only from the font size and line height steps, so the stylesheet and the steps never both change them. Share pages scope the stylesheet to the article body, not the share page's title bar or footer. When copying to WeChat Official Accounts, plain element rules such as `h1`, `p` and `blockquote` are still written as inline styles.
+Only typographic properties are allowed: fonts, letter spacing, colours, borders, margins and padding, alignment, indentation and similar. `url()` and rules that escape the note body are dropped. `font-size` and `line-height` are no longer accepted; they come only from the font size and line height steps, so the stylesheet and the steps never both change them. Share pages scope the stylesheet to the article body, not the share page's title bar or footer.
 
 The length limit becomes 8 KB. Today's 2,000 characters is only the input limit for this field in the local theme file, enforced by the input and by import validation; the theme file as a whole has a separate 64 KB limit. 2,000 characters cannot hold separate rules for headings, paragraphs, quotes, lists and tables. 8 KB is enough for all of them and is still small when sent to share pages from the account.
 
@@ -114,13 +114,13 @@ Today this CSS lives only on this device and has no effect when the native theme
 
 Switching computers keeps the stylesheet because it is account data; there is no import or export. Web and desktop signed in to the same instance read and write the same stylesheet: save on one machine and the other sees the latest version. If the account has no stylesheet yet but this device still holds old local CSS, the local copy fills the account so the first sync does not wipe styles the author already wrote. After that the account copy wins.
 
-Authors who want to change paragraph spacing, letter spacing, first-line indent or heading styles for readers write them in this CSS. Font size and line height do not belong here. When empty, the editor shows a preset: one declaration per line, grouped by body, headings, links, emphasis, code, quotes, lists and tables. Each group sets light-mode colours and spacing, immediately followed by its `:root.dark` counterpart, which overrides colours only. The sample in the dialog previews the draft through the same filter; light and dark only switch the sample, not the app theme, and nothing is saved to the account. Restore preset puts the draft back to this initial value; it is saved to the account only when the author saves. Copying to WeChat Official Accounts carries only the light-mode plain element rules.
+Authors who want to change paragraph spacing, letter spacing, first-line indent or heading styles for readers write them in this CSS. Font size and line height do not belong here. When empty, the editor shows a preset: one declaration per line, grouped by body, headings, links, emphasis, code, quotes, lists and tables. Each group sets light-mode colours and spacing, immediately followed by its `:root.dark` counterpart, which overrides colours only. The sample in the dialog previews the draft through the same filter; light and dark only switch the sample, not the app theme, and nothing is saved to the account. Restore preset puts the draft back to this initial value; it is saved to the account only when the author saves.
 
 ## Scope
 
 Column width applies to the web and desktop editing area and is seen only by the author. Share pages keep their own article card width.
 
-Font size and line height apply to web, the desktop editor and public shares. When copying to WeChat Official Accounts, body text carries the same font size and line height. "Copy to WeChat / blog" no longer applies layouts such as Letterpress Journal. Links, inline code and bold text follow the account's colour scheme. Plain element rules from custom CSS are still written into the copied result, with font size and line height declarations dropped.
+Font size and line height apply to web, the desktop editor and public shares.
 
 The iOS and Android editors keep their current 16px and matching line height; this round does not change them. Mobile browsers opening a public share see the account's font size and line height.
 

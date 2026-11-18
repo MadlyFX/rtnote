@@ -10,7 +10,7 @@
     "128": "icons/icon-128.png"
   },
   "permissions": ["activeTab", "contextMenus", "scripting", "storage", "declarativeNetRequestWithHostAccess"],
-  "host_permissions": ["https://*.doubanio.com/*", "https://mmbiz.qpic.cn/*", "https://cdnfile.sspai.com/*", "https://cdn.bsky.app/*"],
+  "host_permissions": ["https://cdn.bsky.app/*"],
   "optional_host_permissions": ["https://*/*", "http://*/*", "http://localhost/*", "http://127.0.0.1/*"],
   "action": {
     "default_title": "__MSG_actionTitle__",
@@ -31,24 +31,6 @@
         "https://mobile.twitter.com/*"
       ],
       "js": ["assets/tweet-target.js"],
-      "run_at": "document_start"
-    },
-    {
-      "matches": [
-        "https://www.xiaohongshu.com/*",
-        "https://xiaohongshu.com/*"
-      ],
-      "js": ["assets/xhs-target.js"],
-      "run_at": "document_start"
-    },
-    {
-      "matches": [
-        "https://www.zhihu.com/*",
-        "https://zhihu.com/*",
-        "https://zhuanlan.zhihu.com/*",
-        "https://www.zhuanlan.zhihu.com/*"
-      ],
-      "js": ["assets/zhihu-target.js"],
       "run_at": "document_start"
     },
     {
@@ -75,18 +57,9 @@
         "https://threads.com/*",
         "https://www.threads.net/*",
         "https://threads.net/*",
-        "https://bsky.app/*",
-        "https://xueqiu.com/*",
-        "https://www.xueqiu.com/*",
-        "https://m.okjike.com/topics/*",
-        "https://web.okjike.com/*",
-        "https://book.douban.com/subject/*/comments*",
-        "https://movie.douban.com/subject/*/comments*",
-        "https://music.douban.com/subject/*/comments*"
+        "https://bsky.app/*"
       ],
-      "js": [
-        "assets/social-target.js"
-      ],
+      "js": ["assets/social-target.js"],
       "run_at": "document_start"
     }
   ]

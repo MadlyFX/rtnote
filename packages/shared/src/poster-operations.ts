@@ -1,4 +1,4 @@
-import { PLATFORMS } from "./poster-platforms";
+import { PICKER_PLATFORMS, PLATFORMS } from "./poster-platforms";
 import { POSTER_FONTS } from "./poster-fonts";
 import { POSTER_DESIGN_TEMPLATES, POSTER_TEMPLATE_SELECTION_INSTRUCTION } from "./poster-design-catalog";
 import { z } from "zod";
@@ -228,7 +228,7 @@ export function posterCapabilities() {
     templateSelection: POSTER_TEMPLATE_SELECTION_INSTRUCTION,
     contentLayouts: { layouts: ["auto", "grid", "list"], sections: { min: 2, max: 6, headingMaxLength: 32, bodyMaxLength: 120 }, instruction: "For explanatory posters, plan 3–6 concise sections before creating. Use grid for categories/comparison, list for steps/ranked points. badge and footer are optional. Auto adapts columns to the aspect ratio. Headline-only posters may omit sections." },
     formats: POSTER_FORMATS,
-    platforms: PLATFORMS,
+    platforms: PICKER_PLATFORMS,
     fonts: POSTER_FONTS.map(({ family, zh, en }) => ({ family, zh, en })),
     operations: ["add", "remove", "duplicate", "reorder", "group", "ungroup", "align", "lock", "apply_template"],
     editableFields: Object.keys(patch.shape),

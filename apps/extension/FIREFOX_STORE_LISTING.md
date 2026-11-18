@@ -5,23 +5,22 @@
 - Name: RTNote Web Clipper
 - Summary: Save webpages, selections, images, and Hacker News posts to your self-hosted RTNote instance.
 - Category: Bookmarks
-- Homepage: https://edgeever.org
+- Homepage: https://github.com/MadlyFX/rtnote
 - Support: https://github.com/MadlyFX/rtnote/issues
-- Privacy policy: https://edgeever.org/en/privacy
+- Privacy policy: RTNote's own privacy policy URL (to be published before submission; do not reuse another project's policy)
 
 ## Description
 
-RTNote Web Clipper saves the current webpage, selected text, a right-clicked image, an X post, a Reddit post, a Xiaohongshu note, a Zhihu answer or article, or a GitHub repository's address and description directly to the self-hosted RTNote instance you configure.
+RTNote Web Clipper saves the current webpage, selected text, a right-clicked image, an X post, a Reddit post, a post from another supported social site, or a GitHub repository's address and description directly to the self-hosted RTNote instance you configure.
 
 - Extract readable article content, or right-click selected text and save that passage only.
 - Right-click an image and save that image file as a new note. From Google Search, the note records Google Search and the keyword.
 - On X, right-click the post text and save the full post, including text behind Show more, plus photos already shown.
-- On Xiaohongshu, right-click the note text and save the title, text, and photos. Comments are left out.
-- On Zhihu, right-click the answer or article text and save the title, author, text, and photos. Comments are left out. On a feed or question page, the item under the pointer is saved.
 - On Reddit, right-click a post and save its title, author, community, text, links, and images. Comments are left out.
 - On a GitHub repository page or code tree, right-click the page background, the description, or the README text and save the repository address and description.
 - On Hacker News post detail pages, save the title, author, original time, points at capture, linked page and main-post text. Comments are left out.
-- On a YouTube or Bilibili watch page, save that video as a note.
+- On Facebook, Instagram, LinkedIn, Threads, and Bluesky, right-click a post and save its text and images.
+- On a YouTube watch page, save that video as a note with timestamped captions.
 - These commands stay on the top-level right-click menu.
 - Convert captured HTML to Markdown locally.
 - Choose a default RTNote notebook.
@@ -49,12 +48,10 @@ The project maintainers do not receive or retain this data. Instance settings ar
 7. On a normal webpage, right-click an image, choose **Save image to RTNote**, and verify the new note contains the image.
 8. Open one X post page, right-click the post text (not a photo), choose **Save post to RTNote**, and verify the note contains the post text and the post link.
 9. Open one GitHub repository page, right-click the description or README text, choose **Save repository info to RTNote**, and verify the note contains the repository address and description.
-10. Open one Xiaohongshu note, right-click the note text (not a photo), choose **Save note to RTNote**, and verify the note contains the title, text, and source link.
-11. Open one Zhihu answer or article, right-click the text (not a photo), choose **Save answer or article to RTNote**, and verify the note contains the title, text, and source link.
-12. Open one Reddit post, right-click the post text, choose **Save Reddit post to RTNote**, and verify the note contains the title, author, community, and source link without comments.
-13. Verify the created notes in the review RTNote instance.
-14. Open a Hacker News post detail page and choose **Save Hacker News post to RTNote** or **Clip current page**. Verify the main post and source are saved without comments; a selected passage takes priority for the toolbar action.
-15. On a YouTube or Bilibili watch page, right-click the page and choose **Save video note to RTNote**. The new menu runs only after that click. Lives and other unsupported pages show a message and create no note.
+10. Open one Reddit post, right-click the post text, choose **Save Reddit post to RTNote**, and verify the note contains the title, author, community, and source link without comments.
+11. Verify the created notes in the review RTNote instance.
+12. Open a Hacker News post detail page and choose **Save Hacker News post to RTNote** or **Clip current page**. Verify the main post and source are saved without comments; a selected passage takes priority for the toolbar action.
+13. On a YouTube watch page, right-click the page and choose **Save video note to RTNote**. The new menu runs only after that click. Lives and other unsupported pages show a message and create no note.
 
 Restricted browser pages, extension stores, built-in PDF viewers, and other privileged pages cannot be captured.
 

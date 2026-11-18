@@ -354,9 +354,6 @@
   "saveXhsToEdgeEver": {
     "message": "Save note to RTNote"
   },
-  "xhsSaveHint": {
-    "message": "On Xiaohongshu, right-click the note text and choose “Save note to RTNote”. The title, text, and photos go into one new note. Comments are left out. Right-clicking a photo still saves that image only."
-  },
   "savingXhs": {
     "message": "Saving this note…"
   },
@@ -413,9 +410,6 @@
   },
   "zhihuArticleBodyLabel": {
     "message": "Body"
-  },
-  "zhihuSaveHint": {
-    "message": "On Zhihu, right-click the answer or article text and choose “Save answer or article to RTNote”. The title, author, text, and photos go into one new note. Comments are left out. Right-clicking a photo still saves that image only."
   },
   "savingZhihu": {
     "message": "Saving this Zhihu answer or article…"
@@ -631,13 +625,7 @@
     "message": "Save Substack Note to RTNote"
   },
   "adaptedPlatformsTitle": {
-    "message": "Deeply adapted platforms"
-  },
-  "platformXiaohongshu": {
-    "message": "Xiaohongshu"
-  },
-  "platformBilibili": {
-    "message": "Bilibili"
+    "message": "Sites with dedicated support"
   },
   "platformPosts": {
     "message": "Posts"
@@ -682,7 +670,7 @@
     "message": "Articles & communities"
   },
   "mediaPlatformsTitle": {
-    "message": "Videos & podcasts"
+    "message": "Videos"
   },
   "closeNotification": {
     "message": "Close notification"

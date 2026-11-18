@@ -1,6 +1,8 @@
 /** Chinese `zhHint` notes of the poster platform presets, by platform id. */
 export const PLATFORM_HINTS_ZH_CN: Record<string, string> = {
   'xhs': '图文笔记封面，3:4 竖版最常用',
+  'instagram': '信息流中不被裁切的最高竖版',
+  'link': '分享链接时显示的 Open Graph 预览图',
   'xhs-square': '方形封面，信息流中更紧凑',
   'youtube': '1280×720，文件不超过 2MB，右下角会被时长遮挡',
   'bilibili': '1146×717，信息流底部会叠加播放与弹幕数据',

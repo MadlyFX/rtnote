@@ -37,7 +37,7 @@ RTNote provides native, out-of-the-box support for importing third-party notes. 
 
 #### Step 3: Choose Source and Add Files
 
-1. In the import dialog, select **Evernote / Yinxiang Biji** under Source app.
+1. In the import dialog, select **Evernote** under Source app.
 2. Add your exported files using either convenient option:
    - **Drag and Drop**: Drag one or more `.enex` files, a folder, or a `.zip` archive directly into the dashed dropzone area.
    - **Browse**: Click **Choose files** to pick `.enex` or `.zip` files, or click **Choose folder** to select a directory containing ENEX files.

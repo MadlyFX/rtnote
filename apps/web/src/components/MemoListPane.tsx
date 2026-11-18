@@ -48,8 +48,8 @@ import {
   Pencil,
   Copy,
   CopyPlus,
+  ClipboardCopy,
 } from "lucide-react";
-import { WeChatIcon } from "./WeChatIcon";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -1663,7 +1663,7 @@ export const MemoListPane = ({
                       className="flex h-9 w-full items-center gap-2 px-3 text-left text-xs text-slate-700 hover:bg-slate-50 cursor-pointer outline-none"
                       onClick={() => void handleCopyContextMemoToWeChat()}
                     >
-                      <WeChatIcon className="h-4 w-4 text-slate-500" />
+                      <ClipboardCopy className="h-4 w-4 text-slate-500" />
                       {t("editor.copyToWeChat")}
                     </DropdownMenuItem>
                   )}
