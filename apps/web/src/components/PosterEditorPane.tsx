@@ -73,6 +73,7 @@ import {
 import {
   applyPosterDesign,
   DESIGN_TEMPLATES,
+  PICKER_PLATFORMS,
   PLATFORMS,
   posterCopy,
   posterImageSlot,
@@ -1629,7 +1630,7 @@ export default function PosterEditorPane({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            {PLATFORMS.map((entry) => (
+            {PICKER_PLATFORMS.map((entry) => (
               <DropdownMenuItem
                 key={entry.id}
                 disabled={!editable}

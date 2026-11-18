@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import type { PosterDocument } from "@edgeever/shared";
-import { PLATFORMS } from "@/lib/poster-design/templates";
+import { PICKER_PLATFORMS } from "@/lib/poster-design/templates";
 import { PosterColor, PosterNumber, PosterSection } from "./PosterControls";
 export function PosterCanvasSettings({
   document,
@@ -23,7 +23,7 @@ export function PosterCanvasSettings({
     <div className="space-y-4 p-4">
       <PosterSection title={t("poster.design.platform")}>
         <div className="grid grid-cols-2 gap-2">
-          {PLATFORMS.map((platform) => (
+          {PICKER_PLATFORMS.map((platform) => (
             <button
               key={platform.id}
               disabled={disabled}

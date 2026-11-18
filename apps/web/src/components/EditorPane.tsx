@@ -30,6 +30,7 @@ import {
   CopyPlus,
   Lock,
   LockOpen,
+  ClipboardCopy,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EditorTableContextMenu } from "@/components/EditorTableContextMenu";
@@ -91,7 +92,6 @@ import {
   createNoteLinkSuggestionExtension,
   type NoteLinkSuggestionLabels,
 } from "./editor/NoteLinkSuggestion";
-import { WeChatIcon } from "./WeChatIcon";
 import { useMarkdownTheme } from "./ThemeProvider";
 const MarkdownSourceEditor = lazy(() =>
   import("./editor/MarkdownSourceEditor").then((module) => ({
@@ -4133,7 +4133,7 @@ const RichEditorPane = ({
                     ) : wechatCopyState === "error" ? (
                       <CircleAlert className="h-4 w-4 text-rose-600" />
                     ) : (
-                      <WeChatIcon className="h-4 w-4 text-slate-500" />
+                      <ClipboardCopy className="h-4 w-4 text-slate-500" />
                     )}
                     {t(wechatCopyState === "copying" ? "editor.copyingToWeChat" : wechatCopyState === "copied" ? "editor.copiedToWeChat" : wechatCopyState === "error" ? "editor.copyToWeChatFailed" : "editor.copyToWeChat")}
                   </DropdownMenuItem>

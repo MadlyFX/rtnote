@@ -13,7 +13,7 @@ Since RTNote natively supports AI Agent (Model Context Protocol, MCP) integratio
 #### Step 1: Install and Enable Both MCP Servers in Your AI Assistant
 
 1. **Configure Memos MCP**:
-   Set up your old Memos instance's MCP server (using the official or community-provided Memos MCP plugin) in your AI assistant (e.g., Claude Code, Cursor, WorkBuddy).
+   Set up your old Memos instance's MCP server (using the official or community-provided Memos MCP plugin) in your AI assistant (e.g., Claude Code, Cursor, Codex).
 
 2. **Configure RTNote MCP**:
    - Log in to your RTNote instance, and click **Profile** -> **MCP settings**.

@@ -44,9 +44,9 @@ Select your source platform in the dialog, then drag and drop or browse files:
 
 ---
 
-## 2. AI Agent Import (Notion / flomo / Memos, etc.)
+## 2. AI Agent Import (Notion / Memos, etc.)
 
-For platforms without a built-in GUI parser, use RTNote's Remote MCP with your AI assistant (Claude Code, Cursor, Codex, WorkBuddy, etc.) via a single prompt.
+For platforms without a built-in GUI parser, use RTNote's Remote MCP with your AI assistant (Claude Code, Cursor, Codex, etc.) via a single prompt.
 
 ### Step 1: Configure RTNote MCP
 
@@ -66,19 +66,7 @@ Please migrate all specified pages and databases from Notion to RTNote:
 3. When finished, summarize total notes imported, attachment status, and any formatting anomalies.
 ```
 
-#### Scenario 2: flomo Migration (HTML Export Archive)
-
-1. In flomo web or desktop, go to **Settings → Account Details**, scroll to the bottom, and download the full HTML export ZIP.
-2. Replace the path below and send it to your AI assistant connected to RTNote MCP:
-
-```text
-Using the configured RTNote MCP, please migrate all notes from the local archive `/path/to/flomo-export.zip` into the `flomo` notebook in RTNote.
-Requirements:
-1. Retain note text, tags (#tag), historical creation timestamps, and embedded images;
-2. Create notes incrementally, verify data integrity, and summarize total imported notes upon completion.
-```
-
-#### Scenario 3: Memos Migration (Cloud-to-Cloud Dual MCP)
+#### Scenario 2: Memos Migration (Cloud-to-Cloud Dual MCP)
 
 Enable both **Memos MCP** and **RTNote MCP** in your AI assistant, then send:
 

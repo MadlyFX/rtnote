@@ -38,7 +38,7 @@ minutes at 2 times the Linux rate. To stay within the free allowance:
 - **Linux:** make the AppImage executable (`chmod +x`) and run it. Some
   distributions need `libfuse2`.
 - **Android:** allow installs from your browser or file manager, then open the
-  APK. RTNote has its own package ID, so it installs alongside EdgeEver.
+  APK.
 - **Chrome / Edge:** unzip the package, open `chrome://extensions`, turn on
   Developer mode and choose **Load unpacked**.
 - **Firefox:** open `about:debugging#/runtime/this-firefox` and choose

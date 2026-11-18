@@ -7,17 +7,13 @@
 
 RTNote is an open-source notes app with a classic three-pane layout (notebooks · note list · editor), instant multi-device sync, and a built-in MCP server for external agents. It runs on Cloudflare's free tier or on your own server with Docker.
 
-RTNote began as a fork of [EdgeEver](https://github.com/tianma-if/edgeever) at version 2.23.0 and is now developed independently. See [Relationship to EdgeEver](#relationship-to-edgeever).
-
 > **Status:** early development. The app works today, but RTNote has no official releases yet, and identifiers, storage details and features are still changing.
 
-## Direction
-
-RTNote differs from EdgeEver in a few deliberate ways:
+## Principles
 
 - **Rich text first.** Notes are stored as rich-text documents. Markdown is an import and export format, not the source of truth.
 - **Richer formatting.** Fonts, text alignment, better tables, image captions, colour and highlight.
-- **No built-in AI writing assist.** The MCP server stays, so you can still connect the agents you choose.
+- **No built-in AI writing assist.** A built-in MCP server lets you connect the agents you choose instead.
 - **Fully brandable.** Name, logo and colour scheme, including on shared notebooks and pages.
 - **English by default**, with other languages available as translations.
 - **Voice memos** recorded straight into notes.
@@ -30,7 +26,7 @@ RTNote differs from EdgeEver in a few deliberate ways:
 - Offline-first sync across web (PWA), desktop, Android and iOS, with revision history
 - Public sharing of single notes or whole notebooks as static sites, with optional passwords and expiry
 - Attachments up to 1 GiB with client-side image compression
-- Import from Evernote, Notion, Obsidian, Joplin, flomo, Memos and Markdown; ZIP backup and Markdown export
+- Import from Evernote, Notion, Obsidian, Joplin, Memos and Markdown; ZIP backup and Markdown export
 - Web clipper for Chrome, Edge and Firefox
 - Remote MCP server so external agents can read and write notes
 
@@ -57,7 +53,7 @@ RTNote deploys to Cloudflare Workers with D1 and R2. Fork this repository, creat
 - [Deploying with an AI agent](docs/agent-deploy-cloudflare.md)
 - [Workers Builds configuration](docs/cloudflare-workers-builds.md)
 
-The Cloudflare resource names and `EDGE_EVER_*` settings keep their EdgeEver-era names for now.
+The resource names and `EDGE_EVER_*` settings above are fixed identifiers; use them exactly as written.
 
 ### Docker
 
@@ -116,14 +112,12 @@ content_markdown  Generated Markdown for export, sharing and MCP
 content_text      Plain text for search and summaries
 ```
 
-## Relationship to EdgeEver
+## Credits
 
-RTNote is derived from [EdgeEver](https://github.com/tianma-if/edgeever) by tianma-if and contributors, and keeps its full commit history. RTNote does not sync with EdgeEver automatically; useful fixes may be brought over by hand. RTNote is not affiliated with or endorsed by the EdgeEver project. Some internal identifiers, such as code package names and stored data markers, still use the `edgeever` name so that EdgeEver notes and backups keep importing.
-
-EdgeEver's acknowledgements carry over to the features RTNote inherited, including the poster workspace adapted from [Qiaomu Design](https://github.com/joeseesun/qiaomu-cover-design) under the MIT license. See [NOTICE](NOTICE) for attribution.
+RTNote is built on code from [EdgeEver](https://github.com/tianma-if/edgeever) by tianma-if and contributors, and is developed independently; it is not affiliated with or endorsed by that project. Some internal identifiers still carry the `edgeever` name. The poster workspace is adapted from [Qiaomu Design](https://github.com/joeseesun/qiaomu-cover-design) under the MIT license. See [NOTICE](NOTICE) for full attribution.
 
 ## License
 
-RTNote is licensed under the [GNU Affero General Public License v3.0](LICENSE), as EdgeEver is. If you run a modified RTNote as a network service, you must offer its source code to your users.
+RTNote is licensed under the [GNU Affero General Public License v3.0](LICENSE). If you run a modified RTNote as a network service, you must offer its source code to your users.
 
 RTNote is not affiliated with Evernote Corporation.

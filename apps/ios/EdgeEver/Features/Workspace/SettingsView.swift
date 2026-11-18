@@ -812,7 +812,7 @@ struct SettingsView: View {
     private func containerImageSourceLabel(_ source: String?) -> String {
         switch source {
         case "official-ghcr": return "GitHub Container Registry (GHCR)"
-        case "official-cn-mirror": return env.preferences.t("Official mainland China mirror", zh: "中国大陆官方镜像", pl: "Oficjalny mirror dla Chin kontynentalnych")
+        case "official-cn-mirror": return env.preferences.t("Official regional mirror", zh: "中国大陆官方镜像", pl: "Oficjalny mirror dla Chin kontynentalnych")
         case "custom": return env.preferences.t("Custom image", zh: "自定义镜像", pl: "Własny obraz")
         default: return unknownSystemInfoValue
         }

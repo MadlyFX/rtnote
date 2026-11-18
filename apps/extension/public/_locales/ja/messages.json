@@ -354,9 +354,6 @@
   "saveXhsToEdgeEver": {
     "message": "ノートを RTNote に保存"
   },
-  "xhsSaveHint": {
-    "message": "小紅書でノート本文を右クリックし、「ノートを RTNote に保存」を選びます。タイトル、本文、画像が 1 件のノートになります。コメントは含めません。画像を右クリックした場合は、その画像だけを保存します。"
-  },
   "savingXhs": {
     "message": "このノートを保存しています…"
   },
@@ -413,9 +410,6 @@
   },
   "zhihuArticleBodyLabel": {
     "message": "本文"
-  },
-  "zhihuSaveHint": {
-    "message": "知乎で回答または記事の本文を右クリックし、「回答・記事を RTNote に保存」を選びます。タイトル、著者、本文、画像が 1 件のノートになります。コメントは含めません。画像を右クリックした場合は、その画像だけを保存します。"
   },
   "savingZhihu": {
     "message": "この知乎の回答または記事を保存しています…"
@@ -633,12 +627,6 @@
   "adaptedPlatformsTitle": {
     "message": "専用対応プラットフォーム"
   },
-  "platformXiaohongshu": {
-    "message": "小紅書"
-  },
-  "platformBilibili": {
-    "message": "Bilibili"
-  },
   "platformPosts": {
     "message": "投稿"
   },
@@ -682,7 +670,7 @@
     "message": "記事・コミュニティ"
   },
   "mediaPlatformsTitle": {
-    "message": "動画・ポッドキャスト"
+    "message": "動画"
   },
   "closeNotification": {
     "message": "通知を閉じる"

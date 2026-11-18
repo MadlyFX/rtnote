@@ -7,10 +7,6 @@ export const platformGroups = [
         "name": "X (Twitter)"
       },
       {
-        "icon": "/platform-icons/xiaohongshu.svg",
-        "key": "platformXiaohongshu"
-      },
-      {
         "icon": "/platform-icons/facebook.svg",
         "name": "Facebook"
       },
@@ -36,10 +32,6 @@ export const platformGroups = [
     "title": "readingPlatformsTitle",
     "platforms": [
       {
-        "icon": "/platform-icons/zhihu.svg",
-        "key": "platformZhihu"
-      },
-      {
         "icon": "/platform-icons/reddit.svg",
         "name": "Reddit"
       },
@@ -50,10 +42,6 @@ export const platformGroups = [
       {
         "icon": "/platform-icons/hackernews.svg",
         "name": "Hacker News"
-      },
-      {
-        "icon": "/platform-icons/v2ex.svg",
-        "name": "V2EX"
       },
       {
         "icon": "/platform-icons/medium.svg",
@@ -71,14 +59,6 @@ export const platformGroups = [
       {
         "icon": "/platform-icons/youtube.svg",
         "name": "YouTube"
-      },
-      {
-        "icon": "/platform-icons/bilibili.svg",
-        "key": "platformBilibili"
-      },
-      {
-        "icon": "/platform-icons/xiaoyuzhou.png",
-        "key": "platformXiaoyuzhou"
       }
     ]
   }

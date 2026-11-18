@@ -77,7 +77,7 @@ only. Do not expose an unauthenticated instance to a network.
 ## S3-compatible attachment storage
 
 SQLite remains in `/data`, while new attachments can be stored in MinIO, AWS
-S3, Alibaba Cloud OSS, Tencent COS, R2, or another compatible service:
+S3, Cloudflare R2, or another S3-compatible service:
 
 ```yaml
 environment:
@@ -186,10 +186,10 @@ docker build \
   --build-arg EDGE_EVER_BUILD_CREATED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
   --build-arg EDGE_EVER_BUILD_TRIGGER=manual \
   --build-arg EDGE_EVER_BUILD_METHOD=local_cli \
-  --tag edgeever:local .
+  --tag rtnote:local .
 docker run --rm -p 8787:8787 \
   -e EDGE_EVER_AUTH_PASSWORD='replace-with-a-long-random-password' \
-  -e EDGE_EVER_CONTAINER_IMAGE=edgeever:local \
+  -e EDGE_EVER_CONTAINER_IMAGE=rtnote:local \
   -e EDGE_EVER_DEPLOYMENT_TRIGGER=manual \
   -e EDGE_EVER_DEPLOYMENT_METHOD=docker \
   -v edgeever-data:/data \

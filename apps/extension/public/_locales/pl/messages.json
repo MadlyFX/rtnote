@@ -354,9 +354,6 @@
   "saveXhsToEdgeEver": {
     "message": "Zapisz notatkę w RTNote"
   },
-  "xhsSaveHint": {
-    "message": "W serwisie Xiaohongshu kliknij prawym przyciskiem tekst notatki i wybierz „Zapisz notatkę w RTNote”. Tytuł, tekst i zdjęcia trafią do jednej nowej notatki. Komentarze są pomijane. Kliknięcie prawym przyciskiem zdjęcia nadal zapisuje tylko ten obraz."
-  },
   "savingXhs": {
     "message": "Zapisywanie notatki…"
   },
@@ -413,9 +410,6 @@
   },
   "zhihuArticleBodyLabel": {
     "message": "Treść"
-  },
-  "zhihuSaveHint": {
-    "message": "W serwisie Zhihu kliknij prawym przyciskiem tekst odpowiedzi lub artykułu i wybierz „Zapisz odpowiedź lub artykuł w RTNote”. Tytuł, autor, tekst i zdjęcia trafią do jednej nowej notatki. Komentarze są pomijane. Kliknięcie prawym przyciskiem zdjęcia nadal zapisuje tylko ten obraz."
   },
   "savingZhihu": {
     "message": "Zapisywanie odpowiedzi lub artykułu z Zhihu…"
@@ -633,12 +627,6 @@
   "adaptedPlatformsTitle": {
     "message": "Platformy z dedykowaną obsługą"
   },
-  "platformXiaohongshu": {
-    "message": "Xiaohongshu"
-  },
-  "platformBilibili": {
-    "message": "Bilibili"
-  },
   "platformPosts": {
     "message": "Posty"
   },
@@ -682,7 +670,7 @@
     "message": "Artykuły i społeczności"
   },
   "mediaPlatformsTitle": {
-    "message": "Filmy i podcasty"
+    "message": "Filmy"
   },
   "closeNotification": {
     "message": "Zamknij powiadomienie"

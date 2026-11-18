@@ -86,7 +86,7 @@ export function Options() {
       {platformGroups.map(group => <section key={group.title} aria-labelledby={group.title} className="mt-[18px]">
         <h3 id={group.title} className="mb-2 text-[13px] font-semibold">{t(group.title)}</h3>
         <ul className="grid grid-cols-2 gap-x-3 gap-y-2.5 min-[400px]:grid-cols-3 min-[540px]:grid-cols-4">
-          {group.platforms.map(platform => <li key={platform.icon} className="flex min-h-7 min-w-0 items-center gap-2 text-xs"><img src={platform.icon} width={18} height={18} alt="" className="size-[18px] shrink-0 object-contain" /><span className="break-words">{"key" in platform ? t(platform.key) : platform.name}</span></li>)}
+          {group.platforms.map(platform => <li key={platform.icon} className="flex min-h-7 min-w-0 items-center gap-2 text-xs"><img src={platform.icon} width={18} height={18} alt="" className="size-[18px] shrink-0 object-contain" /><span className="break-words">{platform.name}</span></li>)}
         </ul>
       </section>)}
     </section>
