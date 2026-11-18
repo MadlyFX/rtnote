@@ -2,6 +2,7 @@ import { hasPosterDocumentMarker, parsePosterDocument } from "@edgeever/shared";
 import {
   createExcerpt,
   DEFAULT_MEMO_TITLE,
+  normalizeLegacyMemoTitle,
   docToMarkdown,
   docToText,
   emptyDoc,
@@ -1505,7 +1506,8 @@ const parseDoc = (json: string): TiptapDoc => {
   }
 };
 
+// EdgeEver's default title is stored as RTNote's, so both read as untitled.
 const normalizeMemoTitle = (value: string | null | undefined) => {
   const title = value?.trim();
-  return title || DEFAULT_MEMO_TITLE;
+  return title ? normalizeLegacyMemoTitle(title) : DEFAULT_MEMO_TITLE;
 };

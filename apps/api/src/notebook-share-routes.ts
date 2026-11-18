@@ -28,6 +28,7 @@ import { hashPassword, verifyPassword, randomToken } from "./auth-crypto";
 import { audit } from "./audit";
 import { createId, isoNow, parseJsonArray } from "./entity-utils";
 import { apiError, notFound } from "./http-errors";
+import { resolveNotebookBranding } from "./branding-service";
 import { getAuditActor, getWorkspaceId, requireUser } from "./request-auth";
 import { serveSharedResource } from "./share-routes";
 import { allowPasswordProtectedShare, setShareAccessCookie } from "./share-http-access";
@@ -430,6 +431,7 @@ export const registerPublicNotebookShareRoutes = (app: Hono<AppEnv>) => {
         parentId: n.id === root.notebook_id ? null : n.parentId,
       })),
       memos: memos.results,
+      branding: await resolveNotebookBranding(c.env.storage.db, root.workspace_id, root.notebook_id, root.settings),
     };
     return c.json({ share });
   });

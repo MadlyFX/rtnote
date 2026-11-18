@@ -3,6 +3,7 @@ import type { TiptapDoc, TiptapMark, TiptapNode, TiptapTextNode } from "./conten
 import { FILE_ATTACHMENT_NODE_TYPE } from "./file-attachment";
 import { PDF_ATTACHMENT_NODE_TYPE } from "./pdf-attachment";
 import { PLUGIN_EMBED_NODE_TYPE } from "./plugin-embed";
+import { VOICE_MEMO_NODE_TYPE } from "./voice-memo-names";
 import { EMPTY_EXTERNAL_LINK_NODE_TYPE } from "./empty-external-link";
 import type { SupportedLocale } from "./i18n/locales";
 
@@ -43,6 +44,7 @@ export const NATIVE_EDITOR_NODE_TYPES = new Set<string>([
   "tableCell",
   "edgeeverMergeDivider",
   "edgeeverVideoNote",
+  VOICE_MEMO_NODE_TYPE,
   EMPTY_EXTERNAL_LINK_NODE_TYPE,
   "inlineMath",
   "blockMath",

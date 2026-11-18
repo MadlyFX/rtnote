@@ -1,3 +1,7 @@
+import { WELCOME_MEMO_TRANSLATION_JA } from "./default-workspace-seeds.ja";
+import { WELCOME_MEMO_TRANSLATION_ZH_CN } from "./default-workspace-seeds.zh-CN";
+import { WELCOME_MEMO_TRANSLATION_ZH_TW } from "./default-workspace-seeds.zh-TW";
+import { LEGACY_WELCOME_MEMO_SEED_TITLE } from "./edgeever-legacy-values";
 import { resolveSupportedLocale, type SupportedLocale } from "./i18n/locales";
 
 export type DefaultNotebookSeed = {
@@ -8,8 +12,9 @@ export type DefaultNotebookSeed = {
   names: Record<SupportedLocale, string>;
 };
 
-// zh-CN is the language the installation migrations seed. Keep it first so
-// the localization guard can recognise names that nobody has changed yet.
+// The installation migrations (inherited from EdgeEver and immutable) seed the
+// zh-CN names. Keep zh-CN first so the localization guard can recognise names
+// that nobody has changed yet and replace them with the reader's language.
 // color stays null so the sidebar uses the shared slate icon. A hue is stored
 // only after someone saves an appearance.
 export const DEFAULT_NOTEBOOK_SEEDS: readonly DefaultNotebookSeed[] = [
@@ -118,7 +123,7 @@ export const WELCOME_MEMO_ID = "memo_welcome";
  * title still says EdgeEver. First sign-in replaces it with the localized
  * RTNote welcome note.
  */
-export const WELCOME_MEMO_SEED_TITLE = "欢迎来到 EdgeEver";
+export const WELCOME_MEMO_SEED_TITLE = LEGACY_WELCOME_MEMO_SEED_TITLE;
 export const WELCOME_MEMO_SEED_CONTENT_HASH = "4edcf7092f86c561210d4eb788e96f28ec5c045f93952c82f5f57e1902f548bd";
 // Migration 0071 repairs the original seed's literal backslash-n and advances it to revision 1.
 export const WELCOME_MEMO_REPAIRED_CONTENT_HASH = "30fae5a337f8b9709505c5ab00ee921410b78632c14f4b7577c88aea0f9fc390";
@@ -129,20 +134,8 @@ export type WelcomeMemoTranslation = {
 };
 
 export const WELCOME_MEMO_TRANSLATIONS: Record<SupportedLocale, WelcomeMemoTranslation> = {
-  "zh-CN": {
-    title: "欢迎来到 RTNote",
-    paragraphs: [
-      "这是第一条 RTNote 笔记，三栏、边缘、Agent-ready。",
-      "接下来可以创建笔记本、写笔记、搜索内容，并把多条笔记合并成一条新的长期笔记。",
-    ],
-  },
-  "zh-TW": {
-    title: "歡迎來到 RTNote",
-    paragraphs: [
-      "這是第一篇 RTNote 筆記，三欄、邊緣運算、Agent-ready。",
-      "接下來可以建立筆記本、撰寫筆記、搜尋內容，並將多篇筆記合併為一篇新的長期筆記。",
-    ],
-  },
+  "zh-CN": WELCOME_MEMO_TRANSLATION_ZH_CN,
+  "zh-TW": WELCOME_MEMO_TRANSLATION_ZH_TW,
   "en-US": {
     title: "Welcome to RTNote",
     paragraphs: [
@@ -150,13 +143,7 @@ export const WELCOME_MEMO_TRANSLATIONS: Record<SupportedLocale, WelcomeMemoTrans
       "Next, create notebooks, write notes, search your content, and merge several notes into a new long-term note.",
     ],
   },
-  ja: {
-    title: "RTNote へようこそ",
-    paragraphs: [
-      "これは RTNote の最初のノートです。3 ペイン構成でエッジ上で動作し、AI エージェントとも連携できます。",
-      "ノートブックを作成してノートを書き、内容を検索し、複数のノートを 1 つの新しい長期ノートにまとめてみましょう。",
-    ],
-  },
+  ja: WELCOME_MEMO_TRANSLATION_JA,
   pl: {
     title: "Witaj w RTNote",
     paragraphs: [

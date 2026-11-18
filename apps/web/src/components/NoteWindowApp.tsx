@@ -1,4 +1,5 @@
 import { DesktopAttachmentWritebacks } from "./attachments/DesktopAttachmentWritebacks";
+import { VoiceMemoRecordingIndicator } from "@/components/voice-memo/VoiceMemoRecordingIndicator";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -56,7 +57,6 @@ export const NoteWindowApp = ({ memoId }: { memoId: string }) => {
   const pluginHost = useMemo(() => new EdgeEverPluginHost({
     repository,
     scope: localDataScope,
-    aiAdapter: api.pluginAi,
     onWorkspaceChanged: async () => undefined,
   }), [localDataScope, repository]);
   const memoQuery = useQuery({
@@ -76,7 +76,7 @@ export const NoteWindowApp = ({ memoId }: { memoId: string }) => {
   const [shortcutSettings] = useState(readShortcutSettingsPreference);
   const [imageCompressionEnabled] = useState(readImageCompressionPreference);
   const [focusMode, setFocusMode] = useState(false);
-  const [tokens, setTokens] = useState({ search: 0, replace: 0, ai: 0, saveAndSync: 0, readingProtection: 0, editorMode: 0, outline: 0, title: 0, body: 0 });
+  const [tokens, setTokens] = useState({ search: 0, replace: 0, saveAndSync: 0, readingProtection: 0, editorMode: 0, outline: 0, title: 0, body: 0 });
   const [closeError, setCloseError] = useState(false);
   const pendingSaveRef = useRef<(() => Promise<boolean>) | null>(null);
   const closeFailedRef = useRef(false);
@@ -139,7 +139,6 @@ export const NoteWindowApp = ({ memoId }: { memoId: string }) => {
       const action = getShortcutActionForEvent(event, shortcutSettings);
       const key = action === "focusSearch" ? "search"
         : action === "focusReplace" ? "replace"
-          : action === "openAiAssistant" ? "ai"
             : action === "saveAndSync" ? "saveAndSync"
               : action === "toggleReadingProtection" ? "readingProtection"
                 : action === "toggleEditorMode" ? "editorMode"
@@ -194,6 +193,7 @@ export const NoteWindowApp = ({ memoId }: { memoId: string }) => {
   return (
     <main className="flex h-[100dvh] min-h-0 flex-col bg-background">
       <DesktopAttachmentWritebacks scope={localDataScope} />
+      <VoiceMemoRecordingIndicator />
       {closeError && (
         <div role="alert" className="border-b border-rose-200 bg-rose-50 px-4 py-2 text-xs leading-5 text-rose-800">
           {t("editor.noteWindowCloseSaveFailed")}
@@ -217,7 +217,6 @@ export const NoteWindowApp = ({ memoId }: { memoId: string }) => {
             shortcutSettings={shortcutSettings}
             searchFocusToken={tokens.search}
             replaceFocusToken={tokens.replace}
-            aiAssistantOpenToken={tokens.ai}
             saveAndSyncToken={tokens.saveAndSync}
             readingProtectionToggleToken={tokens.readingProtection}
             editorModeToggleToken={tokens.editorMode}
@@ -226,7 +225,6 @@ export const NoteWindowApp = ({ memoId }: { memoId: string }) => {
             bodyFocusToken={tokens.body}
             onSyncRequested={async () => bridge?.notifyNoteWindowSaved?.()}
             onOpenMemo={openInMainWindow}
-            onOpenCompanionNote={openInMainWindow}
             onOpenExecutionCenter={noop}
             onBackToList={noop}
             onSaved={handleSaved}

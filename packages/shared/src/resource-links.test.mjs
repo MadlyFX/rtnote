@@ -4,6 +4,7 @@ import {
   getResourceIdFromUrl,
   resourceUrlsReferToSameAttachment,
 } from "./resource-links.ts";
+import { LEGACY_ATTACHMENT_PREFIXES } from "./edgeever-legacy-values.ts";
 
 describe("resource link identity", () => {
   test("extracts resource ids from API and desktop URLs", () => {
@@ -27,7 +28,7 @@ describe("resource link identity", () => {
   });
 
   test("extracts filenames from localized attachment labels", () => {
-    expect(getAttachmentFilenameFromLabel("附件：clip.mp4")).toBe("clip.mp4");
+    expect(getAttachmentFilenameFromLabel(`${LEGACY_ATTACHMENT_PREFIXES[0]}clip.mp4`)).toBe("clip.mp4");
     expect(getAttachmentFilenameFromLabel("Attachment: report.pdf")).toBe("report.pdf");
   });
 });

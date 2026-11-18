@@ -24,6 +24,7 @@ import {
   ARCHITECTURE_DIAGRAM_SCHEMA_VERSION,
   DIAGRAM_DEFAULT_THEME,
   DIAGRAM_SCHEMA_VERSION,
+  DIAGRAM_SEED_SIZING_LABELS,
   createDefaultDiagramDocument,
   type ArchitectureResourceIcon,
   type DiagramDocument,
@@ -1201,7 +1202,7 @@ export const fitDefaultDiagramLabels = (document: DiagramDocument): DiagramDocum
     : document.kind === "architecture"
       ? architectureNodeSizeForLabel(node.shape, node.label)
       : flowchartNodePresentation(node.shape, node.label);
-  const defaults = createDefaultDiagramDocument(document.kind);
+  const defaults = createDefaultDiagramDocument(document.kind, DIAGRAM_SEED_SIZING_LABELS);
   const defaultNodes = new Map(defaults.nodes.map((node) => [node.id, node]));
   const needsRoom = document.nodes.some((node) => {
     const defaultNode = defaultNodes.get(node.id);

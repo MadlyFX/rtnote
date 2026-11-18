@@ -21,7 +21,7 @@ The value is predictable navigation after editing. The main risk is disagreement
 
 ## Implementation decisions and completion
 
-The installed official v2.16.1 reproduces the defect: `中文笔记 → 笔记整理 → 阿尔法` changes to `阿尔法 → 笔记整理 → 中文笔记` after a body-only save. The title is unchanged. See the before/after screenshots in [evidence](evidence/2026-11-01-memo-sort-after-save/).
+The installed official v2.16.1 reproduces the defect: three Chinese-titled notes ordered `A → B → C` change to `C → B → A` after a body-only save. The title is unchanged. See the before/after screenshots in [evidence](evidence/2026-11-01-memo-sort-after-save/).
 
 Keep the existing repository's ordering authoritative. Desktop title-cache ordering will match the sidecar's SQLite `COALESCE(title, excerpt) COLLATE NOCASE`, then descending update timestamp and ID. SQLite folds ASCII case only; do not substitute language-aware ordering or trim/fallback rules that differ from the query. Browser cache behavior and the sidecar query remain unchanged. Only already-loaded summaries are sorted, as before; no additional repository/network request or full-library read is introduced. This avoids changing indexed queries, pagination or desktop native code to repair a renderer-cache mismatch.
 

@@ -13,7 +13,7 @@ var PLUGIN_PERMISSIONS = [
   "templates:write",
   "network",
   "network:public",
-  "ai:generate",
+  "speech:transcribe",
   "storage",
   "secrets",
   "schedules",
@@ -25,6 +25,8 @@ var PLUGIN_PERMISSIONS = [
   "ui:panels",
   "ui:embeds"
 ];
+var RETIRED_PLUGIN_PERMISSIONS = ["ai:generate"];
+var retiredPermissions = new Set(RETIRED_PLUGIN_PERMISSIONS);
 var PLUGIN_API_ERROR_CODES = ["NOTE_CONFLICT", "RESOURCE_CONFLICT", "INVALID_MARKDOWN_EDIT", "STRUCTURED_NOTE_REQUIRED", "INVALID_STRUCTURED_EDIT", "NOTE_TYPE_MISMATCH", "TABLE_DATA_CHANGES_REQUIRED", "HOST_UPGRADE_REQUIRED", "INVALID_CONTENT_DOCUMENT"];
 var THEME_TOKEN_NAMES = [
   "color.background",
@@ -422,7 +424,7 @@ var parseExtensionManifest = (value) => {
     if (value.permissions !== undefined && !Array.isArray(value.permissions))
       throw new Error("Plugin permissions must be an array.");
     const allowedPermissions = new Set(PLUGIN_PERMISSIONS);
-    const permissions = [...new Set((value.permissions ?? []).map(String))];
+    const permissions = [...new Set((value.permissions ?? []).map(String))].filter((permission) => !retiredPermissions.has(permission));
     const unsupported = permissions.find((permission) => !allowedPermissions.has(permission));
     if (unsupported)
       throw new Error(`Unsupported plugin permission: ${unsupported}`);
@@ -488,7 +490,7 @@ var readAdmittedSnapshot = (value, id) => {
     throw new Error(`Marketplace entry ${id} has an invalid admission snapshot.`);
   }
   const allowedPermissions = new Set(PLUGIN_PERMISSIONS);
-  const permissions = [...new Set(value.permissions.map(String))];
+  const permissions = [...new Set(value.permissions.map(String))].filter((permission) => !retiredPermissions.has(permission));
   const unsupported = permissions.find((permission) => !allowedPermissions.has(permission));
   if (unsupported)
     throw new Error(`Marketplace entry ${id} has an unsupported admitted permission.`);
@@ -643,6 +645,7 @@ export {
   PLUGIN_API_ERROR_CODES,
   PLUGIN_API_VERSION,
   PLUGIN_PERMISSIONS,
+  RETIRED_PLUGIN_PERMISSIONS,
   THEME_API_VERSION,
   THEME_TOKEN_NAMES,
   definePlugin,

@@ -2,6 +2,11 @@ import { expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
 
 test("patched compact renderer preserves Chinese groups and cross-container edge geometry in source and browser bundles", () => {
+  // Chinese subgraph ids ("Logs", "Outer", "Inner"), escaped so the source stays English.
+  // Non-Latin ids must not collapse to empty group ids.
+  const CJK_GROUP = "\u65e5\u5fd7";
+  const CJK_OUTER = "\u5916\u5c42";
+  const CJK_INNER = "\u5185\u5c42";
   // ELK must initialize without the partial window globals installed by other suites.
   const result = spawnSync(process.execPath, ["--eval", `
     import assert from "node:assert/strict";
@@ -17,9 +22,9 @@ test("patched compact renderer preserves Chinese groups and cross-container edge
     };
     for (const direction of ["LR", "RL", "TD", "BT"]) {
       for (const body of [
-        'subgraph 日志开启建议\\nA[生产环境] -->|不开启| B[查询日志]\\nC[开发测试] -->|按需开启| B\\nE[审计场景] -->|按需开启| B\\nend',
+        'subgraph ${CJK_GROUP}\\nA[Production] -->|off| B[Query logs]\\nC[Dev and test] -->|on demand| B\\nE[Audit] -->|on demand| B\\nend',
         'subgraph outer["Outer"]\\na[A]\\nsubgraph inner["Inner"]\\nb[B]\\nend\\nend\\na -->|yes| b',
-        'subgraph 外层["外层分组"]\\na[A]\\nsubgraph 内层["内层分组"]\\nb[B]\\nend\\nend\\na -->|yes| b',
+        'subgraph ${CJK_OUTER}["${CJK_OUTER}"]\\na[A]\\nsubgraph ${CJK_INNER}["${CJK_INNER}"]\\nb[B]\\nend\\nend\\na -->|yes| b',
         'a[A] -->|yes| b[B]',
       ]) {
         const source = 'flowchart ' + direction + '\\n' + body;

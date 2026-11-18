@@ -27,13 +27,13 @@ const copy = (doc, selection = new AllSelection(doc)) => editorClipboardTextSeri
 
 test("quoted lists reproduce accumulated default whitespace and copy with one newline per text block", () => {
   const doc = node("doc", [node("blockquote", [
-    p("4 个月的数据："),
-    node("bulletList", [item("GitHub 突破 3,000 Star"), item("全服第一")]),
-    p("鸣谢背后的神仙战友："),
-    node("bulletList", [item("感谢小伙伴"), item("感谢波兰和德国老哥")]),
+    p("Four months of numbers:"),
+    node("bulletList", [item("GitHub passed 3,000 stars"), item("Top of the server")]),
+    p("Thanks to the amazing people behind it:"),
+    node("bulletList", [item("Thanks, friends"), item("Thanks to the folks in Poland and Germany")]),
   ])]);
   expect(getTextBetween(doc, { from: 0, to: doc.content.size })).toContain("\n\n\n\n");
-  expect(copy(doc)).toBe("4 个月的数据：\nGitHub 突破 3,000 Star\n全服第一\n鸣谢背后的神仙战友：\n感谢小伙伴\n感谢波兰和德国老哥");
+  expect(copy(doc)).toBe("Four months of numbers:\nGitHub passed 3,000 stars\nTop of the server\nThanks to the amazing people behind it:\nThanks, friends\nThanks to the folks in Poland and Germany");
 });
 
 test("nested lists and quotes do not create leading or repeated separators", () => {

@@ -13,12 +13,12 @@ import {
 
 const labels = {
   capturedAt: "2026-10-01T00:00:00.000Z",
-  sourceLabel: "来源",
-  capturedAtLabel: "抓取时间",
-  homepageLabel: "主页",
-  languageLabel: "语言",
-  licenseLabel: "许可证",
-  topicsLabel: "话题",
+  sourceLabel: "Source",
+  capturedAtLabel: "Captured at",
+  homepageLabel: "Homepage",
+  languageLabel: "Language",
+  licenseLabel: "License",
+  topicsLabel: "Topics",
 };
 
 const source = (overrides = {}) => ({
@@ -126,8 +126,8 @@ describe("github repository card", () => {
 
   test("uses the first real README paragraph when the about text is empty", () => {
     expect(readmeLead(["", "ok", "This is the project introduction."])).toBe("This is the project introduction.");
-    expect(readmeLead(["字".repeat(900)]).endsWith("…")).toBe(true);
-    expect(readmeLead(["字".repeat(900)]).length).toBe(801);
+    expect(readmeLead(["ア".repeat(900)]).endsWith("…")).toBe(true);
+    expect(readmeLead(["ア".repeat(900)]).length).toBe(801);
   });
 
   test("builds a card from the repository payload and leaves out live counters", () => {
@@ -151,12 +151,12 @@ describe("github repository card", () => {
     const markdown = githubRepoNoteMarkdown({ ...facts, ...labels });
     expect(githubRepoNoteTitle(facts.owner, facts.name)).toBe("tianma-if/edgeever");
     expect(markdown.startsWith("Open-source, AI-native knowledge base.")).toBe(true);
-    expect(markdown).toContain("主页: [edgeever.org](https://edgeever.org/)");
-    expect(markdown).toContain("语言: TypeScript");
-    expect(markdown).toContain("许可证: AGPL-3.0");
-    expect(markdown).toContain("话题: notes, mcp, sqlite");
+    expect(markdown).toContain("Homepage: [edgeever.org](https://edgeever.org/)");
+    expect(markdown).toContain("Language: TypeScript");
+    expect(markdown).toContain("License: AGPL-3.0");
+    expect(markdown).toContain("Topics: notes, mcp, sqlite");
     expect(markdown).toContain("[https://github.com/tianma-if/edgeever](https://github.com/tianma-if/edgeever)");
-    expect(markdown).toContain("抓取时间: 2026-10-01T00:00:00.000Z");
+    expect(markdown).toContain("Captured at: 2026-10-01T00:00:00.000Z");
     expect(markdown).not.toContain("1915");
     expect(markdown).not.toContain("995");
   });
@@ -178,9 +178,9 @@ describe("github repository card", () => {
     expect(facts?.homepage).toBe("");
     expect(facts?.topics).toEqual([]);
     const markdown = githubRepoNoteMarkdown({ ...facts, ...labels });
-    expect(markdown).not.toContain("主页:");
-    expect(markdown).not.toContain("话题:");
-    expect(markdown).toContain("来源: [https://github.com/tianma-if/edgeever](https://github.com/tianma-if/edgeever)");
+    expect(markdown).not.toContain("Homepage:");
+    expect(markdown).not.toContain("Topics:");
+    expect(markdown).toContain("Source: [https://github.com/tianma-if/edgeever](https://github.com/tianma-if/edgeever)");
   });
 
   test("does not treat an unrelated GitHub page as the repository in the address", () => {

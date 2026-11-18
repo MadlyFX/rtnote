@@ -3,7 +3,7 @@ import { translateMobileText, getMobileCatalog, formatMobileCopy, type MobileLoc
 
 export type MobileLoginLocale = MobileLocale;
 
-export const MISSING_MOBILE_SESSION_MESSAGE = "登录成功但服务端没有返回移动端会话。请确认服务端已更新到支持 App 登录的版本。";
+export const MISSING_MOBILE_SESSION_MESSAGE = "Signed in, but the server did not return a mobile session. Make sure the server is updated to a version that supports app sign-in.";
 
 const appendDiagnostics = (
   message: string,

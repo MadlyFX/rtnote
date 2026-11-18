@@ -23,6 +23,11 @@ actor ResourceCache {
         return "data:\(mimeType);base64,\(base64)"
     }
 
+    /// Writes bytes to the disk cache without building a data: URL (large audio files).
+    func store(_ data: Data, for resourceId: String) throws {
+        try data.write(to: fileURL(for: resourceId), options: .atomic)
+    }
+
     func cachedData(for resourceId: String) -> Data? {
         let url = fileURL(for: resourceId)
         return try? Data(contentsOf: url)

@@ -14,6 +14,7 @@ import {
   LayoutList,
   LayoutTemplate,
   GitFork,
+  Mic,
   Component,
   PieChart,
   Table2,
@@ -385,6 +386,10 @@ const CreateMemoTypeItems = ({ onCreateMemo }: { onCreateMemo: (kind?: NoteCreat
       <DropdownMenuItem className="gap-2 text-xs leading-5" onSelect={() => onCreateMemo()}>
         <FileText className="h-4 w-4 shrink-0" />
         <span className="min-w-0 flex-1 truncate">{t("diagram.normalNote")}</span>
+      </DropdownMenuItem>
+      <DropdownMenuItem className="gap-2 text-xs leading-5" onSelect={() => onCreateMemo("voice-memo")}>
+        <Mic className="h-4 w-4 shrink-0" />
+        <span className="min-w-0 flex-1 truncate">{t("voiceMemo.newVoiceMemo")}</span>
       </DropdownMenuItem>
       <DropdownMenuItem className="gap-2 text-xs leading-5" onSelect={() => onCreateMemo("mind-map")}>
         <GitFork className="h-4 w-4 shrink-0" />
@@ -1054,12 +1059,12 @@ export const NotebookPane = ({
               <button
                 className="flex h-9 w-full items-center gap-3 rounded-md px-3 text-left text-xs font-medium leading-5 text-slate-700 transition-colors duration-200 hover:bg-workspace-hover hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/20 data-[state=open]:bg-workspace-hover data-[state=open]:text-slate-950"
                 type="button"
-                aria-label={t("pwa.sidebarDownloadsTitle") || "下载 RTNote 客户端与浏览器插件"}
+                aria-label={t("pwa.sidebarDownloadsTitle")}
               >
                 <span className="flex h-4 w-4 shrink-0 items-center justify-center">
                   <Download className="h-4 w-4" />
                 </span>
-                <span className="min-w-0 flex-1 truncate">{t("pwa.sidebarDownloads") || "下载客户端"}</span>
+                <span className="min-w-0 flex-1 truncate">{t("pwa.sidebarDownloads")}</span>
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -1071,7 +1076,7 @@ export const NotebookPane = ({
               <TooltipProvider delayDuration={0} skipDelayDuration={0}>
               <DropdownMenuGroup>
                 <DropdownMenuLabel className="px-2 py-1 text-xs font-medium uppercase tracking-wider text-slate-400 ">
-                  {t("pwa.sidebarGroupApps") || "客户端应用"}
+                  {t("pwa.sidebarGroupApps")}
                 </DropdownMenuLabel>
                 <DropdownMenuItem asChild>
                   <a
@@ -1151,7 +1156,7 @@ export const NotebookPane = ({
                     href={ANDROID_PLAY_URL}
                     target="_blank"
                     rel="noreferrer"
-                    aria-label={t("pwa.sidebarAndroidTitle") || "在 Google Play 下载 RTNote 安卓端"}
+                    aria-label={t("pwa.sidebarAndroidTitle")}
                     className="group flex cursor-pointer items-center justify-between gap-2.5 rounded-md px-2 py-1.5 text-sm text-slate-700 outline-none transition-colors hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900   "
                   >
                     <div className="flex min-w-0 items-center gap-2.5">
@@ -1177,7 +1182,7 @@ export const NotebookPane = ({
                       <BrandIconContainer>
                         <Download className="h-3.5 w-3.5 text-slate-700" />
                       </BrandIconContainer>
-                      <span className="truncate font-medium">{t("pwa.sidebarAndroidApk") || "APK 下载"}</span>
+                      <span className="truncate font-medium">{t("pwa.sidebarAndroidApk")}</span>
                     </div>
                     <div className="flex shrink-0 items-center gap-1 text-slate-400 group-hover:text-slate-600 ">
                       <span className="text-xs">Releases</span>
@@ -1190,7 +1195,7 @@ export const NotebookPane = ({
                     href={IOS_DOWNLOAD_URL}
                     target="_blank"
                     rel="noreferrer"
-                    aria-label={t("pwa.sidebarIosTitle") || "在 App Store 下载 RTNote iOS 端（仅支持非大陆区 Apple ID）"}
+                    aria-label={t("pwa.sidebarIosTitle")}
                     className="group flex cursor-pointer items-center justify-between gap-2.5 rounded-md px-2 py-1.5 text-sm text-slate-700 outline-none transition-colors hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900   "
                   >
                     <div className="flex min-w-0 items-center gap-2">
@@ -1199,7 +1204,7 @@ export const NotebookPane = ({
                       </BrandIconContainer>
                       <span className="truncate font-medium">{t("pwa.sidebarIos") || "iOS"}</span>
                       <span className="shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-xs font-medium text-slate-500  ">
-                        {t("pwa.sidebarIosRegionBadge") || "海外 ID"}
+                        {t("pwa.sidebarIosRegionBadge")}
                       </span>
                     </div>
                     <div className="flex shrink-0 items-center gap-1 text-slate-400 group-hover:text-slate-600 ">
@@ -1212,7 +1217,7 @@ export const NotebookPane = ({
               <DropdownMenuSeparator className="my-1 bg-slate-100 " />
               <DropdownMenuGroup>
                 <DropdownMenuLabel className="px-2 py-1 text-xs font-medium uppercase tracking-wider text-slate-400 ">
-                  {t("pwa.sidebarGroupClippers") || "浏览器剪藏插件"}
+                  {t("pwa.sidebarGroupClippers")}
                 </DropdownMenuLabel>
                 <DropdownMenuItem asChild>
                   <a
@@ -1228,7 +1233,7 @@ export const NotebookPane = ({
                       <span className="truncate font-medium">{t("pwa.sidebarChromeEdge") || "Chrome / Edge"}</span>
                     </div>
                     <div className="flex shrink-0 items-center gap-1 text-slate-400 group-hover:text-slate-600 ">
-                      <span className="text-xs">{t("pwa.sidebarWebStoreBadge") || "扩展商店"}</span>
+                      <span className="text-xs">{t("pwa.sidebarWebStoreBadge")}</span>
                       <ExternalLink className="h-3.5 w-3.5" />
                     </div>
                   </a>
@@ -1247,7 +1252,7 @@ export const NotebookPane = ({
                       <span className="truncate font-medium">{t("pwa.sidebarFirefox") || "Firefox"}</span>
                     </div>
                     <div className="flex shrink-0 items-center gap-1 text-slate-400 group-hover:text-slate-600 ">
-                      <span className="text-xs">{t("pwa.sidebarAddonsBadge") || "附加组件"}</span>
+                      <span className="text-xs">{t("pwa.sidebarAddonsBadge")}</span>
                       <ExternalLink className="h-3.5 w-3.5" />
                     </div>
                   </a>

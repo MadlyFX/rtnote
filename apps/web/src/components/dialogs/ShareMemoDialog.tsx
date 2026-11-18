@@ -6,7 +6,9 @@ import { Link, useLocation } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { BRANDING_QUERY_KEY, fetchBrandingOverview } from "@/hooks/useServerBranding";
 import { memoSharePathSegment } from "@edgeever/shared";
 import { ShareExpiryControls } from "./ShareExpiryControls";
 import { SharePasswordControls } from "./SharePasswordControls";
@@ -64,8 +66,11 @@ export const ShareMemoDialog = ({
       void queryClient.invalidateQueries({ queryKey: ["memo-shares"] });
     },
   });
+  // Which branding a shared page uses: the workspace's, or a notebook's own.
+  const brandingQuery = useQuery({ queryKey: BRANDING_QUERY_KEY, queryFn: fetchBrandingOverview, enabled: open, retry: false });
+  const brandedNotebooks = brandingQuery.data?.notebooks ?? [];
   const presentationMutation = useMutation({
-    mutationFn: (settings: { showUpdatedAt?: boolean; showBranding?: boolean }) => api.updateMemoShare(memoId, settings),
+    mutationFn: (settings: { showUpdatedAt?: boolean; showBranding?: boolean; brandingNotebookId?: string | null }) => api.updateMemoShare(memoId, settings),
     onSuccess: (data) => {
       queryClient.setQueryData(queryKey, data);
       void queryClient.invalidateQueries({ queryKey: ["memo-shares"] });
@@ -280,6 +285,25 @@ export const ShareMemoDialog = ({
                   onCheckedChange={(enabled) => presentationMutation.mutate({ showBranding: enabled })}
                 />
               </div>
+              {share.showBranding !== false && (brandedNotebooks.length > 0 || share.brandingNotebookId) ? (
+                <div className="flex items-center justify-between gap-3">
+                  <span id="share-branding-source" className="text-xs font-normal leading-5 text-slate-600">{t("sharing.brandingSource", { defaultValue: "Branding" })}</span>
+                  <Select
+                    value={share.brandingNotebookId ?? "workspace"}
+                    disabled={isWorking}
+                    onValueChange={(value) => presentationMutation.mutate({ brandingNotebookId: value === "workspace" ? null : value })}
+                  >
+                    <SelectTrigger className="h-8 w-48" aria-labelledby="share-branding-source"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="workspace">{t("sharing.brandingWorkspace", { defaultValue: "Workspace branding" })}</SelectItem>
+                      {brandedNotebooks.map((notebook) => <SelectItem key={notebook.id} value={notebook.id}>{notebook.name}</SelectItem>)}
+                      {share.brandingNotebookId && !brandedNotebooks.some((notebook) => notebook.id === share.brandingNotebookId)
+                        ? <SelectItem value={share.brandingNotebookId}>{t("sharing.brandingWorkspace", { defaultValue: "Workspace branding" })}</SelectItem>
+                        : null}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ) : null}
             </div>
 
             {share.passwordProtected ? null : (

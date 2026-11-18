@@ -31,7 +31,6 @@ import {
 } from "@uiw/codemirror-themes-all";
 import type { MarkdownThemeName } from "../ThemeProvider";
 import { isPrimaryModifierPressed } from "@/lib/app-helpers";
-import { getAiSlashCommandStart } from "@/lib/editor-shortcuts";
 import { lightMarkdownHighlightStyles } from "@/lib/markdown-source-highlight";
 import { cn } from "@/lib/utils";
 import { editorFontLoadState } from "@/lib/editor-catalog-fonts";
@@ -62,7 +61,6 @@ export interface MarkdownSourceEditorProps {
   placeholder?: string;
   className?: string;
   ariaLabel?: string;
-  onSlashCommandTrigger?: (commandStart: number) => void;
   onLinkShortcut?: () => void;
   onSelectionChange?: () => void;
   onReady?: () => void;
@@ -136,7 +134,6 @@ export const MarkdownSourceEditor = forwardRef<MarkdownSourceEditorRef, Markdown
       placeholder,
       className,
       ariaLabel,
-      onSlashCommandTrigger,
       onLinkShortcut,
       onSelectionChange,
       onReady,
@@ -341,41 +338,8 @@ export const MarkdownSourceEditor = forwardRef<MarkdownSourceEditorRef, Markdown
           onLinkShortcut?.();
           return;
         }
-
-        // AI Slash Command check on single key press
-        if (
-          !event.ctrlKey &&
-          !event.metaKey &&
-          !event.altKey &&
-          !event.shiftKey &&
-          !(event as KeyboardEvent).isComposing
-        ) {
-          const view = cmRef.current?.view;
-          if (view) {
-            const main = view.state.selection.main;
-            if (main.empty) {
-              const caretPosition = main.head;
-              const textBefore = view.state.doc.sliceString(0, caretPosition);
-              const commandStart = getAiSlashCommandStart({
-                caretPosition,
-                insertedText: event.key,
-                textBefore,
-              });
-
-              if (commandStart !== null) {
-                event.preventDefault();
-                // Replace the trigger characters (e.g., "/a") with empty string and open AI Assistant
-                view.dispatch({
-                  changes: { from: commandStart, to: caretPosition, insert: "" },
-                  selection: { anchor: commandStart },
-                });
-                onSlashCommandTrigger?.(commandStart);
-              }
-            }
-          }
-        }
       },
-      [onLinkShortcut, onSlashCommandTrigger],
+      [onLinkShortcut],
     );
 
     const handleCodeMirrorChange = useCallback(

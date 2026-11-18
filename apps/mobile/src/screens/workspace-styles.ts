@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 import { MEMO_CONTENT_STYLE } from "@edgeever/shared";
 import { MOBILE_UI_METRICS } from "@edgeever/shared/mobile-ui";
-import { resolveMobileThemeStyles, type MobileResolvedTheme } from "../lib/mobile-theme";
+import { mobileThemeStylesKey, resolveMobileThemeStyles, type MobileResolvedTheme } from "../lib/mobile-theme";
 
 const DETAIL_CONTENT_HORIZONTAL_PADDING = 16;
 
@@ -182,18 +182,6 @@ const baseWorkspaceStyles = StyleSheet.create({
     borderWidth: 1,
     overflow: "hidden",
   },
-  settingsAiEmbeddedCardFirst: {
-    borderRadius: 0,
-    borderWidth: 0,
-  },
-  settingsAiEmbeddedCard: {
-    borderBottomWidth: 0,
-    borderLeftWidth: 0,
-    borderRadius: 0,
-    borderRightWidth: 0,
-    borderTopColor: "#f1f5f9",
-    borderTopWidth: 1,
-  },
   settingsGroupHeader: {
     alignItems: "center",
     flexDirection: "row",
@@ -222,6 +210,34 @@ const baseWorkspaceStyles = StyleSheet.create({
     justifyContent: "space-between",
     minHeight: 40,
     paddingHorizontal: 12,
+  },
+  voiceMemoDurationRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  voiceMemoDurationChip: {
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+    borderColor: "#e2e8f0",
+    borderRadius: 8,
+    borderWidth: 1,
+    justifyContent: "center",
+    minHeight: 40,
+    minWidth: 64,
+    paddingHorizontal: 12,
+  },
+  voiceMemoDurationChipActive: {
+    backgroundColor: "#ecfdf5",
+    borderColor: "#16A06E",
+  },
+  voiceMemoDurationChipText: {
+    color: "#0f172a",
+    fontSize: 14,
+  },
+  voiceMemoDurationChipTextActive: {
+    color: "#047857",
+    fontWeight: "700",
   },
   settingsSelectText: {
     color: "#0f172a",
@@ -1279,16 +1295,6 @@ const baseWorkspaceStyles = StyleSheet.create({
   },
   createMemoTagsPlaceholder: {
     color: "#94a3b8",
-  },
-  smartTagButton: {
-    alignItems: "center",
-    borderRadius: 8,
-    height: 34,
-    justifyContent: "center",
-    width: 34,
-  },
-  smartTagButtonSuccess: {
-    backgroundColor: "#ecfdf5",
   },
   createMemoToolButton: {
     alignItems: "center",
@@ -2436,12 +2442,13 @@ const baseWorkspaceStyles = StyleSheet.create({
 });
 
 export let styles = baseWorkspaceStyles;
-let workspaceStylesTheme: MobileResolvedTheme = "light";
+// Theme plus branding colours the cached styles were resolved for.
+let workspaceStylesTheme = "light";
 
 export const refreshWorkspaceThemeStyles = (theme: MobileResolvedTheme) => {
-  if (workspaceStylesTheme === theme) {
+  if (workspaceStylesTheme === mobileThemeStylesKey(theme)) {
     return;
   }
   styles = resolveMobileThemeStyles(baseWorkspaceStyles, theme);
-  workspaceStylesTheme = theme;
+  workspaceStylesTheme = mobileThemeStylesKey(theme);
 };

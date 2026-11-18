@@ -87,7 +87,7 @@ export const DataExportCard = ({ refreshWorkspaceAfterImport }: DataExportCardPr
     setErrorMessage(null);
     try {
       await saveEdgeEverZip(
-        { listNotebooks: api.listNotebooks, listPrompts: api.listAiPrompts, getPage: api.getJsonBackupPage, getResourceResponse: api.getResourceResponse },
+        { listNotebooks: api.listNotebooks, getPage: api.getJsonBackupPage, getResourceResponse: api.getResourceResponse },
         { edgeeverVersion: __EDGEEVER_APP_VERSION__, buildId: __EDGEEVER_BUILD_ID__ },
         setProgress
       );
@@ -143,7 +143,6 @@ export const DataExportCard = ({ refreshWorkspaceAfterImport }: DataExportCardPr
         {
           restoreNotebooks: api.restoreJsonNotebooks,
           restoreMemos: api.restoreJsonMemos,
-          restorePrompts: api.restoreJsonAiPrompts,
           createResourceRestoreSink: api.createJsonResourceRestoreSink,
         },
         refreshWorkspaceAfterImport,

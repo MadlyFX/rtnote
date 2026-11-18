@@ -11,7 +11,7 @@ describe("RTNote client HTTP contract", () => {
   test("sends optional export cursors without changing legacy offset requests", async () => {
     const calls = [];
     const client = createEdgeEverClient({ baseUrl: "https://notes.example", fetch: async input => { calls.push(new URL(input)); return jsonResponse({}); } });
-    const cursor = JSON.stringify({ id: "memo_续页", createdAt: "2020-01-01T00:00:00.000Z", offset: 25 });
+    const cursor = JSON.stringify({ id: "memo_página", createdAt: "2020-01-01T00:00:00.000Z", offset: 25 });
     await client.getJsonBackupPage(25, 25, cursor);
     await client.getMarkdownExportPage(25, 25, ["memo_1"], cursor);
     expect(calls.map(url => url.searchParams.get("cursor"))).toEqual([cursor, cursor]);
@@ -36,11 +36,6 @@ describe("RTNote client HTTP contract", () => {
     await client.listMemos({ q: "hello", includeTotal: false });
     expect(calls.at(-1).searchParams.get("includeTotal")).toBe("0");
   });
-
-  test("companion prepare errors authenticate and never retry on a server generation endpoint", async()=>{
- const paths=[];const client=createEdgeEverClient({baseUrl:"https://notes.example",token:"test-token",fetch:async(url,init)=>{paths.push(url);expect(new Headers(init.headers).get("Authorization")).toBe("Bearer test-token");return Response.json({error:{code:"ai_not_configured",message:"Choose a model"}},{status:409});}});
- await expect(client.streamCompanion({id:"request",message:"hi"},{onEvent(){}})).rejects.toMatchObject({code:"ai_not_configured"});expect(paths).toEqual(["https://notes.example/api/v1/companion/turns/prepare"]);
-});
 
   test("reads public instance diagnostics through the configured base URL", async () => {
     const calls = [];
@@ -374,7 +369,7 @@ describe("RTNote client HTTP contract", () => {
         return jsonResponse({ resource: { id: "image_1" } }, { status: 201 });
       },
     });
-    const file = new File(["webp bytes"], "截图.webp", { type: "image/webp" });
+    const file = new File(["webp bytes"], "captura-de-página.webp", { type: "image/webp" });
     expect((await client.uploadMemoResource("memo/1", file)).resource.id).toBe("image_1");
     expect(calls).toHaveLength(1);
     expect(calls[0].path).toBe("/api/v1/memos/memo%2F1/resources");
@@ -447,12 +442,6 @@ describe("RTNote client HTTP contract", () => {
     expect(bodies).toEqual(["abcd", "efgh", "i"]);
   });
 
-  test("sends unsaved note content only to the tag preparation endpoint", async()=>{
- let received;const client=createEdgeEverClient({fetch:async(url,init)=>{received={url,body:JSON.parse(init.body)};return new Response("{}",{status:404});}});
- await expect(client.suggestAiTags({title:"Draft title",contentMarkdown:"Draft body",currentTags:["current"],locale:"en-US"})).rejects.toMatchObject({code:"ai_direct_unavailable"});
- expect(received).toEqual({url:"/api/v1/ai/tag-suggestions/prepare",body:{title:"Draft title",contentMarkdown:"Draft body",currentTags:["current"],locale:"en-US"}});
-});
-
   test("sends an exact tag constraint when listing memos", async () => {
     let requestUrl;
     const client = createEdgeEverClient({
@@ -462,9 +451,9 @@ describe("RTNote client HTTP contract", () => {
       },
     });
 
-    await client.listMemos({ tag: "产品 和 交互" });
+    await client.listMemos({ tag: "Produkt und Café" });
 
-    expect(requestUrl).toBe("/api/v1/memos?tag=%E4%BA%A7%E5%93%81+%E5%92%8C+%E4%BA%A4%E4%BA%92");
+    expect(requestUrl).toBe("/api/v1/memos?tag=Produkt+und+Caf%C3%A9");
   });
 
   test("preserves API error codes and invokes unauthorized handling", async () => {
@@ -595,50 +584,15 @@ const jsonEndpointCases = [
   ["getObjectStorageSettings", [], "GET", "/api/v1/instance/object-storage", undefined],
   ["testObjectStorageConnection", [{ endpoint: "https://s3", bucket: "b" }], "POST", "/api/v1/instance/object-storage/test", { endpoint: "https://s3", bucket: "b" }],
   ["updateObjectStorageSettings", [{ provider: "builtin" }], "PUT", "/api/v1/instance/object-storage", { provider: "builtin" }],
-  ["getAiSettings", [], "GET", "/api/v1/ai/settings", undefined],
-  ["getAiSettings", ["zh CN"], "GET", "/api/v1/ai/settings?locale=zh%20CN", undefined],
-  ["getAiTranscriptionSettings", [], "GET", "/api/v1/ai/transcription-settings", undefined],
-  ["createAiTranscriptionProvider", [{ displayName: "S" }], "POST", "/api/v1/ai/transcription-providers", { displayName: "S" }],
-  ["updateAiTranscriptionProvider", ["atp/1", { displayName: "S" }], "PUT", "/api/v1/ai/transcription-providers/atp%2F1", { displayName: "S" }],
-  ["deleteAiTranscriptionProvider", ["atp_1"], "DELETE", "/api/v1/ai/transcription-providers/atp_1", undefined],
-  ["addAiTranscriptionModel", ["atp_1", { modelId: "whisper" }], "POST", "/api/v1/ai/transcription-providers/atp_1/models", { modelId: "whisper" }],
-  ["deleteAiTranscriptionModel", ["atp_1", "atm_1"], "DELETE", "/api/v1/ai/transcription-providers/atp_1/models/atm_1", undefined],
-  ["updateDefaultAiTranscriptionModel", [null], "PUT", "/api/v1/ai/transcription-default-model", { modelConfigId: null }],
+  ["getTranscriptionSettings", [], "GET", "/api/v1/ai/transcription-settings", undefined],
+  ["createTranscriptionProvider", [{ displayName: "S" }], "POST", "/api/v1/ai/transcription-providers", { displayName: "S" }],
+  ["updateTranscriptionProvider", ["atp/1", { displayName: "S" }], "PUT", "/api/v1/ai/transcription-providers/atp%2F1", { displayName: "S" }],
+  ["deleteTranscriptionProvider", ["atp_1"], "DELETE", "/api/v1/ai/transcription-providers/atp_1", undefined],
+  ["addTranscriptionModel", ["atp_1", { modelId: "whisper" }], "POST", "/api/v1/ai/transcription-providers/atp_1/models", { modelId: "whisper" }],
+  ["deleteTranscriptionModel", ["atp_1", "atm_1"], "DELETE", "/api/v1/ai/transcription-providers/atp_1/models/atm_1", undefined],
+  ["updateDefaultTranscriptionModel", [null], "PUT", "/api/v1/ai/transcription-default-model", { modelConfigId: null }],
   ["prepareNoteResourceTranscription", ["m1", "r1"], "POST", "/api/v1/memos/m1/resources/r1/transcription-target", undefined],
-  ["getAiTranscriptionDirectCredential", ["atp_1"], "POST", "/api/v1/ai/transcription-providers/atp_1/direct-credential", undefined],
-  ["createAiProvider", [{ displayName: "P" }], "POST", "/api/v1/ai/providers", { displayName: "P" }],
-  ["updateAiProvider", ["aip_1", { displayName: "P" }], "PUT", "/api/v1/ai/providers/aip_1", { displayName: "P" }],
-  ["deleteAiProvider", ["aip_1"], "DELETE", "/api/v1/ai/providers/aip_1", undefined],
-  ["addAiModel", ["aip_1", { modelId: "m" }], "POST", "/api/v1/ai/providers/aip_1/models", { modelId: "m" }],
-  ["deleteAiModel", ["aip_1", "aim_1"], "DELETE", "/api/v1/ai/providers/aip_1/models/aim_1", undefined],
-  ["updateDefaultAiModel", ["aim_1"], "PUT", "/api/v1/ai/default-model", { modelConfigId: "aim_1" }],
-  ["listAiPrompts", [], "GET", "/api/v1/ai/prompts", undefined],
-  ["listAiPrompts", ["en"], "GET", "/api/v1/ai/prompts?locale=en", undefined],
-  ["createAiPrompt", [{ name: "P", instruction: "I" }], "POST", "/api/v1/ai/prompts", { name: "P", instruction: "I" }],
-  ["updateAiPrompt", ["p 1", { name: "Q" }], "PATCH", "/api/v1/ai/prompts/p%201", { name: "Q" }],
-  ["deleteAiPrompt", ["p1"], "DELETE", "/api/v1/ai/prompts/p1", undefined],
-  ["restoreDefaultAiPrompts", [], "POST", "/api/v1/ai/prompts/restore-defaults", {}],
-  ["restoreDefaultAiPrompts", ["pl"], "POST", "/api/v1/ai/prompts/restore-defaults?locale=pl", {}],
-  ["listCompanionMemories", [], "GET", "/api/v1/companion/memories", undefined],
-  ["getCompanionDiscoverySettings", [], "GET", "/api/v1/companion/discovery/settings", undefined],
-  ["saveCompanionDiscoverySettings", [{ enabled: true }], "PUT", "/api/v1/companion/discovery/settings", { enabled: true }],
-  ["listCompanionDiscoveries", [], "GET", "/api/v1/companion/discovery", undefined],
-  ["acknowledgeCompanionDiscovery", ["d1"], "POST", "/api/v1/companion/discovery/d1/seen", {}],
-  ["acknowledgeCompanionDiscovery", ["d1", true], "POST", "/api/v1/companion/discovery/d1/dismiss", {}],
-  ["rememberCompanionDiscoveryFeedback", ["d1"], "POST", "/api/v1/companion/discovery/d1/feedback", {}],
-  ["listCompanionActions", [], "GET", "/api/v1/companion/actions", undefined],
-  ["applyCompanionAction", ["a1"], "POST", "/api/v1/companion/actions/a1/apply", {}],
-  ["dismissCompanionAction", ["a1"], "POST", "/api/v1/companion/actions/a1/dismiss", {}],
-  ["saveCompanionMemory", ["Remember", "turn_1"], "POST", "/api/v1/companion/memories", { content: "Remember", sourceTurnId: "turn_1" }],
-  ["updateCompanionMemory", [{ id: "mem 1", version: 3 }, "New"], "PATCH", "/api/v1/companion/memories/mem%201", { content: "New", version: 3 }],
-  ["forgetCompanionMemory", [{ id: "mem_1", version: 4 }], "DELETE", "/api/v1/companion/memories/mem_1?version=4", undefined],
-  ["listCompanionTurns", [], "GET", "/api/v1/companion/turns", undefined],
-  ["getCompanionTurn", ["t1"], "GET", "/api/v1/companion/turns/t1", undefined],
-  ["cancelCompanionTurn", ["t1"], "POST", "/api/v1/companion/turns/t1/cancel", {}],
-  ["clearCompanionHistory", [], "DELETE", "/api/v1/companion/history", undefined],
-  ["uploadCompanionAttachment", [{ filename: "a.png", mediaType: "image/png", base64Data: "AA==" }], "POST", "/api/v1/companion/attachments", { filename: "a.png", mediaType: "image/png", base64Data: "AA==" }],
-  ["exportCompanion", [], "GET", "/api/v1/companion/export", undefined],
-  ["importCompanionMemories", [[{ content: "x" }], { useMemory: true, learningEnabled: false }], "POST", "/api/v1/companion/import-memories", { version: 2, memories: [{ content: "x" }], controls: { useMemory: true, learningEnabled: false } }],
+  ["getTranscriptionDirectCredential", ["atp_1"], "POST", "/api/v1/ai/transcription-providers/atp_1/direct-credential", undefined],
   ["listUsers", [], "GET", "/api/v1/users", undefined],
   ["getInstanceStorageUsage", [], "GET", "/api/v1/instance/storage-usage", undefined],
   ["createUser", [{ username: "u", password: "p" }], "POST", "/api/v1/users", { username: "u", password: "p" }],
@@ -707,7 +661,6 @@ const jsonEndpointCases = [
   ["deleteResource", ["res_1"], "DELETE", "/api/v1/resources/res_1", undefined],
   ["restoreJsonNotebooks", [[{ id: "nb" }]], "POST", "/api/v1/restores/json/notebooks", { notebooks: [{ id: "nb" }] }],
   ["restoreJsonMemos", [[{ id: "m" }]], "POST", "/api/v1/restores/json/memos", { memos: [{ id: "m" }] }],
-  ["restoreJsonAiPrompts", [[{ id: "p" }]], "POST", "/api/v1/restores/json/ai-prompts", { prompts: [{ id: "p" }] }],
   ["claimPosterRender", [], "POST", "/api/v1/poster-render/claim", {}],
   ["completePosterRender", ["job 1", { claimToken: "c", errorCode: "render_failed" }], "POST", "/api/v1/poster-render/job%201/complete", { claimToken: "c", errorCode: "render_failed" }],
   ["updateMemo", ["m1", { title: "T", expectedRevision: 2 }], "PATCH", "/api/v1/memos/m1", { title: "T", expectedRevision: 2 }],
@@ -718,7 +671,6 @@ const jsonEndpointCases = [
   ["duplicateMemo", ["m1", { notebookId: "nb", title: "Copy" }], "POST", "/api/v1/memos/m1/duplicate", { notebookId: "nb", title: "Copy" }],
   ["mergeMemos", [{ memoIds: ["a", "b"], title: "Merged" }], "POST", "/api/v1/memos/merge", { memoIds: ["a", "b"], title: "Merged" }],
   ["resetDemo", [], "POST", "/api/v1/demo/reset", undefined],
-  ["pluginAi.status", [], "GET", "/api/v1/plugins/ai/status", undefined],
 ];
 
 const resolveMethod = (client, name) =>
@@ -1031,145 +983,6 @@ describe("RTNote client binary and plugin endpoints", () => {
   });
 });
 
-describe("RTNote client direct AI preparation", () => {
-  const preparedText = {
-    provider: "openai-compatible",
-    baseUrl: "https://models.example/v1",
-    apiKey: "model-key",
-    modelId: "m",
-    system: "s",
-    prompt: "p",
-    maxOutputTokens: 10,
-  };
-
-  test("reports instances without direct AI preparation as unavailable", async () => {
-    for (const status of [404, 410]) {
-      const { client, calls } = createRecordingClient(() => new Response("", { status }));
-      await expect(client.streamAiGeneration(
-        { action: "summarize", title: "T", contentMarkdown: "B" },
-        { onEvent() {} },
-      )).rejects.toMatchObject({ status: 409, code: "ai_direct_unavailable" });
-      await expect(client.resumeCompanionTurn("turn 1", {}, { onEvent() {} }))
-        .rejects.toMatchObject({ code: "ai_direct_unavailable" });
-      expect(calls.map((call) => call.path)).toEqual([
-        "/api/v1/ai/generate/prepare",
-        "/api/v1/companion/turns/turn%201/resume/prepare",
-      ]);
-    }
-
-    const { client } = createRecordingClient(() => new Response("", { status: 404 }));
-    await expect(client.suggestAiTags({ title: "T", contentMarkdown: "B" }))
-      .rejects.toMatchObject({ code: "ai_direct_unavailable" });
-    await expect(client.checkCompanionDiscoveries("en"))
-      .rejects.toMatchObject({ code: "ai_direct_unavailable" });
-    await expect(client.pluginAi.generate({ prompt: "x" }))
-      .rejects.toMatchObject({ code: "ai_direct_unavailable" });
-  });
-
-  test("rejects malformed prepare responses without contacting a model provider", async () => {
-    const providerCalls = [];
-    const { client } = createRecordingClient(() => jsonResponse({ provider: "unknown" }), {
-      providerFetch: async (url) => { providerCalls.push(String(url)); return new Response(""); },
-    });
-
-    await expect(client.streamAiGeneration({ action: "summarize", title: "T", contentMarkdown: "B" }, { onEvent() {} }))
-      .rejects.toMatchObject({ status: 502, code: "ai_generation_failed" });
-    await expect(client.suggestAiTags({ title: "T", contentMarkdown: "B" }))
-      .rejects.toMatchObject({ status: 502, code: "ai_tag_suggestions_failed" });
-    await expect(client.checkCompanionDiscoveries("en"))
-      .rejects.toMatchObject({ status: 502, code: "companion_failed" });
-    await expect(client.pluginAi.generate({ prompt: "x" }))
-      .rejects.toMatchObject({ status: 502, code: "plugin_ai_failed" });
-    await expect(client.resumeCompanionTurn("t1", undefined, { onEvent() {} }))
-      .rejects.toMatchObject({ status: 502, code: "companion_failed" });
-    expect(providerCalls).toEqual([]);
-  });
-
-  test("surfaces prepare errors from the instance", async () => {
-    const { client } = createRecordingClient(() => jsonResponse(
-      { error: { code: "ai_not_configured", message: "Choose a model" } },
-      { status: 409 },
-    ));
-
-    for (const run of [
-      () => client.streamAiGeneration({ action: "summarize", title: "T", contentMarkdown: "B" }, { onEvent() {} }),
-      () => client.suggestAiTags({ title: "T", contentMarkdown: "B" }),
-      () => client.checkCompanionDiscoveries("en"),
-      () => client.pluginAi.generate({ prompt: "x" }),
-      () => client.streamInfographicAgent({ prompt: "x", candidates: [] }, { onEvent() {} }),
-      () => client.testAiProvider("aip_1", { modelId: "m" }),
-      () => client.discoverAiProviderModels("aip_1"),
-    ]) {
-      await expect(run()).rejects.toMatchObject({ status: 409, code: "ai_not_configured" });
-    }
-  });
-
-  test("does not send a request when the signal is already aborted", async () => {
-    const { client, calls } = createRecordingClient();
-    const controller = new AbortController();
-    controller.abort();
-
-    await expect(client.streamAiGeneration(
-      { action: "summarize", title: "T", contentMarkdown: "B" },
-      { signal: controller.signal, onEvent() {} },
-    )).rejects.toThrow();
-    await expect(client.suggestAiTags({ title: "T", contentMarkdown: "B" }, controller.signal)).rejects.toThrow();
-    await expect(client.streamCompanion({ id: "r", message: "hi" }, { signal: controller.signal, onEvent() {} })).rejects.toThrow();
-    expect(calls).toEqual([]);
-  });
-
-  test("returns quiet discovery results without calling a model", async () => {
-    const providerCalls = [];
-    const items = [{ id: "d1" }];
-    const { client, calls } = createRecordingClient(() => jsonResponse({ quiet: true, items }), {
-      providerFetch: async (url) => { providerCalls.push(String(url)); return new Response(""); },
-    });
-
-    expect(await client.checkCompanionDiscoveries("zh-CN")).toEqual({ items });
-    expect(calls.map((call) => [call.method, call.path, call.body])).toEqual([
-      ["POST", "/api/v1/companion/discovery/check/prepare?locale=zh-CN", "{}"],
-    ]);
-    expect(providerCalls).toEqual([]);
-  });
-
-  test("sends tag suggestion requests to the model provider directly without instance credentials", async () => {
-    const providerCalls = [];
-    const { client, calls } = createRecordingClient(() => jsonResponse({
-      ...preparedText,
-      currentTags: [],
-      canonicalTags: { react: "React" },
-    }), {
-      providerFetch: async (url, init) => {
-        providerCalls.push({ url: String(url), init, headers: new Headers(init.headers) });
-        return jsonResponse({ choices: [{ message: { content: '{"tags":["react"]}' } }] });
-      },
-    });
-
-    const result = await client.suggestAiTags({ title: "T", contentMarkdown: "React hooks" });
-
-    expect(calls.map((call) => call.path)).toEqual(["/api/v1/ai/tag-suggestions/prepare"]);
-    expect(providerCalls).toHaveLength(1);
-    expect(providerCalls[0].url.startsWith("https://models.example/v1")).toBe(true);
-    expect(providerCalls[0].init.credentials).toBe("omit");
-    expect(providerCalls[0].init.redirect).toBe("error");
-    expect(providerCalls[0].headers.get("Authorization")).not.toBe("Bearer secret");
-    expect(Array.isArray(result.suggestions)).toBe(true);
-  });
-
-  test("exposes a provider fetch that never shares instance cookies or follows redirects", async () => {
-    const providerCalls = [];
-    const { client, calls } = createRecordingClient(undefined, {
-      providerFetch: async (url, init) => { providerCalls.push({ url: String(url), init }); return new Response("ok"); },
-    });
-
-    const response = await client.fetchAiProvider("https://models.example/v1/models", { method: "GET" });
-
-    expect(await response.text()).toBe("ok");
-    expect(providerCalls[0].init).toMatchObject({ method: "GET", credentials: "omit", redirect: "error" });
-    expect(calls).toEqual([]);
-  });
-});
-
 describe("RTNote client JSON resource restore", () => {
   test("aborts the restore upload when reading the source fails", async () => {
     const { client, calls } = createRecordingClient((call) => (call.path.endsWith("/uploads")
@@ -1187,143 +1000,5 @@ describe("RTNote client JSON resource restore", () => {
       ["POST", "/api/v1/restores/json/resources/res_1/uploads"],
       ["DELETE", "/api/v1/resource-uploads/up%201"],
     ]);
-  });
-});
-
-describe("RTNote client direct AI runs", () => {
-  const companionTurn = {
-    turn: {
-      id: "11111111-1111-1111-1111-111111111111",
-      threadId: "22222222-2222-2222-2222-222222222222",
-      message: "hi",
-      response: "",
-      process: "",
-      status: "running",
-      sources: [],
-      tools: [],
-      todos: [],
-      questions: [],
-      mentions: [],
-      model: "direct-model",
-      inputTokens: null,
-      outputTokens: null,
-      createdAt: "2026-01-01T00:00:00.000Z",
-    },
-    provider: "openai-compatible",
-    baseUrl: "https://models.example/v1",
-    apiKey: "model-key",
-    modelId: "m",
-    instructions: "You are RTNote.",
-    messages: [{ role: "user", content: "hi" }],
-    tools: [],
-    maxSteps: 2,
-    maxOutputTokens: 64,
-  };
-  const streamedReply = 'data: {"choices":[{"delta":{"content":"Hello"}}]}\n\n'
-    + 'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\ndata: [DONE]\n\n';
-
-  test("relays a CORS-blocked companion request through the instance and completes the turn", async () => {
-    const relayed = [];
-    const { client, calls } = createRecordingClient(async (call) => {
-      if (call.path.endsWith("/resume/prepare")) return jsonResponse(companionTurn);
-      if (call.path === "/api/v1/ai/provider-relay") {
-        relayed.push({
-          target: call.headers.get("x-edgeever-ai-target"),
-          method: call.headers.get("x-edgeever-ai-method"),
-          forwarded: JSON.parse(call.headers.get("x-edgeever-ai-headers")),
-          contentType: call.headers.get("Content-Type"),
-          authorization: call.headers.get("Authorization"),
-          hasBody: call.body !== undefined,
-        });
-        return new Response(streamedReply, { headers: { "content-type": "text/event-stream" } });
-      }
-      if (call.path.endsWith("/complete")) {
-        const body = JSON.parse(call.body);
-        return jsonResponse({ turn: { ...companionTurn.turn, ...body } });
-      }
-      throw new Error(`Unexpected request ${call.path}`);
-    }, {
-      allowAiServerFallback: true,
-      providerFetch: async () => { throw new TypeError("Failed to fetch"); },
-    });
-    const events = [];
-
-    await client.resumeCompanionTurn(companionTurn.turn.id, { answers: {} }, { onEvent: (event) => events.push(event) });
-
-    expect(calls.map((call) => call.path)).toEqual([
-      `/api/v1/companion/turns/${companionTurn.turn.id}/resume/prepare`,
-      "/api/v1/ai/provider-relay",
-      `/api/v1/companion/turns/${companionTurn.turn.id}/complete`,
-    ]);
-    expect(relayed).toHaveLength(1);
-    expect(relayed[0]).toMatchObject({
-      target: "https://models.example/v1/chat/completions",
-      method: "POST",
-      contentType: "application/octet-stream",
-      authorization: "Bearer secret",
-      hasBody: true,
-    });
-    expect(events).toContainEqual({ type: "text-delta", text: "Hello" });
-    expect(events.at(-1)).toMatchObject({ type: "done", turn: { status: "completed" } });
-  });
-
-  test("does not relay through the instance unless server fallback is allowed", async () => {
-    const { client, calls } = createRecordingClient(async (call) => {
-      if (call.path.endsWith("/prepare")) return jsonResponse(companionTurn);
-      if (call.path.endsWith("/complete")) return jsonResponse({ turn: { ...companionTurn.turn, ...JSON.parse(call.body) } });
-      throw new Error(`Unexpected request ${call.path}`);
-    }, {
-      providerFetch: async () => { throw new TypeError("Failed to fetch"); },
-    });
-    const events = [];
-
-    await client.streamCompanion({ id: companionTurn.turn.id, message: "hi" }, { onEvent: (event) => events.push(event) }).catch(() => undefined);
-
-    expect(calls.map((call) => call.path)).not.toContain("/api/v1/ai/provider-relay");
-  });
-
-  test("generates plugin text with the prepared model directly", async () => {
-    const providerCalls = [];
-    const { client, calls } = createRecordingClient(() => jsonResponse({
-      provider: "openai-compatible",
-      baseUrl: "https://models.example/v1",
-      apiKey: "model-key",
-      modelId: "m",
-      system: "s",
-      prompt: "p",
-      maxOutputTokens: 10,
-    }), {
-      providerFetch: async (url, init) => {
-        providerCalls.push({ url: String(url), headers: new Headers(init.headers) });
-        return jsonResponse({ choices: [{ message: { content: "Plugin answer" } }] });
-      },
-    });
-
-    const result = await client.pluginAi.generate({ prompt: "Say hi", system: "Be brief" });
-
-    expect(result).toEqual({ text: "Plugin answer" });
-    expect(calls.map((call) => [call.method, call.path])).toEqual([["POST", "/api/v1/plugins/ai/generate/prepare"]]);
-    expect(parsedBody(calls[0])).toEqual({ prompt: "Say hi", system: "Be brief" });
-    expect(providerCalls).toHaveLength(1);
-    expect(providerCalls[0].headers.get("Authorization")).toBe("Bearer model-key");
-  });
-});
-
-describe("AI model output budgets (#652)", () => {
-  test("updateAiModel sends only the provided budget fields with PATCH", async () => {
-    const calls = [];
-    const client = createEdgeEverClient({
-      baseUrl: "https://notes.example",
-      fetch: async (input, init) => {
-        calls.push({ url: String(input), method: init?.method, body: init?.body });
-        return Response.json({ providers: [], defaultModelId: null, encryptionConfigured: true, readOnly: false });
-      },
-    });
-    await client.updateAiModel("aip 1", "aim/1", { generationMaxOutputTokens: null, companionMaxOutputTokens: 9000 });
-    expect(calls).toEqual([{
-      url: "https://notes.example/api/v1/ai/providers/aip%201/models/aim%2F1",
-      method: "PATCH",
-      body: JSON.stringify({ generationMaxOutputTokens: null, companionMaxOutputTokens: 9000 }),
-    }]);
   });
 });

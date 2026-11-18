@@ -29,10 +29,10 @@ describe("local share markdown", () => {
     const fetchImpl = async (url) => {
       if (String(url).endsWith(".md")) return new Response("<html></html>", { status: 200, headers: { "content-type": "text/html" } });
       expect(url).toBe(`http://api.test/api/public/shares/${token}`);
-      return jsonResponse(200, { share: { title: "布局按钮", contentMarkdown: "按钮在右上角。\n" } });
+      return jsonResponse(200, { share: { title: "Layout button", contentMarkdown: "The button is in the top-right corner.\n" } });
     };
     const result = await loadDevShareMarkdown(token, fetchImpl, "http://api.test");
-    expect(result).toEqual({ status: 200, body: "# 布局按钮\n\n按钮在右上角。\n" });
+    expect(result).toEqual({ status: 200, body: "# Layout button\n\nThe button is in the top-right corner.\n" });
   });
 
   test("keeps a missing or locked note out of the body", async () => {

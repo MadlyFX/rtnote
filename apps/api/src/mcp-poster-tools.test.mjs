@@ -108,14 +108,14 @@ test("poster edits update canonical copy, support background changes and retain 
 
 test("informative posters retain each section through editing and source round-trip", () => {
   const sections = [
-    { heading: "社交", body: "连接用户与日常沟通场景" },
-    { heading: "内容", body: "承载资讯、视频与数字阅读" },
-    { heading: "游戏", body: "连接互动娱乐与数字内容" },
-    { heading: "金融科技", body: "服务支付与金融应用场景" },
-    { heading: "企业服务", body: "提供云与企业协作能力" },
+    { heading: "Social", body: "Everyday messaging" },
+    { heading: "Content", body: "News, video, reading" },
+    { heading: "Games", body: "Interactive play" },
+    { heading: "Fintech", body: "Payments" },
+    { heading: "Business", body: "Cloud and teamwork" },
   ];
   for (const format of POSTER_FORMATS) {
-    const { document } = compilePosterMemo({ notebookId: "inbox", title: "腾讯产业布局", heading: "腾讯产业布局", subtitle: "以连接为核心的数字生态", badge: "产业观察", footer: "从用户连接，延伸到内容与服务", sections, template: "bold", format: format.id });
+    const { document } = compilePosterMemo({ notebookId: "inbox", title: "Acme business map", heading: "Acme business map", subtitle: "A connected ecosystem", badge: "Industry", footer: "From people to services", sections, template: "bold", format: format.id });
     const restored = parsePosterDocument(serializePosterDocument(document));
     expect(restored).toEqual(document);
     for (const element of document.elements) {
@@ -127,25 +127,25 @@ test("informative posters retain each section through editing and source round-t
     sections.forEach((section, index) => {
       expect(document.elements.find(e => e.id === `section-${index + 1}-body`).text).toBe(section.body);
     });
-    const edited = applyPosterEdits({ memoId: "memo", expectedRevision: 1, edits: [{ id: "section-1-body", patch: { text: "连接人与沟通场景" } }] }, document).document;
-    expect(edited.elements.find(e => e.id === "section-1-body").text).toBe("连接人与沟通场景");
-    expect(edited.copy.title).toBe("腾讯产业布局");
-    expect(edited.copy.subtitle).toBe("以连接为核心的数字生态");
+    const edited = applyPosterEdits({ memoId: "memo", expectedRevision: 1, edits: [{ id: "section-1-body", patch: { text: "People and messaging" } }] }, document).document;
+    expect(edited.elements.find(e => e.id === "section-1-body").text).toBe("People and messaging");
+    expect(edited.copy.title).toBe("Acme business map");
+    expect(edited.copy.subtitle).toBe("A connected ecosystem");
   }
 });
 
 test("content layouts adapt columns, reject overflow and leave headline-only callers compatible", () => {
-  const sections = Array.from({ length: 6 }, (_, i) => ({ heading: `要点 ${i + 1}`, body: "简短说明" }));
-  const build = fields => compilePosterMemo({ notebookId: "inbox", title: "Poster", heading: "知识要点", sections, ...fields }).document;
+  const sections = Array.from({ length: 6 }, (_, i) => ({ heading: `Point ${i + 1}`, body: "Short note" }));
+  const build = fields => compilePosterMemo({ notebookId: "inbox", title: "Poster", heading: "Key points", sections, ...fields }).document;
   const grid = build({ layout: "grid" });
   const list = build({ layout: "list" });
   expect(grid.elements.find(e => e.id === "section-2-card").y).toBe(grid.elements.find(e => e.id === "section-1-card").y);
   expect(list.elements.find(e => e.id === "section-2-card").y).toBeGreaterThan(list.elements.find(e => e.id === "section-1-card").y);
   expect(build({ format: "story" }).elements.find(e => e.id === "section-2-card").x).toBe(build({ format: "story" }).elements.find(e => e.id === "section-1-card").x);
-  expect(() => build({ format: "wechat", layout: "list", sections: sections.map(section => ({ ...section, body: "说明\n".repeat(30) })) })).toThrow("does not fit");
+  expect(() => build({ format: "wechat", layout: "list", sections: sections.map(section => ({ ...section, body: "Hi\n".repeat(30) })) })).toThrow("does not fit");
   expect(() => build({ sections: [sections[0]] })).toThrow();
   expect(() => build({ sections: sections.concat(sections[0]) })).toThrow();
-  const legacy = compilePosterMemo({ notebookId: "inbox", title: "Poster", heading: "一句话" }).document;
+  const legacy = compilePosterMemo({ notebookId: "inbox", title: "Poster", heading: "One line" }).document;
   expect(legacy.elements).toHaveLength(3);
   expect(() => build({ sections: undefined, footer: "Requires sections" })).toThrow("require sections");
 });

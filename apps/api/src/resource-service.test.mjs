@@ -55,10 +55,10 @@ describe("resource service contracts", () => {
   });
 
   test("normalizes filenames and keeps UTF-8 download names", () => {
-    expect(normalizeFilename("  reports/季度\u0000.pdf  ")).toBe("reports-季度.pdf");
-    const disposition = contentDispositionAttachment("季度报告 (最终版)'*.pdf");
+    expect(normalizeFilename("  reports/отчёт\u0000.pdf  ")).toBe("reports-отчёт.pdf");
+    const disposition = contentDispositionAttachment("отчёт (итог)'*.pdf");
     expect(disposition).toBe(
-      "attachment; filename=\"download.pdf\"; filename*=UTF-8''%E5%AD%A3%E5%BA%A6%E6%8A%A5%E5%91%8A%20%28%E6%9C%80%E7%BB%88%E7%89%88%29%27%2A.pdf",
+      "attachment; filename=\"download.pdf\"; filename*=UTF-8''%D0%BE%D1%82%D1%87%D1%91%D1%82%20%28%D0%B8%D1%82%D0%BE%D0%B3%29%27%2A.pdf",
     );
     expect(new Headers({ "Content-Disposition": disposition }).get("Content-Disposition")).toBe(disposition);
     expect(contentDispositionAttachment("résumé.pdf")).toContain('filename="resume.pdf"');

@@ -20,6 +20,9 @@ export const isPluginMenuCommand = (command: { menu?: boolean }) => command.menu
 export const isPluginMenuPanel = (panel: { purpose?: string }) =>
   panel.purpose === "dashboard" || panel.purpose === "onboarding" || !panel.purpose;
 
+const OPEN_ZH = "\u6253\u5f00";
+const PANEL_ZH = "\u9762\u677f";
+
 const isDashboardLauncherCommand = (
   command: { title: string },
   panels: Array<{ title: string; purpose?: string }>,
@@ -28,7 +31,8 @@ const isDashboardLauncherCommand = (
   const panelTitle = panel.title?.trim() ?? "";
   const title = command.title?.trim() ?? "";
   if (!panelTitle || !title) return false;
-  if (title === `打开${panelTitle}` || title === `打开${panelTitle}面板`) return true;
+  // Chinese plugin titles: "Open <panel>" and "Open <panel> panel".
+  if (title === `${OPEN_ZH}${panelTitle}` || title === `${OPEN_ZH}${panelTitle}${PANEL_ZH}`) return true;
   const lower = title.toLocaleLowerCase();
   const panelLower = panelTitle.toLocaleLowerCase();
   return lower === `open ${panelLower}` || lower === `open ${panelLower} dashboard`;

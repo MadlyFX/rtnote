@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { ui } from "./fixtures/ui-labels";
 
 const createMemo = async (page: Page, title: string) => {
   const notebooksResponse = await page.request.get("/api/v1/notebooks");
@@ -50,12 +51,12 @@ test("converts a pasted Markdown image line in the main Web editor", async ({ pa
   const title = `Markdown image paste ${Date.now()}`;
   const memo = await createMemo(page, title);
   const source = "https://picui.ogmua.cn/s1/2026/08/12/6a7c64323d0a8.webp";
-  const markdown = `![图片](${source} \"Issue 229\")`;
+  const markdown = `![Picture](${source} \"Issue 229\")`;
 
   try {
     await page.goto("/");
-    await page.getByRole("button", { name: "全部笔记", exact: true }).click();
-    await page.getByPlaceholder("搜索笔记").fill(title);
+    await page.getByRole("button", { name: ui.notebookPane.allMemos, exact: true }).click();
+    await page.getByPlaceholder(ui.memoList.searchPlaceholder).fill(title);
     await page.locator(`[data-memo-id="${memo.id}"]`).locator("button").first().click();
 
     const editor = page.locator(".ProseMirror[contenteditable='true']");
@@ -64,7 +65,7 @@ test("converts a pasted Markdown image line in the main Web editor", async ({ pa
 
     const image = editor.locator(`img[src="${source}"]`);
     await expect(image).toHaveCount(1);
-    await expect(image).toHaveAttribute("alt", "图片");
+    await expect(image).toHaveAttribute("alt", "Picture");
     // Filenames/titles stay in the document model, not native hover tooltips.
     await expect(image).not.toHaveAttribute("title");
     await expect(editor).not.toContainText(markdown);
@@ -72,7 +73,7 @@ test("converts a pasted Markdown image line in the main Web editor", async ({ pa
     const imageNode = editor.locator(".edgeever-image-node");
     await image.click();
     await expect(imageNode).toHaveClass(/(?:is-selected|ProseMirror-selectednode)/);
-    await imageNode.getByRole("button", { name: "较小" }).click();
+    await imageNode.getByRole("button", { name: ui.editor.imageSizeSmall }).click();
 
     const editorBox = await editor.boundingBox();
     const imageBox = await imageNode.boundingBox();
@@ -144,8 +145,8 @@ test("shows a stable local preview while a pasted image is uploading", async ({ 
       await route.continue();
     });
     await page.goto("/");
-    await page.getByRole("button", { name: "全部笔记", exact: true }).click();
-    await page.getByPlaceholder("搜索笔记").fill(title);
+    await page.getByRole("button", { name: ui.notebookPane.allMemos, exact: true }).click();
+    await page.getByPlaceholder(ui.memoList.searchPlaceholder).fill(title);
     await page.locator(`[data-memo-id="${memo.id}"]`).locator("button").first().click();
 
     const editor = page.locator(".ProseMirror[contenteditable='true']");
@@ -178,7 +179,7 @@ for (const mimeType of ["image/svg+xml", "application/octet-stream"]) {
     try {
       await page.goto("/");
       await expect(page.locator(".ProseMirror[contenteditable='true']")).toBeEditable();
-      await page.getByRole("button", { name: "全部笔记", exact: true }).click();
+      await page.getByRole("button", { name: ui.notebookPane.allMemos, exact: true }).click();
       await page.locator(`[data-memo-id="${memo.id}"]`).locator("button").first().click();
       const editor = page.locator(".ProseMirror[contenteditable='true']");
       await expect(editor).toBeEditable();
@@ -205,7 +206,7 @@ for (const mimeType of ["image/svg+xml", "application/octet-stream"]) {
       }).toContain(resource.url);
       await page.reload();
       await expect(page.locator(".ProseMirror[contenteditable='true']")).toBeEditable();
-      await page.getByRole("button", { name: "全部笔记", exact: true }).click();
+      await page.getByRole("button", { name: ui.notebookPane.allMemos, exact: true }).click();
       await page.locator(`[data-memo-id="${memo.id}"]`).locator("button").first().click();
       await expect(page.locator(`.ProseMirror img[src="${resource.url}"]`)).toBeVisible();
       // Opening the original as a document must not execute embedded scripts.

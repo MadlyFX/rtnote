@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { ui } from "./fixtures/ui-labels";
 
 // #709: exercise the real EditorPane drop handler, coordinates, and async upload.
 // Synthetic DragEvents cannot verify Finder's native drag transport.
@@ -21,10 +22,10 @@ for (const kind of ["image", "attachment"]) {
       });
       await page.goto("/");
       // A prior browser session may have left focus mode on.
-      const exitFocus = page.getByRole("button", { name: "退出专注模式", exact: true });
+      const exitFocus = page.getByRole("button", { name: ui.editor.exitFocusMode, exact: true });
       if (await exitFocus.isVisible()) await exitFocus.click();
-      await page.getByRole("button", { name: "全部笔记", exact: true }).click();
-      await page.getByPlaceholder("搜索笔记").fill(title);
+      await page.getByRole("button", { name: ui.notebookPane.allMemos, exact: true }).click();
+      await page.getByPlaceholder(ui.memoList.searchPlaceholder).fill(title);
       await page.locator(`[data-memo-id="${memo.id}"]`).locator("button").first().click();
       const editor = page.locator(".ProseMirror[contenteditable='true']");
       await expect(editor).toContainText("LAST paragraph");

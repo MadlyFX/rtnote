@@ -33,7 +33,7 @@ describe("linked image persistence", () => {
   });
 
   test("keeps image labels literal rather than interpreting them as rich text", () => {
-    const alt = "图 [ ] \\ $x$ &copy;";
+    const alt = "Fig [ ] \\ $x$ &copy;";
     const doc = { type: "doc", content: [{ type: "image", attrs: { src: imageUrl, alt } }] };
     expect(images(markdownToDoc(docToMarkdown(doc)))[0].attrs.alt).toBe(alt);
   });

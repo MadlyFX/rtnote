@@ -18,7 +18,7 @@ Chrome, Edge, and Firefox Manifest V3 extension for saving the current webpage, 
 - On Reddit, right-click a post or its title link and choose **Save Reddit post to RTNote**. The selected post becomes one note with its title, author, community, post text, source link, linked page, and available images. Comments are left out. The extension reads the selected post through Reddit's JSON response when available and falls back to its visible content. If the pointer listener is unavailable on a feed, right-click the same post once more.
 - On a GitHub repository page or code tree, right-click the page background, the description, or the README text and choose **Save this repository to RTNote**. The note keeps the repository address, the About text, and the homepage, language, license, and topics when the page shows them. An empty About falls back to the README's first paragraph. Issue, discussion, and single-file pages are left unsaved. The toolbar action uses the same card on those repository pages. Right-clicking a link or an image keeps the existing selection and image commands, so this one stays on the top-level menu.
 - On a Hacker News post detail page, right-click the page and choose **Save Hacker News post to RTNote**, or click **Clip current page**. The note keeps the title, author, original time, points at capture, external link and main-post text when available, without comments. Ask HN, Show HN and link-only posts are supported. Selecting text before the toolbar action saves only that selection.
-- On a YouTube or Bilibili watch page, right-click the page or the player and choose **Save video note to RTNote**. The note keeps the source and timestamped captions. A cover is uploaded only when the page provided the image bytes. A summary is added when the token includes `ai:generate` and the workspace has a default model. The command runs only after that click. Lives, premieres, bangumi, and other pages are left unsaved.
+- On a YouTube or Bilibili watch page, right-click the page or the player and choose **Save video note to RTNote**. The note keeps the source and timestamped captions. A cover is uploaded only when the page provided the image bytes. The command runs only after that click. Lives, premieres, bangumi, and other pages are left unsaved.
 - When the page cannot hand over the image bytes, the extension asks once for access to that image's site. After that, later images from the same site save directly.
 - Create a searchable RTNote memo with the source URL and a `web-clip` tag.
 
@@ -36,7 +36,7 @@ Extension pages use React, shared shadcn/ui-style Button and Input components, a
 
 The extension uses the cross-browser `chrome.i18n` compatibility namespace. English is the fallback locale. Simplified Chinese, Japanese, and Polish are available for browsers whose UI language matches.
 
-User-visible strings live in `public/_locales/<locale>/messages.json`. Add or update every supported locale when changing interface copy. Chrome Web Store listing translations are maintained separately in the developer dashboard; ready-to-paste English and Simplified Chinese copy is available in `STORE_LISTING.md`.
+User-visible strings live in `public/_locales/<locale>/messages.json`. Add or update every supported locale when changing interface copy. Chrome Web Store listing translations are maintained separately in the developer dashboard; ready-to-paste English copy is in `STORE_LISTING.md` and the Simplified Chinese translation in `STORE_LISTING.zh-CN.md`.
 
 ## Development
 
@@ -87,7 +87,7 @@ The Firefox package declares the data types required by its user-triggered clipp
 
 - `authenticationInfo`: the API token sent directly to the user's RTNote instance.
 - `browsingActivity`: the URL of the page the user chooses to clip.
-- `websiteContent`: the selected text, extracted article content, image, or video page the user chooses to clip. The extension sends that content only to the configured RTNote instance. When the token includes `ai:generate` and the workspace has a default model, the instance sends the caption text to that model provider. The extension does not send the page or its audio anywhere else.
+- `websiteContent`: the selected text, extracted article content, image, or video page the user chooses to clip. The extension sends that content only to the configured RTNote instance. The extension does not send the page or its audio anywhere else.
 
 No data is sent to an RTNote-operated relay, analytics service, or advertising service.
 

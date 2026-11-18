@@ -23,7 +23,7 @@ test("opening, external saves, restart recovery and competing-device edits use t
     };
     const { notebook } = await post("/notebooks", { name: "Attachment editing" });
     const { memo } = await post("/memos", { notebookId: notebook.id, title: "Writeback", contentMarkdown: "Attachment" });
-    const form = new FormData(); form.append("file", new File(["original"], "预算.txt", { type: "text/plain" }));
+    const form = new FormData(); form.append("file", new File(["original"], "Café budget.txt", { type: "text/plain" }));
     const upload = await api(`/memos/${memo.id}/resources`, { method: "POST", body: form });
     expect(upload.status).toBe(201);
     const { resource } = await upload.json();
@@ -50,13 +50,13 @@ test("opening, external saves, restart recovery and competing-device edits use t
       readResource: async () => api(`/resources/${resource.id}/blob`, { cache: "no-store" }),
       openPath: async path => { opened.push(path); return ""; }, writeback: manager,
     });
-    expect(await openAttachment({}, { url: `edgeever-resource://resource/${resource.id}`, filename: "预算.txt" })).toEqual({ ok: true });
+    expect(await openAttachment({}, { url: `edgeever-resource://resource/${resource.id}`, filename: "Café budget.txt" })).toEqual({ ok: true });
     const settle = async () => { await manager.tick(); now += 2000; await manager.tick(); };
     await writeFile(opened[0], "first saved edit"); await settle();
     // A different client reads the same resource ID, not a new uploaded attachment.
     expect(await (await api(`/resources/${resource.id}/blob`, { cache: "no-store" })).text()).toBe("first saved edit");
     expect(uploaded[0].id).toBe(resource.id);
-    expect(uploaded[0].filename).toBe("预算.txt");
+    expect(uploaded[0].filename).toBe("Café budget.txt");
     offline = true;
     await writeFile(opened[0], "offline edit"); await settle();
     manager.suspend(); manager = createAttachmentWritebackManager(options);
@@ -67,7 +67,7 @@ test("opening, external saves, restart recovery and competing-device edits use t
     expect(await (await api(`/resources/${resource.id}/blob`)).text()).toBe("offline edit");
     // Another device wins first; the local copy must survive without overwriting it.
     const resourceRow = database.query("SELECT sha256 FROM resources WHERE id = ?").get(resource.id);
-    const other = new FormData(); other.append("file", new File(["other device"], "预算.txt", { type: "text/plain" })); other.append("expectedContentHash", resourceRow.sha256);
+    const other = new FormData(); other.append("file", new File(["other device"], "Café budget.txt", { type: "text/plain" })); other.append("expectedContentHash", resourceRow.sha256);
     expect((await api(`/resources/${resource.id}/blob`, { method: "PUT", body: other })).ok).toBe(true);
     await writeFile(opened[0], "conflicting local edit"); await settle();
     expect((await manager.list())[0].status).toBe("conflict");

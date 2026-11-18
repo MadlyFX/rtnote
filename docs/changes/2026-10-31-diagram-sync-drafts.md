@@ -38,8 +38,8 @@ Incorrect acknowledgment classification could hide a genuine remote change or ad
 
 The unmodified v2.16.0 baseline (`01422910`) and fixed renderer (`e0e1b678`) use the same standard native development entry, Electron 44.7.0, Rust sidecar, real SQLite, and real API. Both use a 1440 × 900 window; screenshots crop the same editor area at 100% zoom.
 
-1. Open an eight-node mind map and change its title to “上次自动保存的标题”. Let the real API store that autosave, but hold its response.
-2. Before the next 1,200 ms autosave, add “【新增】回执返回也不能丢” and change the title to “刚输入的新标题（不能丢）”. Pause the renderer clock to keep this draft pending, then release the older response.
+1. Open an eight-node mind map and change its title to “Last autosaved title” (in Chinese). Let the real API store that autosave, but hold its response.
+2. Before the next 1,200 ms autosave, add “[New] must survive the response” and change the title to “Just-typed new title (must not be lost)” (both in Chinese). Pause the renderer clock to keep this draft pending, then release the older response.
 3. Advance the clock by 1,400 ms, synchronize, read the native SQLite memo and server memo, then fully quit and restart the native client and reopen the note. The API response and memo data are not rewritten by the test.
 
 | Stage | Before the fix | After the fix |

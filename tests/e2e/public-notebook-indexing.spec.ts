@@ -1,5 +1,6 @@
 import { expect, test, type Page, type APIRequestContext } from "@playwright/test";
 import { PUBLIC_PAGE_ROBOTS } from "../../packages/shared/src/public-page-headers";
+import { ui } from "./fixtures/ui-labels";
 
 const createSite = async (request: APIRequestContext) => {
   const slug = `robots-${crypto.randomUUID()}`;
@@ -64,12 +65,12 @@ for (const excluded of [false, true]) {
       });
       await page.goto(path);
       await expect(page.locator("header").getByText(site.slug, { exact: true })).toBeVisible();
-      await expect(page.getByLabel("正在加载分享笔记")).toBeVisible();
+      await expect(page.getByLabel(ui.sharing.publicLoading)).toBeVisible();
       await expect(robots(page)).toHaveCount(1);
       await expectRobots(page, PUBLIC_PAGE_ROBOTS);
       release();
       if (excluded) {
-        await expect(page.getByRole("heading", { name: "这篇分享笔记不可用", exact: true })).toBeVisible();
+        await expect(page.getByRole("heading", { name: ui.sharing.publicUnavailable, exact: true })).toBeVisible();
       } else {
         await expect(page.getByText("Visible article body.", { exact: true })).toBeVisible();
       }

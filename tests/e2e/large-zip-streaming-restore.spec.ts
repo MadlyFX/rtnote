@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { once } from "node:events";
 import { Zip, ZipDeflate, ZipPassThrough, strToU8 } from "fflate";
+import { format, ui } from "./fixtures/ui-labels";
 
 const E2E_USERNAME = process.env.EDGE_EVER_E2E_USERNAME || "admin";
 const E2E_PASSWORD = process.env.EDGE_EVER_E2E_PASSWORD || "admin123";
@@ -49,7 +50,7 @@ const createLargeBackup = async () => {
   const marker = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
   const notebookId = `nb_e2e_large_zip_${marker}`;
   const memoId = `memo_e2e_large_zip_${marker}`;
-  const title = `E2E 超大 ZIP 恢复 ${marker}`;
+  const title = `E2E large ZIP restore ${marker}`;
   const timestamp = "2026-08-31T00:00:00.000Z";
   const resources = RESOURCE_SPECS.map((spec) => ({
     id: `res_e2e_large_zip_${spec.suffix}_${marker}`,
@@ -170,21 +171,21 @@ test("imports a 600 MiB attachment from an RTNote ZIP through streaming multipar
     });
 
     await page.goto("/");
-    await page.getByRole("button", { name: "个人中心", exact: true }).click();
-    await expect(page.getByRole("heading", { name: "我的", exact: true })).toBeVisible();
-    await page.getByRole("button", { name: "备份与导入", exact: true }).click();
-    await expect(page.getByText("导入与导出", { exact: true })).toBeVisible();
+    await page.getByRole("button", { name: ui.notebookPane.profile, exact: true }).click();
+    await expect(page.getByRole("heading", { name: ui.settings.title, exact: true })).toBeVisible();
+    await page.getByRole("button", { name: ui.settings.tabs.data, exact: true }).click();
+    await expect(page.getByText(ui.dataExport.title, { exact: true })).toBeVisible();
 
     const chooserPromise = page.waitForEvent("filechooser");
-    await page.getByRole("button", { name: "导入 RTNote ZIP", exact: true }).click();
+    await page.getByRole("button", { name: ui.dataExport.importButton, exact: true }).click();
     const chooser = await chooserPromise;
     await chooser.setFiles(fixture.archivePath);
 
-    const confirmation = page.getByRole("dialog", { name: "导入 RTNote ZIP" });
+    const confirmation = page.getByRole("dialog", { name: ui.dataExport.importButton });
     await expect(confirmation).toBeVisible({ timeout: 120_000 });
-    await expect(confirmation).toContainText("1 篇笔记和 1 个资源");
-    await confirmation.getByRole("button", { name: "确认导入", exact: true }).click();
-    await expect(page.getByText("RTNote ZIP 导入完成。", { exact: true })).toBeVisible({ timeout: 180_000 });
+    await expect(confirmation).toContainText(format(ui.dataExport.importConfirmDescription, { memos: 1, resources: 1 }));
+    await confirmation.getByRole("button", { name: ui.dataExport.confirmImport, exact: true }).click();
+    await expect(page.getByText(ui.dataExport.importComplete, { exact: true })).toBeVisible({ timeout: 180_000 });
 
     expect(restoredPartNumbers).toHaveLength(76);
     expect(restoredPartNumbers.filter((part) => part === 1)).toHaveLength(1);

@@ -5,7 +5,7 @@ import { FONT_CATALOG, NOTE_BODY_FONT_MENU_GROUPS, isRemoteNoteImageFont, type R
 import { FontLoadFeedback } from "@/components/FontLoadFeedback";
 import { editorFontLoadState, uiFontLoadState, retryEditorCatalogFont, retryUiCatalogFont } from "@/lib/editor-catalog-fonts";
 import { FontLabel } from "@/components/FontLabel";
-import { AlignLeft, AlignVerticalSpaceAround, AppWindow, BookOpenText, ChartNoAxesCombined, Code2, Heading, Highlighter, Image, LayoutTemplate, Languages, ListTree, MousePointerClick, MoveHorizontal, Palette, Pilcrow, Quote, Sparkles, SpellCheck, SunMoon, Type } from "lucide-react";
+import { AlignLeft, AlignVerticalSpaceAround, AppWindow, BookOpenText, ChartNoAxesCombined, Code2, Heading, Highlighter, Image, LayoutTemplate, Languages, ListTree, MousePointerClick, MoveHorizontal, Palette, Pilcrow, Quote, SpellCheck, SunMoon, Type } from "lucide-react";
 import { useState, useEffect, useSyncExternalStore, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import type {
@@ -48,11 +48,6 @@ import {
   writeEditorLinkOpenMode,
   type EditorLinkOpenMode,
 } from "@/lib/editor-link-click";
-import {
-  AI_SELECTION_MENU_CHANGED_EVENT,
-  readAiSelectionMenuPreference,
-  writeAiSelectionMenuPreference,
-} from "@/lib/ai-selection-menu-preference";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -80,6 +75,7 @@ import { syncPublishedNoteBodyFont } from "@/lib/published-note-body-font";
 import { useShowDescendantNotesPreference, writeShowDescendantNotesPreference } from "@/lib/descendant-notes-preference";
 import { LoginItemSettingsItem } from "./LoginItemSettingsItem";
 import { PicGoSettingsItem } from "./PicGoSettingsItem";
+import { VoiceMemoSettingsItem } from "./VoiceMemoSettingsItem";
 import { BrandingPreferences } from "./BrandingPreferences";
 import { NoteProseCssEditor } from "./NoteProseCssEditor";
 import { NoteProseCssPreview } from "./NoteProseCssPreview";
@@ -98,12 +94,14 @@ import {
   useMermaidTheme,
   type ThemePreference,
 } from "../ThemeProvider";
+import { prefersChineseContent } from "@/lib/bilingual-content-locale";
 
+// Chinese UI locales show each font's Chinese name next to the family name.
 const CUSTOM_FONT_SUGGESTIONS = [
-  { label: "苹方 (PingFang SC)", family: "PingFang SC" },
-  { label: "微软雅黑 (Microsoft YaHei)", family: "Microsoft YaHei" },
-  { label: "鸿蒙黑体 (HarmonyOS)", family: "HarmonyOS Sans SC" },
-  { label: "冬青黑体 (Hiragino)", family: "Hiragino Sans GB" },
+  { label: "PingFang SC", zh: "苹方 (PingFang SC)", family: "PingFang SC" },
+  { label: "Microsoft YaHei", zh: "微软雅黑 (Microsoft YaHei)", family: "Microsoft YaHei" },
+  { label: "HarmonyOS Sans", zh: "鸿蒙黑体 (HarmonyOS)", family: "HarmonyOS Sans SC" },
+  { label: "Hiragino Sans GB", zh: "冬青黑体 (Hiragino)", family: "Hiragino Sans GB" },
 ] as const;
 
 const LEGACY_NOTE_BODY_MENU_KEYS = {
@@ -141,7 +139,8 @@ const FontChoiceFields = ({
   preference: EditorBodyFontPreference;
   onChange: (preference: EditorBodyFontPreference) => void;
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const chineseFontNames = prefersChineseContent(i18n.resolvedLanguage ?? i18n.language);
   const [fontOpen, setFontOpen] = useState(false);
   const [fontRetry, setFontRetry] = useState(0);
   const loadState = includeCatalog ? editorFontLoadState : uiFontLoadState;
@@ -216,7 +215,7 @@ const FontChoiceFields = ({
                 className="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-slate-600 transition-colors hover:border-slate-300 hover:bg-slate-100 hover:text-slate-900"
                 onClick={() => onChange({ choice: "custom", customFamily: item.family })}
               >
-                {item.label}
+                {chineseFontNames ? item.zh : item.label}
               </button>
             ))}
           </div>
@@ -266,7 +265,6 @@ export const PreferenceCard = ({
   const [cssPreviewTheme, setCssPreviewTheme] = useState<"light" | "dark">("light");
   const [activeLocalePreference, setActiveLocalePreference] = useState<AppLocalePreference>(() => getAppLocalePreference());
   const [linkOpenMode, setLinkOpenMode] = useState<EditorLinkOpenMode>(() => getStoredEditorLinkOpenMode());
-  const [aiSelectionMenuEnabled, setAiSelectionMenuEnabled] = useState(readAiSelectionMenuPreference);
   const [spellcheckEnabled, setSpellcheckEnabled] = useState(readEditorSpellcheckPreference);
   const noteProseStyle = useNoteProseStylePreference();
   const [editorBodyFont, setEditorBodyFont] = useState(readEditorBodyFontPreference);
@@ -286,24 +284,6 @@ export const PreferenceCard = ({
     window.addEventListener("storage", syncPreference);
     return () => {
       window.removeEventListener(EDITOR_SPELLCHECK_CHANGED_EVENT, onPreferenceChanged);
-      window.removeEventListener("storage", syncPreference);
-    };
-  }, []);
-
-  useEffect(() => {
-    const syncPreference = () => setAiSelectionMenuEnabled(readAiSelectionMenuPreference());
-    const onPreferenceChanged = (event: Event) => {
-      const detail = (event as CustomEvent<boolean>).detail;
-      if (typeof detail === "boolean") {
-        setAiSelectionMenuEnabled(detail);
-        return;
-      }
-      syncPreference();
-    };
-    window.addEventListener(AI_SELECTION_MENU_CHANGED_EVENT, onPreferenceChanged);
-    window.addEventListener("storage", syncPreference);
-    return () => {
-      window.removeEventListener(AI_SELECTION_MENU_CHANGED_EVENT, onPreferenceChanged);
       window.removeEventListener("storage", syncPreference);
     };
   }, []);
@@ -765,6 +745,8 @@ export const PreferenceCard = ({
             </div>
           </div>
 
+          <VoiceMemoSettingsItem />
+
           <div className="flex min-h-16 flex-col items-start gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <div className="flex min-w-0 items-center gap-3">
               <SpellCheck className="h-4 w-4 shrink-0 text-slate-500" />
@@ -780,25 +762,6 @@ export const PreferenceCard = ({
                   setSpellcheckEnabled(enabled);
                 }}
                 aria-label={t("settings.spellcheckAria")}
-              />
-            </div>
-          </div>
-
-          <div className="flex min-h-16 flex-col items-start gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-            <div className="flex min-w-0 items-center gap-3">
-              <Sparkles className="h-4 w-4 shrink-0 text-slate-500" />
-              <div className="min-w-0">
-                <div className={SETTINGS_ITEM_TITLE_CLASSNAME}>{t("settings.aiSelectionMenuTitle")}</div>
-              </div>
-            </div>
-            <div className="flex w-full shrink-0 justify-start sm:w-44 sm:justify-end">
-              <Switch
-                checked={aiSelectionMenuEnabled}
-                onCheckedChange={(enabled) => {
-                  writeAiSelectionMenuPreference(enabled);
-                  setAiSelectionMenuEnabled(enabled);
-                }}
-                aria-label={t("settings.aiSelectionMenuAria")}
               />
             </div>
           </div>

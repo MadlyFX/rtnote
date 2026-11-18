@@ -157,7 +157,7 @@ const MCP_TOOL_DEFINITIONS = [
   },
   {
     name: "search_memos",
-    description: "Search active RTNote memos by text, tag, notebook, time range, pin state, resource presence, or poster type. Results retain their excerpt and add a snippet of up to 200 characters when the query or its terms can be located in the body. Snippets may omit surrounding conditions; read the memo when more context is needed. Use poster=true to find editable poster notes (海报笔记); do not search for the word 海报 to identify the type. query is optional. For recently created or added notes, pass createdAfter and omit query; do not put this week/最近/新增 in query. Time bounds accept YYYY-MM-DD or ISO date-time.",
+    description: "Search active RTNote memos by text, tag, notebook, time range, pin state, resource presence, or poster type. Results retain their excerpt and add a snippet of up to 200 characters when the query or its terms can be located in the body. Snippets may omit surrounding conditions; read the memo when more context is needed. Use poster=true to find editable poster notes; do not search for the word \"poster\" to identify the type. query is optional. For recently created or added notes, pass createdAfter and omit query; do not put words such as \"this week\", \"recent\" or \"new\" in query. Time bounds accept YYYY-MM-DD or ISO date-time.",
     inputSchema: {
       type: "object",
       additionalProperties: false,
@@ -178,7 +178,7 @@ const MCP_TOOL_DEFINITIONS = [
   },
   {
     name: "list_memos",
-    description: 'List RTNote memo summaries with pagination. Use poster=true to list only editable poster notes (海报笔记), false to exclude them. With includeContent=true, prose bodies are Markdown only by default. Use format="all" for legacy body fields.',
+    description: 'List RTNote memo summaries with pagination. Use poster=true to list only editable poster notes, false to exclude them. With includeContent=true, prose bodies are Markdown only by default. Use format="all" for legacy body fields.',
     inputSchema: {
       type: "object",
       additionalProperties: false,
@@ -209,7 +209,7 @@ const MCP_TOOL_DEFINITIONS = [
   },
   {
     name: "create_memo",
-    description: "Create a prose memo in a notebook from Markdown or a rich-text TipTap document (contentJson). For an editable poster/海报笔记, use create_poster_memo instead; never substitute poster-style prose.",
+    description: "Create a prose memo in a notebook from Markdown or a rich-text TipTap document (contentJson). For an editable poster note, use create_poster_memo instead; never substitute poster-style prose.",
     inputSchema: {
       type: "object",
       required: ["notebookId"],
@@ -322,7 +322,7 @@ const MCP_TOOL_DEFINITIONS = [
   {
     name: "create_infographic_memo",
     description:
-      "Create an AntV infographic note (信息图). Use this for 信息图, infographic, 占比, 构成, 饼图, 柱状图, 折线图, 对比, 四象限, 时间线, and a process infographic. Do not use create_diagram_memo, create_memo, or a mind map. Use chart-pie-donut-plain-text with data.values for a share or 占比; chart-column-simple for columns; chart-line-plain-text for a trend; compare-binary-horizontal-badge-card-vs for two subjects with matched children; compare-quadrant-quarter-simple-card for four quadrants; sequence-timeline-rounded-rect-node for a timeline; sequence-steps-simple for steps; list-grid-simple for a parallel list; hierarchy-tree-tech-style-capsule-item for a tree; relation-network-simple-circle-node for a network. Fill only the data array that matches the template. data.title is the note title. If the user did not supply the figures, say in data.desc that the values are illustrative and are not an official disclosure. 思维导图, 流程图, and 架构图 still use create_diagram_memo.",
+      "Create an AntV infographic note. Use this for an infographic, a share or proportion, a composition, a pie, column or line chart, a comparison, a four-quadrant matrix, a timeline, and a process infographic. Do not use create_diagram_memo, create_memo, or a mind map. Use chart-pie-donut-plain-text with data.values for a share or proportion; chart-column-simple for columns; chart-line-plain-text for a trend; compare-binary-horizontal-badge-card-vs for two subjects with matched children; compare-quadrant-quarter-simple-card for four quadrants; sequence-timeline-rounded-rect-node for a timeline; sequence-steps-simple for steps; list-grid-simple for a parallel list; hierarchy-tree-tech-style-capsule-item for a tree; relation-network-simple-circle-node for a network. Fill only the data array that matches the template. data.title is the note title. If the user did not supply the figures, say in data.desc that the values are illustrative and are not an official disclosure. Mind maps, flowcharts and architecture diagrams still use create_diagram_memo.",
     inputSchema: {
       type: "object",
       required: ["notebookId", "template", "data"],
@@ -374,7 +374,7 @@ const MCP_TOOL_DEFINITIONS = [
   },
   {
     name: "create_poster_memo",
-    description: POSTER_TEMPLATE_SELECTION_INSTRUCTION + " Create an editable poster note (海报笔记). Use this when asked to generate a poster, not create_memo or update_memo with poster-style prose. First plan the takeaway and content hierarchy. For explanatory topics (industry layouts, knowledge summaries, comparisons or guides), supply 3–6 concise sections with heading/body and choose layout=grid for categories or layout=list for steps. Do not reduce an informative topic to a title and generic subtitle. Use supplied note content when referenced; do not invent statistics, sources or brand relationships. For quotes, slogans or an explicitly minimal cover, omit sections. Optional badge/footer require sections. RTNote compiles editable elements and fits text to the selected format. Do not inspect other notes or local files to reverse-engineer the poster format. If this tool fails, report the error; never silently substitute an ordinary Markdown note. Use get_poster then update_poster only for subsequent edits.",
+    description: POSTER_TEMPLATE_SELECTION_INSTRUCTION + " Create an editable poster note. Use this when asked to generate a poster, not create_memo or update_memo with poster-style prose. First plan the takeaway and content hierarchy. For explanatory topics (industry layouts, knowledge summaries, comparisons or guides), supply 3–6 concise sections with heading/body and choose layout=grid for categories or layout=list for steps. Do not reduce an informative topic to a title and generic subtitle. Use supplied note content when referenced; do not invent statistics, sources or brand relationships. For quotes, slogans or an explicitly minimal cover, omit sections. Optional badge/footer require sections. RTNote compiles editable elements and fits text to the selected format. Do not inspect other notes or local files to reverse-engineer the poster format. If this tool fails, report the error; never silently substitute an ordinary Markdown note. Use get_poster then update_poster only for subsequent edits.",
     inputSchema: {
       type: "object", required: ["notebookId", "title", "heading"], additionalProperties: false,
       properties: {
@@ -554,7 +554,7 @@ const MCP_TOOL_DEFINITIONS = [
   },
   {
     name: "update_memo",
-    description: "Update memo title, body, tags, notebook, or pinned state. The body is rich text: contentJson replaces it with a TipTap document; contentMarkdown is merged block by block, so paragraphs you did not change keep their formatting. To generate an editable poster/海报笔记, call create_poster_memo; to edit one, use get_poster then update_poster. Never manually encode poster source or replace a poster request with ordinary prose.",
+    description: "Update memo title, body, tags, notebook, or pinned state. The body is rich text: contentJson replaces it with a TipTap document; contentMarkdown is merged block by block, so paragraphs you did not change keep their formatting. To generate an editable poster note, call create_poster_memo; to edit one, use get_poster then update_poster. Never manually encode poster source or replace a poster request with ordinary prose.",
     inputSchema: {
       type: "object",
       required: ["memoId"],
@@ -973,88 +973,6 @@ const MCP_TOOL_DEFINITIONS = [
       },
     },
   },
-  {
-    name: "list_ai_instructions",
-    description: "List reusable AI instructions in the authenticated user's workspace, including built-in and custom entries.",
-    inputSchema: {
-      type: "object",
-      additionalProperties: false,
-      properties: {
-        locale: { type: "string", description: "Optional locale such as en-US or zh-CN for unmodified built-in instructions." },
-      },
-    },
-  },
-  {
-    name: "get_ai_instruction",
-    description: "Get one reusable AI instruction by its exact RTNote instruction ID.",
-    inputSchema: {
-      type: "object",
-      required: ["instructionId"],
-      additionalProperties: false,
-      properties: {
-        instructionId: { type: "string", minLength: 1 },
-        locale: { type: "string" },
-      },
-    },
-  },
-  {
-    name: "create_ai_instruction",
-    description: "Create a custom reusable AI instruction in the authenticated user's workspace.",
-    inputSchema: {
-      type: "object",
-      required: ["name", "instruction"],
-      additionalProperties: false,
-      properties: {
-        name: { type: "string", minLength: 1, maxLength: 80 },
-        description: { type: "string", maxLength: 200 },
-        instruction: { type: "string", minLength: 1, maxLength: 2000 },
-        parameterKind: { type: "string", enum: ["none", "target-language", "tone"], default: "none" },
-        resultMode: { type: "string", enum: ["append", "replace", "both"], default: "both" },
-        locale: { type: "string" },
-      },
-    },
-  },
-  {
-    name: "update_ai_instruction",
-    description: "Update the text or execution behavior of a built-in or custom reusable AI instruction.",
-    inputSchema: {
-      type: "object",
-      required: ["instructionId"],
-      additionalProperties: false,
-      properties: {
-        instructionId: { type: "string", minLength: 1 },
-        name: { type: "string", minLength: 1, maxLength: 80 },
-        description: { type: ["string", "null"], maxLength: 200 },
-        instruction: { type: "string", minLength: 1, maxLength: 2000 },
-        parameterKind: { type: "string", enum: ["none", "target-language", "tone"] },
-        resultMode: { type: "string", enum: ["append", "replace", "both"] },
-        locale: { type: "string" },
-      },
-    },
-  },
-  {
-    name: "delete_ai_instruction",
-    description: "Delete a reusable AI instruction. Deleted built-in instructions can be restored later.",
-    inputSchema: {
-      type: "object",
-      required: ["instructionId"],
-      additionalProperties: false,
-      properties: {
-        instructionId: { type: "string", minLength: 1 },
-      },
-    },
-  },
-  {
-    name: "restore_default_ai_instructions",
-    description: "Restore missing built-in AI instructions without overwriting edited instructions or custom entries.",
-    inputSchema: {
-      type: "object",
-      additionalProperties: false,
-      properties: {
-        locale: { type: "string" },
-      },
-    },
-  },
 ];
 
 const READ_ONLY_MCP_TOOLS = new Set([
@@ -1080,8 +998,6 @@ const READ_ONLY_MCP_TOOLS = new Set([
   "get_workspace_stats",
   "list_note_templates",
   "get_note_template",
-  "list_ai_instructions",
-  "get_ai_instruction",
 ]);
 const NON_DESTRUCTIVE_MCP_TOOLS = new Set([
   "create_memo",
@@ -1101,9 +1017,6 @@ const NON_DESTRUCTIVE_MCP_TOOLS = new Set([
   "create_note_template",
   "update_note_template",
   "use_note_template",
-  "create_ai_instruction",
-  "update_ai_instruction",
-  "restore_default_ai_instructions",
 ]);
 const IDEMPOTENT_MCP_TOOLS = new Set([
   "delete_notebook",
@@ -1115,8 +1028,6 @@ const IDEMPOTENT_MCP_TOOLS = new Set([
   "move_notebook",
   "rename_notebook",
   "update_note_template",
-  "update_ai_instruction",
-  "restore_default_ai_instructions",
 ]);
 
 export const MCP_TOOLS = MCP_TOOL_DEFINITIONS.map((tool) => {

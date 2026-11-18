@@ -1,4 +1,5 @@
 import { clipDateTimeText } from "./clip-time";
+import { XUEQIU_TOPIC_TAG } from "./xueqiu-tag";
 export { clipDateTimeText } from "./clip-time";
 import TurndownService from "turndown";
 import { tables } from "@joplin/turndown-plugin-gfm";
@@ -360,7 +361,7 @@ export const isPlatformClip = (value: unknown, expected: PlatformTarget): value 
     && (!time || (typeof time.value === "string" && ["datetime", "date", "relative"].includes(time.precision)))
     && Array.isArray(clip.tags) && clip.tags[0] === "web-clip" && clip.tags[1] === expected.platform
     && (expected.platform === "xueqiu"
-      ? clip.tags.length >= 3 && clip.tags.length <= 24 && clip.tags[2] === "投资"
+      ? clip.tags.length >= 3 && clip.tags.length <= 24 && clip.tags[2] === XUEQIU_TOPIC_TAG
         && clip.tags.slice(3).every((tag) => typeof tag === "string" && /^(?:[A-Z][A-Z0-9.-]*|\d{5})$/.test(tag))
         && new Set(clip.tags).size === clip.tags.length
       : clip.tags.length === 2)

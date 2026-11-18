@@ -240,8 +240,8 @@ enum NotebookHierarchy {
 }
 
 enum MemoPreviewDate {
-    /// Port of Android `formatMemoPreviewDate`: today → time, yesterday → 昨天, else y/m/d.
-    static func format(_ iso: String, locale: Locale = .current, isEnglish: Bool = false, language: AppUILanguage? = nil) -> String {
+    /// Port of Android `formatMemoPreviewDate`: today → time, yesterday → "Yesterday", else y/m/d.
+    static func format(_ iso: String, locale: Locale = .current, isEnglish: Bool = true, language: AppUILanguage? = nil) -> String {
         let parsers = [ISO8601DateFormatter.edgeEver, ISO8601DateFormatter.edgeEverFallback]
         guard let date = parsers.compactMap({ $0.date(from: iso) }).first else { return "" }
         let calendar = Calendar.current
@@ -254,12 +254,8 @@ enum MemoPreviewDate {
             return f.string(from: date)
         }
         if calendar.isDateInYesterday(date) {
-            switch language ?? (isEnglish ? .english : .chinese) {
-            case .japanese: return "昨日"
-            case .polish: return "Wczoraj"
-            case .english: return "Yesterday"
-            case .chinese: return "昨天"
-            }
+            return (language ?? (isEnglish ? .english : .chinese))
+                .text("Yesterday", zh: "昨天", ja: "昨日", pl: "Wczoraj")
         }
         let f = DateFormatter()
         f.locale = locale

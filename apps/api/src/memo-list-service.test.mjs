@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { createDefaultDiagramDocument, serializeDiagramDocument } from "@edgeever/shared";
+import { LEGACY_DEFAULT_MEMO_TITLES, createDefaultDiagramDocument, serializeDiagramDocument } from "@edgeever/shared";
 import { listMemos, mapMemoSummary, toFtsQuery } from "./memo-list-service.ts";
 
 const memoRow = (id, overrides = {}) => ({
@@ -105,7 +105,7 @@ describe("memo list service", () => {
   });
 
   test("paginates title Z-A by reverse title and keeps the update-time tie break", async () => {
-    const titleExpression = "LOWER(COALESCE(NULLIF(m.title, ''), '无标题笔记'))";
+    const titleExpression = `LOWER(CASE WHEN m.title IS NULL OR m.title IN ('', '${LEGACY_DEFAULT_MEMO_TITLES[0]}') THEN 'Untitled note' ELSE m.title END)`;
     const firstDatabase = createDatabase({
       rows: [memoRow("memo_1", { title: "Zulu" }), memoRow("memo_2", { title: "Alpha" })],
       totalCount: 2,
@@ -134,6 +134,20 @@ describe("memo list service", () => {
     expect(pageQuery.sql).toContain("m.updated_at < ?");
     expect(pageQuery.parameters).toContain("zulu");
     expect(pageQuery.parameters).toContain("2026-08-01T01:00:00.000Z");
+  });
+
+  test("continues after a note with EdgeEver's default title from the untitled position", async () => {
+    const first = await listMemos(createDatabase({
+      rows: [memoRow("memo_1", { title: LEGACY_DEFAULT_MEMO_TITLES[0] }), memoRow("memo_2", { title: "Zulu" })],
+      totalCount: 2,
+    }), { workspaceId: "ws_1", sort: "title-asc", limit: 1 });
+
+    const secondDatabase = createDatabase({ rows: [] });
+    await listMemos(secondDatabase, { workspaceId: "ws_1", sort: "title-asc", limit: 1, cursor: first.nextCursor });
+    const pageQuery = secondDatabase.calls.find((call) => call.sql.includes("SELECT m.id"));
+
+    expect(pageQuery.parameters).toContain("untitled note");
+    expect(pageQuery.parameters).not.toContain(LEGACY_DEFAULT_MEMO_TITLES[0]);
   });
 
   test("keeps trash ordered by deletion time when the title sort is reversed", async () => {

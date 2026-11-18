@@ -86,17 +86,14 @@ test("real socket failures retain safe request and underlying transport diagnost
   expect(await readdir(root)).toEqual([]);
 }, 10000);
 
-test("failed workers cancel unfinished sibling requests and exit", async () => {
-  let release;
-  const promptsStarted = new Promise((resolve) => { release = resolve; });
+test("failed source reads reject and the worker exits", async () => {
+  const kinds = [];
   const server = Bun.serve({ hostname: "127.0.0.1", port: 0, async fetch(request) {
     const url = new URL(request.url);
     if (url.pathname.endsWith("/state")) return Response.json({ protocolVersion: 1, userId: null, workspaceId: "ws_default", identity: "fixture", backupRevision: "0", counts: { notebooks: 0, memos: 0, revisions: 0, resources: 0, prompts: 0 } });
-    if (url.searchParams.get("kind") === "prompts") { release(); return new Promise(() => {}); }
-    await promptsStarted;
+    kinds.push(url.searchParams.get("kind"));
     return Response.json({ error: { code: "fixture_read_failed", message: "Source read failed" } }, { status: 500 });
   } });
-  // stop() resolves only after active requests finish. This fixture never responds.
   cleanups.push(() => { server.stop(true); });
   const job = await launch({ operation: "export", context: { baseUrl: `http://127.0.0.1:${server.port}`, accountId: null, token: "" }, path: join(await directory(), "pending.zip.part"), version: { edgeeverVersion: "2.2.0", buildId: "failure" } });
   await expect(job.next("done")).rejects.toMatchObject({ code: "fixture_read_failed" });
@@ -104,6 +101,8 @@ test("failed workers cancel unfinished sibling requests and exit", async () => {
   try {
     expect(await Promise.race([job.exited.then(() => true), new Promise((resolve) => { timer = setTimeout(() => resolve(false), 2000); })])).toBe(true);
   } finally { clearTimeout(timer); }
+  // AI prompts are no longer exported, so the worker never asks for them.
+  expect(kinds).toEqual(["notebooks"]);
 }, 10000);
 
 test("real Node background workers export encrypted and plain archives and restore without the original server", async () => {
@@ -115,7 +114,7 @@ test("real Node background workers export encrypted and plain archives and resto
     const { resource } = await source.client.uploadMemoResource(memo.id, new File([bytes], "payload.bin", { type: "application/octet-stream" }));
     const sourceState = await (await fetch(`${source.baseUrl}/api/v1/backups/state`)).json();
     const root = await directory(); const archive = join(root, encrypted ? "backup.edgeever.enc" : "backup.zip");
-    const job = await launch({ operation: "export", context: { baseUrl: source.baseUrl, accountId: null, token: "", locale: "en-US" }, path: archive, password: encrypted ? "  备份 password  " : undefined, version: { edgeeverVersion: "2.2.0", buildId: "e2e" } });
+    const job = await launch({ operation: "export", context: { baseUrl: source.baseUrl, accountId: null, token: "", locale: "en-US" }, path: archive, password: encrypted ? "  バックアップ password  " : undefined, version: { edgeeverVersion: "2.2.0", buildId: "e2e" } });
     const done = await job.next("done");
     expect(done.result.manifest.counts).toEqual(sourceState.counts);
     source.server.stop(true);
@@ -131,7 +130,7 @@ test("real Node background workers export encrypted and plain archives and resto
       expect(await readdir(cancelledDirectory)).toEqual([]);
       expect(target.db.query("SELECT id FROM memos WHERE id = ?").get(memo.id)).toBeNull();
     }
-    const restore = await launch({ operation: "import", context: { baseUrl: target.baseUrl, accountId: null, token: "" }, path: archive, password: encrypted ? "  备份 password  " : undefined, stagingDirectory: await directory() });
+    const restore = await launch({ operation: "import", context: { baseUrl: target.baseUrl, accountId: null, token: "" }, path: archive, password: encrypted ? "  バックアップ password  " : undefined, stagingDirectory: await directory() });
     const ready = await restore.next("ready");
     expect(ready.result.manifest.counts).toEqual(sourceState.counts);
     expect(target.db.query("SELECT id FROM memos WHERE id = ?").get(memo.id)).toBeNull();

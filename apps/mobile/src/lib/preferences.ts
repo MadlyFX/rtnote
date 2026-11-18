@@ -1,17 +1,12 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  AI_ASSISTANT_LAST_ACTION_STORAGE_KEY,
-  parseAiAssistantLastActionStore,
-  serializeAiAssistantLastActionStore,
-  type AiAssistantLastActionPreference,
-  type AiAssistantLastActionScope,
-} from "@edgeever/shared";
+import { normalizeVoiceMemoMaxDuration, type VoiceMemoMaxDurationMinutes } from "@edgeever/shared/voice-memo-names";
 
 const MEMO_LIST_DENSITY_KEY = "edgeever.mobile.memoListDensity";
 const IMAGE_COMPRESSION_KEY = "edgeever.mobile.imageCompressionEnabled";
 const SHOW_DESCENDANT_NOTES_KEY = "edgeever.mobile.showDescendantNotes";
 const LOCALE_PREFERENCE_KEY = "edgeever.mobile.localePreference";
 const THEME_PREFERENCE_KEY = "edgeever.mobile.themePreference";
+const VOICE_MEMO_MAX_DURATION_KEY = "edgeever.mobile.voiceMemoMaxDurationMinutes";
 
 export type MobileMemoListDensity = "preview" | "compact";
 export type MobileLocalePreference = "system" | "zh-CN" | "zh-TW" | "en-US" | "ja" | "pl" | "ru" | "es" | "de" | "fr";
@@ -69,29 +64,17 @@ export const readMobileThemePreference = async (): Promise<MobileThemePreference
 
 export const writeMobileThemePreference = (theme: MobileThemePreference) => AsyncStorage.setItem(THEME_PREFERENCE_KEY, theme);
 
-const isMobileLocalePreference = (value: unknown): value is MobileLocalePreference =>
-  value === "system" || value === "zh-CN" || value === "zh-TW" || value === "en-US" || value === "ja" || value === "pl" || value === "ru" || value === "es" || value === "de";
-
-export const readMobileAiAssistantLastAction = async (
-  scope: AiAssistantLastActionScope,
-): Promise<AiAssistantLastActionPreference | null> => {
+/** Longest voice memo the recorder allows, in minutes. */
+export const readMobileVoiceMemoMaxDuration = async (): Promise<VoiceMemoMaxDurationMinutes> => {
   try {
-    return parseAiAssistantLastActionStore(await AsyncStorage.getItem(AI_ASSISTANT_LAST_ACTION_STORAGE_KEY))[scope] ?? null;
+    return normalizeVoiceMemoMaxDuration(await AsyncStorage.getItem(VOICE_MEMO_MAX_DURATION_KEY));
   } catch {
-    return null;
+    return normalizeVoiceMemoMaxDuration(null);
   }
 };
 
-export const writeMobileAiAssistantLastAction = (
-  scope: AiAssistantLastActionScope,
-  preference: AiAssistantLastActionPreference,
-) =>
-  AsyncStorage.getItem(AI_ASSISTANT_LAST_ACTION_STORAGE_KEY)
-    .then((raw) => {
-      const current = parseAiAssistantLastActionStore(raw);
-      return AsyncStorage.setItem(
-        AI_ASSISTANT_LAST_ACTION_STORAGE_KEY,
-        serializeAiAssistantLastActionStore({ ...current, [scope]: preference }),
-      );
-    })
-    .catch(() => undefined);
+export const writeMobileVoiceMemoMaxDuration = (minutes: VoiceMemoMaxDurationMinutes) =>
+  AsyncStorage.setItem(VOICE_MEMO_MAX_DURATION_KEY, String(minutes));
+
+const isMobileLocalePreference = (value: unknown): value is MobileLocalePreference =>
+  value === "system" || value === "zh-CN" || value === "zh-TW" || value === "en-US" || value === "ja" || value === "pl" || value === "ru" || value === "es" || value === "de";

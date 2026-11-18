@@ -53,7 +53,7 @@ describe("workspace provisioning", () => {
     expect(calls[1].sql).toContain("FROM workspace_seed_localizations");
   });
 
-  test("builds editable localized template and AI prompt statements for new workspaces", () => {
+  test("builds editable localized template statements for new workspaces", () => {
     const calls = [];
     const db = {
       prepare: (sql) => statement(sql, calls),
@@ -66,12 +66,12 @@ describe("workspace provisioning", () => {
       "en-US",
     );
 
-    expect(statements.length).toBeGreaterThan(6);
+    expect(statements).toHaveLength(5);
     expect(calls[0].sql).toContain("INSERT OR IGNORE INTO memo_templates");
     expect(calls[0].values).toContain("ws_new_template_quick-note");
     expect(calls[0].values).toContain("Quick Spark");
     expect(calls.filter((call) => call.sql.includes("INSERT OR IGNORE INTO memo_templates"))).toHaveLength(5);
-    expect(calls.some((call) => call.sql.includes("INSERT OR IGNORE INTO ai_prompt_templates"))).toBe(true);
+    expect(calls.some((call) => call.sql.includes("ai_prompt_templates"))).toBe(false);
   });
 
   test("seeds Japanese templates when Accept-Language prefers Japanese", () => {

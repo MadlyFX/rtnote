@@ -67,9 +67,9 @@ describe("desktop crash diagnostics", () => {
     const issueUrl = buildDesktopDiagnosticIssueUrl({
       diagnostic: {
         kind: "react-error",
-        message: "错".repeat(2_000),
-        stack: "栈".repeat(2_000),
-        componentStack: "组件".repeat(2_000),
+        message: "エ".repeat(2_000),
+        stack: "ス".repeat(2_000),
+        componentStack: "コン".repeat(2_000),
       },
       systemInfo: { appVersion: "1.31.0", platform: "darwin", architecture: "x64" },
     });

@@ -85,14 +85,8 @@ test("keeps model runtimes and SDKs out of the entire Cloudflare Worker build", 
       .filter(([, input]) => input.bytesInOutput > 0)
       .map(([input]) => input.replaceAll("\\", "/")),
   ))];
-  const runtimeSources = ["ai-runtime", "companion-runtime", "companion-discovery-runtime"]
-    .map(name => `apps/api/src/${name}.ts`);
-  const isAiInput = path => runtimeSources.includes(path)
-    || /(?:^|\/)node_modules\/(?:ai|@ai-sdk\/[^/]+)\//.test(path);
-  expect(inputsFor(startup).filter(isAiInput)).toEqual([]);
-  // Ensure a passing startup check cannot be explained by dropping AI from the build.
+  // AI writing assist was removed; no model SDK may reach the worker.
   const allInputs = inputsFor(all);
-  for (const source of runtimeSources) expect(allInputs).not.toContain(source);
   for (const sdk of ["ai", "@ai-sdk/anthropic", "@ai-sdk/google", "@ai-sdk/openai-compatible"]) {
     expect(allInputs.some(path => `/${path}`.includes(`/node_modules/${sdk}/`))).toBe(false);
   }

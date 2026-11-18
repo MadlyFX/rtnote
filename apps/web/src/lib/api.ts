@@ -9,8 +9,6 @@ import { createClientUuid } from "./client-id";
 
 export { ApiRequestError };
 export type {
-  AiProviderCreatePayload,
-  AiProviderUpdatePayload,
   InstanceHealth,
   InstanceRelease,
   JsonBackupPage,
@@ -259,11 +257,12 @@ const toUint8Array = (bytes: ArrayBuffer | Uint8Array | undefined) => {
   return bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
 };
 
-const desktopProviderFetch: typeof fetch = async (input, init) => {
+/** Desktop sends speech requests through the main process, which is not bound by CORS. */
+const desktopSpeechFetch: typeof fetch = async (input, init) => {
   init?.signal?.throwIfAborted();
   const bridge = window.edgeeverDesktop;
   if (!bridge?.openAiProviderStream || !bridge.onAiProviderStreamChunk) {
-    throw new TypeError("Desktop AI transport is unavailable.");
+    throw new TypeError("Desktop speech transport is unavailable.");
   }
   const url = typeof input === "string"
     ? input
@@ -294,7 +293,7 @@ const desktopProviderFetch: typeof fetch = async (input, init) => {
     if (chunk.type === "data") streamController.enqueue(toUint8Array(chunk.bytes));
     else {
       if (chunk.type === "end") streamController.close();
-      else streamController.error(new Error(chunk.message || "AI provider request failed."));
+      else streamController.error(new Error(chunk.message || "Speech provider request failed."));
       cleanup();
     }
   });
@@ -326,7 +325,7 @@ const desktopProviderFetch: typeof fetch = async (input, init) => {
           if (chunk.type === "data") controller.enqueue(toUint8Array(chunk.bytes));
           else {
             if (chunk.type === "end") controller.close();
-            else controller.error(new Error(chunk.message || "AI provider request failed."));
+            else controller.error(new Error(chunk.message || "Speech provider request failed."));
             cleanup();
             break;
           }
@@ -344,14 +343,14 @@ const desktopProviderFetch: typeof fetch = async (input, init) => {
   }
 };
 
-const desktopAiDirectEnabled = Boolean(
+const desktopSpeechTransport = Boolean(
   (typeof __EDGEEVER_DESKTOP_BUILD__ !== "undefined" && __EDGEEVER_DESKTOP_BUILD__)
   || (typeof window !== "undefined" && window.edgeeverDesktop?.openAiProviderStream),
 );
 
-/** Native clients connect directly; Web can relay initial network/CORS failures. */
-export const directProviderFetch: typeof fetch = (input, init) =>
-  client.fetchAiProvider(input, init);
+/** Desktop connects to the speech service directly; Web can relay initial network/CORS failures. */
+export const speechProviderFetch: typeof fetch = (input, init) =>
+  client.fetchSpeechProvider(input, init);
 
 const client = createEdgeEverClient({
   baseUrl: getConfiguredDesktopApiBaseUrl,
@@ -359,9 +358,8 @@ const client = createEdgeEverClient({
   beforeRequest,
   shouldAttachToken: (path) => !isLoginRequest(path),
   onUnauthorized: handleUnauthorized,
-  directAiGeneration: desktopAiDirectEnabled,
-  allowAiServerFallback: !desktopAiDirectEnabled,
-  providerFetch: desktopAiDirectEnabled ? desktopProviderFetch : undefined,
+  allowSpeechServerFallback: !desktopSpeechTransport,
+  providerFetch: desktopSpeechTransport ? desktopSpeechFetch : undefined,
 });
 
 export const api = {

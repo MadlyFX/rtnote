@@ -1,5 +1,5 @@
 import { useRef, useState, type DragEvent } from "react";
-import { CheckCircle2, ExternalLink, FileUp, Folder, LoaderCircle, TriangleAlert, Upload } from "lucide-react";
+import { CheckCircle2, ExternalLink, FileText, FileUp, Folder, LoaderCircle, TriangleAlert, Upload, type LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import evernoteLogo from "@/assets/import-logos/evernote.svg?url";
 import joplinLogo from "@/assets/import-logos/joplin.svg?url";
@@ -12,27 +12,43 @@ import type { Notebook } from "@edgeever/shared";
 import type { ImportFile, ImportFormat, ImportIssue } from "@edgeever/shared/note-import/types";
 import type { NoteImportController, NoteImportSnapshot } from "@/lib/note-import/controller";
 import { EVERNOTE_MIGRATION_BLOG_URL } from "@/lib/routes";
+import { prefersChineseContent } from "@/lib/bilingual-content-locale";
+import { IMPORT_SOURCE_COPY_ZH_CN } from "./third-party-import-sources.zh-CN";
 
 const importSources = {
   evernote: {
-    label: "Evernote / 印象笔记",
+    label: "Evernote",
     logo: evernoteLogo,
     formatHint: ".enex · .zip",
   },
   obsidian: {
     label: "Obsidian",
     logo: obsidianLogo,
-    formatHint: "Vault 目录 · .zip",
+    formatHint: "Vault folder · .zip",
   },
   joplin: {
     label: "Joplin",
     logo: joplinLogo,
     formatHint: ".jex · RAW · .zip",
   },
-} satisfies Record<ImportFormat, { label: string; logo: string; formatHint: string }>;
+  // A generic document icon: product logos are not used for file formats.
+  docx: {
+    label: "Word",
+    icon: FileText,
+    formatHint: ".docx · .zip",
+  },
+} satisfies Record<ImportFormat, { label: string; formatHint: string } & ({ logo: string } | { icon: LucideIcon })>;
+
+const acceptedFiles: Record<ImportFormat, string> = {
+  evernote: ".enex,.zip,.notes",
+  obsidian: ".zip",
+  joplin: ".zip,.jex",
+  docx: ".docx,.zip,.doc",
+};
 
 export const ThirdPartyImportDialog = ({ controller, state, onOpenMemo }: { controller: NoteImportController; state: NoteImportSnapshot; onOpenMemo: (memoId: string, notebookId: string) => void }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const chineseCopy = prefersChineseContent(i18n.resolvedLanguage ?? i18n.language);
   const files = useRef<HTMLInputElement>(null);
   const directory = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -160,6 +176,14 @@ export const ThirdPartyImportDialog = ({ controller, state, onOpenMemo }: { cont
       defaultValue: issue.code,
       count: issue.code === "ignoredTags" ? Number(issue.detail) : undefined,
     });
+  const issueDetail = (issue: ImportIssue) => {
+    if (!issue.detail || issue.code === "ignoredTags") return "";
+    // Word content kinds are stored as keys and shown in the reader's language.
+    const detail = issue.code === "docxSkippedContent"
+      ? issue.detail.split(", ").map(kind => t(`noteImport.docxContent.${kind}`, { defaultValue: kind })).join(", ")
+      : issue.detail;
+    return ` · ${detail}`;
+  };
   const foldersByKey = new Map(state.folders.map(folder => [folder.key, folder]));
   const folderDepth = (key: string): number => {
     const parent = foldersByKey.get(key)?.parentKey;
@@ -200,13 +224,16 @@ export const ThirdPartyImportDialog = ({ controller, state, onOpenMemo }: { cont
                 <ToggleGroup
                   type="single"
                   aria-labelledby="note-import-source"
-                  className="grid grid-cols-1 gap-2.5 sm:grid-cols-3"
+                  className="grid grid-cols-1 gap-2.5 sm:grid-cols-2"
                   value={state.format}
                   onValueChange={value => {
                     if (value) controller.setFormat(value as ImportFormat);
                   }}
                 >
-                  {Object.entries(importSources).map(([format, { label, logo, formatHint }]) => {
+                  {Object.entries(importSources).map(([format, source]) => {
+                    const zhCopy = chineseCopy ? IMPORT_SOURCE_COPY_ZH_CN[format] : undefined;
+                    const label = zhCopy?.label ?? source.label;
+                    const formatHint = zhCopy?.formatHint ?? source.formatHint;
                     const active = state.format === format;
                     return (
                       <ToggleGroupItem
@@ -221,7 +248,9 @@ export const ThirdPartyImportDialog = ({ controller, state, onOpenMemo }: { cont
                       >
                         <div className="flex w-full items-center justify-between gap-1.5">
                           <div className="flex items-center gap-2 min-w-0">
-                            <img src={logo} alt="" className="size-4 shrink-0 object-contain" />
+                            {"logo" in source
+                              ? <img src={source.logo} alt="" className="size-4 shrink-0 object-contain" />
+                              : <source.icon aria-hidden="true" className="size-4 shrink-0 text-primary" />}
                             <span className="truncate text-xs font-medium text-foreground">{label}</span>
                           </div>
                           {active ? <span className="size-1.5 shrink-0 rounded-full bg-primary" /> : null}
@@ -285,7 +314,9 @@ export const ThirdPartyImportDialog = ({ controller, state, onOpenMemo }: { cont
                       ? ".enex · .zip"
                       : state.format === "obsidian"
                         ? "Vault · .zip"
-                        : ".jex · RAW · .zip"}
+                        : state.format === "docx"
+                          ? ".docx · .zip"
+                          : ".jex · RAW · .zip"}
                   </span>
                 </div>
               </div>
@@ -298,7 +329,7 @@ export const ThirdPartyImportDialog = ({ controller, state, onOpenMemo }: { cont
             multiple
             className="hidden"
             data-testid="note-import-files"
-            accept={state.format === "evernote" ? ".enex,.zip,.notes" : state.format === "joplin" ? ".zip,.jex" : ".zip"}
+            accept={acceptedFiles[state.format]}
             onChange={event => selectFiles(event.currentTarget, false)}
           />
           <input
@@ -410,7 +441,7 @@ export const ThirdPartyImportDialog = ({ controller, state, onOpenMemo }: { cont
                     </p>
                     <p className="break-all font-mono text-[11px] text-muted-foreground/80">
                       {issue.path}
-                      {issue.detail && issue.code !== "ignoredTags" ? ` · ${issue.detail}` : ""}
+                      {issueDetail(issue)}
                     </p>
                   </li>
                 ))}

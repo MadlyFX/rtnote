@@ -15,6 +15,7 @@ import {
   SquareCode,
   ChartNoAxesCombined,
   Minus,
+  Mic,
   Paperclip,
   Link,
   Link2,
@@ -186,6 +187,7 @@ export const EditorToolbar = ({
   onMarkdownModeChange,
   markdownModeShortcut,
   onPickAttachment,
+  onInsertVoiceMemo,
   onPickExternalLink,
   onPickNoteLink,
   onPickMathFormula,
@@ -201,6 +203,8 @@ export const EditorToolbar = ({
   onMarkdownModeChange?: () => void;
   markdownModeShortcut?: ShortcutBinding;
   onPickAttachment?: () => void;
+  /** Inserts a voice memo block and starts recording. */
+  onInsertVoiceMemo?: () => void;
   /** Insert or edit an external hyperlink (not a note reference). */
   onPickExternalLink?: () => void;
   onPickNoteLink?: () => void;
@@ -370,6 +374,18 @@ export const EditorToolbar = ({
                 onClick={onPickAttachment}
               >
                 <Paperclip className="h-4 w-4" />
+              </EditorToolbarButton>
+              {!onInsertVoiceMemo ? <MemoEditorToolbarDivider className="hidden sm:block" /> : null}
+            </>
+          )}
+          {onInsertVoiceMemo && (
+            <>
+              <EditorToolbarButton
+                title={t("voiceMemo.insert")}
+                disabled={readOnly || markdownMode}
+                onClick={onInsertVoiceMemo}
+              >
+                <Mic className="h-4 w-4" />
               </EditorToolbarButton>
               <MemoEditorToolbarDivider className="hidden sm:block" />
             </>

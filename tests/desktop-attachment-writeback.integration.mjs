@@ -62,11 +62,11 @@ try {
   await writeFile(join(profile, "instance-url"), baseUrl); await writeFile(join(profile, "installation-confirmed"), "test");
   const { notebook } = await json("/notebooks", { name: "Writeback acceptance" });
   let { memo } = await json("/memos", { notebookId: notebook.id, title: "External attachment editing", contentMarkdown: "Attachment editing acceptance" });
-  const form = new FormData(); form.append("file", new File(["original attachment"], "季度预算.txt", { type: "text/plain" }));
+  const form = new FormData(); form.append("file", new File(["original attachment"], "Café quarterly budget.txt", { type: "text/plain" }));
   const { resource } = await (await api(`/memos/${memo.id}/resources`, { method: "POST", body: form })).json();
   const { editSession } = await json(`/memos/${memo.id}/edit-sessions`, {});
   ({ memo } = await json(`/memos/${memo.id}`, { editSessionId: editSession.id, expectedRevision: editSession.baseRevision, expectedContentHash: editSession.baseContentHash,
-    contentMarkdown: `Attachment editing acceptance\n\n[季度预算.txt](${resource.url})` }, "PATCH"));
+    contentMarkdown: `Attachment editing acceptance\n\n[Café quarterly budget.txt](${resource.url})` }, "PATCH"));
   fixtureMemoId = memo.id;
   const cloudText = async () => (await api(`/resources/${resource.id}/blob`, { cache: "no-store" })).text();
   await launch();
@@ -108,7 +108,7 @@ try {
   results.push("offline pending snapshot survives an actual Electron restart and resumes in the original account, including displayed file metadata");
 
   const latest = (await (await api("/resources")).json()).resources.find(item => item.id === resource.id);
-  const competing = new FormData(); competing.append("file", new File(["another device's edit"], "季度预算.txt", { type: "text/plain" })); competing.append("expectedContentHash", latest.sha256);
+  const competing = new FormData(); competing.append("file", new File(["another device's edit"], "Café quarterly budget.txt", { type: "text/plain" })); competing.append("expectedContentHash", latest.sha256);
   await api(`/resources/${resource.id}/blob`, { method: "PUT", body: competing });
   await writeFile(localPath, "conflicting local changes");
   await expect.poll(() => page.evaluate(() => window.edgeeverDesktop.attachmentWritebacks().then(items => items.some(item => item.status === "conflict"))), { timeout: 20_000 }).toBe(true);

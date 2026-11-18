@@ -325,7 +325,7 @@ final class MobileUIParityTests: XCTestCase {
 
     func testResourceTargetParseExtractsIdFromBlobPath() {
         let json = """
-        {"kind":"image","href":"/api/v1/resources/res_demo_cat_image/blob","filename":"猫","resourceId":"blob"}
+        {"kind":"image","href":"/api/v1/resources/res_demo_cat_image/blob","filename":"cat","resourceId":"blob"}
         """
         let target = ResourceTarget.parse(json)
         XCTAssertEqual(target?.resourceId, "res_demo_cat_image")
@@ -335,7 +335,7 @@ final class MobileUIParityTests: XCTestCase {
 
     func testResourceTargetParseAttachment() {
         let json = """
-        {"kind":"attachment","href":"/api/v1/resources/res_file_1/blob","filename":"附件：brief.pdf","resourceId":"res_file_1"}
+        {"kind":"attachment","href":"/api/v1/resources/res_file_1/blob","filename":"Attachment: brief.pdf","resourceId":"res_file_1"}
         """
         let target = ResourceTarget.parse(json)
         XCTAssertEqual(target?.resourceId, "res_file_1")

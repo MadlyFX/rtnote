@@ -130,6 +130,17 @@ export class ImportSources {
       }
     }
   }
+  /** A file entry as a Blob: a lazy slice for plain files and TAR members, buffered for ZIP members. */
+  async blob(entry: SourceEntry, signal?: AbortSignal): Promise<Blob> {
+    signal?.throwIfAborted();
+    if (entry.archivePath === undefined) {
+      const offset = entry.offset ?? 0;
+      return this.files[entry.fileIndex]!.file.slice(offset, offset + entry.size);
+    }
+    const parts: Uint8Array<ArrayBuffer>[] = [];
+    for await (const bytes of this.bytes(entry, signal)) parts.push(bytes);
+    return new Blob(parts);
+  }
   async text(entry: SourceEntry, signal?: AbortSignal) {
     const decoder = new TextDecoder();
     const parts: string[] = [];

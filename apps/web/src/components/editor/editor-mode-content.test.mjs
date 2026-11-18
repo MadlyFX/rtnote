@@ -19,7 +19,7 @@ const tableTaskListDocument = {
         type: "tableRow",
         content: [{
           type: "tableHeader",
-          content: [{ type: "paragraph", content: [{ type: "text", text: "事项" }] }],
+          content: [{ type: "paragraph", content: [{ type: "text", text: "Item" }] }],
         }],
       },
       {
@@ -31,7 +31,7 @@ const tableTaskListDocument = {
             content: [{
               type: "taskItem",
               attrs: { checked: false },
-              content: [{ type: "paragraph", content: [{ type: "text", text: "待办" }] }],
+              content: [{ type: "paragraph", content: [{ type: "text", text: "To do" }] }],
             }],
           }],
         }],
@@ -40,7 +40,7 @@ const tableTaskListDocument = {
   }],
 };
 
-const legacyFlattenedTableSource = "| 事项 |\n| --- |\n| - [ ] 待办 |";
+const legacyFlattenedTableSource = "| Item |\n| --- |\n| - [ ] To do |";
 
 describe("Markdown editor mode content preservation", () => {
   test("shows literal brackets and ampersands when they remain plain text", () => {
@@ -92,17 +92,17 @@ describe("Markdown editor mode content preservation", () => {
 
   test("preserves a rich table cell when content outside the table changes", () => {
     const snapshot = createMarkdownModeSnapshot("memo-1", tableTaskListDocument);
-    const changedSource = `${snapshot.markdownSource}\n\n新增段落`;
+    const changedSource = `${snapshot.markdownSource}\n\nNew paragraph`;
     const resolved = resolveMarkdownModeContent(snapshot, "memo-1", changedSource);
 
     expect(isMarkdownSourceUnchanged(snapshot, "memo-1", changedSource)).toBe(false);
     expect(resolved.content[0].content[1].content[0].content[0].type).toBe("taskList");
-    expect(docToMarkdown(resolved)).toContain("新增段落");
+    expect(docToMarkdown(resolved)).toContain("New paragraph");
   });
 
   test("preserves a rich table task item when its source text changes", () => {
     const snapshot = createMarkdownModeSnapshot("memo-1", tableTaskListDocument);
-    const changedSource = snapshot.markdownSource.replace("待办", "待办 updated");
+    const changedSource = snapshot.markdownSource.replace("To do", "To do updated");
     const result = analyzeMarkdownModeContent(snapshot, "memo-1", changedSource);
 
     expect(result.hasUnsafeRichTableEdit).toBe(false);
@@ -113,7 +113,7 @@ describe("Markdown editor mode content preservation", () => {
 
   test("updates a rich table task item when its Markdown checkbox is toggled", () => {
     const snapshot = createMarkdownModeSnapshot("memo-1", tableTaskListDocument);
-    const changedSource = snapshot.markdownSource.replace("- [ ] 待办", "- [x] 待办");
+    const changedSource = snapshot.markdownSource.replace("- [ ] To do", "- [x] To do");
     const result = analyzeMarkdownModeContent(snapshot, "memo-1", changedSource);
 
     expect(result.hasUnsafeRichTableEdit).toBe(false);
@@ -131,7 +131,7 @@ describe("Markdown editor mode content preservation", () => {
   test("flags table shape changes rather than silently discarding a rich cell", () => {
     // Markdown written before HTML tables flattened rich cells into GFM rows.
     const snapshot = createMarkdownModeSnapshot("memo-1", tableTaskListDocument, legacyFlattenedTableSource);
-    const changedSource = snapshot.markdownSource.replace("| - [ ] 待办 |", "");
+    const changedSource = snapshot.markdownSource.replace("| - [ ] To do |", "");
 
     expect(analyzeMarkdownModeContent(snapshot, "memo-1", changedSource).hasUnsafeRichTableEdit).toBe(true);
   });
@@ -145,7 +145,7 @@ describe("Markdown editor mode content preservation", () => {
   });
 
   test("keeps extra blank lines that a JSON roundtrip would rewrite", () => {
-    const live = "时代公馆\n\n\n*提示：表格*";
+    const live = "Times Mansion\n\n\n*Tip: table*";
     const content = markdownToDoc(live);
     const incomingMarkdown = docToMarkdown(content);
     const snapshot = createMarkdownModeSnapshot("memo-1", content, live);
@@ -175,9 +175,9 @@ describe("Markdown editor mode content preservation", () => {
   });
 
   test("replaces the live markdown buffer when incoming content actually changed", () => {
-    const live = "时代公馆\n\n\n*提示：表格*";
+    const live = "Times Mansion\n\n\n*Tip: table*";
     const snapshot = createMarkdownModeSnapshot("memo-1", markdownToDoc(live), live);
-    const incomingMarkdown = "另一段内容";
+    const incomingMarkdown = "Another paragraph";
     const incomingContent = markdownToDoc(incomingMarkdown);
 
     expect(shouldKeepLiveMarkdownSource({
@@ -190,7 +190,7 @@ describe("Markdown editor mode content preservation", () => {
   });
 
   test("does not keep a live buffer that belongs to another memo", () => {
-    const live = "时代公馆\n\n\n*提示：表格*";
+    const live = "Times Mansion\n\n\n*Tip: table*";
     const content = markdownToDoc(live);
     const snapshot = createMarkdownModeSnapshot("memo-1", content, live);
 

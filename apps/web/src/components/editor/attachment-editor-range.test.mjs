@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { Editor } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
-import { FileAttachment, PdfAttachment } from "@edgeever/shared";
+import { ATTACHMENT_TEXT_PREFIX, FileAttachment, LEGACY_ATTACHMENT_PREFIXES, PdfAttachment } from "@edgeever/shared";
 import { ensureTestWindowDom } from "../../lib/restore-test-global.mjs";
 import { findAttachmentRange, insertTranscriptAfterAttachment, removeAttachmentAt, renameAttachmentAt } from "./attachment-editor-range.ts";
 
@@ -14,7 +14,7 @@ const fileNode = (url, filename, mimeType) => ({
   type: "edgeeverFileAttachment",
   attrs: {
     url,
-    label: `附件：${filename}`,
+    label: `${ATTACHMENT_TEXT_PREFIX}${filename}`,
     filename,
     mimeType,
     byteSize: 4096,
@@ -26,7 +26,7 @@ const pdfNode = (url, filename) => ({
   type: "edgeeverPdfAttachment",
   attrs: {
     url,
-    label: `附件：${filename}`,
+    label: `${ATTACHMENT_TEXT_PREFIX}${filename}`,
     filename,
     mimeType: "application/pdf",
     byteSize: 8192,
@@ -73,7 +73,7 @@ describe("attachment editor range", () => {
         { type: "text", text: "before " },
         {
           type: "text",
-          text: "附件：notes.zip",
+          text: `${LEGACY_ATTACHMENT_PREFIXES[0]}notes.zip`,
           marks: [{ type: "link", attrs: { href: otherUrl } }],
         },
         { type: "text", text: " after" },
@@ -90,14 +90,14 @@ describe("attachment editor range", () => {
       editor,
       { url: videoUrl, resourceId: "res_video" },
       "final.mp4",
-      "附件：final.mp4",
+      `${ATTACHMENT_TEXT_PREFIX}final.mp4`,
     )).toBe(true);
     expect(editor.getJSON().content[0].content[0]).toMatchObject({
       type: "edgeeverFileAttachment",
       attrs: {
         url: videoApiUrl,
         filename: "final.mp4",
-        label: "附件：final.mp4",
+        label: `${ATTACHMENT_TEXT_PREFIX}final.mp4`,
         mimeType: "video/mp4",
       },
     });

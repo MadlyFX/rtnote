@@ -14,6 +14,7 @@ import { ImageGallery } from "./image-gallery";
 import { MergeDivider } from "./merge-divider";
 import { PdfAttachment } from "./pdf-attachment";
 import { PluginEmbed } from "./plugin-embed";
+import { VoiceMemo } from "./voice-memo";
 import { EmptyExternalLink } from "./empty-external-link";
 import { EdgeEverLink } from "./editor-link";
 import { createEdgeEverTaskItem } from "./task-item-input";
@@ -28,6 +29,8 @@ export type CreateEdgeEverDocumentExtensionsOptions = {
   gallery?: AnyExtension | false;
   pdf?: AnyExtension | false;
   file?: AnyExtension | false;
+  /** Voice memo block; editors pass their own node view. */
+  voiceMemo?: AnyExtension | false;
   pluginEmbed?: AnyExtension | false;
   table?: Parameters<typeof TableKit.configure>[0];
   /**
@@ -71,6 +74,7 @@ export const createEdgeEverDocumentExtensions = (
   ...withOptional(options.gallery, ImageGallery),
   ...withOptional(options.pdf, PdfAttachment),
   ...withOptional(options.file, FileAttachment),
+  ...withOptional(options.voiceMemo, VoiceMemo),
   MergeDivider,
   ...createEdgeEverDetailsExtensions(),
   ...withOptional(options.pluginEmbed, PluginEmbed),

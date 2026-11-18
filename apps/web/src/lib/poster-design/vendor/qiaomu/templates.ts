@@ -27,7 +27,7 @@ export interface Template {
   build(i: TemplateInput): TemplateResult;
 }
 
-import { titleFace, typeFor } from './typeset';
+import { SOURCE_HAN_SANS, SOURCE_HAN_SERIF, titleFace, typeFor } from './typeset';
 const SANS = 'sans-serif';
 const SERIF = 'serif';
 
@@ -101,7 +101,11 @@ export function wrapLines(text: string, width: number, size: number, weight = 'b
   }
   return out;
 }
-export function hasCjk(text: string): boolean { return /[぀-ヿ㐀-鿿豈-﫿＀-￯]/.test(text); }
+/** Picks the Chinese or English variant of a built-in label. */
+export const localCopy = (i: { zh?: boolean }, text: { en: string; zh: string }): string => (i.zh ? text.zh : text.en);
+/** Fallback seal glyph (the Chinese character for "seal") when a title has no first character. */
+const SEAL_FALLBACK = '\u5370';
+export function hasCjk(text: string): boolean { return /[\u3040-\u30ff\u3400-\u9fff\uf900-\ufaff\uff00-\uffef]/.test(text); }
 function rect(left: number, top: number, width: number, height: number, fill: string | Gradient<'linear'> | Gradient<'radial'>, extra: Record<string, unknown> = {}): Rect {
   return new Rect({ left, top, width, height, fill, originX: 'left', originY: 'top', ...extra });
 }
@@ -233,7 +237,7 @@ export const TEMPLATES: Template[] = [
           Object.assign(head, { qcName: `paper-list:row:${index}:heading` });
           const numberText = `${index + 1}.`;
           const numeralSize = 167 * u * scale;
-          const number = bookText(numberText, margin, y + 5 * u * scale, numberWidth, { fontSize: numeralSize * Math.min(1, numberWidth * 0.98 / measure(numberText, numeralSize, 'normal', '思源宋体')), fill: p.ink, fontFamily: '思源宋体', lineHeight: 1 });
+          const number = bookText(numberText, margin, y + 5 * u * scale, numberWidth, { fontSize: numeralSize * Math.min(1, numberWidth * 0.98 / measure(numberText, numeralSize, 'normal', SOURCE_HAN_SERIF)), fill: p.ink, fontFamily: SOURCE_HAN_SERIF, lineHeight: 1 });
           const plusSize = 36 * u * scale;
           const plusX = w * 0.865 - plusSize / 2;
           result.push(number, head,
@@ -251,7 +255,7 @@ export const TEMPLATES: Template[] = [
           if (bodyText) {
             let paragraphY = ruleY + (index === 0 ? 56 : 32) * u * scale;
             bodyText.split('\n').forEach((paragraph, paragraphIndex) => {
-              const body = bookText(paragraph, columnX, paragraphY, columnWidth, { fontSize: 31 * u * scale, fill: p.sub, lineHeight: 1.45, fontFamily: i.zh ? '思源黑体' : 'Inter' });
+              const body = bookText(paragraph, columnX, paragraphY, columnWidth, { fontSize: 31 * u * scale, fill: p.sub, lineHeight: 1.45, fontFamily: localCopy(i, { en: 'Inter', zh: SOURCE_HAN_SANS }) });
               Object.assign(body, { qcName: paragraphIndex === 0 ? `paper-list:row:${index}:body` : `paper-list:row:${index}:paragraph:${paragraphIndex}` });
               result.push(body);
               bottom = body.top + body.height;
@@ -269,8 +273,8 @@ export const TEMPLATES: Template[] = [
         list = renderRows(scale);
       }
       const watermarks = [
-        bookText('… a few notes from the reading room', -w * 0.23, h * 0.54, w * 1.45, { fontSize: 68 * u, fill: p.ink, fontFamily: '思源宋体', fontStyle: 'italic', angle: 19, opacity: 0.055 }),
-        bookText('of the pages we keep returning to …', -w * 0.09, h * 0.89, w * 1.42, { fontSize: 59 * u, fill: p.ink, fontFamily: '思源宋体', fontStyle: 'italic', angle: -15, opacity: 0.045 }),
+        bookText('… a few notes from the reading room', -w * 0.23, h * 0.54, w * 1.45, { fontSize: 68 * u, fill: p.ink, fontFamily: SOURCE_HAN_SERIF, fontStyle: 'italic', angle: 19, opacity: 0.055 }),
+        bookText('of the pages we keep returning to …', -w * 0.09, h * 0.89, w * 1.42, { fontSize: 59 * u, fill: p.ink, fontFamily: SOURCE_HAN_SERIF, fontStyle: 'italic', angle: -15, opacity: 0.045 }),
       ];
       watermarks.forEach(mark => Object.assign(mark, { qcName: 'paper-list:watermark' }));
       return { background: solid(p.bg), objects: [...paperListPaper(w, h, p.ink), ...watermarks, ...objects, ...list.objects] };
@@ -327,7 +331,7 @@ export const TEMPLATES: Template[] = [
       const size = fitTitle(i.title, inner, h * 0.5, 128 * u);
       const glow = softGlow(w * 0.5, -h * 0.35, Math.max(w, h) * 0.42, p.accent, 0.5);
       return { background: linear(p, 160), objects: [
-        glow, ...badge(i.badge ?? (i.zh ? '干货' : 'GUIDE'), m, m, p, Math.max(22, 30 * u)),
+        glow, ...badge(i.badge ?? (localCopy(i, { en: 'GUIDE', zh: '干货' })), m, m, p, Math.max(22, 30 * u)),
         textbox(i.title, m, h * 0.28, inner, { qcRole: 'title', fontSize: size, fill: p.ink, fontWeight: 'bold', lineHeight: 1.15 }),
         textbox(i.subtitle, m, h - m - 90 * u, inner, { qcRole: 'subtitle', fontSize: Math.max(24, 34 * u), fill: p.sub }),
       ] };
@@ -414,7 +418,7 @@ export const TEMPLATES: Template[] = [
       const size = fitTitle(i.title, inner, h * 0.3, 104 * u);
       const listTop = Math.max(h * 0.4, m + 50 * u + textHeight(i.title, inner, size, 1.15) + 56 * u);
       const rows = (i.points?.length ? i.points : i.subtitle.split(/[\n,，、；;]/)).map(s => s.trim()).filter(Boolean).slice(0, 4);
-      const items = (rows.length > 1 ? rows : ['01', '02', '03']).map((label, index) => textbox(rows.length > 1 ? `${index + 1}  ${label}` : `${label}  ${i.zh ? '要点' : 'Point'}`, m, listTop + index * 132 * u, inner, { fontSize: Math.max(30, 60 * u), fill: p.ink, fontWeight: 'bold' }));
+      const items = (rows.length > 1 ? rows : ['01', '02', '03']).map((label, index) => textbox(rows.length > 1 ? `${index + 1}  ${label}` : `${label}  ${localCopy(i, { en: 'Point', zh: '要点' })}`, m, listTop + index * 132 * u, inner, { fontSize: Math.max(30, 60 * u), fill: p.ink, fontWeight: 'bold' }));
       return { background: solid(p.bg), objects: [
         rect(m, m, 120 * u, Math.max(6, 12 * u), p.accent),
         ...badge(i.badge, m + 150 * u, m - 12 * u, p, Math.max(20, 28 * u)),
@@ -428,7 +432,7 @@ export const TEMPLATES: Template[] = [
     slot: i => { const { w, h, wide } = metrics(i); return wide ? undefined : { x: 0, y: h * 0.68, w, h: h * 0.32, radius: 0 }; },
     build(i) {
       const p = palette(i, { bg: '#fff7e6', bg2: '#fff7e6', ink: '#1a1a1a', sub: '#6b6b6b', accent: '#ef4444', accentInk: '#ffffff' });
-      const { u, m, w, h, wide } = metrics(i); const num = /^[\d.+%×x-]{1,4}$/i.test(i.badge?.trim() ?? '') ? i.badge!.trim() : digits(i); // the hook is a numeral; a word like "实测" would overflow it
+      const { u, m, w, h, wide } = metrics(i); const num = /^[\d.+%×x-]{1,4}$/i.test(i.badge?.trim() ?? '') ? i.badge!.trim() : digits(i); // the hook is a numeral; a two-character word would overflow it
       const cw = hasCjk(num) ? 1.05 : 0.64; const numSize = Math.round(wide ? Math.min(h * 0.66, (w * 0.32) / ([...num].length * cw)) : Math.min(h * 0.25, (w - m * 2) / ([...num].length * cw)));
       if (wide) {
         const left = m + w * 0.38; const inner = w - left - m; const size = fitTitle(i.title, inner, h * 0.5, 132 * u); const th = textHeight(i.title, inner, size, 1.15);
@@ -474,8 +478,8 @@ export const TEMPLATES: Template[] = [
     build(i) {
       const p = palette(i, { bg: '#f8fafc', bg2: '#f8fafc', ink: '#0f172a', sub: '#334155', accent: '#16a34a', accentInk: '#ffffff' });
       const { u, m, w, h, wide } = metrics(i); const inner = w - m * 2;
-      const parts = (i.points?.length ? i.points : i.subtitle.split(/\s*(?:\||｜|\bvs\.?\b|VS|对比|→)\s*/i)).map(s => s.trim()).filter(Boolean);
-      const a = parts[0] ?? (i.zh ? '之前' : 'Before'); const b = parts[1] ?? (i.zh ? '之后' : 'After');
+      const parts = (i.points?.length ? i.points : i.subtitle.split(/\s*(?:\||｜|\bvs\.?\b|VS|\u5bf9\u6bd4|→)\s*/i)).map(s => s.trim()).filter(Boolean); // The escaped pair is the Chinese word for "versus".
+      const a = parts[0] ?? (localCopy(i, { en: 'Before', zh: '之前' })); const b = parts[1] ?? (localCopy(i, { en: 'After', zh: '之后' }));
       const titleSize = fitTitle(i.title, inner, h * 0.22, 100 * u, 32, 1.12); const top = m + (i.badge?.trim() ? 64 * u : 0); const panelTop = top + textHeight(i.title, inner, titleSize, 1.12) + 24 * u; const panelH = h - panelTop - m;
       const gap = 28 * u; const pw = wide ? (inner - gap) / 2 : inner; const ph = wide ? panelH : (panelH - gap) / 2;
       const panel = (x: number, y: number, fill: string, ink: string, label: string, mark: string): FabricObject[] => {
@@ -503,7 +507,7 @@ export const TEMPLATES: Template[] = [
       const size = fitTitle(i.title, cw - pad * 2, ch * 0.55, 140 * u, 38, 1.12);
       const th = textHeight(i.title, cw - pad * 2, size, 1.12); const subS = Math.max(24, size * 0.3); const subH = i.subtitle.trim() ? subS * 1.7 + 34 * u : 0; const ty = cx + (ch - th - subH) / 2;
       const card = rect(cx, cx, cw, ch, '#ffffff', { stroke: p.ink, strokeWidth: bw, rx: 14 * u, ry: 14 * u, shadow: shadowHard(u, p.ink, 16) });
-      const tag = pill(i.badge?.trim() || (i.zh ? '必看' : 'MUST'), 0, cx - 22 * u, p.accent, p.accentInk, Math.max(22, 36 * u), { qcRole: 'badge', angle: 5, radius: 0.2 }); tag.set({ left: cx + cw - tag.width - 24 * u });
+      const tag = pill(i.badge?.trim() || (localCopy(i, { en: 'MUST', zh: '必看' })), 0, cx - 22 * u, p.accent, p.accentInk, Math.max(22, 36 * u), { qcRole: 'badge', angle: 5, radius: 0.2 }); tag.set({ left: cx + cw - tag.width - 24 * u });
       return { background: solid(p.bg), objects: [
         card, tag,
         textbox(i.title, cx + pad, ty, cw - pad * 2, { qcRole: 'title', fontSize: size, fill: p.ink, fontWeight: 'bold', lineHeight: 1.12 }),
@@ -722,7 +726,7 @@ const PREMIUM: Template[] = [
     build(i) {
       const p = palette(i, { bg: '#ecebe4', bg2: '#ecebe4', ink: '#141414', sub: '#6b6b6b', accent: '#ffd23f', accentInk: '#141414' });
       const { u, m, w, h, wide } = metrics(i); const gap = 20 * u; const rows = (i.points?.length ? i.points : i.subtitle.split(/[\n,，、；;]/)).map(x => x.trim()).filter(Boolean).slice(0, 3);
-      const items = [...rows, ...(i.zh ? ['先明确目标', '再拆解步骤', '最后复盘'] : ['Set the goal', 'Break it down', 'Review']).slice(rows.length)].slice(0, 3);
+      const items = [...rows, ...[localCopy(i, { en: 'Set the goal', zh: '先明确目标' }), localCopy(i, { en: 'Break it down', zh: '再拆解步骤' }), localCopy(i, { en: 'Review', zh: '最后复盘' })].slice(rows.length)].slice(0, 3);
       const x0 = m * 0.75; const y0 = m * 0.75; const W = w - x0 * 2; const H = h - y0 * 2; const colors = [p.accent, '#ff7a6b', '#7dd3c0'];
       const hw = wide ? W * 0.46 : W; const hh = wide ? H : H * 0.38; const inner = hw - m * 1.1;
       const size = fitTitle(i.title, inner, hh * (wide ? 0.72 : 0.62), 240 * u, 36, 1.04); const th = textHeight(i.title, inner, size, 1.04);
@@ -792,7 +796,7 @@ const PREMIUM: Template[] = [
       const ks = Math.max(26, Math.min(58 * u, size * 0.24)); const dek = Math.max(26, size * 0.3); const dekH = i.subtitle.trim() ? textHeight(i.subtitle, tw * 0.92, dek, 1.35) + 52 * u : 0;
       // The block sits a little above the middle of the space between the rules: optical centre, not geometric.
       const room = footY - headY - ks * 2.6; const top = headY + ks * 2.6 + Math.max(m * 0.4, (room - th - dekH) * 0.42);
-      const kicker = i.badge?.trim() || (i.zh ? '编辑部' : 'EDITORIAL');
+      const kicker = i.badge?.trim() || (localCopy(i, { en: 'EDITORIAL', zh: '编辑部' }));
       return { background: solid(p.bg), objects: keep<FabricObject>(
         grain(w, h, 0.06, 11),
         rule(x0, headY, inner, p.ink, Math.max(3, 4 * u), false, 1),
@@ -800,7 +804,7 @@ const PREMIUM: Template[] = [
         textbox(`No. ${digits(i, false).padStart(2, '0')}`, x0 + inner * 0.5, headY + ks * 0.55, inner * 0.5, { fontSize: ks * 1.2, fill: p.ink, fontFamily: 'DM Serif Display', textAlign: 'right', lineHeight: 1 }),
         textbox(i.title, x0, top, tw, { qcRole: 'title', fontSize: size, fill: p.ink, fontWeight: 'bold', lineHeight: 1.08, charSpacing: -20 }),
         rule(x0, top + th + 26 * u, Math.min(w * 0.12, 150 * u), p.accent, Math.max(5, 7 * u), false, 1),
-        ...sub(i, x0, top + th + 52 * u, tw * 0.92, dek, p.sub, { fontFamily: '思源宋体', lineHeight: 1.35 }),
+        ...sub(i, x0, top + th + 52 * u, tw * 0.92, dek, p.sub, { fontFamily: SOURCE_HAN_SERIF, lineHeight: 1.35 }),
         rule(x0, footY, inner, p.ink, Math.max(1, 1.5 * u), false, 0.55),
       ) };
     },
@@ -842,7 +846,7 @@ const PREMIUM: Template[] = [
     ...posterDesignTemplate("seal"),
     build(i) {
       const p = palette(i, { bg: '#f1ead8', bg2: '#f1ead8', ink: '#1b1814', sub: '#5d5446', accent: '#c0392b', accentInk: '#f6efe0' });
-      const { u, m, w, h, wide } = metrics(i); const flat = i.title.replace(/\s+/g, ''); const vertical = /^[㐀-鿿]{2,7}$/.test(flat); const stamp = (i.badge?.trim() || [...flat][0] || '印').slice(0, 2);
+      const { u, m, w, h, wide } = metrics(i); const flat = i.title.replace(/\s+/g, ''); const vertical = /^[\u3400-\u9fff]{2,7}$/.test(flat); const stamp = (i.badge?.trim() || [...flat][0] || SEAL_FALLBACK).slice(0, 2);
       const R = Math.min(w, h) * 0.48; const disc = new Circle({ left: w - R * 1.2, top: h - R * 1.35, radius: R, fill: 'rgba(30,24,16,0.075)', originX: 'left', originY: 'top' });
       if (vertical) {
         const chars = [...flat]; const size = Math.min((h * 0.66) / chars.length / (1.1 * FABRIC_LINE), wide ? w * 0.2 : w * 0.34); const x = wide ? w * 0.52 : (w - size * 1.3) / 2;
@@ -886,7 +890,7 @@ const PREMIUM: Template[] = [
     build(i) {
       const p = palette(i, { bg: '#0f0f12', bg2: '#0f0f12', ink: '#ffffff', sub: '#d4d4d8', accent: '#ffd23f', accentInk: '#111111' });
       const { u, m, w, h, wide } = metrics(i); const parts = i.subtitle.split(/\s*[|｜]\s*|\s+vs\.?\s+/i).map(x => x.trim()).filter(Boolean);
-      const [A, B] = parts.length >= 2 ? [parts[0]!, parts[1]!] : [i.zh ? '之前' : 'Before', i.zh ? '之后' : 'After']; const caption = parts.length >= 2 ? '' : i.subtitle.trim();
+      const [A, B] = parts.length >= 2 ? [parts[0]!, parts[1]!] : [localCopy(i, { en: 'Before', zh: '之前' }), localCopy(i, { en: 'After', zh: '之后' })]; const caption = parts.length >= 2 ? '' : i.subtitle.trim();
       const barH = h * (wide ? 0.3 : 0.2); const tw = w - m * 2; const size = fitTitle(i.title, tw, barH * 0.72, 150 * u, 36, 1.04); const th = textHeight(i.title, tw, size, 1.04);
       const slant = Math.min(w, h) * 0.07; const py = barH; const ph = h - barH;
       const dull = '#cfc9bf'; const dullInk = '#4a443a';
@@ -983,7 +987,7 @@ const PREMIUM: Template[] = [
         rect(tv.x, tv.y, tv.w, tv.h, '#ffffff', { rx: tv.w * 0.12, ry: tv.w * 0.12, stroke: p.accent, strokeWidth: tv.sw, shadow: new Shadow({ color: 'rgba(251,114,153,0.25)', blur: 40 * u, offsetX: 0, offsetY: 16 * u }) }),
         kitGlow(tv.x + tv.w / 2, tv.y + tv.h / 2, tv.w * 0.36, '#bfe9fb', 0.8),
         rect(tv.x + tv.w * 0.2, tv.y + tv.h + tv.sw * 0.4, tv.sw * 1.4, tv.h * 0.07, p.accent, { rx: tv.sw * 0.7, ry: tv.sw * 0.7 }), rect(tv.x + tv.w * 0.8 - tv.sw * 1.4, tv.y + tv.h + tv.sw * 0.4, tv.sw * 1.4, tv.h * 0.07, p.accent, { rx: tv.sw * 0.7, ry: tv.sw * 0.7 }),
-        pill(i.badge?.trim() || (i.zh ? '知识区' : 'EXPLAINER'), x0, ty - tagH, p.accent, p.accentInk, tagS * 1.3, { qcRole: 'badge', radius: 0.5 }),
+        pill(i.badge?.trim() || (localCopy(i, { en: 'EXPLAINER', zh: '知识区' })), x0, ty - tagH, p.accent, p.accentInk, tagS * 1.3, { qcRole: 'badge', radius: 0.5 }),
         textbox(i.title, x0, ty, tw, { qcRole: 'title', fontSize: size, fill: p.ink, fontWeight: 'bold', lineHeight: 1.08 }),
         ...sub(i, x0, ty + th + 26 * u, tw, subS, p.sub, { fontWeight: 'bold' }),
       ) };
@@ -1050,9 +1054,9 @@ const STUDIO: Template[] = [
       const ls = Math.max(26, Math.min(46 * u, size * 0.4)); const lx = twoCol ? x0 + tw + m : x0; const lw = twoCol ? inner - tw - m : inner; const ly0 = twoCol ? top + 8 * u : top + th + subH + 44 * u;
       const rows = list.length >= 2 ? list.flatMap((t, k) => { const y = ly0 + k * ls * 2.1; return [new Circle({ left: lx, top: y + ls * 0.12, radius: ls * 0.44, fill: k === 0 ? p.accent : 'rgba(0,0,0,0)', stroke: p.accent, strokeWidth: Math.max(2, 3 * u), originX: 'left', originY: 'top' }), Object.assign(textbox(t, lx + ls * 1.4, y, lw - ls * 1.4, { fontSize: ls, fill: p.ink, lineHeight: 1.1 }), { qcName: `poster:item:${k}` })]; }) : [];
       return { background: solid(p.bg), objects: keep<FabricObject>(
-        textbox('‹ ' + (i.zh ? '备忘录' : 'Notes'), x0, m * 0.8, inner * 0.5, { fontSize: bar, fill: p.accent, fontWeight: 'bold' }),
-        textbox(i.zh ? '完成' : 'Done', x0 + inner * 0.5, m * 0.8, inner * 0.5, { fontSize: bar, fill: p.accent, fontWeight: 'bold', textAlign: 'right' }),
-        textbox(i.badge?.trim() || (i.zh ? '今天 · 笔记' : 'Today'), x0, m * 0.8 + bar * 1.6 + dateS * 0.8, inner, { qcRole: 'badge', fontSize: dateS, fill: p.sub, textAlign: 'center' }),
+        textbox('‹ ' + (localCopy(i, { en: 'Notes', zh: '备忘录' })), x0, m * 0.8, inner * 0.5, { fontSize: bar, fill: p.accent, fontWeight: 'bold' }),
+        textbox(localCopy(i, { en: 'Done', zh: '完成' }), x0 + inner * 0.5, m * 0.8, inner * 0.5, { fontSize: bar, fill: p.accent, fontWeight: 'bold', textAlign: 'right' }),
+        textbox(i.badge?.trim() || (localCopy(i, { en: 'Today', zh: '今天 · 笔记' })), x0, m * 0.8 + bar * 1.6 + dateS * 0.8, inner, { qcRole: 'badge', fontSize: dateS, fill: p.sub, textAlign: 'center' }),
         textbox(i.title, x0, top, tw, { qcRole: 'title', fontSize: size, fill: p.ink, fontWeight: 'bold', lineHeight: 1.12 }),
         ...(showSub ? sub(i, x0, top + th + 30 * u, tw, subSize, p.sub) : []), ...rows,
       ) };
@@ -1074,7 +1078,7 @@ const STUDIO: Template[] = [
       return { background: solid(p.bg), objects: keep<FabricObject>(
         rect(0, 0, w, barH, '#f7f7f7'), rule(0, barH, w, '#d4d4d4', Math.max(1, 1.5 * u)),
         textbox('‹', m * 0.7, (barH - head * 1.6 * 1.13) / 2, head * 2, { fontSize: head * 1.6, fill: p.ink, lineHeight: 1 }),
-        textbox(i.badge?.trim() || (i.zh ? '对话' : 'Chat'), m * 2, (barH - head * 1.25 * 1.13) / 2, w - m * 4, { qcRole: 'badge', fontSize: head, fill: p.ink, fontWeight: 'bold', textAlign: 'center' }),
+        textbox(i.badge?.trim() || (localCopy(i, { en: 'Chat', zh: '对话' })), m * 2, (barH - head * 1.25 * 1.13) / 2, w - m * 4, { qcRole: 'badge', fontSize: head, fill: p.ink, fontWeight: 'bold', textAlign: 'center' }),
         ...(q ? [rect(L, y0, av, av, '#8fb3dc', { rx: 10 * u, ry: 10 * u }), rect(L + av + gap, y0, qW, qH, '#ffffff', { rx: 14 * u, ry: 14 * u }), tail(L + av + gap - 6 * u, y0 + Math.min(av, qH) / 2, '#ffffff', false),
           textbox(q, L + av + gap + pad, y0 + pad * 0.7, qW - pad * 2 + 6, { qcRole: 'subtitle', fontSize: qs, fill: p.sub })] : []),
         rect(R - av, ay, av, av, '#f5a04a', { rx: 10 * u, ry: 10 * u }), rect(bx, ay, aW, aH, p.accent, { rx: 14 * u, ry: 14 * u }), tail(bx + aW + 6 * u, ay + Math.min(av, aH) / 2, p.accent, true),
@@ -1144,14 +1148,14 @@ const STUDIO: Template[] = [
       const dash = { stroke: p.ink, strokeWidth: Math.max(2, 3 * u), strokeDashArray: [12 * u, 10 * u], opacity: 0.35, originX: 'left' as const, originY: 'top' as const };
       const perf = side ? new Line([0, 0, 0, ch - nr * 2.6], { left: px, top: cy + nr * 1.3, ...dash }) : new Line([0, 0, cw - nr * 2.6, 0], { left: cx + nr * 1.3, top: py, ...dash });
       const notch = side ? [dot(px, cy, nr, p.bg), dot(px, cy + ch, nr, p.bg)] : [dot(cx, py, nr, p.bg), dot(cx + cw, py, nr, p.bg)];
-      const label = i.badge?.trim() || (i.zh ? '入场券' : 'ADMIT ONE'); const sx = side ? px : cx, sy = side ? cy : py, sw = side ? stub : cw, sh = side ? ch : stub;
+      const label = i.badge?.trim() || (localCopy(i, { en: 'ADMIT ONE', zh: '入场券' })); const sx = side ? px : cx, sy = side ? cy : py, sw = side ? stub : cw, sh = side ? ch : stub;
       const ls = side ? fitTitle(label, sw - pad * 1.4, sh * 0.34, 110 * u, 24, 1.05) : fitTitle(label, sw * 0.5, sh * 0.6, 110 * u, 24, 1.05);
       const bw = side ? Math.min(sw - pad * 1.4, 240 * u) : Math.min(sw * 0.34, 300 * u); const bh = side ? Math.min(sh * 0.2, 80 * u) : Math.min(sh * 0.42, 90 * u);
       return { background: solid(p.bg), objects: keep<FabricObject>(
         grain(w, h, 0.08, 101),
         rect(cx, cy, cw, ch, card, { rx: 22 * u, ry: 22 * u, shadow: new Shadow({ color: 'rgba(80,20,0,0.25)', blur: 40 * u, offsetX: 0, offsetY: 16 * u }) }),
         ...notch, perf,
-        meta(i.zh ? 'ADMIT ONE · 入场' : 'ADMIT ONE', cx + pad, cy + pad, tw * 0.6, metaS, p.sub),
+        meta(localCopy(i, { en: 'ADMIT ONE', zh: 'ADMIT ONE · 入场' }), cx + pad, cy + pad, tw * 0.6, metaS, p.sub),
         meta(`NO.${digits(i, false, '0001').padStart(4, '0')}`, cx + pad + tw * 0.5, cy + pad, tw * 0.5, metaS, p.sub, { textAlign: 'right' }),
         rule(cx + pad, cy + pad + metaS * 1.9, tw, p.ink, Math.max(1.5, 2 * u), false, 0.6),
         textbox(i.title, cx + pad, ty, tw, { qcRole: 'title', fontSize: size, fill: p.ink, fontWeight: 'bold', lineHeight: 1.06 }),
@@ -1187,7 +1191,7 @@ const STUDIO: Template[] = [
     build(i) {
       const p = palette(i, { bg: '#efeadf', bg2: '#efeadf', ink: '#141210', sub: '#4d4740', accent: '#b3261e', accentInk: '#ffffff' });
       const { u, m, w, h } = metrics(i); const side = w / h > 1.2; const x0 = m; const inner = w - m * 2;
-      const mast = i.badge?.trim() || (i.zh ? '封面日报' : 'The Cover Daily');
+      const mast = i.badge?.trim() || (localCopy(i, { en: 'The Cover Daily', zh: '封面日报' }));
       const ms = Math.min(side ? h * 0.12 : h * 0.075, inner * 0.9 / Math.max(3, [...mast].length * (hasCjk(mast) ? 1.05 : 0.55)));
       const my = m * 0.6; const ry = my + ms * 1.2 + 8 * u; const ds = Math.max(13, 17 * u); const dl = ry + 16 * u; const hy = dl + ds * 2.4 + 26 * u;
       const tw = side ? inner * 0.6 : inner; const size = fitTitle(i.title, tw, (h - hy - m) * (side ? 0.7 : 0.42), 200 * u, 36, 1.06); const th = textHeight(i.title, tw, size, 1.06);
@@ -1201,7 +1205,7 @@ const STUDIO: Template[] = [
         grain(w, h, 0.12, 107),
         textbox(mast, x0, my, inner, { qcRole: 'badge', fontSize: ms, fill: p.ink, fontFamily: SERIF, fontWeight: 'bold', textAlign: 'center', lineHeight: 1 }),
         rule(x0, ry, inner, p.ink, Math.max(3, 4 * u)), rule(x0, ry + 8 * u, inner, p.ink, Math.max(1, 1.5 * u)),
-        dlText('VOL. 2026', x0, 'left'), dlText(i.zh ? '特 刊' : 'SPECIAL EDITION', x0 + inner / 3, 'center'), dlText(`NO. ${digits(i, false)}`, x0 + inner * 2 / 3, 'right'),
+        dlText('VOL. 2026', x0, 'left'), dlText(localCopy(i, { en: 'SPECIAL EDITION', zh: '特 刊' }), x0 + inner / 3, 'center'), dlText(`NO. ${digits(i, false)}`, x0 + inner * 2 / 3, 'right'),
         rule(x0, dl + ds * 1.7, inner, p.ink, Math.max(1, 1.5 * u)),
         textbox(i.title, x0, hy, tw, { qcRole: 'title', fontSize: size, fill: p.ink, fontFamily: SERIF, fontWeight: 'bold', lineHeight: 1.06 }),
         ...sub(i, x0, hy + th + 26 * u, tw, subSize, p.accent, { fontFamily: SERIF, fontWeight: 'bold' }),
@@ -1255,7 +1259,7 @@ const STUDIO: Template[] = [
     build(i) {
       const p = palette(i, { bg: '#f4f1ea', bg2: '#f4f1ea', ink: '#1a1a1a', sub: '#6b6560', accent: '#1f4d3a', accentInk: '#f4f1ea' });
       const { u, m, w, h } = metrics(i); const side = w / h > 1.25; const num = digits(i, false).padStart(2, '0');
-      const name = (i.badge?.trim() ?? '').replace(/\d+/g, '').replace(/[#№.·\s-]+$/, '').trim() || (i.zh ? '深度专栏' : 'COLUMN');
+      const name = (i.badge?.trim() ?? '').replace(/\d+/g, '').replace(/[#№.·\s-]+$/, '').trim() || (localCopy(i, { en: 'COLUMN', zh: '深度专栏' }));
       const bw = side ? w * 0.3 : w; const bh = side ? h : h * 0.36; const ms = Math.max(16, 22 * u); const bp = m * 0.9;
       const ns = side ? Math.min(h * 0.5, (bw - bp * 2) / (num.length * 0.62)) : Math.min(bh * 0.52, (bw - bp * 2) / (num.length * 0.62));
       const cx = side ? bw + m * 1.2 : m; const cw = side ? w - cx - m : w - m * 2; const cTop = side ? m : bh + m; const cH = side ? h - m * 2 : h - bh - m * 2;

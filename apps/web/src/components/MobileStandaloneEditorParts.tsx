@@ -1,4 +1,4 @@
-import { Bold, Check, ChevronDown, ImagePlus, List, ListIndentDecrease, ListIndentIncrease, ListTodo, Minus, Quote, Redo2, Type, Undo2 } from "lucide-react";
+import { Bold, Check, ChevronDown, ImagePlus, List, ListIndentDecrease, ListIndentIncrease, ListTodo, Mic, Minus, Quote, Redo2, Type, Undo2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
   MOBILE_EDITOR_TOOLBAR_ACTIONS,
@@ -66,6 +66,7 @@ export const MobileEditorToolbar = ({
   onUndo,
   onRedo,
   onPickImage,
+  onInsertVoiceMemo,
   onToggleBold,
   onToggleBulletList,
   onToggleTaskList,
@@ -89,6 +90,7 @@ export const MobileEditorToolbar = ({
   onUndo: () => void;
   onRedo: () => void;
   onPickImage: () => void;
+  onInsertVoiceMemo: () => void;
   onToggleBold: () => void;
   onToggleBulletList: () => void;
   onToggleTaskList: () => void;
@@ -103,6 +105,7 @@ export const MobileEditorToolbar = ({
     undo: <Undo2 aria-hidden="true" size={18} strokeWidth={2} />,
     redo: <Redo2 aria-hidden="true" size={18} strokeWidth={2} />,
     image: <ImagePlus aria-hidden="true" size={18} strokeWidth={2} />,
+    voiceMemo: <Mic aria-hidden="true" size={18} strokeWidth={2} />,
     bold: <Bold aria-hidden="true" size={17} strokeWidth={2.4} />,
     bulletList: <List aria-hidden="true" size={18} strokeWidth={2.2} />,
     taskList: <ListTodo aria-hidden="true" size={18} strokeWidth={2.1} />,
@@ -116,6 +119,7 @@ export const MobileEditorToolbar = ({
     undo: onUndo,
     redo: onRedo,
     image: onPickImage,
+    voiceMemo: onInsertVoiceMemo,
     bold: onToggleBold,
     bulletList: onToggleBulletList,
     taskList: onToggleTaskList,

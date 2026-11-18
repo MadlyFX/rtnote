@@ -11,15 +11,15 @@ describe("normalized memo tag migration", () => {
     }
 
     sqlite.query(
-      `UPDATE memos SET tags_json = '["Demo","数据库"]' WHERE id = 'memo_welcome'`,
+      `UPDATE memos SET tags_json = '["Demo","Database"]' WHERE id = 'memo_welcome'`,
     ).run();
     sqlite.exec(readFileSync("migrations/0035_normalized_memo_tags.sql", "utf8"));
 
     expect(sqlite.query(
       `SELECT name, normalized_name FROM memo_tags WHERE memo_id = 'memo_welcome' ORDER BY name`,
     ).all()).toEqual([
+      { name: "Database", normalized_name: "database" },
       { name: "Demo", normalized_name: "demo" },
-      { name: "数据库", normalized_name: "数据库" },
     ]);
 
     sqlite.query(`UPDATE memos SET tags_json = '["Updated"]' WHERE id = 'memo_welcome'`).run();

@@ -18,8 +18,8 @@ An infographic is a separate note type whose source is AntV Infographic's declar
 
 Presenting a diagram note through Infographic would require an explicit `DiagramDocument → Infographic` conversion that identifies lost layout or interaction data. Existing notes should not be migrated until a bidirectional mapping is validated.
 
-## AI and MCP
+## MCP
 
-Diagram AI and MCP accept a coordinate-free semantic graph, which the server validates and lays out. `create_diagram_memo` creates a diagram note, `get_diagram` reads its semantic graph, and `update_diagram` applies incremental changes with `expectedRevision` to prevent overwrites. Its default `reflow=preserve` keeps existing layout; `reflow=all` is reserved for an explicitly requested full relayout. The generic `update_memo` does not directly replace diagram content.
+The MCP diagram tools accept a coordinate-free semantic graph, which the server validates and lays out. `create_diagram_memo` creates a diagram note, `get_diagram` reads its semantic graph, and `update_diagram` applies incremental changes with `expectedRevision` to prevent overwrites. Its default `reflow=preserve` keeps existing layout; `reflow=all` is reserved for an explicitly requested full relayout. The generic `update_memo` does not directly replace diagram content.
 
-Infographic AI selects an AntV template and generates matching data; people can refine text on the canvas. Each path retains its own source of truth instead of persisting a rendered result.
+`create_infographic_memo` creates an infographic note from an AntV template and matching data; people can refine text on the canvas. Each path retains its own source of truth instead of persisting a rendered result.

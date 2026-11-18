@@ -16,7 +16,7 @@ const futureDocument = {
       attrs: { kind: "warning", futureOption: true },
       content: [{
         type: "paragraph",
-        content: [{ type: "text", text: "保留主题块正文" }],
+        content: [{ type: "text", text: "Theme block body to keep" }],
       }],
     },
     {
@@ -24,7 +24,7 @@ const futureDocument = {
       content: [
         {
           type: "text",
-          text: "带格式文本",
+          text: "Formatted text",
           marks: [
             { type: "futureComment", attrs: { threadId: "thread-1" } },
             { type: "bold" },
@@ -32,7 +32,7 @@ const futureDocument = {
         },
         {
           type: "futureMention",
-          attrs: { userId: "user-1", label: "小明" },
+          attrs: { userId: "user-1", label: "Sam" },
         },
       ],
     },
@@ -47,7 +47,7 @@ describe("native editor unknown-content compatibility", () => {
       type: UNSUPPORTED_BLOCK_NODE_TYPE,
       attrs: {
         originalType: "edgeeverThemeBlock",
-        displayLabel: "暂不支持的内容：edgeeverThemeBlock",
+        displayLabel: { "zh-CN": "暂不支持的内容：edgeeverThemeBlock" }["zh-CN"],
       },
     });
     expect(prepared.content[1]?.content?.[0]).toMatchObject({
@@ -101,7 +101,8 @@ describe("native editor unknown-content compatibility", () => {
   test("labels placeholders in the requested UI locale and defaults to English", () => {
     const labelFor = (locale) => prepareNativeEditorContent(futureDocument, locale).content[0]?.attrs?.displayLabel;
     expect(labelFor("en-US")).toBe("Unsupported content: edgeeverThemeBlock");
-    expect(labelFor("ja")).toBe("未対応のコンテンツ: edgeeverThemeBlock");
+    const expected = { ja: "未対応のコンテンツ: edgeeverThemeBlock" };
+    expect(labelFor("ja")).toBe(expected.ja);
     expect(labelFor("pl")).toBe("Nieobsługiwana zawartość: edgeeverThemeBlock");
     expect(labelFor("ru")).toBe("Неподдерживаемое содержимое: edgeeverThemeBlock");
     expect(labelFor(undefined)).toBe("Unsupported content: edgeeverThemeBlock");
@@ -109,8 +110,8 @@ describe("native editor unknown-content compatibility", () => {
 
   test("keeps Markdown generation alive by projecting unknown content to text", () => {
     const markdown = docToMarkdown(futureDocument);
-    expect(markdown).toContain("保留主题块正文");
-    expect(markdown).toContain("带格式文本");
+    expect(markdown).toContain("Theme block body to keep");
+    expect(markdown).toContain("Formatted text");
     expect(markdown).toContain("Unsupported content: futureMention");
   });
 });

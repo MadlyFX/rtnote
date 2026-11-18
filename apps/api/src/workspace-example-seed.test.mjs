@@ -7,6 +7,8 @@ import {
   ensureWorkspaceExampleSeed,
   omitInstanceUnavailableExampleTips,
 } from "./workspace-example-seed.ts";
+import { DEMO_SEED_MEMOS } from "./demo-seed-data.ts";
+import { DEMO_RESET_TIP_MARKER_ZH } from "./demo-seed-data.zh-CN.ts";
 
 const MIGRATION = "0079_workspace_example_seeds.sql";
 const migrationFiles = globSync("migrations/*.sql").sort();
@@ -76,13 +78,13 @@ const overviewMarkdown = (sqlite, memoId = "memo_demo_overview") => sqlite
 describe("workspace example seed", () => {
   test("drops the demo-only reset tip from copied notes", () => {
     const source = [
-      "> 7. 点击 **“分享为卡片”**，挑选一款你心仪的社交海报风格并导出；",
-      "> 8. 随时在侧边栏或设置中点击 **“恢复 Demo 数据”**，一键重置演示工作区。",
+      "> 7. Click **\"Share as Card\"** to export a social poster card.",
+      `> 8. Click **"${DEMO_RESET_TIP_MARKER_ZH}"** to reset the demo workspace.`,
       "> 8. Click **\"Reset Demo Data\"** in settings or the sidebar anytime to restore the demo workspace.",
     ].join("\n");
 
     expect(omitInstanceUnavailableExampleTips(source)).toBe(
-      "> 7. 点击 **“分享为卡片”**，挑选一款你心仪的社交海报风格并导出；",
+      "> 7. Click **\"Share as Card\"** to export a social poster card.",
     );
   });
 
@@ -98,7 +100,7 @@ describe("workspace example seed", () => {
     expect(sqlite.query("SELECT parent_id FROM notebooks WHERE id = 'nb_demo_features'").get())
       .toEqual({ parent_id: "nb_projects" });
     expect(overviewMarkdown(sqlite)).toContain("/api/v1/resources/res_demo_logo/blob");
-    expect(overviewMarkdown(sqlite)).not.toContain("恢复 Demo 数据");
+    expect(overviewMarkdown(sqlite)).not.toContain(DEMO_RESET_TIP_MARKER_ZH);
     expect(overviewMarkdown(sqlite, "memo_demo_overview_en")).not.toContain("Reset Demo Data");
     expect(sqlite.query("SELECT COUNT(*) AS count FROM resources WHERE id = 'res_demo_logo'").get()).toEqual({ count: 1 });
     expect(puts.some((key) => key.includes("res_demo_logo"))).toBe(true);
@@ -123,7 +125,7 @@ describe("workspace example seed", () => {
     const { sqlite, env } = upgradedInstallation((existing) => {
       existing.query(
         `INSERT INTO memos (id, notebook_id, title, created_by, updated_by)
-         VALUES ('memo_user', 'nb_inbox', '自己的笔记', 'usr_owner', 'usr_owner')`,
+         VALUES ('memo_user', 'nb_inbox', 'My own note', 'usr_owner', 'usr_owner')`,
       ).run();
     });
 
@@ -173,8 +175,8 @@ describe("workspace example seed", () => {
       `SELECT c.content_markdown
        FROM memo_contents c
        INNER JOIN memos m ON m.id = c.memo_id
-       WHERE m.workspace_id = ? AND m.title LIKE '欢迎使用 RTNote%'`,
-    ).get(workspace.workspaceId).content_markdown;
+       WHERE m.workspace_id = ? AND m.title = ?`,
+    ).get(workspace.workspaceId, DEMO_SEED_MEMOS.find((memo) => memo.id === "memo_demo_overview").title).content_markdown;
     expect(markdown).toContain(`/api/v1/resources/${workspace.workspaceId}_res_demo_logo/blob`);
     expect(markdown).not.toContain("/api/v1/resources/res_demo_logo/blob");
     expect(sqlite.query("SELECT id FROM memos WHERE id = 'memo_demo_overview'").get()).toBeNull();

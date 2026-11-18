@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useMutation } from "@tanstack/react-query";
-import type { AiTranscriptionProvider, AiTranscriptionSettings, AiTranscriptionStandard } from "@edgeever/shared";
+import type { TranscriptionProvider, TranscriptionSettings, TranscriptionStandard } from "@edgeever/shared";
 import { CheckCircle2, Loader2, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { aiErrorMessage, trimAiText } from "@/components/settings/ai-provider-options";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -24,7 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { api } from "@/lib/api";
-import { SpeechProviderReachabilityError } from "@/lib/speech-transcription-error";
+import { SpeechProviderReachabilityError, speechSettingsErrorMessage, trimSpeechText } from "@/lib/speech-transcription-error";
 
 export const SpeechProviderCard = ({
   provider: saved,
@@ -32,13 +31,13 @@ export const SpeechProviderCard = ({
   readOnly,
   onChanged,
 }: {
-  provider: AiTranscriptionProvider;
+  provider: TranscriptionProvider;
   defaultModelId: string | null;
   readOnly: boolean;
-  onChanged: (settings: AiTranscriptionSettings) => void;
+  onChanged: (settings: TranscriptionSettings) => void;
 }) => {
   const { t, i18n } = useTranslation();
-  const [provider, setProvider] = useState<AiTranscriptionStandard>(saved.provider);
+  const [provider, setProvider] = useState<TranscriptionStandard>(saved.provider);
   const [displayName, setDisplayName] = useState(saved.displayName);
   const [baseUrl, setBaseUrl] = useState(saved.baseUrl);
   const [apiKey, setApiKey] = useState("");
@@ -60,7 +59,7 @@ export const SpeechProviderCard = ({
   }, [saved.models]);
 
   const saveMutation = useMutation({
-    mutationFn: () => api.updateAiTranscriptionProvider(saved.id, {
+    mutationFn: () => api.updateTranscriptionProvider(saved.id, {
       provider,
       displayName: displayName.trim(),
       baseUrl: baseUrl.trim(),
@@ -81,7 +80,7 @@ export const SpeechProviderCard = ({
       testAbortRef.current = controller;
       try {
         const key = apiKey.trim()
-          || (await api.getAiTranscriptionDirectCredential(saved.id, controller.signal)).apiKey;
+          || (await api.getTranscriptionDirectCredential(saved.id, controller.signal)).apiKey;
         const { testSpeechService } = await import("@/lib/transcribe-note-resource");
         return await testSpeechService(
           { baseUrl, modelId: selectedModel.modelId, apiKey: key },
@@ -94,7 +93,7 @@ export const SpeechProviderCard = ({
     },
   });
   const toggleMutation = useMutation({
-    mutationFn: (isEnabled: boolean) => api.updateAiTranscriptionProvider(saved.id, {
+    mutationFn: (isEnabled: boolean) => api.updateTranscriptionProvider(saved.id, {
       provider: saved.provider,
       displayName: saved.displayName,
       baseUrl: saved.baseUrl,
@@ -103,11 +102,11 @@ export const SpeechProviderCard = ({
     onSuccess: onChanged,
   });
   const deleteMutation = useMutation({
-    mutationFn: () => api.deleteAiTranscriptionProvider(saved.id),
+    mutationFn: () => api.deleteTranscriptionProvider(saved.id),
     onSuccess: onChanged,
   });
   const addModelMutation = useMutation({
-    mutationFn: () => api.addAiTranscriptionModel(saved.id, { modelId: trimAiText(modelId) }),
+    mutationFn: () => api.addTranscriptionModel(saved.id, { modelId: trimSpeechText(modelId) }),
     onSuccess: (settings) => {
       setModelId("");
       setShowAddModel(false);
@@ -115,14 +114,14 @@ export const SpeechProviderCard = ({
     },
   });
   const deleteModelMutation = useMutation({
-    mutationFn: (modelConfigId: string) => api.deleteAiTranscriptionModel(saved.id, modelConfigId),
+    mutationFn: (modelConfigId: string) => api.deleteTranscriptionModel(saved.id, modelConfigId),
     onSuccess: onChanged,
   });
 
   const cardBusy = toggleMutation.isPending || deleteMutation.isPending || deleteModelMutation.isPending;
   const cardError = toggleMutation.error ?? deleteMutation.error ?? addModelMutation.error ?? deleteModelMutation.error;
   const connectionBusy = saveMutation.isPending || testMutation.isPending;
-  const updateConnection = (change: { provider?: AiTranscriptionStandard; displayName?: string; baseUrl?: string; apiKey?: string }) => {
+  const updateConnection = (change: { provider?: TranscriptionStandard; displayName?: string; baseUrl?: string; apiKey?: string }) => {
     if (change.provider !== undefined) setProvider(change.provider);
     if (change.displayName !== undefined) setDisplayName(change.displayName);
     if (change.baseUrl !== undefined) setBaseUrl(change.baseUrl);
@@ -156,7 +155,7 @@ export const SpeechProviderCard = ({
       deleteMutation.mutate();
     }
   };
-  const deleteModel = (model: AiTranscriptionProvider["models"][number]) => {
+  const deleteModel = (model: TranscriptionProvider["models"][number]) => {
     if (window.confirm(t("speechTranscription.deleteModelConfirm", { name: model.displayName }))) {
       deleteModelMutation.mutate(model.id);
     }
@@ -170,7 +169,7 @@ export const SpeechProviderCard = ({
             <span className="truncate text-xs font-normal text-slate-900">{saved.displayName}</span>
             {saved.credentialsUnavailable ? (
               <span className="rounded-md bg-amber-50 px-2 py-0.5 text-xs font-normal text-amber-800">
-                {t("aiModel.savedCredentialsUnavailableBadge")}
+                {t("speechTranscription.savedCredentialsUnavailableBadge")}
               </span>
             ) : null}
             <span className="max-w-full truncate font-mono text-xs text-slate-400">{formatBaseUrl(saved.baseUrl)}</span>
@@ -272,7 +271,7 @@ export const SpeechProviderCard = ({
       </div>
       {cardError ? (
         <p className="border-t px-4 py-3 text-xs font-medium text-rose-600" role="alert">
-          {aiErrorMessage(cardError, t("speechTranscription.failed"), t("aiModel.encryptionKeyMissing"), t("speechTranscription.savedCredentialsUnavailable"))}
+          {speechSettingsErrorMessage(cardError, t("speechTranscription.failed"), t("speechTranscription.encryptionKeyMissing"), t("speechTranscription.savedCredentialsUnavailable"))}
         </p>
       ) : null}
       <Dialog open={showConnection} onOpenChange={handleConnectionChange}>
@@ -286,7 +285,7 @@ export const SpeechProviderCard = ({
                 <Input className="h-9 text-xs" value={displayName} onChange={(event) => updateConnection({ displayName: event.target.value })} required maxLength={80} disabled={readOnly || connectionBusy} />
               </Field>
               <Field label={t("speechTranscription.standard")}>
-                <Select value={provider} onValueChange={(value) => updateConnection({ provider: value as AiTranscriptionStandard })} disabled={readOnly || connectionBusy}>
+                <Select value={provider} onValueChange={(value) => updateConnection({ provider: value as TranscriptionStandard })} disabled={readOnly || connectionBusy}>
                   <SelectTrigger className="h-9 bg-card text-xs font-normal"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="openai-compatible">{t("speechTranscription.standards.openai-compatible")}</SelectItem>
@@ -330,12 +329,12 @@ export const SpeechProviderCard = ({
                 {testMutation.error instanceof SpeechProviderReachabilityError
                   ? t(testMutation.error.platform === "browser"
                     ? "speechTranscription.browserDirectUnavailable" : "speechTranscription.desktopDirectUnavailable")
-                  : aiErrorMessage(testMutation.error, t("speechTranscription.testFailed"), t("aiModel.encryptionKeyMissing"), t("speechTranscription.savedCredentialsUnavailable"))}
+                  : speechSettingsErrorMessage(testMutation.error, t("speechTranscription.testFailed"), t("speechTranscription.encryptionKeyMissing"), t("speechTranscription.savedCredentialsUnavailable"))}
               </p>
             ) : null}
             {saveMutation.isError ? (
               <p className="text-xs font-medium text-rose-600" role="alert">
-                {aiErrorMessage(saveMutation.error, t("speechTranscription.failed"), t("aiModel.encryptionKeyMissing"), t("speechTranscription.savedCredentialsUnavailable"))}
+                {speechSettingsErrorMessage(saveMutation.error, t("speechTranscription.failed"), t("speechTranscription.encryptionKeyMissing"), t("speechTranscription.savedCredentialsUnavailable"))}
               </p>
             ) : null}
             <DialogFooter className="gap-2 sm:space-x-0">
@@ -352,7 +351,7 @@ export const SpeechProviderCard = ({
       </Dialog>
       <Dialog open={showAddModel} onOpenChange={handleAddModelChange}>
         <DialogContent className="sm:max-w-md">
-          <form className="grid gap-4" onSubmit={(event: FormEvent) => { event.preventDefault(); if (readOnly || !trimAiText(modelId)) return; addModelMutation.mutate(); }}>
+          <form className="grid gap-4" onSubmit={(event: FormEvent) => { event.preventDefault(); if (readOnly || !trimSpeechText(modelId)) return; addModelMutation.mutate(); }}>
             <DialogHeader>
               <DialogTitle className="text-xs font-normal">{t("speechTranscription.addModel")}</DialogTitle>
             </DialogHeader>
@@ -361,12 +360,12 @@ export const SpeechProviderCard = ({
             </Field>
             {addModelMutation.isError ? (
               <p className="text-xs font-medium text-rose-600" role="alert">
-                {aiErrorMessage(addModelMutation.error, t("speechTranscription.failed"), t("aiModel.encryptionKeyMissing"), t("speechTranscription.savedCredentialsUnavailable"))}
+                {speechSettingsErrorMessage(addModelMutation.error, t("speechTranscription.failed"), t("speechTranscription.encryptionKeyMissing"), t("speechTranscription.savedCredentialsUnavailable"))}
               </p>
             ) : null}
             <DialogFooter className="gap-2 sm:space-x-0">
               <Button type="button" variant="outline" className="text-xs font-normal" onClick={() => handleAddModelChange(false)}>{t("common.cancel")}</Button>
-              <Button type="submit" variant="solid" className="text-xs font-normal" disabled={readOnly || addModelMutation.isPending || !trimAiText(modelId)}>
+              <Button type="submit" variant="solid" className="text-xs font-normal" disabled={readOnly || addModelMutation.isPending || !trimSpeechText(modelId)}>
                 {addModelMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}{t("speechTranscription.addModel")}
               </Button>
             </DialogFooter>

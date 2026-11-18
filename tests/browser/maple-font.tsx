@@ -15,7 +15,8 @@ import "../../apps/web/src/styles/editor-body-fonts.css";
 
 await i18next.init({ lng: "en", resources: { en: { translation: { fontLoad: { loading: "Loading", error: "Unavailable" } } } } });
 const font = "maple-mono-cn";
-const sample = "记录此刻的灵感 中文 English 0123456789 => !=";
+// CJK text is written as escapes: "Capture this moment's idea", "Chinese", and the source-only character U+9F98.
+const sample = "\u8bb0\u5f55\u6b64\u523b\u7684\u7075\u611f \u4e2d\u6587 English 0123456789 => !=";
 const requests: string[] = [];
 const originalOpen = XMLHttpRequest.prototype.open;
 XMLHttpRequest.prototype.open = function (...args: Parameters<XMLHttpRequest["open"]>) {
@@ -25,15 +26,15 @@ XMLHttpRequest.prototype.open = function (...args: Parameters<XMLHttpRequest["op
 
 function Verification() {
   const source = useRef<MarkdownSourceEditorRef>(null);
-  const [markdown, setMarkdown] = useState("iii WWW 中文 => !=\n源码独有字：龘\n| 项目 | Value |\n| ---- | ----- |\n| 字体 | Maple |\n");
+  const [markdown, setMarkdown] = useState("iii WWW \u4e2d\u6587 => !=\nSource-only character: \u9f98\n| Item | Value |\n| ---- | ----- |\n| Font | Maple |\n");
   const [selected, setSelected] = useState(false);
   const [status, setStatus] = useState<FontLoadStatus>("idle");
   const contentStatus = useSyncExternalStore(editorFontLoadState.subscribe, editorFontLoadState.getSnapshot);
-  const [result, setResult] = useState("正在检查未选中选项…");
+  const [result, setResult] = useState("Checking the unselected option…");
   useEffect(() => {
     const timer = setTimeout(() => setResult(requests.length === 0
-      ? "PASS：列表条目可见时，Maple 字体请求为 0。"
-      : `FAIL：未选择就产生了 ${requests.length} 个请求。`), 1200);
+      ? "PASS: no Maple font requests while the list item is visible."
+      : `FAIL: ${requests.length} requests before the font was selected.`), 1200);
     return () => clearTimeout(timer);
   }, []);
 
@@ -44,7 +45,7 @@ function Verification() {
       await document.fonts.ready;
       const ctx = document.createElement("canvas").getContext("2d")!;
       ctx.font = `20px "${FONT_CATALOG[font].family}"`;
-      const ratio = ctx.measureText("中").width / ctx.measureText("M").width;
+      const ratio = ctx.measureText("\u4e2d").width / ctx.measureText("M").width;
       if (Math.abs(ratio - 2) > 0.01) throw new Error(`CJK/Latin width ratio ${ratio}`);
       const before = requests.length;
       const loader = createRemoteFontResourceLoader();
@@ -54,8 +55,8 @@ function Verification() {
       const used = blocks.filter(block => fontSubsetContains(block.range, points));
       await Promise.all(used.map(block => loader(block.asset)));
       if (requests.length !== before) throw new Error("Fresh loader did not reuse persistent cache");
-      setResult(`PASS：选中后加载成功；中英文宽度 2:1；导出保留字体与授权；新加载器读取缓存时请求为 0。实际下载 ${used.length}/${blocks.length} 个分片。`);
-    } catch (error) { setResult(`FAIL：${String(error)}`); }
+      setResult(`PASS: loads after selection; CJK/Latin width 2:1; export keeps the font and license; a fresh loader reads the cache with 0 requests. Downloaded ${used.length}/${blocks.length} subsets.`);
+    } catch (error) { setResult(`FAIL: ${String(error)}`); }
   };
 
   const verifyCodeFonts = async () => {
@@ -82,27 +83,27 @@ function Verification() {
       if ([...codeNodes].some(node => getComputedStyle(node).fontFamily.includes(expected))) throw new Error("Switching to proportional body did not restore code fallback");
       if (source.current!.sliceText(0, source.current!.getDocumentLength()) !== before) throw new Error("Font switch changed document contents");
       applyEditorBodyFontPreference({ choice: font, customFamily: "" });
-      setResult("PASS：默认及主题代码块、行内代码、Mermaid 源码和真实 CodeMirror 均使用 Maple；光标位置与选区正确；切回比例字体恢复代码等宽回退，文档内容不变。");
-    } catch (error) { setResult(`FAIL：${String(error)}`); }
+      setResult("PASS: default and themed code blocks, inline code, Mermaid source and the real CodeMirror all use Maple; cursor positions and selection are correct; switching back to a proportional font restores the monospace code fallback without changing the document.");
+    } catch (error) { setResult(`FAIL: ${String(error)}`); }
   };
 
   return <>
     <p role="status">{result}</p>
-    <p>列表选项：<FontLabel label="Maple Mono CN" fontId={font} enabled visibleOnly /></p>
-    <button onClick={() => { applyEditorBodyFontPreference({ choice: font, customFamily: "" }); setSelected(true); }}>选择 Maple Mono CN</button>{" "}
-    <button disabled={status !== "ready"} onClick={() => void verifyExportAndCache()}>验证导出与缓存</button>
-    {" "}<button disabled={status !== "ready" || contentStatus !== "ready"} onClick={() => void verifyCodeFonts()}>验证代码字体与光标</button>
+    <p>List option: <FontLabel label="Maple Mono CN" fontId={font} enabled visibleOnly /></p>
+    <button onClick={() => { applyEditorBodyFontPreference({ choice: font, customFamily: "" }); setSelected(true); }}>Select Maple Mono CN</button>{" "}
+    <button disabled={status !== "ready"} onClick={() => void verifyExportAndCache()}>Verify export and cache</button>
+    {" "}<button disabled={status !== "ready" || contentStatus !== "ready"} onClick={() => void verifyCodeFonts()}>Verify code fonts and cursor</button>
     {selected && <div>
-      <p>选中状态：{status}</p>
+      <p>Selection status: {status}</p>
       <FontLabel label={sample} fontId={font} enabled onStatusChange={setStatus} />
     </div>}
     {["default", "wechat-green"].map(theme => <section key={theme} className="edgeever-editor" data-editor-theme={theme}>
-      <h2>{theme} · 富文本代码</h2>
-      <div className="ProseMirror"><p>正文与行内代码 <code>{sample}</code></p><pre><code>{sample}</code></pre><pre className="edgeever-code-source">graph TD; A --&gt; B</pre></div>
+      <h2>{theme} · Rich text code</h2>
+      <div className="ProseMirror"><p>Body and inline code <code>{sample}</code></p><pre><code>{sample}</code></pre><pre className="edgeever-code-source">graph TD; A --&gt; B</pre></div>
     </section>)}
     <section className="edgeever-editor" style={{ height: 220 }}>
-      <h2>Markdown 源码</h2>
-      <MarkdownSourceEditor ref={source} memoId="maple-font-test" value={markdown} onChange={setMarkdown} themeName="github-light" ariaLabel="字体测试源码" />
+      <h2>Markdown source</h2>
+      <MarkdownSourceEditor ref={source} memoId="maple-font-test" value={markdown} onChange={setMarkdown} themeName="github-light" ariaLabel="Font test source" />
     </section>
   </>;
 }

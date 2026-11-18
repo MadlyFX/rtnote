@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { computePosition } from "@floating-ui/react-dom";
+import { LEGACY_ATTACHMENT_PREFIXES } from "@edgeever/shared/edgeever-legacy-values";
 import {
   attachmentResourceMenuPosition,
   resolveAttachmentMenuFilename,
@@ -95,7 +96,7 @@ describe("attachment menu filename", () => {
   test("still reads a legacy attachment link label", () => {
     expect(resolveAttachmentMenuFilename(
       hover({
-        text: "附件：notes.zip",
+        text: `${LEGACY_ATTACHMENT_PREFIXES[0]}notes.zip`,
         href: "/api/v1/resources/res_zip/blob",
       }),
       "/api/v1/resources/res_zip/blob",

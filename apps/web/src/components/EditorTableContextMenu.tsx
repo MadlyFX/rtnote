@@ -72,7 +72,7 @@ export const EditorTableContextMenu = ({ editor, readOnly, children }: {
   const validTarget = () => {
     if (!editor || editor.isDestroyed || !target.current) return false;
     if (editor.state.doc === target.current.doc && editor.state.selection.eq(target.current.selection)) return true;
-    setNotice({ message: t("aiAssistant.sidebar.selection.stale"), status: "error" });
+    setNotice({ message: t("editor.tableSelectionStale"), status: "error" });
     return false;
   };
 
@@ -129,7 +129,7 @@ export const EditorTableContextMenu = ({ editor, readOnly, children }: {
     const unchanged = () => mounted.current && !editor.isDestroyed && editor.isEditable && !currentReadOnly.current
       && session === closeSession.current && editor.state.doc === doc && editor.state.selection.eq(selection);
     const stale = () => {
-      if (mounted.current) setNotice({ message: t("aiAssistant.sidebar.selection.stale"), status: "error" });
+      if (mounted.current) setNotice({ message: t("editor.tableSelectionStale"), status: "error" });
     };
     pending.current = true;
     setBusy(true);
@@ -199,7 +199,7 @@ export const EditorTableContextMenu = ({ editor, readOnly, children }: {
         }}
       >
         <ContextMenuItem disabled={!canCopy || busy} onSelect={() => { void copy(); changeMenuOpen(false); }}>
-          {t("aiAssistant.sidebar.selection.copy")}<ContextMenuShortcut>{modifier}C</ContextMenuShortcut>
+          {t("editor.copySelection")}<ContextMenuShortcut>{modifier}C</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuItem disabled={readOnly || !editor?.isEditable || busy} onSelect={() => { void paste(); changeMenuOpen(false); }}>
           {t("editor.paste")}<ContextMenuShortcut>{modifier}V</ContextMenuShortcut>

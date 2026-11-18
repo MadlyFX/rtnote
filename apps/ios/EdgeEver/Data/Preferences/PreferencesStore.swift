@@ -49,6 +49,17 @@ enum AppUILanguage: String {
     case english
     case japanese
     case polish
+
+    /// Picks the translation for this language. English is the source text and the
+    /// fallback for missing translations.
+    func text(_ en: String, zh: String, ja: String? = nil, pl: String? = nil) -> String {
+        switch self {
+        case .english: return en
+        case .japanese: return ja ?? en
+        case .polish: return pl ?? en
+        case .chinese: return zh
+        }
+    }
 }
 
 enum AppUILocale {
@@ -71,6 +82,23 @@ enum AppUILocale {
 
     static func usesEnglish(preferenceCode: String, systemLanguageCode: String?) -> Bool {
         language(preferenceCode: preferenceCode, systemLanguageCode: systemLanguageCode) == .english
+    }
+
+    /// UserDefaults key of the stored locale preference (shared with `PreferencesStore`).
+    static let preferenceKey = "edgeever.ios.locale"
+
+    /// UI language from the stored preference, for code that has no `PreferencesStore`
+    /// (errors, background work). Matches `PreferencesStore.uiLanguage`.
+    static func current(defaults: UserDefaults = .standard) -> AppUILanguage {
+        language(
+            preferenceCode: defaults.string(forKey: preferenceKey) ?? "system",
+            systemLanguageCode: Locale.autoupdatingCurrent.language.languageCode?.identifier
+        )
+    }
+
+    /// `PreferencesStore.t` for code without access to the store.
+    static func text(_ en: String, zh: String, ja: String? = nil, pl: String? = nil) -> String {
+        current().text(en, zh: zh, ja: ja, pl: pl)
     }
 }
 
@@ -151,8 +179,18 @@ final class PreferencesStore {
         didSet { defaults.set(listDensity.rawValue, forKey: Keys.density) }
     }
 
-    var aiAssistantLastActionStore: AiAssistantLastActionStore {
-        didSet { persistAiAssistantLastAction() }
+    /// Voice memo recordings stop automatically at this length (minutes); see shared
+    /// `VOICE_MEMO_MAX_DURATION_OPTIONS`.
+    var voiceMemoMaxMinutes: Int {
+        didSet { defaults.set(voiceMemoMaxMinutes, forKey: Keys.voiceMemoMaxMinutes) }
+    }
+
+    static let voiceMemoMaxMinuteOptions = [5, 15, 30, 60, 120]
+    static let defaultVoiceMemoMaxMinutes = 30
+
+    static func normalizedVoiceMemoMaxMinutes(_ value: Int?) -> Int {
+        guard let value, voiceMemoMaxMinuteOptions.contains(value) else { return defaultVoiceMemoMaxMinutes }
+        return value
     }
 
     var noteImageShare: NoteImageSharePreferences {
@@ -175,6 +213,7 @@ final class PreferencesStore {
         self.useCompression = defaults.object(forKey: Keys.compression) as? Bool ?? true
         self.showDescendantNotes = defaults.object(forKey: Keys.showDescendantNotes) as? Bool ?? true
         self.theme = defaults.string(forKey: Keys.theme) ?? "system"
+        self.voiceMemoMaxMinutes = Self.normalizedVoiceMemoMaxMinutes(defaults.object(forKey: Keys.voiceMemoMaxMinutes) as? Int)
         let densityRaw = defaults.string(forKey: Keys.density) ?? ListDensity.preview.rawValue
         // Migrate legacy "comfortable" → preview
         if densityRaw == "comfortable" {
@@ -182,7 +221,6 @@ final class PreferencesStore {
         } else {
             self.listDensity = ListDensity(rawValue: densityRaw) ?? .preview
         }
-        self.aiAssistantLastActionStore = Self.decodeAiAssistantLastActionStore(defaults.string(forKey: Keys.aiAssistantLastAction))
     }
 
     var resolvedLocale: Locale {
@@ -222,52 +260,19 @@ final class PreferencesStore {
         }
     }
 
-    func t(_ zh: String, en: String, ja: String? = nil, pl: String? = nil) -> String {
-        switch uiLanguage {
-        case .english: return en
-        case .japanese: return ja ?? en
-        case .polish: return pl ?? en
-        case .chinese: return zh
-        }
-    }
-
-    func lastAiAssistantAction(isSelection: Bool) -> AiAssistantLastActionPreference? {
-        isSelection ? aiAssistantLastActionStore.selected : aiAssistantLastActionStore.wholeNote
-    }
-
-    func setLastAiAssistantAction(_ preference: AiAssistantLastActionPreference, isSelection: Bool) {
-        if isSelection {
-            aiAssistantLastActionStore.selected = preference
-        } else {
-            aiAssistantLastActionStore.wholeNote = preference
-        }
-    }
-
-    private func persistAiAssistantLastAction() {
-        if let data = try? JSONEncoder().encode(aiAssistantLastActionStore),
-           let raw = String(data: data, encoding: .utf8) {
-            defaults.set(raw, forKey: Keys.aiAssistantLastAction)
-        }
-    }
-
-    private static func decodeAiAssistantLastActionStore(_ raw: String?) -> AiAssistantLastActionStore {
-        guard let raw, let data = raw.data(using: .utf8) else { return AiAssistantLastActionStore() }
-        if let store = try? JSONDecoder().decode(AiAssistantLastActionStore.self, from: data) {
-            return store
-        }
-        if let legacy = try? JSONDecoder().decode(AiAssistantLastActionPreference.self, from: data) {
-            return AiAssistantLastActionStore(wholeNote: legacy)
-        }
-        return AiAssistantLastActionStore()
+    /// Returns the text for the current UI language: `t("English", zh: "中文", ja: …, pl: …)`.
+    /// English is the source text and the fallback for missing translations.
+    func t(_ en: String, zh: String, ja: String? = nil, pl: String? = nil) -> String {
+        uiLanguage.text(en, zh: zh, ja: ja, pl: pl)
     }
 
     private enum Keys {
         static let noteImageShare = "edgeever.ios.noteImagePreferences"
-        static let locale = "edgeever.ios.locale"
+        static let locale = AppUILocale.preferenceKey
         static let compression = "edgeever.ios.imageCompression"
         static let showDescendantNotes = "edgeever.ios.showDescendantNotes"
         static let theme = "edgeever.ios.theme"
         static let density = "edgeever.ios.listDensity"
-        static let aiAssistantLastAction = "edgeever.aiAssistant.lastAction"
+        static let voiceMemoMaxMinutes = "edgeever.ios.voiceMemoMaxMinutes"
     }
 }

@@ -8,7 +8,7 @@ import { pipeline } from "node:stream/promises";
 import { createEdgeEverClient } from "../../../../packages/client/src/index";
 import { createEdgeEverZipStream, parseEdgeEverZip, restoreEdgeEverZip, validateBackupRelationships, type JsonBackupSource } from "../../../../packages/shared/src/backup-archive";
 import type { JsonBackupManifest } from "../../../../packages/shared/src/backup";
-import type { AuthSession, Notebook, Resource, AiPromptTemplate } from "../../../../packages/shared/src/types";
+import type { AuthSession, Notebook, Resource } from "../../../../packages/shared/src/types";
 import { encryptArchive, decryptArchive } from "./encrypted-archive.mjs";
 
 type Context = { baseUrl: string; accountId: string | null; token: string; locale?: string };
@@ -106,7 +106,7 @@ const runExport = async () => {
   const sourceState: SourceState = { identity: state.identity, workspaceId: state.workspaceId, backupRevision: state.backupRevision };
   if (input.previousState && Object.keys(sourceState).every((key) => sourceState[key as keyof SourceState] === input.previousState![key as keyof SourceState])) return { skipped: true, sourceState };
   const page = <T>(kind: string, after: string) => request<T>(input.context, `/api/v1/backups/data?${new URLSearchParams({ kind, after, identity: state.identity, revision: state.backupRevision })}`);
-  const collect = async <T>(kind: "notebooks" | "prompts") => {
+  const collect = async <T>(kind: "notebooks") => {
     const values: T[] = [];
     let after = "";
     while (true) {
@@ -122,7 +122,6 @@ const runExport = async () => {
   const source: JsonBackupSource = {
     signal, resourceOrigin: input.context.baseUrl,
     listNotebooks: async () => ({ notebooks: await collect<Notebook>("notebooks") }),
-    listPrompts: async () => ({ prompts: await collect<AiPromptTemplate>("prompts") }),
     getPage: async (offset) => {
       const result = await page<Awaited<ReturnType<JsonBackupSource["getPage"]>> & { nextCursor: string | null }>("memos", cursor);
       resourceByUrl.clear();
@@ -153,6 +152,8 @@ const runExport = async () => {
     },
     onManifest(value) {
       for (const key of Object.keys(state.counts) as Array<keyof State["counts"]>) {
+        // Archives no longer carry AI prompts; older servers may still count them.
+        if (key === "prompts") continue;
         if ((value.counts[key] ?? 0) !== state.counts[key]) fail("incompleteData", "The archive does not include every source record.");
       }
       manifest = value;
@@ -236,7 +237,7 @@ const runImport = async () => {
     });
     await restoreEdgeEverZip(backup, {
       restoreNotebooks: client.restoreJsonNotebooks, restoreMemos: client.restoreJsonMemos,
-      restorePrompts: client.restoreJsonAiPrompts, createResourceRestoreSink: client.createJsonResourceRestoreSink,
+      createResourceRestoreSink: client.createJsonResourceRestoreSink,
     }, (progress) => send("progress", { stage: "restoring", ...progress }));
     return { manifest: backup.manifest };
   } finally { await archive?.close(); await rm(staged, { force: true }); }

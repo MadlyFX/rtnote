@@ -23,6 +23,7 @@ struct TipTapWebView: UIViewRepresentable {
     var onImagePreview: ((_ source: String, _ alt: String) -> Void)? = nil
     var onDoubleTap: (() -> Void)? = nil
     var onPickImage: (() -> Void)? = nil
+    var onRecordVoiceMemo: (() -> Void)? = nil
     var onSearchResult: ((_ count: Int, _ index: Int) -> Void)? = nil
     var onReaderScroll: ((_ collapsed: Bool) -> Void)? = nil
     var onImageExportEvent: (([String: Any]) -> Void)? = nil
@@ -60,6 +61,7 @@ struct TipTapWebView: UIViewRepresentable {
                 onImagePreview: onImagePreview,
                 onDoubleTap: onDoubleTap,
                 onPickImage: onPickImage,
+                onRecordVoiceMemo: onRecordVoiceMemo,
                 onSearchResult: onSearchResult,
                 onReaderScroll: onReaderScroll,
                 onImageExportEvent: onImageExportEvent,
@@ -238,6 +240,71 @@ enum TipTapResourceLoader {
         return nil
     }
 
+    /// Load a voice memo recording for the WebView player. Unlike images it always goes
+    /// through the `edgeever-res` scheme (never a data: URL) with an audio MIME type, and
+    /// it plays from the disk cache when offline.
+    static func loadAudioURL(
+        source: String,
+        baseURL: URL?,
+        token: String?,
+        resourceCache: ResourceCache
+    ) async -> String? {
+        let trimmed = source.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        if trimmed.hasPrefix("data:") || trimmed.hasPrefix("edgeever-res:") {
+            return trimmed
+        }
+        if ResourceCache.isProtectedResourceSource(trimmed, baseURL: baseURL) {
+            let path = ResourceCache.normalizeProtectedResourcePath(trimmed, baseURL: baseURL ?? baseURLFromAbsoluteSource(trimmed))
+            let id = ResourceCache.resourceId(from: path) ?? path
+            if let blob = await ResourceBlobStore.shared.get(id: id), blob.mimeType.hasPrefix("audio/") {
+                return EdgeEverResourceSchemeHandler.localURL(for: id)
+            }
+            if let cached = await resourceCache.cachedData(for: id) {
+                await ResourceBlobStore.shared.put(id: id, data: cached, mimeType: audioMime(header: nil, data: cached))
+                return EdgeEverResourceSchemeHandler.localURL(for: id)
+            }
+            guard let base = baseURL ?? baseURLFromAbsoluteSource(trimmed) else { return nil }
+            do {
+                let result = try await APIClient(baseURL: base, token: token).getResourceData(path: path)
+                try? await resourceCache.store(result.data, for: id)
+                await ResourceBlobStore.shared.put(id: id, data: result.data, mimeType: audioMime(header: result.mimeType, data: result.data))
+                return EdgeEverResourceSchemeHandler.localURL(for: id)
+            } catch {
+                #if DEBUG
+                print("TipTapResourceLoader: audio getResourceData failed path=\(path) error=\(error)")
+                #endif
+                return nil
+            }
+        }
+        if trimmed.hasPrefix("http://") || trimmed.hasPrefix("https://"), let absolute = URL(string: trimmed) {
+            guard let result = try? await APIClient(baseURL: baseURL ?? absolute, token: nil).getPublicURLData(absolute) else {
+                return nil
+            }
+            let id = publicResourceId(for: trimmed)
+            await ResourceBlobStore.shared.put(id: id, data: result.data, mimeType: audioMime(header: result.mimeType, data: result.data))
+            return EdgeEverResourceSchemeHandler.localURL(for: id)
+        }
+        return nil
+    }
+
+    /// Audio MIME from the response header, else sniffed from the bytes (M4A by default).
+    static func audioMime(header: String?, data: Data) -> String {
+        let headerMime = (header ?? "")
+            .split(separator: ";")
+            .first
+            .map(String.init)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased() ?? ""
+        if headerMime.hasPrefix("audio/") { return headerMime }
+        if headerMime == "video/webm" || headerMime == "video/mp4" { return headerMime.replacingOccurrences(of: "video/", with: "audio/") }
+        if data.starts(with: [0x1A, 0x45, 0xDF, 0xA3]) { return "audio/webm" }
+        if data.starts(with: [0x4F, 0x67, 0x67, 0x53]) { return "audio/ogg" }
+        if data.starts(with: [0x49, 0x44, 0x33]) || data.starts(with: [0xFF, 0xFB]) { return "audio/mpeg" }
+        if data.starts(with: [0x52, 0x49, 0x46, 0x46]) { return "audio/wav" }
+        return "audio/mp4"
+    }
+
     static func displayURL(for resourceId: String, data: Data, mimeType: String) async -> String {
         let mime = resolvedImageMime(header: mimeType, data: data)
         if mime.contains("svg") || isSvgData(data) {
@@ -411,7 +478,7 @@ enum TipTapResourceLoader {
     </style>
     </head>
     <body>
-    <div id="editor" contenteditable="false" data-placeholder="开始书写…"></div>
+    <div id="editor" contenteditable="false" data-placeholder="Start writing…"></div>
     <script>
     (function(){
       const editor = document.getElementById('editor');

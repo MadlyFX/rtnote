@@ -41,7 +41,6 @@ struct MemoDetailView: View {
     @State private var showDeleteConfirm = false
     @State private var showMoreMenu = false
     @State private var showNoteIdCopied = false
-    @State private var showAiAssistant = false
     @State private var showNotebookPicker = false
     @State private var resourceTarget: ResourceTarget?
     @State private var imagePreview: (source: String, alt: String)?
@@ -62,7 +61,7 @@ struct MemoDetailView: View {
                 detailBody(memo)
             } else if let error {
                 ContentUnavailableView(
-                    env.preferences.t("加载失败", en: "Failed to load", pl: "Nie udało się wczytać"),
+                    env.preferences.t("Failed to load", zh: "加载失败", pl: "Nie udało się wczytać"),
                     systemImage: "exclamationmark.triangle",
                     description: Text(error)
                 )
@@ -77,7 +76,7 @@ struct MemoDetailView: View {
         .overlay(alignment: .bottomTrailing) {
             if let memo, !memo.isDeleted, !blocksRichTextEdit(memo) {
                 EditFabButton(
-                    accessibilityLabel: env.preferences.t("编辑笔记", en: "Edit note", pl: "Edytuj notatkę")
+                    accessibilityLabel: env.preferences.t("Edit note", zh: "编辑笔记", pl: "Edytuj notatkę")
                 ) {
                     onEdit(memo.id, .body)
                 }
@@ -127,7 +126,7 @@ struct MemoDetailView: View {
             ActivityShareView(items: [payload.url]) { _, _, shareError in
                 if let shareError {
                     imageExportMessage = MemoImageExportMessage(
-                        title: env.preferences.t("导出失败", en: "Export failed", pl: "Eksport nie powiódł się"),
+                        title: env.preferences.t("Export failed", zh: "导出失败", pl: "Eksport nie powiódł się"),
                         message: shareError.localizedDescription
                     )
                 }
@@ -138,7 +137,7 @@ struct MemoDetailView: View {
             MemoImageDocumentExportView(fileURL: payload.url) { result in
                 if case let .failure(exportError) = result {
                     imageExportMessage = MemoImageExportMessage(
-                        title: env.preferences.t("保存失败", en: "Save failed", pl: "Nie udało się zapisać"),
+                        title: env.preferences.t("Save failed", zh: "保存失败", pl: "Nie udało się zapisać"),
                         message: exportError.localizedDescription
                     )
                 }
@@ -162,15 +161,15 @@ struct MemoDetailView: View {
                 onCopy: {
                     guard let image = UIImage(contentsOfFile: currentPayload.url.path) else {
                         imageExportMessage = MemoImageExportMessage(
-                            title: env.preferences.t("复制失败", en: "Copy failed", pl: "Nie udało się skopiować"),
-                            message: env.preferences.t("无法读取生成的图片。", en: "The generated image could not be read.", pl: "Nie udało się odczytać wygenerowanego obrazu.")
+                            title: env.preferences.t("Copy failed", zh: "复制失败", pl: "Nie udało się skopiować"),
+                            message: env.preferences.t("The generated image could not be read.", zh: "无法读取生成的图片。", pl: "Nie udało się odczytać wygenerowanego obrazu.")
                         )
                         return
                     }
                     UIPasteboard.general.image = image
                     imageExportMessage = MemoImageExportMessage(
-                        title: env.preferences.t("复制成功", en: "Copied", pl: "Skopiowano"),
-                        message: env.preferences.t("图片已复制到剪贴板。", en: "The image is on your clipboard.", pl: "Obraz jest w schowku.")
+                        title: env.preferences.t("Copied", zh: "复制成功", pl: "Skopiowano"),
+                        message: env.preferences.t("The image is on your clipboard.", zh: "图片已复制到剪贴板。", pl: "Obraz jest w schowku.")
                     )
                 },
                 onSave: {
@@ -192,8 +191,8 @@ struct MemoDetailView: View {
         .sheet(isPresented: $imageShareOptionsOpen) {
             NavigationStack {
                 Form {
-                    Section(env.preferences.t("主题风格", en: "Theme", pl: "Motyw")) {
-                        Picker(env.preferences.t("主题风格", en: "Theme", pl: "Motyw"), selection: Binding(
+                    Section(env.preferences.t("Theme", zh: "主题风格", pl: "Motyw")) {
+                        Picker(env.preferences.t("Theme", zh: "主题风格", pl: "Motyw"), selection: Binding(
                             get: { preferences.noteImageShare.theme },
                             set: { theme in
                                 var share = preferences.noteImageShare
@@ -202,24 +201,24 @@ struct MemoDetailView: View {
                                 preferences.noteImageShare = share
                             }
                         )) {
-                            Text(env.preferences.t("透明", en: "Glass", pl: "Szkło")).tag("glass")
-                            Text(env.preferences.t("金句", en: "Quote", pl: "Cytat")).tag("quote")
-                            Text(env.preferences.t("书摘", en: "Book excerpt", pl: "Fragment książki")).tag("book")
-                            Text(env.preferences.t("备忘录", en: "Memo", pl: "Notatka")).tag("memo")
-                            Text(env.preferences.t("便当", en: "Bento", pl: "Bento")).tag("bento")
-                            Text(env.preferences.t("黑日", en: "Black Sun", pl: "Czarne słońce")).tag("black-sun")
-                            Text(env.preferences.t("框界", en: "Frame", pl: "Ramka")).tag("frame")
-                            Text(env.preferences.t("手写", en: "Handwritten", pl: "Pismo odręczne")).tag("handwritten")
-                            Text(env.preferences.t("代码", en: "Code", pl: "Kod")).tag("code")
+                            Text(env.preferences.t("Glass", zh: "透明", pl: "Szkło")).tag("glass")
+                            Text(env.preferences.t("Quote", zh: "金句", pl: "Cytat")).tag("quote")
+                            Text(env.preferences.t("Book excerpt", zh: "书摘", pl: "Fragment książki")).tag("book")
+                            Text(env.preferences.t("Memo", zh: "备忘录", pl: "Notatka")).tag("memo")
+                            Text(env.preferences.t("Bento", zh: "便当", pl: "Bento")).tag("bento")
+                            Text(env.preferences.t("Black Sun", zh: "黑日", pl: "Czarne słońce")).tag("black-sun")
+                            Text(env.preferences.t("Frame", zh: "框界", pl: "Ramka")).tag("frame")
+                            Text(env.preferences.t("Handwritten", zh: "手写", pl: "Pismo odręczne")).tag("handwritten")
+                            Text(env.preferences.t("Code", zh: "代码", pl: "Kod")).tag("code")
                         }
                         .pickerStyle(.menu)
                     }
-                    Section(env.preferences.t("字体风格", en: "Typography", pl: "Typografia")) {
+                    Section(env.preferences.t("Typography", zh: "字体风格", pl: "Typografia")) {
                         NavigationLink {
                             NoteImageFontPickerView()
                         } label: {
                             HStack {
-                                Text(env.preferences.t("字体风格", en: "Typography", pl: "Typografia"))
+                                Text(env.preferences.t("Typography", zh: "字体风格", pl: "Typografia"))
                                 Spacer()
                                 Text(NoteImageFontPickerOptions.label(preferences))
                                     .foregroundStyle(.secondary)
@@ -227,52 +226,52 @@ struct MemoDetailView: View {
                             }
                         }
                         Text(env.preferences.t(
-                            "下载型字体首次使用需联网并缓存；普惠体等推荐字体使用完整文件，首次下载较大。",
-                            en: "Downloadable fonts need a connection on first use and are cached. PuHuiTi and other recommended fonts use larger, complete original files.",
+                            "Downloadable fonts need a connection on first use and are cached. PuHuiTi and other recommended fonts use larger, complete original files.",
+                            zh: "下载型字体首次使用需联网并缓存；普惠体等推荐字体使用完整文件，首次下载较大。",
                             pl: "Czcionki są pobierane przy pierwszym użyciu i zapisywane lokalnie. PuHuiTi i inne polecane czcionki używają większych, pełnych plików."
                         ))
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                     }
-                    Section(env.preferences.t("字号大小", en: "Font size", pl: "Rozmiar czcionki")) {
-                        Picker(env.preferences.t("字号大小", en: "Font size", pl: "Rozmiar czcionki"), selection: $preferences.noteImageShare.fontSize) {
-                            Text(env.preferences.t("紧凑", en: "Compact", pl: "Kompaktowy")).tag("sm")
-                            Text(env.preferences.t("标准", en: "Standard", pl: "Standardowy")).tag("md")
-                            Text(env.preferences.t("舒适", en: "Comfortable", pl: "Wygodny")).tag("lg")
+                    Section(env.preferences.t("Font size", zh: "字号大小", pl: "Rozmiar czcionki")) {
+                        Picker(env.preferences.t("Font size", zh: "字号大小", pl: "Rozmiar czcionki"), selection: $preferences.noteImageShare.fontSize) {
+                            Text(env.preferences.t("Compact", zh: "紧凑", pl: "Kompaktowy")).tag("sm")
+                            Text(env.preferences.t("Standard", zh: "标准", pl: "Standardowy")).tag("md")
+                            Text(env.preferences.t("Comfortable", zh: "舒适", pl: "Wygodny")).tag("lg")
                         }
                         .pickerStyle(.segmented)
                     }
-                    Section(env.preferences.t("卡片宽度", en: "Card width", pl: "Szerokość karty")) {
-                        Picker(env.preferences.t("卡片宽度", en: "Card width", pl: "Szerokość karty"), selection: $preferences.noteImageShare.cardWidth) {
-                            Text(env.preferences.t("紧凑", en: "Compact", pl: "Kompaktowy")).tag("compact")
-                            Text(env.preferences.t("标准", en: "Standard", pl: "Standardowy")).tag("standard")
-                            Text(env.preferences.t("宽屏", en: "Wide", pl: "Szeroka")).tag("wide")
+                    Section(env.preferences.t("Card width", zh: "卡片宽度", pl: "Szerokość karty")) {
+                        Picker(env.preferences.t("Card width", zh: "卡片宽度", pl: "Szerokość karty"), selection: $preferences.noteImageShare.cardWidth) {
+                            Text(env.preferences.t("Compact", zh: "紧凑", pl: "Kompaktowy")).tag("compact")
+                            Text(env.preferences.t("Standard", zh: "标准", pl: "Standardowy")).tag("standard")
+                            Text(env.preferences.t("Wide", zh: "宽屏", pl: "Szeroka")).tag("wide")
                         }
                         .pickerStyle(.segmented)
                     }
-                    Section(env.preferences.t("显示内容", en: "Content elements", pl: "Elementy treści")) {
-                        Toggle(env.preferences.t("笔记标题", en: "Note title", pl: "Tytuł notatki"), isOn: $preferences.noteImageShare.showTitle)
-                        Toggle(env.preferences.t("笔记本", en: "Notebook", pl: "Notatnik"), isOn: $preferences.noteImageShare.showNotebook)
-                        Toggle(env.preferences.t("标签", en: "Tags", pl: "Tagi"), isOn: $preferences.noteImageShare.showTags)
-                        Toggle(env.preferences.t("更新时间", en: "Updated time", pl: "Czas aktualizacji"), isOn: $preferences.noteImageShare.showUpdatedAt)
-                        Toggle(env.preferences.t("RTNote 品牌标识", en: "RTNote branding", pl: "Oznaczenie RTNote"), isOn: $preferences.noteImageShare.showBranding)
+                    Section(env.preferences.t("Content elements", zh: "显示内容", pl: "Elementy treści")) {
+                        Toggle(env.preferences.t("Note title", zh: "笔记标题", pl: "Tytuł notatki"), isOn: $preferences.noteImageShare.showTitle)
+                        Toggle(env.preferences.t("Notebook", zh: "笔记本", pl: "Notatnik"), isOn: $preferences.noteImageShare.showNotebook)
+                        Toggle(env.preferences.t("Tags", zh: "标签", pl: "Tagi"), isOn: $preferences.noteImageShare.showTags)
+                        Toggle(env.preferences.t("Updated time", zh: "更新时间", pl: "Czas aktualizacji"), isOn: $preferences.noteImageShare.showUpdatedAt)
+                        Toggle(env.preferences.t("RTNote branding", zh: "RTNote 品牌标识", pl: "Oznaczenie RTNote"), isOn: $preferences.noteImageShare.showBranding)
                     }
-                    Section(env.preferences.t("图片格式", en: "Image format", pl: "Format obrazu")) {
-                        Picker(env.preferences.t("图片格式", en: "Image format", pl: "Format obrazu"), selection: $preferences.noteImageShare.format) {
-                            Text(env.preferences.t("PNG · 超清无损", en: "PNG · Best for text", pl: "PNG · Najlepszy do tekstu")).tag("png")
-                            Text(env.preferences.t("JPEG · 体积小", en: "JPEG · Smaller file", pl: "JPEG · Mniejszy plik")).tag("jpeg")
+                    Section(env.preferences.t("Image format", zh: "图片格式", pl: "Format obrazu")) {
+                        Picker(env.preferences.t("Image format", zh: "图片格式", pl: "Format obrazu"), selection: $preferences.noteImageShare.format) {
+                            Text(env.preferences.t("PNG · Best for text", zh: "PNG · 超清无损", pl: "PNG · Najlepszy do tekstu")).tag("png")
+                            Text(env.preferences.t("JPEG · Smaller file", zh: "JPEG · 体积小", pl: "JPEG · Mniejszy plik")).tag("jpeg")
                         }
                         .pickerStyle(.segmented)
                     }
                 }
-                .navigationTitle(env.preferences.t("分享为图片", en: "Share as image", pl: "Udostępnij jako obraz"))
+                .navigationTitle(env.preferences.t("Share as image", zh: "分享为图片", pl: "Udostępnij jako obraz"))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
-                        Button(env.preferences.t("取消", en: "Cancel", pl: "Anuluj")) { imageShareOptionsOpen = false }
+                        Button(env.preferences.t("Cancel", zh: "取消", pl: "Anuluj")) { imageShareOptionsOpen = false }
                     }
                     ToolbarItem(placement: .confirmationAction) {
-                        Button(env.preferences.t("生成预览", en: "Generate Preview", pl: "Generuj podgląd")) {
+                        Button(env.preferences.t("Generate Preview", zh: "生成预览", pl: "Generuj podgląd")) {
                             guard let memo else { return }
                             imageShareOptionsOpen = false
                             exportMemoImage(
@@ -298,8 +297,8 @@ struct MemoDetailView: View {
         .overlay(alignment: .bottom) {
             if imageExporting && imageExportPreviewPayload == nil {
                 ProgressView(imageFontStatus == "loading"
-                    ? env.preferences.t("字体加载中…", en: "Loading font…", ja: "フォントを読み込み中…", pl: "Ładowanie czcionki…")
-                    : env.preferences.t("正在生成图片…", en: "Generating image…", ja: "画像を生成中…", pl: "Generowanie obrazu…"))
+                    ? env.preferences.t("Loading font…", zh: "字体加载中…", ja: "フォントを読み込み中…", pl: "Ładowanie czcionki…")
+                    : env.preferences.t("Generating image…", zh: "正在生成图片…", ja: "画像を生成中…", pl: "Generowanie obrazu…"))
                     .padding().background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12)).padding()
             }
         }
@@ -307,15 +306,8 @@ struct MemoDetailView: View {
             Alert(
                 title: Text(message.title),
                 message: Text(message.message),
-                dismissButton: .default(Text(env.preferences.t("确定", en: "OK", pl: "OK")))
+                dismissButton: .default(Text(env.preferences.t("OK", zh: "确定", pl: "OK")))
             )
-        }
-        .sheet(isPresented: $showAiAssistant) {
-            if let memo {
-                AiAssistantSheet(memo: memo) { draft, mode in
-                    try await applyAiDraft(draft, mode: mode, to: memo)
-                }
-            }
         }
         .sheet(isPresented: $showNotebookPicker) {
             EditNotebookPickerSheet(
@@ -351,76 +343,71 @@ struct MemoDetailView: View {
             }
         }
         .confirmationDialog(
-            env.preferences.t("笔记操作", en: "Note actions", pl: "Działania na notatce"),
+            env.preferences.t("Note actions", zh: "笔记操作", pl: "Działania na notatce"),
             isPresented: $showMoreMenu,
             titleVisibility: .visible
         ) {
             if let memo {
                 if !blocksRichTextEdit(memo) {
-                    Button(env.preferences.t("编辑", en: "Edit", pl: "Edytuj")) { onEdit(memo.id, .body) }
-                }
-                if !memo.isDeleted && !isTemporaryMemoId(memo.id) && !blocksRichTextEdit(memo) {
-                    Button(env.preferences.t("AI 笔记助手", en: "AI note assistant", pl: "Asystent AI notatek")) {
-                        showAiAssistant = true
-                    }
+                    Button(env.preferences.t("Edit", zh: "编辑", pl: "Edytuj")) { onEdit(memo.id, .body) }
                 }
                 Button(
                     memo.isPinned
-                        ? env.preferences.t("取消置顶", en: "Unpin", pl: "Odepnij")
-                        : env.preferences.t("置顶", en: "Pin", pl: "Przypnij")
+                        ? env.preferences.t("Unpin", zh: "取消置顶", pl: "Odepnij")
+                        : env.preferences.t("Pin", zh: "置顶", pl: "Przypnij")
                 ) {
                     Task {
                         await togglePin(memo)
                         pinPulse.toggle()
                     }
                 }
-                Button(env.preferences.t("分享链接", en: "Share link", pl: "Udostępnij link")) {
+                Button(env.preferences.t("Share link", zh: "分享链接", pl: "Udostępnij link")) {
                     Task { await shareMemo(memo) }
                 }
                 Button(
                     imageExporting
-                        ? env.preferences.t("正在导出图片…", en: "Exporting image…", pl: "Eksportowanie obrazu…")
-                        : env.preferences.t("分享为图片", en: "Share as image", pl: "Udostępnij jako obraz")
+                        ? env.preferences.t("Exporting image…", zh: "正在导出图片…", pl: "Eksportowanie obrazu…")
+                        : env.preferences.t("Share as image", zh: "分享为图片", pl: "Udostępnij jako obraz")
                 ) {
                     imageShareOptionsOpen = true
                 }
                 .disabled(imageExporting || !bodyReady)
-                Button(env.preferences.t("高级导出 PNG", en: "Advanced export PNG", pl: "Zaawansowany eksport PNG")) {
+                Button(env.preferences.t("Advanced export PNG", zh: "高级导出 PNG", pl: "Zaawansowany eksport PNG")) {
                     exportMemoImage(memo, format: "png")
                 }
                 .disabled(imageExporting || !bodyReady)
-                Button(env.preferences.t("导出 JPEG", en: "Export JPEG", pl: "Eksportuj JPEG")) {
+                Button(env.preferences.t("Export JPEG", zh: "导出 JPEG", pl: "Eksportuj JPEG")) {
                     exportMemoImage(memo, format: "jpeg")
                 }
                 .disabled(imageExporting || !bodyReady)
                 Button(
                     isTemporaryMemoId(memo.id)
-                        ? env.preferences.t("同步后可复制笔记 ID", en: "Copy note ID after sync", pl: "Identyfikator notatki można skopiować po synchronizacji")
-                        : env.preferences.t("复制笔记 ID", en: "Copy note ID", pl: "Kopiuj identyfikator notatki")
+                        ? env.preferences.t("Copy note ID after sync", zh: "同步后可复制笔记 ID", pl: "Identyfikator notatki można skopiować po synchronizacji")
+                        : env.preferences.t("Copy note ID", zh: "复制笔记 ID", pl: "Kopiuj identyfikator notatki")
                 ) {
                     UIPasteboard.general.string = memo.id
                     showNoteIdCopied = true
                 }
                 .disabled(isTemporaryMemoId(memo.id))
-                Button(env.preferences.t("修订历史", en: "Revisions", pl: "Wersje")) { showRevisions = true }
-                Button(env.preferences.t("删除", en: "Delete", pl: "Usuń"), role: .destructive) {
+                Button(env.preferences.t("Revisions", zh: "修订历史", pl: "Wersje")) { showRevisions = true }
+                Button(env.preferences.t("Delete", zh: "删除", pl: "Usuń"), role: .destructive) {
                     showDeleteConfirm = true
                 }
             }
         }
-        .alert(env.preferences.t("删除笔记", en: "Delete note", pl: "Usuń notatkę"), isPresented: $showDeleteConfirm) {
-            Button(env.preferences.t("删除", en: "Delete", pl: "Usuń"), role: .destructive) {
+        .alert(env.preferences.t("Delete note", zh: "删除笔记", pl: "Usuń notatkę"), isPresented: $showDeleteConfirm) {
+            Button(env.preferences.t("Delete", zh: "删除", pl: "Usuń"), role: .destructive) {
                 if let memo { Task { await deleteMemo(memo) } }
             }
-            Button(env.preferences.t("取消", en: "Cancel", pl: "Anuluj"), role: .cancel) {}
+            Button(env.preferences.t("Cancel", zh: "取消", pl: "Anuluj"), role: .cancel) {}
         } message: {
-            Text(env.preferences.t("笔记将移入回收站。", en: "The note will move to trash.", pl: "Notatka zostanie przeniesiona do kosza."))
+            Text(env.preferences.t("The note will move to trash.", zh: "笔记将移入回收站。", pl: "Notatka zostanie przeniesiona do kosza."))
         }
         .alert(
-            env.preferences.t("笔记 ID 已复制", en: "Note ID copied", pl: "Skopiowano identyfikator notatki"),
+            env.preferences.t("Note ID copied", zh: "笔记 ID 已复制", pl: "Skopiowano identyfikator notatki"),
             isPresented: $showNoteIdCopied
         ) {
-            Button(env.preferences.t("好", en: "OK", pl: "OK"), role: .cancel) {}
+            Button(env.preferences.t("OK", zh: "好", pl: "OK"), role: .cancel) {}
         } message: {
             Text(memo?.id ?? memoId)
         }
@@ -484,7 +471,7 @@ struct MemoDetailView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(env.preferences.t("返回列表", en: "Back to list", pl: "Wróć do listy"))
+            .accessibilityLabel(env.preferences.t("Back to list", zh: "返回列表", pl: "Wróć do listy"))
             .accessibilityIdentifier(DetailMemoChrome.back)
 
             if titleCollapsed && !searchOpen, let memo {
@@ -517,21 +504,21 @@ struct MemoDetailView: View {
                 if let memo, !memo.isDeleted {
                     headerIconButton(
                         systemImage: "square.and.arrow.up",
-                        label: env.preferences.t("分享笔记", en: "Share note", pl: "Udostępnij notatkę"),
+                        label: env.preferences.t("Share note", zh: "分享笔记", pl: "Udostępnij notatkę"),
                         id: DetailMemoChrome.share
                     ) {
                         Task { await shareMemo(memo) }
                     }
                     headerIconButton(
                         systemImage: "clock.arrow.circlepath",
-                        label: env.preferences.t("版本历史", en: "Version history", pl: "Historia wersji"),
+                        label: env.preferences.t("Version history", zh: "版本历史", pl: "Historia wersji"),
                         id: DetailMemoChrome.history
                     ) {
                         showRevisions = true
                     }
                     headerIconButton(
                         systemImage: "magnifyingglass",
-                        label: env.preferences.t("搜索当前笔记", en: "Search in note", pl: "Szukaj w notatce"),
+                        label: env.preferences.t("Search in note", zh: "搜索当前笔记", pl: "Szukaj w notatce"),
                         id: DetailMemoChrome.search
                     ) {
                         withAnimation(Motion.chip) {
@@ -544,7 +531,7 @@ struct MemoDetailView: View {
                     }
                     headerIconButton(
                         systemImage: "ellipsis",
-                        label: env.preferences.t("笔记操作", en: "Note actions", pl: "Działania na notatce"),
+                        label: env.preferences.t("Note actions", zh: "笔记操作", pl: "Działania na notatce"),
                         id: DetailMemoChrome.more
                     ) {
                         showMoreMenu = true
@@ -597,8 +584,8 @@ struct MemoDetailView: View {
                     .lineLimit(1)
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(env.preferences.t("编辑笔记标题", en: "Edit note title", pl: "Edytuj tytuł notatki"))
-            .accessibilityHint(env.preferences.t("进入编辑并聚焦标题", en: "Opens editing with the title focused", pl: "Otwiera edycję z kursorem w tytule"))
+            .accessibilityLabel(env.preferences.t("Edit note title", zh: "编辑笔记标题", pl: "Edytuj tytuł notatki"))
+            .accessibilityHint(env.preferences.t("Opens editing with the title focused", zh: "进入编辑并聚焦标题", pl: "Otwiera edycję z kursorem w tytule"))
             .accessibilityIdentifier(DetailMemoChrome.title)
         }
     }
@@ -608,8 +595,8 @@ struct MemoDetailView: View {
     private var conflictBanner: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(env.preferences.t(
-                "云端笔记已在其他标签页、设备，或离线期间被更新。可先复制本地草稿，再采用云端版本后继续编辑。",
-                en: "This note changed on another device or while offline. Copy the local draft, then adopt the cloud version to continue.",
+                "This note changed on another device or while offline. Copy the local draft, then adopt the cloud version to continue.",
+                zh: "云端笔记已在其他标签页、设备，或离线期间被更新。可先复制本地草稿，再采用云端版本后继续编辑。",
                 pl: "Ta notatka zmieniła się na innym urządzeniu lub w trybie offline. Skopiuj lokalny szkic, a następnie przyjmij wersję z chmury, aby kontynuować."
             ))
             .font(.system(size: 12))
@@ -625,13 +612,13 @@ struct MemoDetailView: View {
             HStack(spacing: 8) {
                 Button {
                     if let item = conflictItem {
-                        // Open full conflict resolution (Android "更多")
+                        // Open full conflict resolution (Android "More")
                         conflictItem = item
                     } else {
                         detectConflict()
                     }
                 } label: {
-                    Text(env.preferences.t("处理冲突", en: "Resolve", pl: "Rozwiąż"))
+                    Text(env.preferences.t("Resolve", zh: "处理冲突", pl: "Rozwiąż"))
                         .font(.system(size: 12, weight: .bold))
                         .foregroundStyle(.white)
                         .padding(.horizontal, 10)
@@ -644,7 +631,7 @@ struct MemoDetailView: View {
                 Button {
                     Task { await copyLocalDraft() }
                 } label: {
-                    Text(env.preferences.t("复制本地草稿", en: "Copy local draft", pl: "Kopiuj lokalny szkic"))
+                    Text(env.preferences.t("Copy local draft", zh: "复制本地草稿", pl: "Kopiuj lokalny szkic"))
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundStyle(AppTheme.dangerStrong)
                         .padding(.horizontal, 10)
@@ -673,8 +660,8 @@ struct MemoDetailView: View {
             Text(
                 lastOutboxError?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
                     ?? (isError
-                        ? env.preferences.t("本地改动未能上传到云端。内容仍保存在本机，可立即重试。", en: "Local changes could not upload. Content is still on device; retry anytime.", pl: "Nie udało się przesłać lokalnych zmian. Treść nadal jest na urządzeniu – możesz spróbować ponownie w dowolnym momencie.")
-                        : env.preferences.t("本地改动待上传。下拉刷新或点此可立即同步。", en: "Local changes pending upload. Pull to refresh or tap to sync now.", pl: "Lokalne zmiany czekają na przesłanie. Przeciągnij w dół, aby odświeżyć, lub dotknij, aby zsynchronizować teraz."))
+                        ? env.preferences.t("Local changes could not upload. Content is still on device; retry anytime.", zh: "本地改动未能上传到云端。内容仍保存在本机，可立即重试。", pl: "Nie udało się przesłać lokalnych zmian. Treść nadal jest na urządzeniu – możesz spróbować ponownie w dowolnym momencie.")
+                        : env.preferences.t("Local changes pending upload. Pull to refresh or tap to sync now.", zh: "本地改动待上传。下拉刷新或点此可立即同步。", pl: "Lokalne zmiany czekają na przesłanie. Przeciągnij w dół, aby odświeżyć, lub dotknij, aby zsynchronizować teraz."))
             )
             .font(.system(size: 12))
             .foregroundStyle(isError ? AppTheme.dangerStrong : AppTheme.infoText)
@@ -690,7 +677,7 @@ struct MemoDetailView: View {
                         load()
                     }
                 } label: {
-                    Text(env.preferences.t("立即同步", en: "Sync now", pl: "Synchronizuj teraz"))
+                    Text(env.preferences.t("Sync now", zh: "立即同步", pl: "Synchronizuj teraz"))
                         .font(.system(size: 12, weight: .bold))
                         .foregroundStyle(.white)
                         .padding(.horizontal, 10)
@@ -704,7 +691,7 @@ struct MemoDetailView: View {
                     Button {
                         Task { await copyLocalDraft() }
                     } label: {
-                        Text(env.preferences.t("复制本地草稿", en: "Copy local draft", pl: "Kopiuj lokalny szkic"))
+                        Text(env.preferences.t("Copy local draft", zh: "复制本地草稿", pl: "Kopiuj lokalny szkic"))
                             .font(.system(size: 12, weight: .semibold))
                             .foregroundStyle(AppTheme.dangerStrong)
                             .padding(.horizontal, 10)
@@ -749,7 +736,7 @@ struct MemoDetailView: View {
                                 .foregroundStyle(AppTheme.secondary)
                             Text(
                                 memo.tags.isEmpty
-                                    ? env.preferences.t("添加标签，用逗号分隔", en: "Add tags, comma separated", pl: "Dodaj tagi, oddzielone przecinkami")
+                                    ? env.preferences.t("Add tags, comma separated", zh: "添加标签，用逗号分隔", pl: "Dodaj tagi, oddzielone przecinkami")
                                     : memo.tags.joined(separator: ", ")
                             )
                             .font(.system(size: 12))
@@ -765,9 +752,9 @@ struct MemoDetailView: View {
                     .accessibilityIdentifier(DetailMemoChrome.metaRow)
 
                     Text(
-                        "\(env.preferences.t("创建于", en: "Created", pl: "Utworzono")) \(MemoDetailDate.format(memo.createdAt, locale: env.preferences.resolvedLocale))"
+                        "\(env.preferences.t("Created", zh: "创建于", pl: "Utworzono")) \(MemoDetailDate.format(memo.createdAt, locale: env.preferences.resolvedLocale))"
                         + " · "
-                        + "\(env.preferences.t("更新于", en: "Updated", pl: "Zaktualizowano")) \(MemoDetailDate.format(memo.updatedAt, locale: env.preferences.resolvedLocale))"
+                        + "\(env.preferences.t("Updated", zh: "更新于", pl: "Zaktualizowano")) \(MemoDetailDate.format(memo.updatedAt, locale: env.preferences.resolvedLocale))"
                     )
                     .font(.system(size: 12))
                     .foregroundStyle(AppTheme.muted)
@@ -781,7 +768,7 @@ struct MemoDetailView: View {
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundStyle(AppTheme.secondary)
                         TextField(
-                            env.preferences.t("在当前笔记内搜索", en: "Search in this note", pl: "Szukaj w tej notatce"),
+                            env.preferences.t("Search in this note", zh: "在当前笔记内搜索", pl: "Szukaj w tej notatce"),
                             text: $searchQuery
                         )
                         .font(.system(size: 14))
@@ -805,7 +792,7 @@ struct MemoDetailView: View {
                         }
                         .buttonStyle(.plain)
                         .disabled(searchMatchCount == 0)
-                        .accessibilityLabel(env.preferences.t("上一个匹配项", en: "Previous match", pl: "Poprzednie dopasowanie"))
+                        .accessibilityLabel(env.preferences.t("Previous match", zh: "上一个匹配项", pl: "Poprzednie dopasowanie"))
                         Button {
                             guard searchMatchCount > 0 else { return }
                             let next = (searchMatchIndex + 1) % searchMatchCount
@@ -817,7 +804,7 @@ struct MemoDetailView: View {
                         }
                         .buttonStyle(.plain)
                         .disabled(searchMatchCount == 0)
-                        .accessibilityLabel(env.preferences.t("下一个匹配项", en: "Next match", pl: "Następne dopasowanie"))
+                        .accessibilityLabel(env.preferences.t("Next match", zh: "下一个匹配项", pl: "Następne dopasowanie"))
                         Button {
                             closeSearch()
                         } label: {
@@ -858,7 +845,7 @@ struct MemoDetailView: View {
                     token: env.session.session?.token,
                     locale: env.preferences.apiLocale,
                     theme: colorScheme == .dark ? "dark" : "light",
-                    placeholder: env.preferences.t("开始输入…", en: "Start writing…", pl: "Zacznij pisać…"),
+                    placeholder: env.preferences.t("Start writing…", zh: "开始输入…", pl: "Zacznij pisać…"),
                     onChange: nil,
                     onResourcePress: { target in
                         resourceTarget = target
@@ -914,7 +901,7 @@ struct MemoDetailView: View {
     }
 
     private var syncLabel: String {
-        env.preferences.t(syncStatus.labelZH, en: syncStatus.labelEN, pl: syncStatus.labelPL)
+        syncStatus.label(in: env.preferences.uiLanguage)
     }
 
     private var availableNotebooks: [Notebook] {
@@ -923,7 +910,7 @@ struct MemoDetailView: View {
 
     private func notebookName(for memo: MemoDetail) -> String {
         availableNotebooks.first(where: { $0.id == memo.notebookId })?.name
-            ?? env.preferences.t("笔记本", en: "Notebook", pl: "Notatnik")
+            ?? env.preferences.t("Notebook", zh: "笔记本", pl: "Notatnik")
     }
 
     private func notebookAffiliationLabel(_ memo: MemoDetail) -> some View {
@@ -952,8 +939,8 @@ struct MemoDetailView: View {
                 notebookAffiliationLabel(memo)
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(env.preferences.t("所在笔记本", en: "Notebook", pl: "Notatnik"))
-            .accessibilityHint(env.preferences.t("更改笔记所属笔记本", en: "Change the notebook for this note", pl: "Zmień notatnik tej notatki"))
+            .accessibilityLabel(env.preferences.t("Notebook", zh: "所在笔记本", pl: "Notatnik"))
+            .accessibilityHint(env.preferences.t("Change the notebook for this note", zh: "更改笔记所属笔记本", pl: "Zmień notatnik tej notatki"))
             .accessibilityIdentifier(DetailMemoChrome.notebook)
         }
     }
@@ -992,21 +979,21 @@ struct MemoDetailView: View {
             .buttonStyle(.plain)
             .disabled(memo.isDeleted || blocksRichTextEdit(memo))
             .accessibilityLabel(isInfographic(memo)
-                ? env.preferences.t("信息图标题", en: "Infographic title", pl: "Tytuł infografiki")
+                ? env.preferences.t("Infographic title", zh: "信息图标题", pl: "Tytuł infografiki")
                 : isStructuredTable(memo)
-                ? env.preferences.t("表格标题", en: "Database title", pl: "Tytuł bazy danych")
+                ? env.preferences.t("Database title", zh: "表格标题", pl: "Tytuł bazy danych")
                 : isVisualDiagram(memo)
-                ? env.preferences.t("图表标题", en: "Diagram title", pl: "Tytuł diagramu")
-                : env.preferences.t("编辑笔记标题", en: "Edit note title", pl: "Edytuj tytuł notatki"))
+                ? env.preferences.t("Diagram title", zh: "图表标题", pl: "Tytuł diagramu")
+                : env.preferences.t("Edit note title", zh: "编辑笔记标题", pl: "Edytuj tytuł notatki"))
             .accessibilityHint(memo.contentMarkdown.contains("<!-- edgeever-poster-v1:")
-                ? env.preferences.t("海报请在 Web 或桌面端编辑", en: "Edit posters on Web or desktop", pl: "Plakaty edytuj w wersji webowej lub desktopowej")
+                ? env.preferences.t("Edit posters on Web or desktop", zh: "海报请在 Web 或桌面端编辑", pl: "Plakaty edytuj w wersji webowej lub desktopowej")
                 : isInfographic(memo)
-                ? env.preferences.t("信息图请在 Web 或桌面端编辑", en: "Edit infographics on Web or desktop", pl: "Infografiki edytuj w wersji webowej lub desktopowej")
+                ? env.preferences.t("Edit infographics on Web or desktop", zh: "信息图请在 Web 或桌面端编辑", pl: "Infografiki edytuj w wersji webowej lub desktopowej")
                 : isStructuredTable(memo)
-                ? env.preferences.t("多维表格请在 Web 或桌面端编辑", en: "Edit databases on Web or desktop", pl: "Bazy danych edytuj w wersji webowej lub desktopowej")
+                ? env.preferences.t("Edit databases on Web or desktop", zh: "多维表格请在 Web 或桌面端编辑", pl: "Bazy danych edytuj w wersji webowej lub desktopowej")
                 : isVisualDiagram(memo)
-                ? env.preferences.t("可视化图表请在 Web 或桌面端编辑", en: "Edit visual diagrams on Web or desktop", pl: "Diagramy wizualne edytuj w wersji webowej lub desktopowej")
-                : env.preferences.t("进入编辑并聚焦标题", en: "Opens editing with the title focused", pl: "Otwiera edycję z kursorem w tytule"))
+                ? env.preferences.t("Edit visual diagrams on Web or desktop", zh: "可视化图表请在 Web 或桌面端编辑", pl: "Diagramy wizualne edytuj w wersji webowej lub desktopowej")
+                : env.preferences.t("Opens editing with the title focused", zh: "进入编辑并聚焦标题", pl: "Otwiera edycję z kursorem w tytule"))
             .accessibilityIdentifier(DetailMemoChrome.title)
         }
     }
@@ -1016,7 +1003,7 @@ struct MemoDetailView: View {
         do {
             memo = try env.mirror.resolveMemo(scope: scope, id: memoId)
             if memo == nil {
-                error = env.preferences.t("本地未找到该笔记，请先同步。", en: "Note not in local cache. Sync first.", pl: "Notatki nie ma w lokalnej pamięci podręcznej. Najpierw zsynchronizuj.")
+                error = env.preferences.t("Note not in local cache. Sync first.", zh: "本地未找到该笔记，请先同步。", pl: "Notatki nie ma w lokalnej pamięci podręcznej. Najpierw zsynchronizuj.")
             }
         } catch {
             self.error = error.localizedDescription
@@ -1084,8 +1071,7 @@ struct MemoDetailView: View {
     }
 
     private func localizedTitle(for memo: MemoDetail) -> String {
-        let title = memo.title?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        return title.isEmpty ? env.preferences.t("无标题笔记", en: "Untitled note", pl: "Notatka bez tytułu") : title
+        MemoTitle.displayTitle(memo.title, untitledLabel: env.preferences.t("Untitled note", zh: "无标题笔记", pl: "Notatka bez tytułu"))
     }
 
     private func moveMemoToNotebook(_ memo: MemoDetail, notebookId: String) async {
@@ -1143,58 +1129,6 @@ struct MemoDetailView: View {
         }
     }
 
-    private func applyAiDraft(
-        _ draft: String,
-        mode: AiDraftApplyMode,
-        to sourceMemo: MemoDetail
-    ) async throws {
-        guard let scope = env.session.dataScope else {
-            throw APIError(
-                status: -1,
-                code: "session_unavailable",
-                message: env.preferences.t("登录状态已失效，请重新登录。", en: "Your session has expired. Sign in again.", pl: "Sesja wygasła. Zaloguj się ponownie.")
-            )
-        }
-        let normalizedDraft = draft.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !normalizedDraft.isEmpty else { return }
-        let currentContent = sourceMemo.contentMarkdown.trimmingCharacters(in: .whitespacesAndNewlines)
-        let contentMarkdown = mode == .append && !currentContent.isEmpty
-            ? "\(currentContent)\n\n\(normalizedDraft)"
-            : normalizedDraft
-
-        let editSession = try await env.session.client.createMemoEditSession(memoId: sourceMemo.id)
-        guard
-            editSession.baseRevision == sourceMemo.revision,
-            editSession.baseContentHash == sourceMemo.contentHash
-        else {
-            throw APIError(
-                status: 409,
-                code: "revision_conflict",
-                message: env.preferences.t(
-                    "笔记已在其他设备更新，请刷新后重新生成。",
-                    en: "This note changed on another device. Refresh it and generate again.",
-                    pl: "Ta notatka zmieniła się na innym urządzeniu. Odśwież ją i wygeneruj ponownie."
-                )
-            )
-        }
-
-        let updated = try await env.session.client.updateMemo(
-            id: sourceMemo.id,
-            expectedRevision: sourceMemo.revision,
-            expectedContentHash: sourceMemo.contentHash,
-            editSessionId: editSession.id,
-            notebookId: nil,
-            title: nil,
-            isPinned: nil,
-            contentMarkdown: contentMarkdown,
-            contentJson: nil,
-            tags: nil
-        )
-        try env.mirror.upsertMemo(scope: scope, memo: updated)
-        memo = updated
-        refreshSyncStatus()
-    }
-
     private func openInitialShareImageIfReady() {
         guard initialShareImage, bodyReady, memo?.isDeleted == false, !initialShareImageHandled else { return }
         initialShareImageHandled = true
@@ -1206,10 +1140,7 @@ struct MemoDetailView: View {
             let share = try await env.session.client.createMemoShare(memoId: memo.id)
             let base = env.session.session?.baseUrl.trimmingCharacters(in: CharacterSet(charactersIn: "/")) ?? ""
             guard let url = URL(string: "\(base)/share/\(share.token)") else { return }
-            let title = memo.title?.trimmingCharacters(in: .whitespacesAndNewlines)
-            let displayTitle = title?.isEmpty == false
-                ? title!
-                : env.preferences.t("无标题笔记", en: "Untitled note", pl: "Notatka bez tytułu")
+            let displayTitle = MemoTitle.displayTitle(memo.title, untitledLabel: env.preferences.t("Untitled note", zh: "无标题笔记", pl: "Notatka bez tytułu"))
             memoSharePayload = MemoSharePayload(message: "\(displayTitle)\n\(url.absoluteString)", url: url)
         } catch {
             self.error = error.localizedDescription
@@ -1266,21 +1197,20 @@ struct MemoDetailView: View {
             imageExportRequestId = nil
             imageExporting = false
             imageExportMessage = MemoImageExportMessage(
-                title: env.preferences.t("导出失败", en: "Export failed", pl: "Eksport nie powiódł się"),
+                title: env.preferences.t("Export failed", zh: "导出失败", pl: "Eksport nie powiódł się"),
                 message: env.preferences.t(
-                    "生成图片超时。请调小导出字号，或尝试较短的笔记。",
-                    en: "Image generation timed out. Try a smaller font size or a shorter note.",
+                    "Image generation timed out. Try a smaller font size or a shorter note.",
+                    zh: "生成图片超时。请调小导出字号，或尝试较短的笔记。",
                     ja: "画像の生成がタイムアウトしました。文字を小さくするか、短いノートでお試しください。",
                     pl: "Generowanie obrazu przekroczyło limit czasu. Spróbuj mniejszej czcionki lub krótszej notatki."
                 )
             )
         }
-        let title = memo.title?.trimmingCharacters(in: .whitespacesAndNewlines)
         SharedTipTapRuntime.viewer.exportNoteImage(request: [
             "requestId": requestId,
             "format": format,
-            "title": title?.isEmpty == false ? title! : env.preferences.t("无标题笔记", en: "Untitled note", pl: "Notatka bez tytułu"),
-            "fallbackTitle": env.preferences.t("无标题笔记", en: "Untitled note", pl: "Notatka bez tytułu"),
+            "title": MemoTitle.displayTitle(memo.title, untitledLabel: env.preferences.t("Untitled note", zh: "无标题笔记", pl: "Notatka bez tytułu")),
+            "fallbackTitle": env.preferences.t("Untitled note", zh: "无标题笔记", pl: "Notatka bez tytułu"),
             "notebook": showNotebook ? notebookName(for: memo) : "",
             "tags": showTags ? memo.tags : [],
             "updatedAt": showUpdatedAt ? formattedImageExportDate(memo.updatedAt) : "",
@@ -1330,15 +1260,15 @@ struct MemoDetailView: View {
             switch message {
             case "NOTE_IMAGE_TOO_LONG":
                 explanation = env.preferences.t(
-                    "笔记太长，无法清晰地导出为单张图片。",
-                    en: "This note is too long to export clearly as one image.",
+                    "This note is too long to export clearly as one image.",
+                    zh: "笔记太长，无法清晰地导出为单张图片。",
                     ja: "ノートが長すぎるため、1枚の画像として鮮明に書き出せません。",
                     pl: "Notatka jest zbyt długa, aby wyeksportować ją czytelnie jako jeden obraz."
                 )
             case "NOTE_IMAGE_RENDER_FAILED":
                 explanation = env.preferences.t(
-                    "图片生成失败，请稍后重试。",
-                    en: "The image could not be generated. Please try again.",
+                    "The image could not be generated. Please try again.",
+                    zh: "图片生成失败，请稍后重试。",
                     ja: "画像を生成できませんでした。もう一度お試しください。",
                     pl: "Nie udało się wygenerować obrazu. Spróbuj ponownie."
                 )
@@ -1346,7 +1276,7 @@ struct MemoDetailView: View {
                 explanation = message
             }
             imageExportMessage = MemoImageExportMessage(
-                title: env.preferences.t("导出失败", en: "Export failed", pl: "Eksport nie powiódł się"),
+                title: env.preferences.t("Export failed", zh: "导出失败", pl: "Eksport nie powiódł się"),
                 message: explanation
             )
         case let .complete(data, filename, metadata):
@@ -1380,7 +1310,7 @@ struct MemoDetailView: View {
                 }
             } catch {
                 imageExportMessage = MemoImageExportMessage(
-                    title: env.preferences.t("导出失败", en: "Export failed", pl: "Eksport nie powiódł się"),
+                    title: env.preferences.t("Export failed", zh: "导出失败", pl: "Eksport nie powiódł się"),
                     message: error.localizedDescription
                 )
             }
@@ -1449,47 +1379,45 @@ private struct MemoImageExportPreviewView: View {
                                 .shadow(color: .black.opacity(0.16), radius: 12, y: 5)
                         } else {
                             ContentUnavailableView(
-                                isPolish ? "Podgląd niedostępny" : (isEnglish ? "Preview unavailable" : "无法预览"),
+                                localized("Preview unavailable", zh: "无法预览", pl: "Podgląd niedostępny"),
                                 systemImage: "photo.badge.exclamationmark"
                             )
                         }
                         if payload.fontFallback || isLoadingFonts {
                             if isLoadingFonts {
-                                ProgressView(isPolish ? "Ładowanie czcionki…" : (isEnglish ? "Loading font…" : "字体加载中…"))
+                                ProgressView(localized("Loading font…", zh: "字体加载中…", pl: "Ładowanie czcionki…"))
                             } else {
-                                warning(isPolish
-                                    ? "Tymczasowo używane są czcionki zastępcze. Po załadowaniu oryginalne czcionki zostaną przywrócone automatycznie."
-                                    : (isEnglish ? "Temporarily using substitute fonts. The original fonts will be restored automatically when loaded." : "暂时使用替代字体，加载成功后将自动恢复"))
-                                Button(isPolish ? "Ponów próbę" : (isEnglish ? "Retry" : "重试"), action: onRetryFonts)
+                                warning(localized(
+                                    "Temporarily using substitute fonts. The original fonts will be restored automatically when loaded.",
+                                    zh: "暂时使用替代字体，加载成功后将自动恢复",
+                                    pl: "Tymczasowo używane są czcionki zastępcze. Po załadowaniu oryginalne czcionki zostaną przywrócone automatycznie."
+                                ))
+                                Button(localized("Retry", zh: "重试", pl: "Ponów próbę"), action: onRetryFonts)
                             }
                         }
                         if payload.failedImages > 0 {
-                            warning(
-                                isPolish
-                                    ? "Nie udało się dołączyć obrazów z notatki: \(payload.failedImages) z \(payload.totalImages)."
-                                    : isEnglish
-                                    ? "\(payload.failedImages) of \(payload.totalImages) note image(s) could not be included."
-                                    : "笔记中的 \(payload.totalImages) 张图片有 \(payload.failedImages) 张未能包含。"
-                            )
+                            warning(localized(
+                                "\(payload.failedImages) of \(payload.totalImages) note image(s) could not be included.",
+                                zh: "笔记中的 \(payload.totalImages) 张图片有 \(payload.failedImages) 张未能包含。",
+                                pl: "Nie udało się dołączyć obrazów z notatki: \(payload.failedImages) z \(payload.totalImages)."
+                            ))
                         }
                         if payload.height > 12_000 {
-                            warning(
-                                isPolish
-                                    ? "To długi obraz. Niektóre aplikacje społecznościowe mogą obniżyć jego jakość – zachowaj zapisany oryginał."
-                                    : isEnglish
-                                    ? "This is a long image. Some social apps may reduce its quality; keep the saved original."
-                                    : "图片较长，部分社交平台可能会压缩画质；建议保留保存的原图。"
-                            )
+                            warning(localized(
+                                "This is a long image. Some social apps may reduce its quality; keep the saved original.",
+                                zh: "图片较长，部分社交平台可能会压缩画质；建议保留保存的原图。",
+                                pl: "To długi obraz. Niektóre aplikacje społecznościowe mogą obniżyć jego jakość – zachowaj zapisany oryginał."
+                            ))
                         }
                     }
                     .padding(16)
                 }
                 Divider()
                 HStack(spacing: 8) {
-                    previewButton(isPolish ? "Kopiuj" : (isEnglish ? "Copy" : "复制图片"), systemImage: "doc.on.doc", action: onCopy)
-                    previewButton(isPolish ? "Zapisz" : (isEnglish ? "Save" : "保存图片"), systemImage: "square.and.arrow.down", action: onSave)
+                    previewButton(localized("Copy", zh: "复制图片", pl: "Kopiuj"), systemImage: "doc.on.doc", action: onCopy)
+                    previewButton(localized("Save", zh: "保存图片", pl: "Zapisz"), systemImage: "square.and.arrow.down", action: onSave)
                     Button(action: onShare) {
-                        Label(isPolish ? "Udostępnij" : (isEnglish ? "Share" : "系统分享"), systemImage: "square.and.arrow.up")
+                        Label(localized("Share", zh: "系统分享", pl: "Udostępnij"), systemImage: "square.and.arrow.up")
                             .frame(maxWidth: .infinity, minHeight: 44)
                     }
                     .buttonStyle(.borderedProminent)
@@ -1499,14 +1427,19 @@ private struct MemoImageExportPreviewView: View {
                 .padding(12)
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle(isPolish ? "Podgląd obrazu" : (isEnglish ? "Image Preview" : "图片预览"))
+            .navigationTitle(localized("Image Preview", zh: "图片预览", pl: "Podgląd obrazu"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(isPolish ? "Zamknij" : (isEnglish ? "Close" : "关闭")) { dismiss() }
+                    Button(localized("Close", zh: "关闭", pl: "Zamknij")) { dismiss() }
                 }
             }
         }
+    }
+
+    /// English unless the UI is Chinese or Polish (matches the caller's `isEnglish` / `isPolish`).
+    private func localized(_ en: String, zh: String, pl: String) -> String {
+        isPolish ? pl : (isEnglish ? en : zh)
     }
 
     private func warning(_ text: String) -> some View {

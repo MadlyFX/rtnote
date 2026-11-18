@@ -7,6 +7,7 @@ import {
   resourceUrlsReferToSameAttachment,
   type TiptapDoc,
 } from "@edgeever/shared";
+import { isMobileAttachmentPrefixText, stripMobileAttachmentPrefix } from "./mobile-attachment-prefix";
 
 export type MobileResourceTarget = {
   filename: string;
@@ -44,13 +45,13 @@ export const readBlobAsUint8Array = async (blob: Blob): Promise<Uint8Array> => {
 
   return await new Promise<Uint8Array>((resolve, reject) => {
     const reader = new FileReader();
-    reader.onerror = () => reject(reader.error ?? new Error("资源读取失败"));
+    reader.onerror = () => reject(reader.error ?? new Error("Could not read the resource"));
     reader.onloadend = () => {
       if (reader.result instanceof ArrayBuffer) {
         resolve(new Uint8Array(reader.result));
         return;
       }
-      reject(new Error("资源读取失败"));
+      reject(new Error("Could not read the resource"));
     };
     reader.readAsArrayBuffer(blob);
   });
@@ -64,7 +65,7 @@ type MarkdownNodeLike = {
 };
 
 const normalizeAttachmentFilename = (label: string, resourceId: string) => {
-  const withoutPrefix = label.replace(/^\s*(?:附件[：:]|Attachment:)\s*/i, "").trim();
+  const withoutPrefix = stripMobileAttachmentPrefix(label);
   const colonParts = withoutPrefix.split(/[：:]\s*/).filter(Boolean);
   const candidate = (colonParts.at(-1) || withoutPrefix)
     .replace(/^[\uFE0F\s📎📄📦📊🗃🗂]+/u, "")
@@ -128,7 +129,7 @@ export const getParagraphAttachmentTarget = (node: MarkdownNodeLike): MobileAtta
     .map(getMarkdownNodeText)
     .join("")
     .trim();
-  if (nonLinkText && !/^(?:附件[：:]?|Attachment:?)$/i.test(nonLinkText)) return null;
+  if (nonLinkText && !isMobileAttachmentPrefixText(nonLinkText)) return null;
 
   const link = links[0];
   const href = typeof link.attributes?.href === "string" ? link.attributes.href : "";
@@ -186,7 +187,7 @@ const updateResourceDoc = (
         .map((child) => child && typeof child === "object" && "text" in child ? String(child.text ?? "") : "")
         .join("")
         .trim();
-      if (next.content.length === 0 || /^(?:附件[：:]?|Attachment:?)$/i.test(remainingText)) return null;
+      if (next.content.length === 0 || isMobileAttachmentPrefixText(remainingText)) return null;
     }
     return next;
   };
@@ -275,7 +276,7 @@ export const resolveExportFilename = (filename: string, mimeType: string) => {
 export class MobileResourceCancelledError extends Error {
   readonly code = "cancelled" as const;
 
-  constructor(message = "已取消下载") {
+  constructor(message = "Download canceled") {
     super(message);
     this.name = "MobileResourceCancelledError";
   }
@@ -306,7 +307,7 @@ const shareCachedResource = async (
 ) => {
   const Sharing = await import("expo-sharing");
   if (!(await Sharing.isAvailableAsync())) {
-    throw new Error("当前设备无法打开系统分享面板");
+    throw new Error("This device cannot open the system share sheet");
   }
   await Sharing.shareAsync(fileUri, {
     dialogTitle: options.dialogTitle,
@@ -350,7 +351,7 @@ export const saveMobileResourceAs = async (
       const permission = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
       if (!permission.granted) {
         // Do not return null — callers treated that as success and closed the sheet.
-        throw new MobileResourceCancelledError("已取消下载");
+        throw new MobileResourceCancelledError("Download canceled");
       }
       const destination = await FileSystem.StorageAccessFramework.createFileAsync(
         permission.directoryUri,
@@ -365,7 +366,7 @@ export const saveMobileResourceAs = async (
       }
       // SAF is flaky on some OEM builds — fall back to the share sheet so download still works.
       await shareCachedResource(file.uri, {
-        dialogTitle: `下载 ${exportName}`,
+        dialogTitle: `Download ${exportName}`,
         mimeType,
       });
       return { kind: "share" as const, uri: file.uri, filename: exportName };
@@ -373,7 +374,7 @@ export const saveMobileResourceAs = async (
   }
 
   await shareCachedResource(file.uri, {
-    dialogTitle: `下载 ${exportName}`,
+    dialogTitle: `Download ${exportName}`,
     mimeType,
   });
   return { kind: "share" as const, uri: file.uri, filename: exportName };

@@ -7,7 +7,6 @@ import { createLocalDevelopmentSession } from "./local-dev-auth.mjs";
 export const LOCAL_DEV_API_URL = "http://127.0.0.1:8787";
 export const LOCAL_DEV_WEB_URL = "http://127.0.0.1:5173";
 export const LOCAL_DEV_STATE_PATH = ".wrangler/state";
-export const LOCAL_DEV_PROFILE_PATH = ".env.local-dev";
 
 export const LOCAL_DEVELOPMENT_PROFILES = Object.freeze({
   local: Object.freeze({
@@ -15,14 +14,12 @@ export const LOCAL_DEVELOPMENT_PROFILES = Object.freeze({
     label: "LOCAL DEV",
     statePath: LOCAL_DEV_STATE_PATH,
     demoSeed: false,
-    bootstrapAi: true,
   }),
   demo: Object.freeze({
     name: "demo",
     label: "LOCAL DEMO",
     statePath: ".wrangler/demo-state",
     demoSeed: true,
-    bootstrapAi: false,
   }),
 });
 
@@ -32,65 +29,6 @@ export const getLocalDevelopmentProfile = (name = "local") => {
     throw new Error(`Unknown local development profile: ${name}. Expected local or demo.`);
   }
   return profile;
-};
-
-const AI_PROVIDERS = new Set([
-  "openai",
-  "openrouter",
-  "anthropic",
-  "google",
-  "openai-compatible",
-]);
-
-export const parseEnvironmentFile = (source) => {
-  const values = {};
-  for (const line of source.split(/\r?\n/)) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith("#")) continue;
-    const separator = trimmed.indexOf("=");
-    if (separator <= 0) continue;
-    const key = trimmed.slice(0, separator).trim();
-    let value = trimmed.slice(separator + 1).trim();
-    if (value.startsWith('"') && value.endsWith('"')) {
-      try {
-        value = JSON.parse(value);
-      } catch {
-        value = value.slice(1, -1);
-      }
-    } else if (value.startsWith("'") && value.endsWith("'")) {
-      value = value.slice(1, -1);
-    }
-    values[key] = value.replace(/\\\$/g, "$");
-  }
-  return values;
-};
-
-export const buildLocalAiSeed = (environment) => {
-  const apiKey = environment.EDGE_EVER_LOCAL_AI_API_KEY?.trim();
-  if (!apiKey) return null;
-
-  const provider = environment.EDGE_EVER_LOCAL_AI_PROVIDER?.trim() || "openai-compatible";
-  const baseUrl = environment.EDGE_EVER_LOCAL_AI_BASE_URL?.trim();
-  const modelId = environment.EDGE_EVER_LOCAL_AI_MODEL_ID?.trim();
-  if (!AI_PROVIDERS.has(provider)) {
-    throw new Error(`Unsupported EDGE_EVER_LOCAL_AI_PROVIDER: ${provider}`);
-  }
-  if (!baseUrl || !modelId) {
-    throw new Error("Local AI bootstrap requires EDGE_EVER_LOCAL_AI_BASE_URL and EDGE_EVER_LOCAL_AI_MODEL_ID.");
-  }
-  const parsedBaseUrl = new URL(baseUrl);
-  if (!new Set(["http:", "https:"]).has(parsedBaseUrl.protocol)) {
-    throw new Error("EDGE_EVER_LOCAL_AI_BASE_URL must use HTTP(S).");
-  }
-
-  return {
-    provider,
-    displayName: environment.EDGE_EVER_LOCAL_AI_DISPLAY_NAME?.trim() || provider,
-    baseUrl: baseUrl.replace(/\/+$/, ""),
-    apiKey,
-    isEnabled: true,
-    initialModelId: modelId,
-  };
 };
 
 export const findLocalD1DatabasePaths = (statePath = LOCAL_DEV_STATE_PATH) => {
@@ -104,7 +42,7 @@ export const findLocalD1DatabasePaths = (statePath = LOCAL_DEV_STATE_PATH) => {
 export const inspectLocalD1 = (statePath = LOCAL_DEV_STATE_PATH) => {
   const paths = findLocalD1DatabasePaths(statePath);
   if (paths.length !== 1) {
-    return { databaseCount: paths.length, migrationCount: null, providerCount: null, modelCount: null };
+    return { databaseCount: paths.length, migrationCount: null };
   }
   // Miniflare keeps D1 in WAL mode. SQLite may need to materialize empty
   // -wal/-shm sidecars even for inspection after a clean server shutdown.
@@ -119,20 +57,10 @@ export const inspectLocalD1 = (statePath = LOCAL_DEV_STATE_PATH) => {
     return {
       databaseCount: 1,
       migrationCount: count("d1_migrations"),
-      providerCount: count("ai_provider_configs"),
-      modelCount: count("ai_models"),
     };
   } finally {
     database.close();
   }
-};
-
-const loadBootstrapProfile = (path = LOCAL_DEV_PROFILE_PATH) => {
-  if (!existsSync(path)) return { exists: false, seed: null };
-  return {
-    exists: true,
-    seed: buildLocalAiSeed(parseEnvironmentFile(readFileSync(path, "utf8"))),
-  };
 };
 
 const assertChildSucceeded = (result) => {
@@ -253,44 +181,7 @@ const createProfileSession = async (profile) => {
   }
 };
 
-const ensureLocalAiSeed = async (token) => {
-  const headers = { Authorization: `Bearer ${token}` };
-  const settingsResponse = await fetch(`${LOCAL_DEV_API_URL}/api/v1/ai/settings`, { headers });
-  if (!settingsResponse.ok) {
-    throw new Error(`Cannot read local AI settings: HTTP ${settingsResponse.status}`);
-  }
-  const settings = await settingsResponse.json();
-  if (settings.providers.length > 0) {
-    return { state: "preserved", providerCount: settings.providers.length };
-  }
-
-  const profile = loadBootstrapProfile();
-  if (!profile.seed) {
-    return { state: profile.exists ? "profile-incomplete" : "profile-missing", providerCount: 0 };
-  }
-
-  const createResponse = await fetch(`${LOCAL_DEV_API_URL}/api/v1/ai/providers`, {
-    method: "POST",
-    headers: { ...headers, "Content-Type": "application/json" },
-    body: JSON.stringify(profile.seed),
-  });
-  if (!createResponse.ok) {
-    const body = await createResponse.json().catch(() => null);
-    throw new Error(body?.error?.message || `Local AI bootstrap failed: HTTP ${createResponse.status}`);
-  }
-  const created = await createResponse.json();
-  return { state: "seeded", providerCount: created.providers.length };
-};
-
-export const buildReadyBanner = (profile, ai = null) => {
-  const aiLabel = ai
-    ? {
-        preserved: `preserved ${ai.providerCount} existing provider(s)`,
-        seeded: `restored ${ai.providerCount} provider(s) from ${LOCAL_DEV_PROFILE_PATH}`,
-        "profile-incomplete": `${LOCAL_DEV_PROFILE_PATH} has no API key; skipped bootstrap`,
-        "profile-missing": `optional ${LOCAL_DEV_PROFILE_PATH} not found`,
-      }[ai.state]
-    : null;
+export const buildReadyBanner = (profile) => {
   return [
     "",
     `[local-dev] ${profile.label} ready`,
@@ -298,13 +189,12 @@ export const buildReadyBanner = (profile, ai = null) => {
     `[local-dev] API:  ${LOCAL_DEV_API_URL}`,
     ...(profile.name === "local" ? ["[local-dev] Auth: real local owner session; browser auto-login (EDGE_EVER_LOCAL_AUTO_LOGIN=false to disable)"] : []),
     `[local-dev] Data: ${resolve(profile.statePath)} (${profile.demoSeed ? "resettable demo data" : "persistent development data"})`,
-    ...(aiLabel ? [`[local-dev] AI:   ${aiLabel}`] : []),
     "",
   ].join("\n");
 };
 
-const printReadyBanner = (profile, ai = null) => {
-  console.log(buildReadyBanner(profile, ai));
+const printReadyBanner = (profile) => {
+  console.log(buildReadyBanner(profile));
 };
 
 const resetDemoProfile = async (profile) => {
@@ -342,7 +232,6 @@ const doctor = async () => {
   const wranglerVersion = existsSync(wranglerPath)
     ? JSON.parse(readFileSync(wranglerPath, "utf8")).version
     : null;
-  const profile = loadBootstrapProfile();
   const localDatabase = inspectLocalD1(LOCAL_DEVELOPMENT_PROFILES.local.statePath);
   const demoDatabase = inspectLocalD1(LOCAL_DEVELOPMENT_PROFILES.demo.statePath);
   let health = "offline";
@@ -360,8 +249,6 @@ const doctor = async () => {
     `- API: ${LOCAL_DEV_API_URL} (${health})`,
     `- LOCAL DEV data: ${resolve(LOCAL_DEVELOPMENT_PROFILES.local.statePath)}`,
     `  D1 databases/migrations: ${localDatabase.databaseCount}/${localDatabase.migrationCount ?? "not initialized"}`,
-    `  AI providers/models: ${localDatabase.providerCount ?? 0}/${localDatabase.modelCount ?? 0}`,
-    `- Bootstrap profile: ${profile.exists ? (profile.seed ? "configured" : "present without API key") : "optional; not created"}`,
     `- LOCAL DEMO data: ${resolve(LOCAL_DEVELOPMENT_PROFILES.demo.statePath)}`,
     `  D1 databases/migrations: ${demoDatabase.databaseCount}/${demoDatabase.migrationCount ?? "not initialized"}`,
   ].join("\n"));
@@ -384,8 +271,7 @@ const main = async () => {
     runProfileWeb(profile);
   } else if (command === "ready") {
     await waitForLocalApi();
-    const session = profile.bootstrapAi ? await createProfileSession(profile) : null;
-    printReadyBanner(profile, session ? await ensureLocalAiSeed(session.token) : null);
+    printReadyBanner(profile);
   } else if (command === "auth-session") {
     console.log(JSON.stringify(await createProfileSession(profile)));
   } else if (command === "reset") {

@@ -129,6 +129,8 @@ const mountApp = () => {
   applyEditorBodyFontPreference();
   applyUiFontPreference();
   const Router = isDesktopRenderer ? HashRouter : BrowserRouter;
+  // Removes data the retired AI assistant left in this browser; runs in the background.
+  window.setTimeout(() => { void import("@/lib/legacy-ai-cleanup").then(({ removeLegacyAiData }) => removeLegacyAiData()); }, 3_000);
 
   createRoot(root, {
     onUncaughtError(error, errorInfo) {

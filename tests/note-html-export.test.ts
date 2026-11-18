@@ -11,14 +11,14 @@ import {
 describe("single-note HTML export", () => {
   test("creates a UTF-8 HTML file with the current content", async () => {
     const file = createHtmlFile(
-      "<!DOCTYPE html><html><body><p>当前未保存内容</p></body></html>",
-      "项目 / 计划",
+      "<!DOCTYPE html><html><body><p>Current unsaved content</p></body></html>",
+      "Project / Plan",
       "Untitled note",
     );
 
-    expect(file.filename).toBe("项目 - 计划.html");
+    expect(file.filename).toBe("Project - Plan.html");
     expect(file.blob.type).toBe("text/html;charset=utf-8");
-    expect(await file.blob.text()).toContain("当前未保存内容");
+    expect(await file.blob.text()).toContain("Current unsaved content");
   });
 
   test("sanitizes unsafe and reserved filenames", () => {

@@ -18,11 +18,11 @@ const archive = {
 };
 const failure = Object.assign(new Error("Target storage unavailable"), { status: 503, code: "object_storage_unavailable" });
 await restoreEdgeEverZip({
-  archive, notebooks: [], prompts: [],
+  archive, notebooks: [],
   memos: [{ resources: [{ id: "resource-1", archivePath: "resource.bin", byteSize: 14 }] }],
   manifest: { counts: { resources: 1 } },
 }, {
-  restoreNotebooks: async () => {}, restoreMemos: async () => {}, restorePrompts: async () => {},
+  restoreNotebooks: async () => {}, restoreMemos: async () => {},
   createResourceRestoreSink: async () => { throw failure; },
 }).then(() => {
   throw new Error("Expected upload initialization to fail");

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { createDefaultDiagramDocument } from "@edgeever/shared";
+import { DIAGRAM_SEED_SIZING_LABELS, createDefaultDiagramDocument } from "@edgeever/shared";
 import {
   compileDiagramIr,
   compactArchitectureNodeSize,
@@ -49,8 +49,8 @@ describe("diagram auto layout", () => {
   });
 
   test("uses compact topic sizes while allowing longer labels to grow within a cap", () => {
-    expect(compactMindMapNodeSize("分支主题", false)).toEqual({ width: 96, height: 36 });
-    expect(compactMindMapNodeSize("核心主题", true)).toEqual({ width: 124, height: 46 });
+    expect(compactMindMapNodeSize("Subtopic", false)).toEqual({ width: 96, height: 36 });
+    expect(compactMindMapNodeSize("Main topic", true)).toEqual({ width: 124, height: 46 });
     expect(compactMindMapNodeSize("A much longer topic label", false).width).toBeLessThanOrEqual(168);
   });
 
@@ -119,11 +119,11 @@ describe("diagram auto layout", () => {
     const document = compileDiagramIr({
       kind: "flowchart",
       nodes: [
-        { id: "a", type: "start", label: "开始" },
-        { id: "b", type: "process", label: "步骤一" },
-        { id: "c", type: "process", label: "Transformer 前向计算" },
-        { id: "d", type: "end", label: "结束" },
-        { id: "loop", type: "process", label: "回环" },
+        { id: "a", type: "start", label: "Start" },
+        { id: "b", type: "process", label: "Step one" },
+        { id: "c", type: "process", label: "Transformer forward pass" },
+        { id: "d", type: "end", label: "End" },
+        { id: "loop", type: "process", label: "Loop back" },
       ],
       edges: [
         { source: "a", target: "b" },
@@ -186,8 +186,8 @@ describe("diagram auto layout", () => {
       kind: "architecture",
       nodes: [
         { id: "short", type: "service", label: "API" },
-        { id: "medium", type: "service", label: "商品与库存查询服务" },
-        { id: "long", type: "service", label: "商品与库存查询服务及活动规则配置中心" },
+        { id: "medium", type: "service", label: "Inventory lookup" },
+        { id: "long", type: "service", label: "Inventory lookup and promotion rules center" },
       ],
       edges: [],
     });
@@ -199,10 +199,10 @@ describe("diagram auto layout", () => {
 
   test("opens vertical lanes for groups with many cross-boundary relations", () => {
     const nodes = [
-      { id: "business", type: "boundary", label: "业务层" },
-      { id: "data", type: "boundary", label: "数据层" },
-      ...Array.from({ length: 4 }, (_, index) => ({ id: `service-${index}`, type: "service", label: `服务 ${index}`, parentId: "business" })),
-      ...Array.from({ length: 4 }, (_, index) => ({ id: `store-${index}`, type: "database", label: `存储 ${index}`, parentId: "data" })),
+      { id: "business", type: "boundary", label: "Business layer" },
+      { id: "data", type: "boundary", label: "Data layer" },
+      ...Array.from({ length: 4 }, (_, index) => ({ id: `service-${index}`, type: "service", label: `Service ${index}`, parentId: "business" })),
+      ...Array.from({ length: 4 }, (_, index) => ({ id: `store-${index}`, type: "database", label: `Store ${index}`, parentId: "data" })),
     ];
     const edges = Array.from({ length: 4 }, (_, service) => Array.from({ length: 4 }, (_, store) => ({
       source: `service-${service}`, target: `store-${store}`,
@@ -262,7 +262,7 @@ describe("diagram auto layout", () => {
       label: `Service ${index}`,
       type: "service",
     }));
-    const boundaries = ["访问层", "业务服务层", "数据与基础设施层"].map((label, index) => ({
+    const boundaries = ["Access layer", "Business services layer", "Data and infrastructure layer"].map((label, index) => ({
       id: `boundary-${index}`,
       label,
       type: "boundary",
@@ -477,7 +477,7 @@ describe("diagram auto layout", () => {
 
   test("keeps the default starter geometry and refits longer translated labels", () => {
     for (const kind of ["mind-map", "flowchart", "architecture"]) {
-      const document = createDefaultDiagramDocument(kind);
+      const document = createDefaultDiagramDocument(kind, DIAGRAM_SEED_SIZING_LABELS);
       expect(fitDefaultDiagramLabels(document)).toBe(document);
     }
 

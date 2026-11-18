@@ -6,7 +6,7 @@ struct RootView: View {
     var body: some View {
         Group {
             if env.session.isLoading {
-                ProgressView(env.preferences.t("启动中…", en: "Starting…", ja: "起動しています…", pl: "Uruchamianie…"))
+                ProgressView(env.preferences.t("Starting…", zh: "启动中…", ja: "起動しています…", pl: "Uruchamianie…"))
             } else if env.session.isSignedIn {
                 if env.session.isMfaRebindRequired {
                     ForcedTotpRebindView()
@@ -16,6 +16,12 @@ struct RootView: View {
             } else {
                 LoginView()
             }
+        }
+        // System controls follow a custom branding accent; nil keeps the asset AccentColor.
+        .tint(AppTheme.brandTint)
+        // Re-evaluates branding whenever the session appears, ends or changes server/user.
+        .task(id: brandingSessionKey) {
+            await env.refreshBranding(force: true)
         }
         .task {
             await env.bootstrap()
@@ -27,6 +33,10 @@ struct RootView: View {
                     await env.runSyncCycle()
                 }
             }
+            Task {
+                // Throttled to one fetch per 5 minutes.
+                await env.refreshBranding(force: false)
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)) { _ in
             Task {
@@ -35,5 +45,16 @@ struct RootView: View {
                 }
             }
         }
+    }
+
+    private var brandingSessionKey: String {
+        let store = env.session
+        if store.isLoading { return "loading" }
+        guard let current = store.session else { return "signed-out" }
+        return [
+            current.baseUrl,
+            current.user?.id ?? "",
+            store.isMfaRebindRequired ? "restricted" : "full",
+        ].joined(separator: "|")
     }
 }

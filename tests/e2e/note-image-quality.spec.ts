@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { NOTE_IMAGE_THEME_OPTIONS } from '../../packages/shared/src/note-image-card';
+import { escapeRegExp, ui } from './fixtures/ui-labels';
 
 type CaseResult = {
   theme: string; width: number; height: number; expectedWidth: number; expectedHeight: number; density: number;
@@ -18,7 +19,7 @@ type QualityApi = {
   setMounted: (mounted: boolean) => void;
 };
 type QualityWindow = Window & { imageQuality: QualityApi; copiedImage?: { width: number; height: number; hash: string } };
-const labels = { glass: '透明', quote: '金句', book: '书摘', memo: '备忘录', bento: '便当', 'black-sun': '黑日', frame: '框界', handwritten: '手写', code: '代码' };
+const labels: Record<string, string> = ui.editor.imageShare.themes;
 const preamble = `<script type="module">import R from '/@react-refresh';R.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>t=>t;window.__vite_plugin_react_preamble_installed__=true;</script>`;
 const fixture = fileURLToPath(new URL('./fixtures/note-image-quality.tsx', import.meta.url));
 
@@ -80,7 +81,7 @@ for (const theme of NOTE_IMAGE_THEME_OPTIONS) {
       } });
     });
     await boot(page);
-    const preview = page.getByAltText('笔记分享图片预览');
+    const preview = page.getByAltText(ui.editor.imageShare.previewAlt);
     await expect(preview).toBeVisible();
     if (theme !== 'glass') {
       const old = await preview.getAttribute('src');
@@ -103,13 +104,13 @@ for (const theme of NOTE_IMAGE_THEME_OPTIONS) {
       });
       expect(image.density).toBeGreaterThanOrEqual(1.99);
       const downloading = page.waitForEvent('download');
-      await page.getByRole('button', { name: '下载图片', exact: true }).click();
+      await page.getByRole('button', { name: ui.editor.imageShare.download, exact: true }).click();
       const download = await downloading;
       const path = testInfo.outputPath(`${theme}.${format === 'png' ? 'png' : 'jpg'}`);
       await download.saveAs(path);
       expect(createHash('sha256').update(await readFile(path)).digest('hex')).toBe(image.hash);
-      await page.getByRole('button', { name: '复制图片', exact: true }).click();
-      await expect(page.getByRole('button', { name: '已复制到剪贴板', exact: true })).toBeVisible();
+      await page.getByRole('button', { name: ui.editor.imageShare.copyImage, exact: true }).click();
+      await expect(page.getByRole('button', { name: ui.editor.imageShare.copied, exact: true })).toBeVisible();
       const copied = await page.evaluate(() => (window as QualityWindow).copiedImage!);
       expect([copied.width, copied.height]).toEqual([image.width, image.height]);
       if (format === 'png') expect(copied.hash).toBe(image.hash);
@@ -129,8 +130,8 @@ for (const blockedStorage of [false, true]) {
       api.setSource(api.sources.short);
     });
     await shortSource();
-    const title = page.getByRole('checkbox', { name: '笔记标题', exact: true });
-    const preview = page.getByAltText('笔记分享图片预览');
+    const title = page.getByRole('checkbox', { name: ui.editor.imageShare.fields.title, exact: true });
+    const preview = page.getByAltText(ui.editor.imageShare.previewAlt);
     const hashPreview = async () => {
       await expect(preview).toBeVisible();
       return preview.evaluate(async node => {
@@ -157,7 +158,7 @@ for (const blockedStorage of [false, true]) {
     const oldUrl = await preview.getAttribute('src');
     await page.evaluate(() => {
       const api = (window as QualityWindow).imageQuality;
-      api.setSource({ ...api.sources.short, title: '切换到另一篇笔记' });
+      api.setSource({ ...api.sources.short, title: 'Switched to another note' });
     });
     await expect(preview).not.toHaveAttribute('src', oldUrl!);
     await expect(title).not.toBeChecked();
@@ -198,11 +199,11 @@ for (const blockedStorage of [false, true]) {
       const api = (window as QualityWindow).imageQuality;
       api.setSource(api.sources.short);
     });
-    const checkboxLabels = ['笔记标题', '笔记本', '标签', '更新时间', '阅读时长与字数', '创作者署名', 'RTNote 品牌标识'];
+    const checkboxLabels = [ui.editor.imageShare.fields.title, ui.editor.imageShare.fields.notebook, ui.editor.imageShare.fields.tags, ui.editor.imageShare.fields.updatedAt, ui.editor.imageShare.fields.readingTime, ui.editor.imageShare.fields.author, ui.editor.imageShare.fields.branding];
     const chosen = [false, true, true, false, true, true, false];
-    const preview = page.getByAltText('笔记分享图片预览');
+    const preview = page.getByAltText(ui.editor.imageShare.previewAlt);
     const hash = async () => {
-      await expect(page.getByRole('button', { name: '下载图片', exact: true })).toBeEnabled();
+      await expect(page.getByRole('button', { name: ui.editor.imageShare.download, exact: true })).toBeEnabled();
       return preview.evaluate(async node => {
         const image = node as HTMLImageElement;
         await image.decode();
@@ -215,21 +216,21 @@ for (const blockedStorage of [false, true]) {
       for (let i = 0; i < chosen.length; i++) {
         await expect(page.getByRole('checkbox', { name: checkboxLabels[i], exact: true })).toBeChecked({ checked: inverted ? !chosen[i] : chosen[i] });
       }
-      await expect(page.getByRole('button', { name: inverted ? '默认' : '书摘', exact: true })).toHaveAttribute('aria-pressed', 'true');
-      await expect(page.getByRole('button', { name: inverted ? /^跟随主题/ : '文艺衬线' })).toHaveAttribute('aria-pressed', 'true');
-      await expect(page.getByRole('button', { name: inverted ? '舒适' : '标准', exact: true })).toHaveAttribute('aria-pressed', 'true');
-      await expect(page.getByRole('button', { name: inverted ? '宽屏 (800px)' : '紧凑 (560px)', exact: true })).toHaveAttribute('aria-pressed', 'true');
+      await expect(page.getByRole('button', { name: inverted ? ui.editor.imageShare.themes.gradient : ui.editor.imageShare.themes.book, exact: true })).toHaveAttribute('aria-pressed', 'true');
+      await expect(page.getByRole('button', { name: inverted ? new RegExp(`^${escapeRegExp(ui.editor.imageShare.fontStyles.auto)}`) : ui.editor.imageShare.fontStyles.serif })).toHaveAttribute('aria-pressed', 'true');
+      await expect(page.getByRole('button', { name: inverted ? ui.editor.imageShare.fontSizes.lg : ui.editor.imageShare.fontSizes.md, exact: true })).toHaveAttribute('aria-pressed', 'true');
+      await expect(page.getByRole('button', { name: inverted ? ui.editor.imageShare.cardWidths.wide : ui.editor.imageShare.cardWidths.compact, exact: true })).toHaveAttribute('aria-pressed', 'true');
       await expect(page.getByRole('combobox')).toContainText(inverted ? 'PNG' : 'JPEG');
-      if (!inverted) await expect(page.getByPlaceholder('输入署名或昵称')).toHaveValue('持久保存的署名');
+      if (!inverted) await expect(page.getByPlaceholder(ui.editor.imageShare.authorPlaceholder)).toHaveValue('Saved author name');
     };
-    await page.getByRole('button', { name: '书摘', exact: true }).click();
-    await page.getByRole('button', { name: '文艺衬线', exact: true }).click();
-    await page.getByRole('button', { name: '标准', exact: true }).click();
-    await page.getByRole('button', { name: '紧凑 (560px)', exact: true }).click();
+    await page.getByRole('button', { name: ui.editor.imageShare.themes.book, exact: true }).click();
+    await page.getByRole('button', { name: ui.editor.imageShare.fontStyles.serif, exact: true }).click();
+    await page.getByRole('button', { name: ui.editor.imageShare.fontSizes.md, exact: true }).click();
+    await page.getByRole('button', { name: ui.editor.imageShare.cardWidths.compact, exact: true }).click();
     for (let i = 0; i < chosen.length; i++) {
       await page.getByRole('checkbox', { name: checkboxLabels[i], exact: true }).setChecked(chosen[i]);
     }
-    await page.getByPlaceholder('输入署名或昵称').fill('持久保存的署名');
+    await page.getByPlaceholder(ui.editor.imageShare.authorPlaceholder).fill('Saved author name');
     await page.getByRole('combobox').click();
     await page.getByRole('option').filter({ hasText: /^JPEG/ }).click();
     await assertChoices();
@@ -242,7 +243,7 @@ for (const blockedStorage of [false, true]) {
     expect(await hash()).toBe(expectedHash);
     await page.evaluate(() => {
       const api = (window as QualityWindow).imageQuality;
-      api.setSource({ ...api.sources.short, title: '另一篇笔记' });
+      api.setSource({ ...api.sources.short, title: 'Another note' });
     });
     await assertChoices();
     expect(await hash()).toBe(expectedHash);
@@ -263,7 +264,7 @@ for (const blockedStorage of [false, true]) {
     }
     // Download must use the remembered format and the exact preview image.
     const downloading = page.waitForEvent('download');
-    await page.getByRole('button', { name: '下载图片', exact: true }).click();
+    await page.getByRole('button', { name: ui.editor.imageShare.download, exact: true }).click();
     const download = await downloading;
     expect(download.suggestedFilename()).toMatch(/\.jpe?g$/);
     const path = testInfo.outputPath('remembered-settings.jpg');
@@ -274,10 +275,10 @@ for (const blockedStorage of [false, true]) {
     for (let i = 0; i < chosen.length; i++) {
       await page.getByRole('checkbox', { name: checkboxLabels[i], exact: true }).setChecked(!chosen[i]);
     }
-    await page.getByRole('button', { name: '默认', exact: true }).click();
-    await page.getByRole('button', { name: /^跟随主题/ }).click();
-    await page.getByRole('button', { name: '舒适', exact: true }).click();
-    await page.getByRole('button', { name: '宽屏 (800px)', exact: true }).click();
+    await page.getByRole('button', { name: ui.editor.imageShare.themes.gradient, exact: true }).click();
+    await page.getByRole('button', { name: new RegExp(`^${escapeRegExp(ui.editor.imageShare.fontStyles.auto)}`) }).click();
+    await page.getByRole('button', { name: ui.editor.imageShare.fontSizes.lg, exact: true }).click();
+    await page.getByRole('button', { name: ui.editor.imageShare.cardWidths.wide, exact: true }).click();
     await page.getByRole('combobox').click();
     await page.getByRole('option').filter({ hasText: /^PNG/ }).click();
     if (!blockedStorage) {
@@ -289,8 +290,8 @@ for (const blockedStorage of [false, true]) {
       await page.evaluate(() => (window as QualityWindow).imageQuality.setMounted(true));
     }
     await assertChoices(true);
-    await expect(page.getByPlaceholder('输入署名或昵称')).toHaveCount(0);
-    await page.getByRole('checkbox', { name: '创作者署名', exact: true }).check();
-    await expect(page.getByPlaceholder('输入署名或昵称')).toHaveValue('持久保存的署名');
+    await expect(page.getByPlaceholder(ui.editor.imageShare.authorPlaceholder)).toHaveCount(0);
+    await page.getByRole('checkbox', { name: ui.editor.imageShare.fields.author, exact: true }).check();
+    await expect(page.getByPlaceholder(ui.editor.imageShare.authorPlaceholder)).toHaveValue('Saved author name');
   });
 }

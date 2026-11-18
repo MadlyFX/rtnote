@@ -21,7 +21,7 @@ actor ResourceBlobStore {
     }
 }
 
-/// Serves `edgeever-res://local/<resourceId>` image bytes into the TipTap WKWebView.
+/// Serves `edgeever-res://local/<resourceId>` image and audio bytes into the TipTap WKWebView.
 final class EdgeEverResourceSchemeHandler: NSObject, WKURLSchemeHandler, @unchecked Sendable {
     static let scheme = "edgeever-res"
 
@@ -58,14 +58,31 @@ final class EdgeEverResourceSchemeHandler: NSObject, WKURLSchemeHandler, @unchec
             }
             // HTTPURLResponse is more reliable for <img> loads than plain URLResponse
             // (especially for non-bitmap types served through a custom scheme).
-            let headers: [String: String] = [
+            // <audio> asks for byte ranges; answer them so playback can seek.
+            let total = entry.data.count
+            let range = Self.byteRange(
+                header: urlSchemeTask.request.value(forHTTPHeaderField: "Range"),
+                total: total
+            )
+            var headers: [String: String] = [
                 "Content-Type": entry.mimeType,
-                "Content-Length": String(entry.data.count),
+                "Accept-Ranges": "bytes",
                 "Access-Control-Allow-Origin": "*",
             ]
+            let body: Data
+            let status: Int
+            if let range {
+                body = entry.data.subdata(in: range)
+                status = 206
+                headers["Content-Range"] = "bytes \(range.lowerBound)-\(range.upperBound - 1)/\(total)"
+            } else {
+                body = entry.data
+                status = 200
+            }
+            headers["Content-Length"] = String(body.count)
             guard let response = HTTPURLResponse(
                 url: url,
-                statusCode: 200,
+                statusCode: status,
                 httpVersion: "HTTP/1.1",
                 headerFields: headers
             ) else {
@@ -75,9 +92,35 @@ final class EdgeEverResourceSchemeHandler: NSObject, WKURLSchemeHandler, @unchec
                 return
             }
             urlSchemeTask.didReceive(response)
-            urlSchemeTask.didReceive(entry.data)
+            urlSchemeTask.didReceive(body)
             urlSchemeTask.didFinish()
         }
+    }
+
+    /// Parses a single `bytes=start-end` / `bytes=start-` / `bytes=-suffix` range.
+    /// Returns nil for no header, multiple ranges or an unsatisfiable range (serve the whole body).
+    static func byteRange(header: String?, total: Int) -> Range<Int>? {
+        guard let header, total > 0 else { return nil }
+        let value = header.trimmingCharacters(in: .whitespaces)
+        guard value.lowercased().hasPrefix("bytes="), !value.contains(",") else { return nil }
+        let spec = value.dropFirst("bytes=".count)
+        let parts = spec.split(separator: "-", maxSplits: 1, omittingEmptySubsequences: false)
+        guard parts.count == 2 else { return nil }
+        let startText = parts[0].trimmingCharacters(in: .whitespaces)
+        let endText = parts[1].trimmingCharacters(in: .whitespaces)
+        if startText.isEmpty {
+            guard let suffix = Int(endText), suffix > 0 else { return nil }
+            return max(0, total - suffix)..<total
+        }
+        guard let start = Int(startText), start >= 0, start < total else { return nil }
+        let end: Int
+        if endText.isEmpty {
+            end = total - 1
+        } else {
+            guard let parsed = Int(endText), parsed >= start else { return nil }
+            end = min(parsed, total - 1)
+        }
+        return start..<(end + 1)
     }
 
     func webView(_ webView: WKWebView, stop urlSchemeTask: WKURLSchemeTask) {

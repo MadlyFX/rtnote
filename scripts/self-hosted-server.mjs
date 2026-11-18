@@ -8,6 +8,7 @@ import { isEdgeEverAppPath } from "../apps/api/src/app-paths.ts";
 import { fetchEdgeEverApp } from "../apps/api/src/index.ts";
 import { isNotebookSitePagePath, renderNotebookSitePage } from "../apps/api/src/notebook-site-page.ts";
 import { isPublicMemoSharePagePath, renderPublicMemoSharePage } from "../apps/api/src/share-page.ts";
+import { isPublicFormPagePath, isWebManifestPath, renderPublicFormPage, renderWebManifest } from "../apps/api/src/public-page-branding.ts";
 import { isPublicPagePath, PUBLIC_PAGE_HEADERS } from "../packages/shared/src/public-page-headers.ts";
 import { nodePublicFetch } from "../apps/api/src/node-public-network.ts";
 import { createSelfHostedStorageAdapter } from "../apps/api/src/self-hosted-storage-adapter.ts";
@@ -122,6 +123,7 @@ const contentTypes = {
   ".js": "text/javascript; charset=utf-8",
   ".mjs": "text/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
+  ".webmanifest": "application/manifest+json; charset=utf-8",
   ".png": "image/png",
   ".svg": "image/svg+xml",
   ".webp": "image/webp",
@@ -171,6 +173,14 @@ const server = Bun.serve({
     }
     if (isPublicMemoSharePagePath(pathname)) {
       const page = await renderPublicMemoSharePage(request, storage.db, loadAppShell);
+      if (page) return page;
+    }
+    if (isWebManifestPath(pathname)) {
+      const page = await renderWebManifest(request, storage.db, () => serveStatic(new Request(new URL("/manifest.webmanifest", request.url))));
+      if (page) return page;
+    }
+    if (isPublicFormPagePath(pathname)) {
+      const page = await renderPublicFormPage(request, storage.db, loadAppShell);
       if (page) return page;
     }
     if (isEdgeEverAppPath(pathname)) {

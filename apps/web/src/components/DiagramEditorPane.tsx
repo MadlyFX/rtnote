@@ -1,4 +1,3 @@
-import { AI_ASSISTANT_LAUNCHER_POSITION } from "@/lib/ai-assistant-launcher";
 import { diagramEditorSnapshot } from "@/lib/diagram-editor-snapshot";
 import { formatMindMapOutline, projectMindMapOutline, updateMindMapOutlineDraft, type MindMapOutlineDraft, type MindMapOutlineError } from "@/lib/mind-map-outline";
 import { MindMapOutlineEditor } from "@/components/MindMapOutlineEditor";
@@ -149,9 +148,6 @@ import {
   type MemoEditSession,
   type Notebook,
 } from "@edgeever/shared";
-import { AiSidebar, readAiSidebarOpen, writeAiSidebarOpen } from "@/components/ai-sidebar/AiSidebar";
-import { AiSidebarErrorBoundary } from "@/components/ai-sidebar/AiSidebarErrorBoundary";
-import { IconTooltip } from "@/components/editor/EditorPaneChrome";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AppConfirmDialog } from "@/components/dialogs/ConfirmDialogs";
@@ -174,7 +170,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAppearanceTheme } from "@/components/ThemeProvider";
 import { api } from "@/lib/api";
-import { EDITOR_LOCAL_SAVE_DELAY_MS, formatShortcutBinding, getNotebookMoveOptions, type ShortcutSettings } from "@/lib/app-helpers";
+import { EDITOR_LOCAL_SAVE_DELAY_MS, getNotebookMoveOptions } from "@/lib/app-helpers";
 import { copyTextToClipboard } from "@/lib/clipboard";
 import {
   architectureNodeHeight,
@@ -196,6 +192,7 @@ import { statusSettleMotion } from "@/lib/motion";
 import { MEMO_ID_REMAPPED_EVENT, MEMO_SYNC_ACKNOWLEDGED_EVENT } from "@/lib/sync-events";
 import type { EdgeEverRepository } from "@/lib/repository";
 import { cn, parseTagsText } from "@/lib/utils";
+import { ARCHITECTURE_RESOURCE_ALIASES_ZH_CN } from "./diagram-architecture-aliases.zh-CN";
 
 Graph.registerConnector(MIND_MAP_CONNECTOR_NAME, mindMapConnector, true);
 
@@ -213,12 +210,6 @@ type DiagramEditorPaneProps = {
   onSaveAsTemplate: (memo: MemoDetail, name: string) => Promise<void>;
   onToggleDesktopFocusMode: () => void;
   onOpenExecutionCenter: () => void;
-  aiAssistantOpenToken: number;
-  shortcutSettings: ShortcutSettings;
-  companionAvailable: boolean;
-  beforeCompanionApply?: () => Promise<void>;
-  onCompanionNotesChanged?: () => Promise<void>;
-  onOpenCompanionNote?: (id: string, notebookId: string) => void;
 };
 
 type NodeData = { label: string; shape: DiagramNodeShape; parentId?: string; resourceIcon?: ArchitectureResourceIcon };
@@ -405,35 +396,41 @@ const architectureResourceIcon = (item: ArchitectureLibraryItem) =>
 
 const ARCHITECTURE_LIBRARY_ITEMS = ARCHITECTURE_LIBRARY_CATEGORIES.flatMap((category) => category.items);
 
+// Labels match English names, plus the Chinese aliases from the zh-CN alias file.
+const withChineseAliases = (pattern: RegExp, icon: ArchitectureResourceIcon) => {
+  const aliases = ARCHITECTURE_RESOURCE_ALIASES_ZH_CN[icon];
+  return aliases?.length ? new RegExp(`${pattern.source}|${aliases.join("|")}`, pattern.flags) : pattern;
+};
+
 const ARCHITECTURE_RESOURCE_ALIASES: Array<{
   pattern: RegExp;
   icon: ArchitectureResourceIcon;
 }> = [
-  { pattern: /\b(gpu|cuda|vram|graphics|显卡)\b|独立\s*gpu|gpu\s*核心|核显/i, icon: "gpu" },
-  { pattern: /\b(cpu|soc|processor|core)\b|cpu\s*核心|中央处理器|处理器/i, icon: "cpu" },
-  { pattern: /\b(memory|ram|vram|ddr|dram|unified\s*memory)\b|内存|统一内存|显存/i, icon: "memory" },
+  { pattern: withChineseAliases(/\b(gpu|cuda|vram|graphics)\b/i, "gpu"), icon: "gpu" },
+  { pattern: withChineseAliases(/\b(cpu|soc|processor|core)\b/i, "cpu"), icon: "cpu" },
+  { pattern: withChineseAliases(/\b(memory|ram|vram|ddr|dram|unified\s*memory)\b/i, "memory"), icon: "memory" },
   { pattern: /\b(k8s|kubernetes|kube)\b/i, icon: "kubernetes" },
-  { pattern: /\b(redis|memcached|cache)\b|缓存/i, icon: "cache" },
-  { pattern: /\b(kafka|rabbitmq|rocketmq|activemq|pulsar|sqs|queue|mq)\b|消息队列/i, icon: "messageQueue" },
-  { pattern: /\b(mysql|postgres|postgresql|oracle|sqlite|mariadb|db)\b|关系型数据库|数据库/i, icon: "relationalDatabase" },
+  { pattern: withChineseAliases(/\b(redis|memcached|cache)\b/i, "cache"), icon: "cache" },
+  { pattern: withChineseAliases(/\b(kafka|rabbitmq|rocketmq|activemq|pulsar|sqs|queue|mq)\b/i, "messageQueue"), icon: "messageQueue" },
+  { pattern: withChineseAliases(/\b(mysql|postgres|postgresql|oracle|sqlite|mariadb|db)\b/i, "relationalDatabase"), icon: "relationalDatabase" },
   { pattern: /\b(mongo|mongodb|dynamodb|cassandra|couchbase|nosql)\b/i, icon: "noSqlDatabase" },
-  { pattern: /\b(milvus|pinecone|qdrant|chroma|weaviate|vector)\b|向量/i, icon: "vectorDatabase" },
-  { pattern: /\b(kong|apisix|gateway|zuul)\b|网关|api\s*网关/i, icon: "apiGateway" },
-  { pattern: /\b(nginx|haproxy|alb|nlb|slb|load\s*balancer)\b|负载均衡/i, icon: "loadBalancer" },
-  { pattern: /\b(docker|container|pod)\b|容器/i, icon: "container" },
-  { pattern: /\b(llm|gpt|claude|gemini|deepseek|qwen|openai)\b|大模型|语言模型/i, icon: "largeLanguageModel" },
-  { pattern: /\b(agent)\b|智能体/i, icon: "aiAgent" },
-  { pattern: /\b(elasticsearch|es|opensearch|solr|meilisearch)\b|搜索/i, icon: "searchEngine" },
+  { pattern: withChineseAliases(/\b(milvus|pinecone|qdrant|chroma|weaviate|vector)\b/i, "vectorDatabase"), icon: "vectorDatabase" },
+  { pattern: withChineseAliases(/\b(kong|apisix|gateway|zuul)\b/i, "apiGateway"), icon: "apiGateway" },
+  { pattern: withChineseAliases(/\b(nginx|haproxy|alb|nlb|slb|load\s*balancer)\b/i, "loadBalancer"), icon: "loadBalancer" },
+  { pattern: withChineseAliases(/\b(docker|container|pod)\b/i, "container"), icon: "container" },
+  { pattern: withChineseAliases(/\b(llm|gpt|claude|gemini|deepseek|qwen|openai)\b/i, "largeLanguageModel"), icon: "largeLanguageModel" },
+  { pattern: withChineseAliases(/\b(agent)\b/i, "aiAgent"), icon: "aiAgent" },
+  { pattern: withChineseAliases(/\b(elasticsearch|es|opensearch|solr|meilisearch)\b/i, "searchEngine"), icon: "searchEngine" },
   { pattern: /\b(cdn|cloudflare|akamai)\b/i, icon: "cdn" },
   { pattern: /\b(dns|route53)\b/i, icon: "dns" },
-  { pattern: /\b(lambda|serverless|faas|function)\b|函数/i, icon: "serverless" },
-  { pattern: /\b(prometheus|grafana|datadog)\b|监控/i, icon: "monitoring" },
-  { pattern: /\b(loki|elk|fluentd|logstash)\b|日志/i, icon: "logging" },
-  { pattern: /\b(jaeger|zipkin|opentelemetry|otel|tracing)\b|链路追踪/i, icon: "tracing" },
-  { pattern: /\b(s3|oss|cos|minio|blob)\b|对象存储/i, icon: "objectStorage" },
-  { pattern: /\b(web|frontend|react|vue|angular|h5)\b|前端/i, icon: "webApp" },
-  { pattern: /\b(app|ios|android|mobile|flutter|react\s*native)\b|移动端/i, icon: "mobileApp" },
-  { pattern: /\b(service|microservice|backend|server)\b|服务|后端/i, icon: "service" },
+  { pattern: withChineseAliases(/\b(lambda|serverless|faas|function)\b/i, "serverless"), icon: "serverless" },
+  { pattern: withChineseAliases(/\b(prometheus|grafana|datadog)\b/i, "monitoring"), icon: "monitoring" },
+  { pattern: withChineseAliases(/\b(loki|elk|fluentd|logstash)\b/i, "logging"), icon: "logging" },
+  { pattern: withChineseAliases(/\b(jaeger|zipkin|opentelemetry|otel|tracing)\b/i, "tracing"), icon: "tracing" },
+  { pattern: withChineseAliases(/\b(s3|oss|cos|minio|blob)\b/i, "objectStorage"), icon: "objectStorage" },
+  { pattern: withChineseAliases(/\b(web|frontend|react|vue|angular|h5)\b/i, "webApp"), icon: "webApp" },
+  { pattern: withChineseAliases(/\b(app|ios|android|mobile|flutter|react\s*native)\b/i, "mobileApp"), icon: "mobileApp" },
+  { pattern: withChineseAliases(/\b(service|microservice|backend|server)\b/i, "service"), icon: "service" },
 ];
 
 const inferArchitectureResourceIcon = (
@@ -1748,12 +1745,6 @@ export const DiagramEditorPane = ({
   onSaveAsTemplate,
   onToggleDesktopFocusMode,
   onOpenExecutionCenter,
-  aiAssistantOpenToken,
-  shortcutSettings,
-  companionAvailable,
-  beforeCompanionApply,
-  onCompanionNotesChanged,
-  onOpenCompanionNote,
 }: DiagramEditorPaneProps) => {
   const { t } = useTranslation();
   const { resolvedTheme } = useAppearanceTheme();
@@ -1825,12 +1816,6 @@ export const DiagramEditorPane = ({
   const [saveFailed, setSaveFailed] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
-  const [aiAssistantOpen, setAiAssistantOpenState] = useState(readAiSidebarOpen);
-  const setAiSidebarOpen = useCallback((open: boolean) => {
-    setAiAssistantOpenState(open);
-    writeAiSidebarOpen(open);
-  }, []);
-  const handledAiAssistantOpenTokenRef = useRef(aiAssistantOpenToken);
   const [memoIdCopyNotice, setMemoIdCopyNotice] = useState<"copied" | "error" | null>(null);
   const memoIdCopyTimerRef = useRef<number | null>(null);
   const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
@@ -2109,14 +2094,6 @@ export const DiagramEditorPane = ({
     });
     return () => { cancelled = true; };
   }, [memo.id, memo.contentHash, memo.revision, readOnly, t]);
-
-  useEffect(() => {
-    if (handledAiAssistantOpenTokenRef.current === aiAssistantOpenToken) return;
-    handledAiAssistantOpenTokenRef.current = aiAssistantOpenToken;
-    if (readOnly || historyOpen || shareOpen || confirmDiscardOpen || mobileNotebookSheetOpen) return;
-    setAiSidebarOpen(true);
-    if (editorDirty) saveRef.current();
-  }, [aiAssistantOpenToken, confirmDiscardOpen, editorDirty, historyOpen, mobileNotebookSheetOpen, readOnly, setAiSidebarOpen, shareOpen]);
 
   useEffect(() => {
     appearanceRef.current = resolvedTheme;
@@ -3495,9 +3472,6 @@ export const DiagramEditorPane = ({
 
   if (!document) return null;
   const kindLabel = document.kind === "mind-map" ? t("diagram.mindMap") : document.kind === "architecture" ? t("diagram.architecture") : t("diagram.flowchart");
-  const assistantMarkdown = graphRef.current
-    ? serializeDiagramDocument(graphToDocument(graphRef.current, document.kind, themeRef.current, structureRef.current))
-    : memo.contentMarkdown;
   const currentMarkdown = historyOpen && dirty
     ? serializeDiagramDocument(graphRef.current ? graphToDocument(graphRef.current, document.kind, themeRef.current, structureRef.current) : document)
     : memo.contentMarkdown;
@@ -3566,7 +3540,6 @@ export const DiagramEditorPane = ({
           />
           <MemoEditorMetadataRow
             rowClassName={MEMO_EDITOR_METADATA_ROW_CLASS_NAME}
-            contentMarkdown={memo.contentMarkdown}
             disabled={readOnly}
             mobileNotebookPickerOpen={mobileNotebookSheetOpen}
             notebookOptions={notebookOptions}
@@ -4017,46 +3990,7 @@ export const DiagramEditorPane = ({
             {t(memoIdCopyNotice === "copied" ? "editor.noteIdCopied" : "editor.noteIdCopyFailed", { id: memo.id })}
           </ClipboardCopyNotice>
         ) : null}
-        {!readOnly && !aiAssistantOpen ? (
-          <IconTooltip
-            side="left"
-            label={`${t("aiAssistant.open")} (${formatShortcutBinding(shortcutSettings.openAiAssistant)})`}
-          >
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              data-ai-assistant-launcher=""
-              className={`${AI_ASSISTANT_LAUNCHER_POSITION} absolute z-30 size-11 rounded-full border-slate-200 bg-card text-slate-950 shadow-[0_8px_24px_rgba(15,23,42,0.14)] hover:bg-card hover:text-slate-950`}
-              aria-label={t("aiAssistant.open")}
-              onClick={() => {
-                setAiSidebarOpen(true);
-                if (editorDirty) saveRef.current();
-              }}
-            >
-              <Sparkles className="size-5" strokeWidth={1.75} />
-            </Button>
-          </IconTooltip>
-        ) : null}
       </div>
-      <AiSidebarErrorBoundary open={aiAssistantOpen} onOpenChange={setAiSidebarOpen}>
-        <AiSidebar
-          open={aiAssistantOpen}
-          onOpenChange={setAiSidebarOpen}
-          companionAvailable={companionAvailable}
-          contentMarkdown={assistantMarkdown}
-          memoId={memo.id}
-          notebookId={memo.notebookId}
-          notebookTitle={notebookOptions.find((notebook) => notebook.id === memo.notebookId)?.name}
-          noteTitle={title}
-          beforeCompanionApply={async () => {
-            if (editorDirty && !(await save())) throw new Error("save failed");
-            await beforeCompanionApply?.();
-          }}
-          onCompanionNotesChanged={onCompanionNotesChanged}
-          onOpenCompanionNote={onOpenCompanionNote}
-        />
-      </AiSidebarErrorBoundary>
       </div>
     </TooltipProvider>
   );

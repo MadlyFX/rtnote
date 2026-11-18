@@ -12,7 +12,6 @@ import {
   Share2,
   Shield,
   SlidersHorizontal,
-  Sparkles,
   User,
   Users,
   Wrench,
@@ -39,16 +38,13 @@ import type { NoteImportController } from "@/lib/note-import/controller";
 import { FeedbackLink } from "./settings/FeedbackLink";
 import { SystemInfoPanel } from "./settings/SystemInfoPanel";
 import { McpConfigCard } from "./settings/McpConfigCard";
-import { AiSpaceShortcutSettingsItem } from "./settings/AiSpaceShortcutSettingsItem";
 import { PreferenceCard } from "./settings/PreferenceCard";
 import { ShortcutSettingsItem } from "./settings/ShortcutSettingsItem";
 import { PasswordCard } from "./settings/PasswordCard";
 import { TwoFactorCard } from "./settings/TwoFactorCard";
 import { UserManagementCard } from "./settings/UserManagementCard";
 import { ObjectStorageCard } from "./settings/ObjectStorageCard";
-import { AiModelCard } from "./settings/AiModelCard";
 import { SpeechTranscriptionCard } from "./settings/SpeechTranscriptionCard";
-import { DesktopAcpAgentCard } from "./settings/DesktopAcpAgentCard";
 import { ThemeToggle } from "./ThemeToggle";
 import type { AuthUser } from "@edgeever/shared";
 import { contentEnterMotion } from "@/lib/motion";
@@ -64,7 +60,6 @@ const subscribeViewport = (callback: () => void) => {
 interface SettingsPaneProps {
   onClose: () => void;
   onOpenTemplates: () => void;
-  onOpenAiPrompts: () => void;
   imageCompressionEnabled: boolean;
   onImageCompressionChange: (enabled: boolean) => void;
   shortcutSettings: ShortcutSettings;
@@ -90,7 +85,7 @@ const SettingsGroup = ({ children }: { children: ReactNode }) => (
   </div>
 );
 
-type TabKey = "general" | "reading" | "editing" | "shortcuts" | "users" | "data" | "ai" | "mcp" | "speech" | "sharing" | "advanced" | "account" | "system";
+type TabKey = "general" | "reading" | "editing" | "shortcuts" | "users" | "data" | "mcp" | "speech" | "sharing" | "advanced" | "account" | "system";
 
 interface TabItem {
   key: TabKey;
@@ -102,7 +97,6 @@ interface TabItem {
 export const SettingsPane = ({
   onClose,
   onOpenTemplates,
-  onOpenAiPrompts,
   imageCompressionEnabled,
   onImageCompressionChange,
   shortcutSettings,
@@ -148,11 +142,6 @@ export const SettingsPane = ({
       key: "shortcuts",
       label: t("settings.tabs.shortcuts"),
       icon: Keyboard,
-    },
-    {
-      key: "ai",
-      label: t("settings.tabs.ai"),
-      icon: Sparkles,
     },
     {
       key: "mcp",
@@ -261,7 +250,6 @@ export const SettingsPane = ({
       case "shortcuts":
         return (
           <div className="grid gap-6">
-            <AiSpaceShortcutSettingsItem />
             <ShortcutSettingsItem
               shortcutSettings={shortcutSettings}
               onShortcutSettingsChange={onShortcutSettingsChange}
@@ -279,13 +267,13 @@ export const SettingsPane = ({
           <SettingsGroup>
             {import.meta.env.DEV && (
               <div className="flex items-center justify-between rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs text-amber-700 dark:text-amber-300">
-                <span>Dev 预览模式：{devShowWebExport ? "当前为 Web 端原生导出卡片" : "当前为桌面端备份与恢复预览"}</span>
+                <span>Dev preview: {devShowWebExport ? "showing the web export card" : "showing the desktop backup and restore preview"}</span>
                 <button
                   type="button"
                   className="font-medium underline hover:text-amber-900 dark:hover:text-amber-100"
                   onClick={() => setDevShowWebExport((prev) => !prev)}
                 >
-                  {devShowWebExport ? "切换到桌面端预览" : "切换到 Web 原生导出"}
+                  {devShowWebExport ? "Switch to desktop preview" : "Switch to web export"}
                 </button>
               </div>
             )}
@@ -299,13 +287,6 @@ export const SettingsPane = ({
         );
       case "sharing":
         return <ShareManagementCard userId={user?.id ?? null} onOpenMemo={onOpenMemo} />;
-      case "ai":
-        return (
-          <SettingsGroup>
-            <DesktopAcpAgentCard />
-            <AiModelCard />
-          </SettingsGroup>
-        );
       case "speech":
         return (
           <SettingsGroup>
@@ -375,9 +356,9 @@ export const SettingsPane = ({
       </header>
 
       <div className="flex min-h-0 min-w-0 flex-1 bg-workspace-canvas">
-        {/* 桌面端布局：双栏 */}
+        {/* Desktop layout: two columns */}
         <div className="hidden lg:flex flex-1 min-h-0 min-w-0 mx-auto max-w-5xl px-6 py-6 gap-6">
-          {/* 左侧垂直 Tab 栏 */}
+          {/* Vertical tab bar on the left */}
           <aside className="w-52 shrink-0 flex flex-col gap-1">
             {tabItems.map((item) => {
               const Icon = item.icon;
@@ -416,7 +397,7 @@ export const SettingsPane = ({
             })}
           </aside>
 
-          {/* 右侧设置内容区 */}
+          {/* Settings content on the right */}
           <main className="flex-1 min-w-0 overflow-y-auto [scrollbar-gutter:stable] pr-2">
             <m.div key={activeTab} className="grid gap-4" {...contentEnterMotion}>
               {renderTabContent(activeTab, true)}
@@ -424,10 +405,10 @@ export const SettingsPane = ({
           </main>
         </div>
 
-        {/* 移动端布局 */}
+        {/* Mobile layout */}
         <div className="flex lg:hidden flex-1 flex-col min-h-0 min-w-0 overflow-y-auto [scrollbar-gutter:stable] px-4 py-4">
           {activeMobileTab === null ? (
-            /* 分类主菜单 */
+            /* Category menu */
             <div className="grid gap-2">
               <div className="overflow-hidden rounded-2xl border border-slate-200 bg-card">
                 <button
@@ -440,19 +421,6 @@ export const SettingsPane = ({
                       <LayoutTemplate className="h-4 w-4 text-slate-700" />
                     </div>
                     <span className="text-xs font-normal leading-5 text-slate-800">{t("nav.templates")}</span>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-slate-400" />
-                </button>
-                <button
-                  type="button"
-                  onClick={onOpenAiPrompts}
-                  className="flex w-full items-center justify-between gap-4 border-t border-slate-100 p-4 text-left transition-colors hover:bg-slate-50/50"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100">
-                      <Sparkles className="h-4 w-4 text-slate-700" />
-                    </div>
-                    <span className="text-xs font-normal leading-5 text-slate-800">{t("nav.prompts")}</span>
                   </div>
                   <ChevronRight className="h-4 w-4 text-slate-400" />
                 </button>
@@ -487,7 +455,7 @@ export const SettingsPane = ({
               </div>
             </div>
           ) : (
-            /* 详情页面 */
+            /* Detail page */
             <m.div key={activeMobileTab} className="grid gap-4" {...contentEnterMotion}>
               {renderTabContent(activeMobileTab, false)}
             </m.div>

@@ -19,7 +19,8 @@ struct LoginView: View {
     @State private var mfaError: String?
     @State private var mfaSubmitting = false
 
-    private let submitFill = Color(hex: 0x047857)
+    /// #047857 by default; follows a custom branding accent.
+    private var submitFill: Color { AppTheme.primaryFill }
 
     private var canSubmit: Bool {
         !baseUrl.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -42,7 +43,7 @@ struct LoginView: View {
                     .clipShape(Circle())
                     .overlay(Circle().stroke(AppTheme.border, lineWidth: 1))
             }
-            .accessibilityLabel(env.preferences.t("GitHub 仓库", en: "GitHub repository", ja: "GitHub リポジトリ", pl: "Repozytorium GitHub"))
+            .accessibilityLabel(env.preferences.t("GitHub repository", zh: "GitHub 仓库", ja: "GitHub リポジトリ", pl: "Repozytorium GitHub"))
             .padding(.trailing, 18)
             .padding(.top, 18)
             .zIndex(2)
@@ -53,19 +54,21 @@ struct LoginView: View {
 
                     // Header row: logo + title
                     HStack(spacing: 14) {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .fill(AppTheme.searchFill)
-                                .frame(width: 48, height: 48)
-                            Image(systemName: "lock.fill")
-                                .font(.system(size: 20, weight: .semibold))
-                                .foregroundStyle(AppTheme.slate)
+                        BrandLogoView(branding: env.branding, size: 48) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .fill(AppTheme.searchFill)
+                                    .frame(width: 48, height: 48)
+                                Image(systemName: "lock.fill")
+                                    .font(.system(size: 20, weight: .semibold))
+                                    .foregroundStyle(AppTheme.slate)
+                            }
                         }
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("RTNote")
+                            Text(env.branding.name)
                                 .font(.system(size: 22, weight: .heavy))
                                 .foregroundStyle(AppTheme.title)
-                            Text(env.preferences.t("连接你的自托管笔记空间", en: "Connect your self-hosted notes", ja: "セルフホストのノート空間に接続", pl: "Połącz się ze swoimi samodzielnie hostowanymi notatkami"))
+                            Text(env.preferences.t("Connect your self-hosted notes", zh: "连接你的自托管笔记空间", ja: "セルフホストのノート空間に接続", pl: "Połącz się ze swoimi samodzielnie hostowanymi notatkami"))
                                 .font(.system(size: 13, weight: .medium))
                                 .foregroundStyle(AppTheme.secondary)
                         }
@@ -82,27 +85,44 @@ struct LoginView: View {
                 .padding(.bottom, 40)
             }
         }
-        .alert(env.preferences.t("使用 HTTP 连接？", en: "Use HTTP?", ja: "HTTP で接続しますか？", pl: "Użyć HTTP?"), isPresented: $showHTTPWarning) {
-            Button(env.preferences.t("继续", en: "Continue", ja: "続行", pl: "Kontynuuj"), role: .destructive) {
+        .alert(env.preferences.t("Use HTTP?", zh: "使用 HTTP 连接？", ja: "HTTP で接続しますか？", pl: "Użyć HTTP?"), isPresented: $showHTTPWarning) {
+            Button(env.preferences.t("Continue", zh: "继续", ja: "続行", pl: "Kontynuuj"), role: .destructive) {
                 pendingHTTPLogin = true
                 Task { await submit(forceHTTP: true) }
             }
-            Button(env.preferences.t("取消", en: "Cancel", ja: "キャンセル", pl: "Anuluj"), role: .cancel) {}
+            Button(env.preferences.t("Cancel", zh: "取消", ja: "キャンセル", pl: "Anuluj"), role: .cancel) {}
         } message: {
             Text(env.preferences.t(
-                "HTTP 不会加密传输凭证，仅建议用于可信局域网自托管实例。",
-                en: "HTTP does not encrypt credentials. Only use on trusted LAN instances.",
+                "HTTP does not encrypt credentials. Only use on trusted LAN instances.",
+                zh: "HTTP 不会加密传输凭证，仅建议用于可信局域网自托管实例。",
                 ja: "HTTP は資格情報を暗号化しません。信頼できる LAN 上の自前インスタンスにだけ使ってください。",
                 pl: "HTTP nie szyfruje danych logowania. Używaj go tylko z instancjami w zaufanej sieci lokalnej."
             ))
         }
         .preferredColorScheme(env.preferences.colorScheme)
+        // Instance branding for the typed server, debounced while typing.
+        .task(id: baseUrl.trimmingCharacters(in: .whitespacesAndNewlines)) {
+            await loadPublicBranding()
+        }
+    }
+
+    private func loadPublicBranding() async {
+        let trimmed = baseUrl.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            env.branding.clearPublic()
+            return
+        }
+        try? await Task.sleep(nanoseconds: 700_000_000)
+        guard !Task.isCancelled,
+              let url = try? EdgeEverURLNormalizer.normalizeInstanceURL(trimmed)
+        else { return }
+        await env.branding.refreshPublic(baseURL: url)
     }
 
     @ViewBuilder
     private var passwordStep: some View {
                     field(
-                        env.preferences.t("实例地址", en: "Instance URL", ja: "インスタンス URL", pl: "Adres URL instancji"),
+                        env.preferences.t("Instance URL", zh: "实例地址", ja: "インスタンス URL", pl: "Adres URL instancji"),
                         placeholder: EdgeEverPublicDemo.instanceURLString,
                         text: $baseUrl,
                         keyboard: .URL,
@@ -111,7 +131,7 @@ struct LoginView: View {
                     .padding(.bottom, 14)
 
                     field(
-                        env.preferences.t("用户名", en: "Username", ja: "ユーザー名", pl: "Nazwa użytkownika"),
+                        env.preferences.t("Username", zh: "用户名", ja: "ユーザー名", pl: "Nazwa użytkownika"),
                         placeholder: "",
                         text: $username,
                         keyboard: .default,
@@ -120,8 +140,8 @@ struct LoginView: View {
                     .padding(.bottom, 14)
 
                     field(
-                        env.preferences.t("密码", en: "Password", ja: "パスワード", pl: "Hasło"),
-                        placeholder: env.preferences.t("首次登录密码", en: "Initial password", ja: "初回ログイン用パスワード", pl: "Hasło początkowe"),
+                        env.preferences.t("Password", zh: "密码", ja: "パスワード", pl: "Hasło"),
+                        placeholder: env.preferences.t("Initial password", zh: "首次登录密码", ja: "初回ログイン用パスワード", pl: "Hasło początkowe"),
                         text: $password,
                         keyboard: .default,
                         secure: true
@@ -145,8 +165,8 @@ struct LoginView: View {
                                 ProgressView().tint(.white)
                             }
                             Text(submitting
-                                ? env.preferences.t("登录中…", en: "Signing in…", ja: "ログイン中…", pl: "Logowanie…")
-                                : env.preferences.t("登录", en: "Sign in", ja: "ログイン", pl: "Zaloguj się"))
+                                ? env.preferences.t("Signing in…", zh: "登录中…", ja: "ログイン中…", pl: "Logowanie…")
+                                : env.preferences.t("Sign in", zh: "登录", ja: "ログイン", pl: "Zaloguj się"))
                                 .font(.system(size: 16, weight: .bold))
                         }
                         .frame(maxWidth: .infinity)
@@ -173,15 +193,15 @@ struct LoginView: View {
     private func mfaStep(_ pending: PendingMfaLogin) -> some View {
         VStack(alignment: .leading, spacing: 14) {
             Text(mfaUseRecovery
-                ? env.preferences.t("使用恢复码", en: "Use a recovery code", ja: "リカバリーコードを使用", pl: "Użyj kodu odzyskiwania")
-                : env.preferences.t("两步验证", en: "Two-step verification", ja: "2 段階認証", pl: "Weryfikacja dwuetapowa"))
+                ? env.preferences.t("Use a recovery code", zh: "使用恢复码", ja: "リカバリーコードを使用", pl: "Użyj kodu odzyskiwania")
+                : env.preferences.t("Two-step verification", zh: "两步验证", ja: "2 段階認証", pl: "Weryfikacja dwuetapowa"))
                 .font(.system(size: 18, weight: .heavy))
                 .foregroundStyle(AppTheme.title)
 
             if mfaUseRecovery {
                 Text(env.preferences.t(
-                    "输入开启二次验证时保存的任意一个恢复码。登录后需要先重新绑定验证器，才能继续使用笔记。",
-                    en: "Enter any recovery code you saved when turning on two-factor authentication. After signing in, bind a new authenticator before using your notes.",
+                    "Enter any recovery code you saved when turning on two-factor authentication. After signing in, bind a new authenticator before using your notes.",
+                    zh: "输入开启二次验证时保存的任意一个恢复码。登录后需要先重新绑定验证器，才能继续使用笔记。",
                     ja: "二要素認証をオンにしたときに保存したリカバリーコードを 1 つ入力してください。サインイン後、ノートを使う前に新しい認証アプリを登録する必要があります。",
                     pl: "Wpisz dowolny kod odzyskiwania zapisany przy włączaniu uwierzytelniania dwuskładnikowego. Po zalogowaniu musisz powiązać nową aplikację, zanim skorzystasz z notatek."
                 ))
@@ -194,8 +214,8 @@ struct LoginView: View {
                     .onSubmit { Task { await submitMfa(pending) } }
 
                 Text(env.preferences.t(
-                    "不区分大小写，短横线可省略。每个恢复码只能使用一次。",
-                    en: "Not case-sensitive; dashes are optional. Each recovery code works only once.",
+                    "Not case-sensitive; dashes are optional. Each recovery code works only once.",
+                    zh: "不区分大小写，短横线可省略。每个恢复码只能使用一次。",
                     ja: "大文字と小文字は区別されず、ハイフンは省略できます。各リカバリーコードは 1 回だけ使えます。",
                     pl: "Wielkość liter nie ma znaczenia, myślniki są opcjonalne. Każdy kod odzyskiwania działa tylko raz."
                 ))
@@ -204,8 +224,8 @@ struct LoginView: View {
                 .fixedSize(horizontal: false, vertical: true)
             } else {
                 Text(env.preferences.t(
-                    "密码已验证。请打开身份验证器 App，输入 \(pending.username) 的 6 位验证码。",
-                    en: "Password verified. Open your authenticator app and enter the 6-digit code for \(pending.username).",
+                    "Password verified. Open your authenticator app and enter the 6-digit code for \(pending.username).",
+                    zh: "密码已验证。请打开身份验证器 App，输入 \(pending.username) 的 6 位验证码。",
                     ja: "パスワードを確認しました。認証アプリを開き、\(pending.username) の 6 桁のコードを入力してください。",
                     pl: "Hasło zweryfikowane. Otwórz aplikację uwierzytelniającą i wpisz 6-cyfrowy kod dla \(pending.username)."
                 ))
@@ -231,8 +251,8 @@ struct LoginView: View {
                         ProgressView().tint(.white)
                     }
                     Text(mfaUseRecovery
-                        ? env.preferences.t("使用恢复码登录", en: "Sign in with recovery code", ja: "リカバリーコードでサインイン", pl: "Zaloguj kodem odzyskiwania")
-                        : env.preferences.t("验证并登录", en: "Verify and sign in", ja: "確認してサインイン", pl: "Zweryfikuj i zaloguj"))
+                        ? env.preferences.t("Sign in with recovery code", zh: "使用恢复码登录", ja: "リカバリーコードでサインイン", pl: "Zaloguj kodem odzyskiwania")
+                        : env.preferences.t("Verify and sign in", zh: "验证并登录", ja: "確認してサインイン", pl: "Zweryfikuj i zaloguj"))
                         .font(.system(size: 16, weight: .bold))
                 }
                 .frame(maxWidth: .infinity)
@@ -248,8 +268,8 @@ struct LoginView: View {
             VStack(alignment: .leading, spacing: 2) {
                 if mfaUseRecovery {
                     TotpLinkButton(title: env.preferences.t(
-                        "改用验证器验证码",
-                        en: "Use an authenticator code instead",
+                        "Use an authenticator code instead",
+                        zh: "改用验证器验证码",
                         ja: "認証アプリのコードを使用",
                         pl: "Użyj kodu z aplikacji"
                     ), color: AppTheme.slate) {
@@ -259,8 +279,8 @@ struct LoginView: View {
                     }
                 } else {
                     TotpLinkButton(title: env.preferences.t(
-                        "验证器不可用？改用恢复码",
-                        en: "Authenticator unavailable? Use a recovery code",
+                        "Authenticator unavailable? Use a recovery code",
+                        zh: "验证器不可用？改用恢复码",
                         ja: "認証アプリを使えない場合はリカバリーコードを使用",
                         pl: "Aplikacja niedostępna? Użyj kodu odzyskiwania"
                     ), color: AppTheme.slate) {
@@ -270,8 +290,8 @@ struct LoginView: View {
                     }
                 }
                 TotpLinkButton(title: env.preferences.t(
-                    "返回重新输入密码",
-                    en: "Back to password",
+                    "Back to password",
+                    zh: "返回重新输入密码",
                     ja: "パスワード入力に戻る",
                     pl: "Wróć do hasła"
                 ), color: AppTheme.slate) {

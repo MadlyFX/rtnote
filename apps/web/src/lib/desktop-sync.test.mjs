@@ -1,4 +1,5 @@
 import { afterAll, describe, expect, test } from "bun:test";
+import { DEFAULT_MEMO_TITLE } from "@edgeever/shared/memo-title";
 
 // Dexie binds indexedDB when local-db is first imported, so install the fake
 // before any test can load it, whatever the test order.
@@ -44,7 +45,7 @@ test("desktop notebook create announces its durable id after sidecar acknowledgm
   const events = [];
   const calls = [];
   let outboxReads = 0;
-  const item = { id: 4, version: 1, kind: "notebook.create", entityId: "nb_local_1", payload: { name: "测试" } };
+  const item = { id: 4, version: 1, kind: "notebook.create", entityId: "nb_local_1", payload: { name: "Test" } };
   globalThis.window = {
     dispatchEvent: (event) => { events.push(event); return true; },
     edgeeverDesktop: {
@@ -64,7 +65,7 @@ test("desktop notebook create announces its durable id after sidecar acknowledgm
     },
   };
   globalThis.navigator = { onLine: true };
-  api.createNotebook = async () => ({ notebook: { id: "nb_remote_1", name: "测试", parentId: null } });
+  api.createNotebook = async () => ({ notebook: { id: "nb_remote_1", name: "Test", parentId: null } });
   try {
     const result = await syncDesktopData();
     expect(result.failed).toBe(0);
@@ -91,7 +92,7 @@ test("desktop creates notebooks before notes and rereads remapped queue versions
   const createdPayloads = [];
   const contentJson = { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "body 2" }] }] };
   let queue = [
-    { id: 1, version: 1, kind: "notebook.create", entityId: "nb_local_parent", payload: { name: "对对对" } },
+    { id: 1, version: 1, kind: "notebook.create", entityId: "nb_local_parent", payload: { name: "Projects" } },
     ...[2, 3].map((id) => ({ id, version: 1, kind: "memo.create", entityId: `memo_local_${id}`, payload: { notebookId: "nb_local_parent", contentMarkdown: `body ${id}`, ...(id === 2 ? { contentJson } : {}) } })),
   ];
   globalThis.window = {
@@ -119,7 +120,7 @@ test("desktop creates notebooks before notes and rereads remapped queue versions
   globalThis.navigator = { onLine: true };
   api.createNotebook = async () => {
     calls.push("notebook");
-    return { notebook: { id: "nb_cloud", name: "对对对", parentId: null } };
+    return { notebook: { id: "nb_cloud", name: "Projects", parentId: null } };
   };
   api.createMemo = async (payload) => {
     expect(payload.notebookId).toBe("nb_cloud");
@@ -365,17 +366,17 @@ describe("desktop memo sync base", () => {
     expect(resolveDesktopStaleMemoUpdate({
       current: { revision: 10, contentHash: "hash-a" },
       expected: { expectedRevision: 9, expectedContentHash: "hash-before" },
-      payload: { title: "", tags: [], contentMarkdown: "一期验收通过。", contentJson: { type: "doc" } },
-      remote: { title: "无标题笔记", tags: [], contentMarkdown: "一期验收通过。", contentHash: "hash-a", contentJson: { type: "doc" } },
+      payload: { title: "", tags: [], contentMarkdown: "Phase one accepted.", contentJson: { type: "doc" } },
+      remote: { title: DEFAULT_MEMO_TITLE, tags: [], contentMarkdown: "Phase one accepted.", contentHash: "hash-a", contentJson: { type: "doc" } },
       localRevisions: [],
     })).toBe("ack");
   });
 
   test("rebases a later local draft when a sidecar snapshot already contains the cloud body", () => {
     const remote = {
-      title: "无标题笔记",
+      title: DEFAULT_MEMO_TITLE,
       tags: [],
-      contentMarkdown: "一期验收通过。",
+      contentMarkdown: "Phase one accepted.",
       contentHash: "hash-a",
       contentJson: { type: "doc", content: [{ type: "paragraph" }] },
     };
@@ -385,7 +386,7 @@ describe("desktop memo sync base", () => {
         id: "revision_local_1",
         revision: 9,
         contentHash: "sidecar-a",
-        contentMarkdown: "一期验收通过。",
+        contentMarkdown: "Phase one accepted.",
         contentJson: remote.contentJson,
       },
     ], remote, 9)).toBe(true);
@@ -393,13 +394,13 @@ describe("desktop memo sync base", () => {
     expect(resolveDesktopStaleMemoUpdate({
       current: { revision: 10, contentHash: "hash-a" },
       expected: { expectedRevision: 9, expectedContentHash: "hash-before" },
-      payload: { title: "", tags: [], contentMarkdown: "一期验收通过。然后继续写。", contentJson: { type: "doc" } },
+      payload: { title: "", tags: [], contentMarkdown: "Phase one accepted. Then kept writing.", contentJson: { type: "doc" } },
       remote,
       localRevisions: [{
         id: "revision_local_1",
         revision: 9,
         contentHash: "sidecar-a",
-        contentMarkdown: "一期验收通过。",
+        contentMarkdown: "Phase one accepted.",
         contentJson: remote.contentJson,
       }],
     })).toBe("rebase");
@@ -407,9 +408,9 @@ describe("desktop memo sync base", () => {
 
   test("does not treat an older local snapshot or a remote-cached revision as proof", () => {
     const remote = {
-      title: "无标题笔记",
+      title: DEFAULT_MEMO_TITLE,
       tags: [],
-      contentMarkdown: "别人改过的正文",
+      contentMarkdown: "Body edited by someone else",
       contentHash: "hash-other",
       contentJson: { type: "doc" },
     };
@@ -419,14 +420,14 @@ describe("desktop memo sync base", () => {
         id: "revision_local_old",
         revision: 3,
         contentHash: "hash-other",
-        contentMarkdown: "别人改过的正文",
+        contentMarkdown: "Body edited by someone else",
         contentJson: remote.contentJson,
       },
       {
         id: "rev_remote_cached",
         revision: 10,
         contentHash: "hash-other",
-        contentMarkdown: "别人改过的正文",
+        contentMarkdown: "Body edited by someone else",
         contentJson: remote.contentJson,
       },
     ], remote, 9)).toBe(false);
@@ -434,13 +435,13 @@ describe("desktop memo sync base", () => {
     expect(resolveDesktopStaleMemoUpdate({
       current: { revision: 10, contentHash: "hash-other" },
       expected: { expectedRevision: 9, expectedContentHash: "hash-before" },
-      payload: { title: "", tags: [], contentMarkdown: "本地还在写的草稿", contentJson: { type: "doc" } },
+      payload: { title: "", tags: [], contentMarkdown: "Draft still being written locally", contentJson: { type: "doc" } },
       remote,
       localRevisions: [{
         id: "revision_local_9",
         revision: 9,
         contentHash: "sidecar-local",
-        contentMarkdown: "本地还在写的草稿",
+        contentMarkdown: "Draft still being written locally",
         contentJson: { type: "doc" },
       }],
     })).toBe("conflict");

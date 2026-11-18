@@ -18,6 +18,7 @@ import {
 import { allowPasswordProtectedShare, setShareAccessCookie, shareAccessCookiePath } from "./share-http-access";
 import { encryptSharePassword, readSharePassword } from "./share-password-encryption";
 import { resolveMemoShareToken } from "./share-page";
+import { resolveMemoShareBranding } from "./branding-service";
 import { generateSharePassword } from "./share-password";
 
 const SHARE_TOKEN_BYTES = 32;
@@ -32,6 +33,7 @@ type MemoShareRow = {
   password_hash: string | null;
   show_updated_at?: number | null;
   show_branding?: number | null;
+  branding_notebook_id?: string | null;
   expires_at?: string | null;
   view_count?: number | null;
   last_viewed_at?: string | null;
@@ -52,6 +54,7 @@ type PublicMemoShareRow = {
   expires_at: string | null;
   show_updated_at?: number | null;
   show_branding?: number | null;
+  branding_notebook_id?: string | null;
   note_body_font: string | null;
 } & NoteProseAccountRow;
 type ShareGateRow = {
@@ -84,6 +87,7 @@ const mapMemoShare = (row: MemoShareRow, password?: string): MemoShare => ({
   passwordProtected: Boolean(row.password_hash),
   showUpdatedAt: row.show_updated_at !== 0,
   showBranding: row.show_branding !== 0,
+  brandingNotebookId: row.branding_notebook_id ?? null,
   expiresAt: row.expires_at ?? null,
   expired: isMemoShareExpired(row.expires_at),
   viewCount: row.view_count ?? 0,
@@ -121,7 +125,7 @@ const loadShareGate = async (c: AppContext, token: string) =>
      LIMIT 1`
   ).bind(token).first<ShareGateRow>();
 
-const selectMemoShareSql = `SELECT memo_id, token, slug, created_at, updated_at, password_hash, password_encrypted, show_updated_at, show_branding,
+const selectMemoShareSql = `SELECT memo_id, token, slug, created_at, updated_at, password_hash, password_encrypted, show_updated_at, show_branding, branding_notebook_id,
          expires_at, view_count, last_viewed_at
   FROM memo_shares WHERE memo_id = ? AND workspace_id = ?`;
 
@@ -184,7 +188,7 @@ export const registerPublicShareRoutes = (app: Hono<AppEnv>) => {
     if (!token) return notFound(c, "Shared note not found");
 
     const row = await c.env.storage.db.prepare(
-      `SELECT ms.workspace_id, m.title, mc.content_json, mc.content_markdown, m.tags_json, m.updated_at, ms.password_hash, ms.expires_at, ms.show_updated_at, ms.show_branding,
+      `SELECT ms.workspace_id, m.title, mc.content_json, mc.content_markdown, m.tags_json, m.updated_at, ms.password_hash, ms.expires_at, ms.show_updated_at, ms.show_branding, ms.branding_notebook_id,
               u.note_body_font, u.note_prose_font_size, u.note_prose_line_height, u.note_prose_palette,
               u.note_prose_custom_css, u.note_prose_custom_colors
        FROM memo_shares ms
@@ -230,6 +234,11 @@ export const registerPublicShareRoutes = (app: Hono<AppEnv>) => {
       prose: publicNoteProseFromAccount(presentAccountNoteProse(row)),
       showUpdatedAt: row.show_updated_at !== 0,
       showBranding: row.show_branding !== 0,
+      branding: await resolveMemoShareBranding(c.env.storage.db, {
+        workspaceId: row.workspace_id,
+        brandingNotebookId: row.branding_notebook_id ?? null,
+        showBranding: row.show_branding !== 0,
+      }),
     };
     // Hono answers HEAD through this GET handler; a probe is not a view.
     if (c.req.method === "GET") await recordMemoShareView(c.env.storage.db, token);
@@ -308,7 +317,7 @@ export const registerMemoShareRoutes = (app: Hono<AppEnv>) => {
     const limit = Number.isSafeInteger(parsedLimit) ? Math.min(100, Math.max(1, parsedLimit)) : 50;
     const offset = Number.isSafeInteger(parsedOffset) ? Math.min(1_000_000, Math.max(0, parsedOffset)) : 0;
     const rows = await c.env.storage.db.prepare(
-      `SELECT ms.memo_id, ms.token, ms.slug, ms.created_at, ms.updated_at, ms.password_hash, ms.show_updated_at, ms.show_branding,
+      `SELECT ms.memo_id, ms.token, ms.slug, ms.created_at, ms.updated_at, ms.password_hash, ms.show_updated_at, ms.show_branding, ms.branding_notebook_id,
               ms.expires_at, ms.view_count, ms.last_viewed_at,
               m.title, m.notebook_id, n.name AS notebook_name
        FROM memo_shares ms
@@ -394,7 +403,7 @@ export const registerMemoShareRoutes = (app: Hono<AppEnv>) => {
 
     c.header("Cache-Control", "private, no-store");
     const row = await c.env.storage.db.prepare(
-      `SELECT ms.memo_id, ms.token, ms.slug, ms.created_at, ms.updated_at, ms.password_hash, ms.password_encrypted, ms.show_updated_at, ms.show_branding,
+      `SELECT ms.memo_id, ms.token, ms.slug, ms.created_at, ms.updated_at, ms.password_hash, ms.password_encrypted, ms.show_updated_at, ms.show_branding, ms.branding_notebook_id,
               ms.expires_at, ms.view_count, ms.last_viewed_at
        FROM memo_shares ms
        INNER JOIN memos m ON m.id = ms.memo_id AND m.workspace_id = ms.workspace_id
@@ -455,7 +464,7 @@ export const registerMemoShareRoutes = (app: Hono<AppEnv>) => {
 
     const now = isoNow();
     const actor = getAuditActor(c);
-    const { passwordProtected, password, slug, showUpdatedAt, showBranding, expiresAt } = c.req.valid("json");
+    const { passwordProtected, password, slug, showUpdatedAt, showBranding, brandingNotebookId, expiresAt } = c.req.valid("json");
     const nextExpiresAt = expiresAt ? new Date(expiresAt).toISOString() : expiresAt;
     if (nextExpiresAt && nextExpiresAt <= now) {
       return apiError(c, "share_expiry_invalid", "The expiry must be in the future", 400);
@@ -505,6 +514,17 @@ export const registerMemoShareRoutes = (app: Hono<AppEnv>) => {
         memoId,
         { showUpdatedAt, showBranding },
       );
+    }
+    if (brandingNotebookId !== undefined && brandingNotebookId !== (existing.branding_notebook_id ?? null)) {
+      if (brandingNotebookId && !await c.env.storage.db.prepare(
+        `SELECT id FROM notebooks WHERE id = ? AND workspace_id = ? AND is_deleted = 0`,
+      ).bind(brandingNotebookId, workspaceId).first()) {
+        return apiError(c, "share_branding_invalid", "Choose a notebook from this workspace", 400);
+      }
+      await c.env.storage.db.prepare(
+        `UPDATE memo_shares SET branding_notebook_id = ?, updated_at = ? WHERE memo_id = ? AND workspace_id = ?`
+      ).bind(brandingNotebookId, now, memoId, workspaceId).run();
+      await audit(c.env.storage.db, actor.actorType, actor.actorId, "memo.share_branding_update", "memo", memoId, { brandingNotebookId });
     }
     if (nextExpiresAt !== undefined && nextExpiresAt !== (existing.expires_at ?? null)) {
       await c.env.storage.db.prepare(

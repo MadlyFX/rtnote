@@ -65,7 +65,7 @@
 
 .edgeever-editor[data-note-heading-style="numbered"] .ProseMirror h1::before,
 .edgeever-editor[data-note-heading-style="numbered"] .markdown-content h1::before {
-  content: "●  FEATURED · 深度实测";
+  content: "●  FEATURED · IN DEPTH";
   display: block;
   margin-bottom: 16px;
   font-size: 11px;
@@ -78,7 +78,7 @@
 
 .edgeever-editor[data-note-heading-style="numbered"] .ProseMirror h1::after,
 .edgeever-editor[data-note-heading-style="numbered"] .markdown-content h1::after {
-  content: "EDGEEVER · 精选笔记";
+  content: "RTNOTE · FEATURED NOTE";
   position: absolute;
   left: 0;
   right: 0;

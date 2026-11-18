@@ -9,7 +9,6 @@ export { de } from "./de";
 export { fr } from "./fr";
 export {
   defaultLocale,
-  localeEnglishNames,
   matchSupportedLocale,
   parseAcceptLanguage,
   resolveSupportedLocale,

@@ -19,19 +19,11 @@ struct TipTapSession {
     var onImagePreview: ((_ source: String, _ alt: String) -> Void)?
     var onDoubleTap: (() -> Void)?
     var onPickImage: (() -> Void)?
+    var onRecordVoiceMemo: (() -> Void)? = nil
     var onSearchResult: ((_ count: Int, _ index: Int) -> Void)?
     var onReaderScroll: ((_ collapsed: Bool) -> Void)?
     var onImageExportEvent: (([String: Any]) -> Void)?
     var onBodyReady: (() -> Void)?
-}
-
-struct AiEditorSelection: Decodable, Sendable, Identifiable {
-    var from: Int
-    var to: Int
-    var markdown: String
-    var text: String
-
-    var id: String { "\(from):\(to)" }
 }
 
 /// One long-lived TipTap WKWebView per mode (viewer / editor).
@@ -155,6 +147,7 @@ final class SharedTipTapRuntime: NSObject, WKScriptMessageHandler, WKNavigationD
             s.onImagePreview = nil
             s.onDoubleTap = nil
             s.onPickImage = nil
+            s.onRecordVoiceMemo = nil
             s.onSearchResult = nil
             s.onReaderScroll = nil
             s.onBodyReady = nil
@@ -225,57 +218,6 @@ final class SharedTipTapRuntime: NSObject, WKScriptMessageHandler, WKNavigationD
         })();
         """
         webView.evaluateJavaScript(js, completionHandler: nil)
-    }
-
-    /// Capture the current non-empty editor selection and keep its range in the JS runtime.
-    func captureAiSelection() async -> AiEditorSelection? {
-        guard ready, session?.mode == .editor else { return nil }
-        let raw: Any? = await withCheckedContinuation { continuation in
-            webView.evaluateJavaScript(
-                "window.EdgeEverEditor && window.EdgeEverEditor.captureSelection ? window.EdgeEverEditor.captureSelection() : null"
-            ) { value, _ in
-                continuation.resume(returning: value)
-            }
-        }
-        guard let json = raw as? String,
-              let data = json.data(using: .utf8)
-        else { return nil }
-        return try? JSONDecoder().decode(AiEditorSelection.self, from: data)
-    }
-
-    /// Insert after or replace the range captured by `captureAiSelection()`.
-    func applyAiSelectionDraft(_ markdown: String, append: Bool) async -> Bool {
-        guard ready, session?.mode == .editor, !markdown.isEmpty else { return false }
-        let markdownB64 = Data(markdown.utf8).base64EncodedString()
-        let modeValue = append ? "append" : "replace"
-        let js = """
-        (function(){
-          try {
-            if (!window.EdgeEverEditor || !window.EdgeEverEditor.applySelectionDraft) return false;
-            var bin = atob('\(markdownB64)');
-            var bytes = new Uint8Array(bin.length);
-            for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-            var markdown = new TextDecoder('utf-8').decode(bytes);
-            return window.EdgeEverEditor.applySelectionDraft(markdown, '\(modeValue)') === true;
-          } catch (e) { return false; }
-        })();
-        """
-        return await withCheckedContinuation { continuation in
-            webView.evaluateJavaScript(js) { value, _ in
-                continuation.resume(returning: (value as? Bool) ?? false)
-            }
-        }
-    }
-
-    func undoAiSelectionDraft() async -> Bool {
-        guard ready, session?.mode == .editor else { return false }
-        return await withCheckedContinuation { continuation in
-            webView.evaluateJavaScript(
-                "window.EdgeEverEditor && window.EdgeEverEditor.undo ? window.EdgeEverEditor.undo() : false"
-            ) { value, _ in
-                continuation.resume(returning: (value as? Bool) ?? false)
-            }
-        }
     }
 
     private func focusEnd(attempt: Int) {
@@ -393,6 +335,71 @@ final class SharedTipTapRuntime: NSObject, WKScriptMessageHandler, WKNavigationD
         guard ok else { return false }
         await nativeHydrateDOMImages(generation: contentGeneration)
         return true
+    }
+
+    // MARK: - Voice memos
+
+    /// Make a just-recorded file playable right away (and offline) under its resource id.
+    func seedAudioResource(id: String, data: Data, mimeType: String) async {
+        await ResourceBlobStore.shared.put(id: id, data: data, mimeType: mimeType)
+        try? await resourceCache.store(data, for: id)
+    }
+
+    /// Insert a voice memo block after the selection. `attrs` are the node attributes
+    /// (`url` or `clientId` is required). Returns false when the editor is not ready.
+    func insertVoiceMemo(attrs: [String: Any]) async -> Bool {
+        guard ready, session?.mode == .editor else { return false }
+        return await callEditorBool("insertVoiceMemo", arguments: [attrs])
+    }
+
+    /// Fill in the pending voice memo `clientId` with its uploaded recording.
+    func completeVoiceMemo(clientId: String, attrs: [String: Any]) async -> Bool {
+        guard ready, session?.mode == .editor else { return false }
+        return await callEditorBool("completeVoiceMemo", arguments: [clientId, attrs])
+    }
+
+    /// Calls `window.EdgeEverEditor[fn]` with JSON-encoded arguments (objects are passed as
+    /// JSON strings, matching the editor API) and returns its boolean result.
+    private func callEditorBool(_ fn: String, arguments: [Any]) async -> Bool {
+        var encoded: [String] = []
+        for argument in arguments {
+            let text: String
+            if let string = argument as? String {
+                text = string
+            } else if JSONSerialization.isValidJSONObject(argument),
+                      let data = try? JSONSerialization.data(withJSONObject: argument),
+                      let json = String(data: data, encoding: .utf8)
+            {
+                text = json
+            } else {
+                return false
+            }
+            encoded.append("dec('" + Data(text.utf8).base64EncodedString() + "')")
+        }
+        let call = encoded.joined(separator: ", ")
+        let js = """
+        (function(){
+          function dec(b64){
+            var bin = atob(b64);
+            var bytes = new Uint8Array(bin.length);
+            for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+            return new TextDecoder('utf-8').decode(bytes);
+          }
+          try {
+            if (!window.EdgeEverEditor || typeof window.EdgeEverEditor.\(fn) !== 'function') return false;
+            return window.EdgeEverEditor.\(fn)(\(call)) === true;
+          } catch (e) {
+            try { window.webkit.messageHandlers.edgeever.postMessage({type:'error', message: String(e)}); } catch (_) {}
+            return false;
+          }
+        })();
+        """
+        return await withCheckedContinuation { continuation in
+            webView.evaluateJavaScript(js) { result, error in
+                if let error { NSLog("SharedTipTapRuntime \(fn) error: \(error)") }
+                continuation.resume(returning: (result as? Bool) ?? false)
+            }
+        }
     }
 
     /// Group only successfully inserted images from this picker batch.
@@ -732,6 +739,14 @@ final class SharedTipTapRuntime: NSObject, WKScriptMessageHandler, WKNavigationD
         case "pickImage":
             let cb = session?.onPickImage
             DispatchQueue.main.async { cb?() }
+        case "recordVoiceMemo":
+            let cb = session?.onRecordVoiceMemo
+            DispatchQueue.main.async { cb?() }
+        case "loadAudio":
+            let requestId = body["requestId"] as? String ?? ""
+            let source = body["source"] as? String ?? ""
+            let gen = contentGeneration
+            Task { await resolveResource(requestId: requestId, source: source, generation: gen, audio: true) }
         case "searchResult":
             let count = (body["count"] as? NSNumber)?.intValue ?? 0
             let index = (body["index"] as? NSNumber)?.intValue ?? 0
@@ -749,16 +764,26 @@ final class SharedTipTapRuntime: NSObject, WKScriptMessageHandler, WKNavigationD
         }
     }
 
-    private func resolveResource(requestId: String, source: String, generation: UInt64) async {
+    private func resolveResource(requestId: String, source: String, generation: UInt64, audio: Bool = false) async {
         guard contentGeneration == generation else { return }
         let token = session?.token
         let base = session?.baseURL
-        let displayURL = await TipTapResourceLoader.loadResourceDataURL(
-            source: source,
-            baseURL: base,
-            token: token,
-            resourceCache: resourceCache
-        )
+        let displayURL: String?
+        if audio {
+            displayURL = await TipTapResourceLoader.loadAudioURL(
+                source: source,
+                baseURL: base,
+                token: token,
+                resourceCache: resourceCache
+            )
+        } else {
+            displayURL = await TipTapResourceLoader.loadResourceDataURL(
+                source: source,
+                baseURL: base,
+                token: token,
+                resourceCache: resourceCache
+            )
+        }
         guard contentGeneration == generation else { return }
         let reqEscaped = requestId
             .replacingOccurrences(of: "\\", with: "\\\\")

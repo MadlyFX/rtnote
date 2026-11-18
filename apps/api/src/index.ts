@@ -79,10 +79,8 @@ import { registerTemplateRoutes } from "./template-routes";
 import { registerAuthRoutes } from "./auth-routes";
 import { registerApiTokenRoutes } from "./api-token-routes";
 import { registerObjectStorageRoutes } from "./object-storage-routes";
-import { registerAiRoutes } from "./ai-routes";
 import { registerPluginCapabilityRoutes } from "./plugin-capability-routes";
-import { registerCompanionRoutes } from "./companion-routes";
-import { registerAiPromptRoutes } from "./ai-prompt-routes";
+import { registerTranscriptionRoutes } from "./transcription-routes";
 import { registerResourceRoutes } from "./resource-routes";
 import {
   abortResourceUpload,
@@ -127,6 +125,8 @@ import { isNotebookSitePagePath, renderNotebookSitePage } from "./notebook-site-
 import { isPublicMemoSharePagePath, renderPublicMemoSharePage } from "./share-page";
 import { registerMemoShareRoutes, registerPublicShareRoutes } from "./share-routes";
 import { registerPublicTableFormRoutes, registerTableFormRoutes } from "./table-form-routes";
+import { registerBrandingRoutes, registerPublicBrandingRoutes } from "./branding-routes";
+import { isWebManifestPath, renderPublicFormPage, renderWebManifest } from "./public-page-branding";
 import {
   deleteStoredObjects,
   getActiveObjectStorageConfig,
@@ -267,6 +267,7 @@ app.get("/api/openapi.json", (c) => c.json(apiProbe));
 registerPublicShareRoutes(app);
 registerPublicNotebookShareRoutes(app);
 registerPublicTableFormRoutes(app);
+registerPublicBrandingRoutes(app);
 
 registerAuthRoutes(app, {
   authenticateRequest: (...args) => authenticateRequest(...args),
@@ -342,14 +343,10 @@ registerImportContextGuard(app);
 registerObjectStorageRoutes(app, {
   isDemoMode: (...args) => isDemoMode(...args),
 });
-registerAiRoutes(app, {
+registerTranscriptionRoutes(app, {
   isDemoMode: (...args) => isDemoMode(...args),
 });
 registerPluginCapabilityRoutes(app, { isDemoMode: (...args) => isDemoMode(...args) });
-registerCompanionRoutes(app, { isDemoMode: (...args) => isDemoMode(...args) });
-registerAiPromptRoutes(app, {
-  isDemoMode: (...args) => isDemoMode(...args),
-});
 
 registerApiTokenRoutes(app, {
   sha256: (...args) => sha256(...args),
@@ -371,6 +368,7 @@ registerWorkspaceExtensionRoutes(app, { isDemoMode: (...args) => isDemoMode(...a
 registerMemoShareRoutes(app);
 registerNotebookShareRoutes(app);
 registerTableFormRoutes(app);
+registerBrandingRoutes(app);
 registerTemplateRoutes(app, {
   createMemoRecord: (...args) => createMemoRecord(...args),
   getMemoDetail: (...args) => getMemoDetail(...args),
@@ -480,6 +478,15 @@ const worker = {
     const loadAppShell = () => env.ASSETS.fetch(new Request(new URL("/", request.url), { method: "GET" }));
     if (isNotebookSitePagePath(pathname)) {
       return (await renderNotebookSitePage(request, createCloudflareStorageAdapter(env).db, loadAppShell))!;
+    }
+    // Branded entry points. Both fall back to the static asset when the
+    // request is not one they render.
+    if (isWebManifestPath(pathname)) {
+      const loadManifest = () => env.ASSETS.fetch(new Request(new URL("/manifest.webmanifest", request.url), { method: "GET" }));
+      return (await renderWebManifest(request, createCloudflareStorageAdapter(env).db, loadManifest)) ?? env.ASSETS.fetch(request);
+    }
+    if (pathname.startsWith("/form/")) {
+      return (await renderPublicFormPage(request, createCloudflareStorageAdapter(env).db, loadAppShell)) ?? env.ASSETS.fetch(request);
     }
     // `/share/*` runs the worker first. Unknown share paths still fall through
     // to the asset shell so a typo does not become a JSON 404.

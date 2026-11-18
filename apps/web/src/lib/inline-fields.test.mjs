@@ -9,7 +9,7 @@ const translatorFor = (catalog) => (key) => key.split(".").reduce((node, part) =
 
 describe("inline fields", () => {
   test("finds Dataview bracket fields in a task line", () => {
-    const text = "审阅面板 [priority:: highest] [scheduled:: 2026-09-10] [due:: 2026-09-10]";
+    const text = "Review panel [priority:: highest] [scheduled:: 2026-09-10] [due:: 2026-09-10]";
     const fields = findInlineFields(text);
     expect(fields.map((field) => field.key)).toEqual(["priority", "scheduled", "due"]);
     expect(fields.map((field) => field.value)).toEqual(["highest", "2026-09-10", "2026-09-10"]);
@@ -17,13 +17,14 @@ describe("inline fields", () => {
   });
 
   test("formats quiet chips instead of raw syntax", () => {
-    expect(formatInlineFieldChip("due", "2026-09-10", translatorFor(zhCN))).toBe("截止 2026-09-10");
-    expect(formatInlineFieldChip("priority", "highest", translatorFor(zhCN))).toBe("优先级 最高");
+    expect(formatInlineFieldChip("due", "2026-09-10", translatorFor(zhCN))).toBe(`${zhCN.inlineField.label.due} 2026-09-10`);
+    expect(formatInlineFieldChip("priority", "highest", translatorFor(zhCN))).toBe(`${zhCN.inlineField.label.priority} ${zhCN.inlineField.priority.highest}`);
     expect(formatInlineFieldChip("due", "2026-09-10", translatorFor(enUS))).toBe("Due 2026-09-10");
   });
 
   test("reads chip labels from the active locale catalog instead of falling back to English", () => {
-    expect(formatInlineFieldChip("due", "2026-09-10", translatorFor(ja))).toBe("期限 2026-09-10");
+    expect(ja.inlineField.label.due).not.toBe(enUS.inlineField.label.due);
+    expect(formatInlineFieldChip("due", "2026-09-10", translatorFor(ja))).toBe(`${ja.inlineField.label.due} 2026-09-10`);
     expect(formatInlineFieldChip("priority", "High", translatorFor(pl))).toBe("Priorytet Wysoki");
   });
 

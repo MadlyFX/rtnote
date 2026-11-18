@@ -1,3 +1,4 @@
+import { DEFAULT_MEMO_TITLE, LEGACY_DEFAULT_MEMO_TITLES } from "@edgeever/shared/memo-title";
 import { PUBLIC_PAGE_ROBOTS } from "@edgeever/shared/public-page-headers";
 import { describe, expect, test } from "bun:test";
 import { Database } from "bun:sqlite";
@@ -210,12 +211,12 @@ describe("public memo share pages", () => {
     expect(await lockedMarkdown.text()).not.toContain("secret()");
   });
 
-  test("treats the stored default title as untitled in metadata and markdown", async () => {
+  test.each([DEFAULT_MEMO_TITLE, ...LEGACY_DEFAULT_MEMO_TITLES])("treats the stored default title %s as untitled in metadata and markdown", async (defaultTitle) => {
     const sqlite = createDatabase();
-    sqlite.query("UPDATE memos SET title = ? WHERE id = 'memo_source'").run("无标题笔记");
+    sqlite.query("UPDATE memos SET title = ? WHERE id = 'memo_source'").run(defaultTitle);
     sqlite.query("UPDATE memo_contents SET content_markdown = ? WHERE memo_id = 'memo_source'").run("Body text\n");
     const html = await (await render(sqlite, `/share/${token}`)).text();
-    expect(html).not.toContain("无标题笔记");
+    expect(html).not.toContain(defaultTitle);
     expect(html).toContain("<title>Shared note · RTNote</title>");
     expect(html).toContain('<h1 lang="en">Shared note</h1>');
     expect(html).toContain('<meta property="og:title" content="Shared note">');

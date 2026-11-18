@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { NotebookSiteMemoBrowser } from "./NotebookSiteMemoBrowser";
 import { memoNotebookSitesQueryKey } from "./MemoNotebookSites";
+import { NotebookBrandingSection } from "./NotebookBrandingSection";
 
 export const NotebookSiteSettings = ({ notebookId, share, onSaved }: {
   notebookId: string; share: NotebookShare; onSaved: (data: { share: NotebookShare }) => void;
@@ -82,6 +83,7 @@ export const NotebookSiteSettings = ({ notebookId, share, onSaved }: {
           {save.isError && <p role="alert" className="text-sm text-destructive">{save.error.message}</p>}
         </div>
       </form>
+      <div className="mt-6"><NotebookBrandingSection notebookId={notebookId} /></div>
       <DialogContent className="flex max-h-[85dvh] flex-col sm:max-w-2xl">
         <DialogHeader><DialogTitle>{label("chooseHomepage")}</DialogTitle><DialogDescription>{label("homepageHint")}</DialogDescription></DialogHeader>
         <div className="min-h-0 overflow-y-auto"><NotebookSiteMemoBrowser notebookId={notebookId} token={share.token} selectedId={settings.homeMemoId} onSelect={(memo) => { edit({ homeMemoId: memo.id }); setChoosingHome(false); }} /></div>

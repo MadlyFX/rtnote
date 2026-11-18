@@ -60,8 +60,11 @@ final class ChromeParityTests: XCTestCase {
     }
 
     func testCreateSaveStatusLabels() {
-        XCTAssertEqual(CreateSaveStatus.saving.labelZH, "保存中")
-        XCTAssertEqual(CreateSaveStatus.saved.labelZH, "已保存")
+        XCTAssertEqual(CreateSaveStatus.saving.label(in: .english), "Saving")
+        XCTAssertEqual(CreateSaveStatus.saved.label(in: .english), "Saved")
+        XCTAssertEqual(CreateSaveStatus.saved.label(in: .polish), "Zapisano")
+        // No Japanese label: falls back to English.
+        XCTAssertEqual(CreateSaveStatus.error.label(in: .japanese), "Save failed")
         XCTAssertTrue(CreateSaveStatus.saving.isActive)
         XCTAssertFalse(CreateSaveStatus.saved.isActive)
     }
@@ -79,9 +82,9 @@ final class ChromeParityTests: XCTestCase {
     }
 
     func testDetailSyncStatusLabelsAndInteraction() {
-        XCTAssertEqual(DetailSyncStatus.synced.labelZH, "已同步")
-        XCTAssertEqual(DetailSyncStatus.conflict.labelZH, "同步冲突")
-        XCTAssertEqual(DetailSyncStatus.pending.labelZH, "待同步")
+        XCTAssertEqual(DetailSyncStatus.synced.label(in: .english), "Synced")
+        XCTAssertEqual(DetailSyncStatus.conflict.label(in: .english), "Conflict")
+        XCTAssertEqual(DetailSyncStatus.pending.label(in: .polish), "Oczekuje")
         XCTAssertTrue(DetailSyncStatus.pending.isInteractive)
         XCTAssertTrue(DetailSyncStatus.conflict.isInteractive)
         XCTAssertFalse(DetailSyncStatus.synced.isInteractive)
@@ -100,11 +103,7 @@ final class ChromeParityTests: XCTestCase {
         XCTAssertTrue(src.contains("CreateMemoChrome.metaRow"), "missing meta row")
         XCTAssertTrue(src.contains("CreateMemoChrome.notebook"), "missing notebook control")
         XCTAssertTrue(src.contains("CreateMemoChrome.tags"), "missing tags field")
-        XCTAssertTrue(src.contains("CreateMemoChrome.smartTags"), "missing one-tap smart tags control")
-        XCTAssertTrue(src.contains("generateAndApplySmartTags"), "smart tags must generate and apply in one action")
-        XCTAssertTrue(src.contains("tag.badge.plus"), "smart tags must use the same tag-plus metaphor as web and Android")
-        XCTAssertFalse(src.contains("Image(systemName: \"tag\")"), "tags field must not repeat the tag icon beside the smart-tags control")
-        XCTAssertFalse(src.contains("AI 推荐标签"), "tag picker must not retain the multi-step AI suggestion flow")
+        XCTAssertFalse(src.contains("Image(systemName: \"tag\")"), "tags field must not repeat a tag icon beside its label")
         XCTAssertTrue(src.contains("CreateMemoChrome.editorFrame"), "missing bordered editor")
         XCTAssertTrue(src.contains("TipTapWebView"), "editor wiring must remain")
         XCTAssertTrue(src.contains("commitCreate") || src.contains("persistDraftOrQueue"), "save path must remain")
@@ -170,7 +169,7 @@ final class ChromeParityTests: XCTestCase {
         let view = try readShippedSource("Features/Workspace/WorkspaceView.swift")
         let store = try readShippedSource("Features/Workspace/WorkspaceStore.swift")
         XCTAssertTrue(view.contains("SelectionMoreSheet"))
-        XCTAssertTrue(view.contains("全选当前列表"))
+        XCTAssertTrue(view.contains("Select current list"))
         XCTAssertTrue(view.contains("WebClipCaptureView"))
         XCTAssertTrue(view.contains("WebClipper.build"))
         XCTAssertTrue(store.contains("toggleVisibleSelection"))
@@ -299,8 +298,8 @@ final class ChromeParityTests: XCTestCase {
         XCTAssertTrue(source.contains("showImageSourcePicker = true"))
         XCTAssertTrue(source.contains("SystemCameraPicker"))
         XCTAssertTrue(source.contains("SystemImagePicker"))
-        XCTAssertTrue(source.contains("从相册选择"))
-        XCTAssertTrue(source.contains("拍照"))
+        XCTAssertTrue(source.contains("Choose from library"))
+        XCTAssertTrue(source.contains("Take photo"))
     }
 
     // MARK: - Helpers

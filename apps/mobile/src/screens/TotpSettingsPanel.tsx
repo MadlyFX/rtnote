@@ -18,7 +18,7 @@ import {
   useTwoFactorCopy,
 } from "../components/TotpFlowParts";
 import { formatMobileCopy } from "../lib/mobile-locale";
-import { resolveMobileThemeStyles, useMobileTheme, type MobileResolvedTheme } from "../lib/mobile-theme";
+import { mobileThemeStylesKey, resolveMobileThemeStyles, useMobileTheme, type MobileResolvedTheme } from "../lib/mobile-theme";
 import {
   getTotpErrorKey,
   getTotpUnavailableKey,
@@ -202,7 +202,7 @@ export const TotpSettingsPanel = ({ active }: { active: boolean }) => {
         {statusQuery.isError ? (
           <View style={styles.stack}>
             <Text style={styles.error}>{t[getTotpErrorKey(statusQuery.error)]}</Text>
-            <TotpSecondaryButton label="重试" onPress={() => void statusQuery.refetch()} />
+            <TotpSecondaryButton label="Retry" onPress={() => void statusQuery.refetch()} />
           </View>
         ) : (
           <ActivityIndicator color={TOTP_PRIMARY_COLOR} />
@@ -339,11 +339,12 @@ const baseTotpSettingsStyles = StyleSheet.create({
 });
 
 let styles = baseTotpSettingsStyles;
-let totpSettingsStylesTheme: MobileResolvedTheme = "light";
+// Theme plus branding colours the cached styles were resolved for.
+let totpSettingsStylesTheme = "light";
 
 const refreshTotpSettingsThemeStyles = (theme: MobileResolvedTheme) => {
-  if (totpSettingsStylesTheme !== theme) {
+  if (totpSettingsStylesTheme !== mobileThemeStylesKey(theme)) {
     styles = resolveMobileThemeStyles(baseTotpSettingsStyles, theme);
-    totpSettingsStylesTheme = theme;
+    totpSettingsStylesTheme = mobileThemeStylesKey(theme);
   }
 };

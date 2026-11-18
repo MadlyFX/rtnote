@@ -26,6 +26,7 @@ RTNote differs from EdgeEver in a few deliberate ways:
 
 - Three-pane workspace with nested notebooks, tags, drag-and-drop sorting and fast full-text search
 - TipTap/ProseMirror editor with fonts, text sizes, alignment and line spacing, text colour and highlight, tables with merged and coloured cells, captioned images, image galleries, task lists, maths, code blocks and Mermaid diagrams
+- Voice memos on web, desktop, Android and iOS: record, pause and resume into a note, play back with seeking, add a title, and transcribe with your own speech provider. Recordings are ordinary attachments, saved on the device first when offline, and transcripts are searchable
 - Offline-first sync across web (PWA), desktop, Android and iOS, with revision history
 - Public sharing of single notes or whole notebooks as static sites, with optional passwords and expiry
 - Attachments up to 1 GiB with client-side image compression

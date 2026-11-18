@@ -4,6 +4,7 @@ import { resolveAttachmentKind } from "./attachment-kind";
 import { getAttachmentFilenameFromLabel, resourceLinkToMarkdown } from "./resource-links";
 import { normalizeAttachmentByteSize } from "./attachment-metadata";
 import { decodeString } from "micromark-util-decode-string";
+import { ATTACHMENT_LABEL_PREFIX_PATTERN } from "./edgeever-legacy-values";
 
 export const FILE_ATTACHMENT_NODE_TYPE = "edgeeverFileAttachment" as const;
 export const FILE_DISPLAY_MODES = ["compact", "inline"] as const;
@@ -14,7 +15,7 @@ export const resolveFileDisplayMode = (value: unknown): FileDisplayMode =>
   value === "compact" ? "compact" : "inline";
 
 const MARKDOWN_LINK_PATTERN = /^\[((?:\\.|[^[\]\\])+)\]\(([^\s)]+)(?:\s+"[^"]*")?\)/;
-const ATTACHMENT_LABEL_PATTERN = /^\s*(?:附件[：:]|Attachment:)\s*/i;
+const ATTACHMENT_LABEL_PATTERN = ATTACHMENT_LABEL_PREFIX_PATTERN;
 const RESOURCE_URL_PATTERN = /(?:\/api\/v1\/resources\/|edgeever-(?:resource|staged):\/\/)/i;
 
 export const isFileAttachmentLink = (label: string, url: string) => {

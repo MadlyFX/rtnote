@@ -231,15 +231,6 @@ final class EditorBundleTests: XCTestCase {
         )
     }
 
-    func testAiSelectionReplacementKeepsInlineContentInItsParagraph() throws {
-        let url = try XCTUnwrap(TipTapWebView.Coordinator.packagedEditorHTMLURL())
-        let html = try String(contentsOf: url, encoding: .utf8)
-        XCTAssertTrue(
-            html.contains("edgeever-inline-sentinel"),
-            "selected-text AI replacement must preserve the surrounding paragraph"
-        )
-    }
-
     func testPackagedEditorExposesChunkedImageExportBridge() throws {
         let url = try XCTUnwrap(TipTapWebView.Coordinator.packagedEditorHTMLURL())
         let html = try String(contentsOf: url, encoding: .utf8)

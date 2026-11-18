@@ -4,6 +4,7 @@ import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:f
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { ui } from "./fixtures/ui-labels";
 
 declare const chrome: any;
 const repositoryRoot = resolve(fileURLToPath(new URL("../..", import.meta.url)));
@@ -93,8 +94,8 @@ test("Hacker News clips persist through the extension and local API; archived im
       }
       const preview = await context.newPage();
       await preview.goto(baseURL!);
-      await preview.getByRole("button", { name: "全部笔记", exact: true }).click();
-      await preview.getByPlaceholder("搜索笔记").fill(platform.title);
+      await preview.getByRole("button", { name: ui.notebookPane.allMemos, exact: true }).click();
+      await preview.getByPlaceholder(ui.memoList.searchPlaceholder).fill(platform.title);
       await preview.locator(`[data-memo-id="${note!.id}"]`).locator("button").first().click();
       const editor = preview.locator(".ProseMirror");
       await expect(editor).toContainText(platform.text);

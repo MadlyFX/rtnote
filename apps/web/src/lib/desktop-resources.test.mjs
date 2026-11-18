@@ -34,8 +34,8 @@ describe("desktop resource URLs", () => {
   test("adds the requested filename to native resource downloads", () => {
     expect(toDesktopResourceDownloadUrl(
       "edgeever-resource://resource/resource-1",
-      "资料包.zip",
-    )).toBe("edgeever-resource://resource/resource-1?download=%E8%B5%84%E6%96%99%E5%8C%85.zip");
+      "Résumé.zip",
+    )).toBe("edgeever-resource://resource/resource-1?download=R%C3%A9sum%C3%A9.zip");
     expect(toDesktopResourceDownloadUrl(
       "edgeever-staged://stage-1",
       "offline.zip",

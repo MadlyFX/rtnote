@@ -3,7 +3,7 @@ import { Editor } from "@tiptap/core";
 import Image from "@tiptap/extension-image";
 import StarterKit from "@tiptap/starter-kit";
 import { closeHistory, history, undo, redo } from "@tiptap/pm/history";
-import { FileAttachment, ImageGallery, IMAGE_GALLERY_NODE_TYPE } from "@edgeever/shared";
+import { ATTACHMENT_TEXT_PREFIX, FileAttachment, ImageGallery, IMAGE_GALLERY_NODE_TYPE } from "@edgeever/shared";
 import { insertUploadedResources } from "./resource-insertion";
 import { getResourceInsertionTarget } from "./resource-insertion-target";
 
@@ -29,8 +29,8 @@ describe("uploaded resources beside an existing gallery", () => {
         type: "edgeeverFileAttachment",
         attrs: {
           url: "edgeever-staged://stage_word_1",
-          label: "附件：软件外包合同.docx",
-          filename: "软件外包合同.docx",
+          label: `${ATTACHMENT_TEXT_PREFIX}Software outsourcing contract.docx`,
+          filename: "Software outsourcing contract.docx",
           mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
           byteSize: 42_559,
         },

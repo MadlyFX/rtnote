@@ -13,14 +13,14 @@ struct ForcedTotpRebindView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text(env.preferences.t("重新绑定验证器", en: "Rebind authenticator", ja: "認証アプリを再登録", pl: "Powiąż aplikację ponownie"))
+                Text(env.preferences.t("Rebind authenticator", zh: "重新绑定验证器", ja: "認証アプリを再登録", pl: "Powiąż aplikację ponownie"))
                     .font(.system(size: 22, weight: .heavy))
                     .foregroundStyle(AppTheme.title)
                     .padding(.top, 24)
 
                 Text(env.preferences.t(
-                    "完成后，旧恢复码全部失效，其他设备上的登录会被退出，并生成一组新的恢复码。",
-                    en: "When you finish, all old recovery codes stop working, other devices are signed out, and a new set of recovery codes is created.",
+                    "When you finish, all old recovery codes stop working, other devices are signed out, and a new set of recovery codes is created.",
+                    zh: "完成后，旧恢复码全部失效，其他设备上的登录会被退出，并生成一组新的恢复码。",
                     ja: "完了すると、古いリカバリーコードはすべて無効になり、他のデバイスはサインアウトされ、新しいリカバリーコードが作成されます。",
                     pl: "Po zakończeniu wszystkie stare kody odzyskiwania przestaną działać, inne urządzenia zostaną wylogowane i powstanie nowy zestaw kodów."
                 ))
@@ -39,7 +39,7 @@ struct ForcedTotpRebindView: View {
                                 env.preferences.totpStepNewCodes,
                             ],
                             bindIndex: 0,
-                            finishTitle: env.preferences.t("完成并继续", en: "Finish and continue", ja: "完了して続行", pl: "Zakończ i kontynuuj"),
+                            finishTitle: env.preferences.t("Finish and continue", zh: "完成并继续", ja: "完了して続行", pl: "Zakończ i kontynuuj"),
                             finishNote: env.preferences.totpDeleteOldEntry,
                             onConfirmed: { response in
                                 try await env.session.completeMfaRebind(newSessionToken: response.sessionToken)
@@ -53,7 +53,7 @@ struct ForcedTotpRebindView: View {
                     } else if let setupError {
                         TotpErrorText(message: setupError)
                         TotpActionButton(
-                            title: env.preferences.t("重试", en: "Retry", ja: "再試行", pl: "Ponów"),
+                            title: env.preferences.t("Retry", zh: "重试", ja: "再試行", pl: "Ponów"),
                             busy: loading
                         ) {
                             Task { await startSetup() }
@@ -109,7 +109,7 @@ struct ForcedTotpRebindView: View {
             Button {
                 Task { await env.session.signOut() }
             } label: {
-                Text(env.preferences.t("退出登录", en: "Sign out", ja: "サインアウト", pl: "Wyloguj"))
+                Text(env.preferences.t("Sign out", zh: "退出登录", ja: "サインアウト", pl: "Wyloguj"))
                     .font(.system(size: 13, weight: .heavy))
                     .foregroundStyle(TotpUI.warningTitle)
                     .padding(.horizontal, 14)
@@ -133,8 +133,8 @@ struct ForcedTotpRebindView: View {
         // Same as Android: "—" until the remaining count has loaded.
         let count = status.map { String($0.recoveryCodesRemaining) } ?? "—"
         return env.preferences.t(
-            "你已使用恢复码登录（剩余 \(count) 个）。重新绑定验证器后才能继续使用笔记。此页面 30 分钟内有效。",
-            en: "You signed in with a recovery code (\(count) left). Bind a new authenticator to keep using your notes. This page stays valid for 30 minutes.",
+            "You signed in with a recovery code (\(count) left). Bind a new authenticator to keep using your notes. This page stays valid for 30 minutes.",
+            zh: "你已使用恢复码登录（剩余 \(count) 个）。重新绑定验证器后才能继续使用笔记。此页面 30 分钟内有效。",
             ja: "リカバリーコードでサインインしました（残り \(count) 個）。ノートを引き続き使うには、新しい認証アプリを登録してください。このページは 30 分間有効です。",
             pl: "Zalogowano kodem odzyskiwania (pozostało: \(count)). Powiąż nową aplikację uwierzytelniającą, aby dalej korzystać z notatek. Ta strona jest ważna przez 30 minut."
         )

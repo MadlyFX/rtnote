@@ -8,9 +8,9 @@ import {
   SELF_HOSTED_SECRETS_FILE_NAME,
 } from "./self-hosted-secrets.mjs";
 import {
-  decryptAiCredential,
-  resolvePrimaryAiCredentialEncryptionKey,
-} from "../apps/api/src/ai-service.ts";
+  decryptStoredCredential,
+  resolvePrimaryCredentialEncryptionKey,
+} from "../apps/api/src/credential-encryption.ts";
 import { encryptSecret } from "../apps/api/src/secret-encryption.ts";
 
 const makeDataDirectory = async () => mkdtemp(`${tmpdir()}/edgeever-secrets-`);
@@ -28,7 +28,7 @@ describe("self-hosted credential secret persistence", () => {
       const first = await ensureSelfHostedCredentialSecrets(dataDirectory, {
         EDGE_EVER_AUTH_PASSWORD: "instance-password",
       });
-      const originalKey = resolvePrimaryAiCredentialEncryptionKey(first);
+      const originalKey = resolvePrimaryCredentialEncryptionKey(first);
       expect(originalKey).toBe("edgeever:ai-credentials:v1:instance-password");
       expect(hasSelfHostedCredentialSeed(first)).toBe(true);
 
@@ -43,10 +43,10 @@ describe("self-hosted credential secret persistence", () => {
 
       const restored = await ensureSelfHostedCredentialSecrets(dataDirectory, {});
       expect(restored.EDGE_EVER_AUTH_PASSWORD).toBe("instance-password");
-      expect(resolvePrimaryAiCredentialEncryptionKey(restored)).toBe(originalKey);
+      expect(resolvePrimaryCredentialEncryptionKey(restored)).toBe(originalKey);
 
       const encrypted = await encryptSecret("provider-key", originalKey);
-      await expect(decryptAiCredential(encrypted, restored)).resolves.toBe("provider-key");
+      await expect(decryptStoredCredential(encrypted, restored)).resolves.toBe("provider-key");
     } finally {
       await rm(dataDirectory, { recursive: true, force: true });
     }
@@ -70,7 +70,7 @@ describe("self-hosted credential secret persistence", () => {
     try {
       const environment = await ensureSelfHostedCredentialSecrets(dataDirectory, {}, { generateIfMissing: true });
       expect(environment.EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY).toMatch(/^[a-f0-9]{64}$/);
-      expect(resolvePrimaryAiCredentialEncryptionKey(environment)).toBe(
+      expect(resolvePrimaryCredentialEncryptionKey(environment)).toBe(
         `edgeever:ai-credentials:v1:${environment.EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY}`,
       );
 
@@ -95,9 +95,9 @@ describe("self-hosted credential secret persistence", () => {
 
       const encrypted = await encryptSecret(
         "provider-key",
-        resolvePrimaryAiCredentialEncryptionKey({ EDGE_EVER_AUTH_PASSWORD: "original-password" }),
+        resolvePrimaryCredentialEncryptionKey({ EDGE_EVER_AUTH_PASSWORD: "original-password" }),
       );
-      await expect(decryptAiCredential(encrypted, rotated)).resolves.toBe("provider-key");
+      await expect(decryptStoredCredential(encrypted, rotated)).resolves.toBe("provider-key");
     } finally {
       await rm(dataDirectory, { recursive: true, force: true });
     }
@@ -117,11 +117,11 @@ describe("self-hosted credential secret persistence", () => {
 
       const encrypted = await encryptSecret(
         "provider-key",
-        resolvePrimaryAiCredentialEncryptionKey({
+        resolvePrimaryCredentialEncryptionKey({
           EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY: "original-credentials-key",
         }),
       );
-      await expect(decryptAiCredential(encrypted, rotated)).resolves.toBe("provider-key");
+      await expect(decryptStoredCredential(encrypted, rotated)).resolves.toBe("provider-key");
     } finally {
       await rm(dataDirectory, { recursive: true, force: true });
     }

@@ -1,16 +1,17 @@
 import { expect, test, type Page } from "@playwright/test";
+import { format, templatesRegExp, ui } from "./fixtures/ui-labels";
 
 const storageKey = "edgeever.memoSort";
 const modes = [
-  ["updated-desc", "最近更新"],
-  ["created-desc", "创建时间"],
-  ["title-asc", "标题 A-Z"],
-  ["title-desc", "标题 Z-A"],
+  ["updated-desc", ui.options.memoSort.updatedDesc],
+  ["created-desc", ui.options.memoSort.createdDesc],
+  ["title-asc", ui.options.memoSort.titleAsc],
+  ["title-desc", ui.options.memoSort.titleDesc],
 ] as const;
 
 const openSort = async (page: Page) => {
-  await page.getByRole("button", { name: "列表更多操作", exact: true }).click();
-  return page.getByRole("menuitem", { name: /^排序：/ });
+  await page.getByRole("button", { name: ui.memoList.moreActions, exact: true }).click();
+  return page.getByRole("menuitem", { name: templatesRegExp(ui.memoList.sortTitle) });
 };
 
 const chooseSort = async (page: Page, label: string) => {
@@ -32,7 +33,7 @@ for (const [mode, label] of modes) {
       }
     });
     await page.reload();
-    await expect(await openSort(page)).toHaveText(`排序：${label}`);
+    await expect(await openSort(page)).toHaveText(format(ui.memoList.sortTitle, { label }));
     // A populated local mirror can satisfy the list without an HTTP query.
     expect(requestedSorts.every(value => value === mode)).toBe(true);
   });
@@ -46,7 +47,7 @@ for (const stored of [null, "unknown-sort"]) {
       localStorage.setItem("edgeever.notebookSort", "custom");
     }, { key: storageKey, value: stored });
     await page.goto("/");
-    await expect(await openSort(page)).toHaveText("排序：最近更新");
+    await expect(await openSort(page)).toHaveText(format(ui.memoList.sortTitle, { label: ui.options.memoSort.updatedDesc }));
     expect(await page.evaluate(key => localStorage.getItem(key), storageKey)).toBe(stored);
     expect(await page.evaluate(() => localStorage.getItem("edgeever.notebookSort"))).toBe("custom");
   });
@@ -66,8 +67,8 @@ test("keeps in-session sorting usable when preference storage is blocked", async
     };
   }, storageKey);
   await page.goto("/");
-  await chooseSort(page, "标题 A-Z");
-  await expect(await openSort(page)).toHaveText("排序：标题 A-Z");
+  await chooseSort(page, ui.options.memoSort.titleAsc);
+  await expect(await openSort(page)).toHaveText(format(ui.memoList.sortTitle, { label: ui.options.memoSort.titleAsc }));
   await page.reload();
-  await expect(await openSort(page)).toHaveText("排序：最近更新");
+  await expect(await openSort(page)).toHaveText(format(ui.memoList.sortTitle, { label: ui.options.memoSort.updatedDesc }));
 });

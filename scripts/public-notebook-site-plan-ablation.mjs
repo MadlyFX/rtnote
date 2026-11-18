@@ -38,8 +38,8 @@ try {
   db.exec("PRAGMA foreign_keys=ON");
   db.exec("INSERT INTO workspaces(id,name) VALUES('plan_ws','Plan'),('plan_other','Other')");
   for (const [id, parent, workspace, name] of [
-    ["plan_root_nb", null, "plan_ws", "Knowledge"], ["plan_2", "plan_root_nb", "plan_ws", "第2章"],
-    ["plan_10", "plan_root_nb", "plan_ws", "第10章"], ["plan_out", null, "plan_ws", "Outside"],
+    ["plan_root_nb", null, "plan_ws", "Knowledge"], ["plan_2", "plan_root_nb", "plan_ws", "Chapter 2"],
+    ["plan_10", "plan_root_nb", "plan_ws", "Chapter 10"], ["plan_out", null, "plan_ws", "Outside"],
     ["plan_foreign", "plan_root_nb", "plan_other", "Other workspace"],
   ]) db.run("INSERT INTO notebooks(id,parent_id,workspace_id,name) VALUES(?,?,?,?)", [id, parent, workspace, name]);
   db.run("INSERT INTO notebook_shares(id,notebook_id,workspace_id,token,password_hash) VALUES(?, 'plan_root_nb','plan_ws',?,'legacy-hash'),(?, 'plan_2','plan_ws',?,NULL)", [share, "p".repeat(43), child, "c".repeat(43)]);
@@ -56,10 +56,10 @@ try {
 
   const text = "正文中有唯一检索词和 ablationbody，标题不含这些词。";
   for (const [id, notebook, workspace, title, tags] of [
-    ["a_hidden", "plan_2", "plan_ws", "第1节", ["draft"]],
-    ["b_ten", "plan_2", "plan_ws", "第10节", ["topic"]],
-    ["c_two", "plan_2", "plan_ws", "第2节", ["topic"]],
-    ["d_home", "plan_10", "plan_ws", "概览", []],
+    ["a_hidden", "plan_2", "plan_ws", "Section 1", ["draft"]],
+    ["b_ten", "plan_2", "plan_ws", "Section 10", ["topic"]],
+    ["c_two", "plan_2", "plan_ws", "Section 2", ["topic"]],
+    ["d_home", "plan_10", "plan_ws", "Overview", []],
     ["outside", "plan_out", "plan_ws", "Outside", []],
     ["foreign", "plan_foreign", "plan_other", "Foreign", []],
   ]) {
@@ -160,11 +160,11 @@ try {
   const configurationSizes = [100, 1000, 10000, 50000].map((noteCount) => ({ noteCount, settingsBytes: bytes(minimalSettings) }));
   check("metadata_size_independent_of_note_count", () => assert.equal(new Set(configurationSizes.map((x) => x.settingsBytes)).size, 1));
 
-  const fullBody = "这是正文内容。".repeat(5000);
+  const fullBody = "This is the body text. ".repeat(5000);
   const preview = { title: "Example", excerpt: createExcerpt(fullBody) };
   const fullArticle = { title: "Example", contentMarkdown: fullBody, contentJson: { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: fullBody }] }] } };
   const payloads = [100, 1000, 10000].map((count) => {
-    const directory = Array.from({ length: count }, (_, i) => ({ id: `memo_${i.toString(16).padStart(32, "0")}`, notebookId: "nb_" + "a".repeat(32), title: `第${i + 1}篇笔记` }));
+    const directory = Array.from({ length: count }, (_, i) => ({ id: `memo_${i.toString(16).padStart(32, "0")}`, notebookId: "nb_" + "a".repeat(32), title: `Note ${i + 1}` }));
     return { noteCount: count, directoryBytes: bytes(directory), directoryWithPreviewBytes: bytes(directory.map((x) => ({ ...x, excerpt: preview.excerpt }))), onePreviewBytes: bytes(preview), fullArticleBytes: bytes(fullArticle) };
   });
   check("on_demand_preview_avoids_directory_and_full_body_payload", () => {

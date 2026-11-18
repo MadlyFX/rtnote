@@ -1,8 +1,4 @@
 import {
-  DEFAULT_AI_PROMPT_SEEDS,
-  defaultAiPromptId,
-} from "@edgeever/shared/ai-prompt-seeds";
-import {
   DEFAULT_NOTEBOOK_SEEDS,
   WELCOME_MEMO_ID,
   WELCOME_MEMO_REPAIRED_CONTENT_HASH,
@@ -76,8 +72,7 @@ export const createWorkspaceDefaultSeedStatements = (
   now = isoNow(),
   locale?: string | null,
   guard: SeedInsertGuard = { sql: "1", bindings: [] },
-): PreparedStatementAdapter[] => [
-  ...DEFAULT_MEMO_TEMPLATE_SEEDS.map((seed) => {
+): PreparedStatementAdapter[] => DEFAULT_MEMO_TEMPLATE_SEEDS.map((seed) => {
     const localized = localizeMemoTemplateSeed(seed, locale);
     return db.prepare(
       `INSERT OR IGNORE INTO memo_templates (
@@ -96,29 +91,7 @@ export const createWorkspaceDefaultSeedStatements = (
       now,
       ...guard.bindings,
     );
-  }),
-  ...DEFAULT_AI_PROMPT_SEEDS.map((seed) => db.prepare(
-    `INSERT OR IGNORE INTO ai_prompt_templates (
-       id, workspace_id, seed_key, action, parameter_kind, result_mode,
-       name, description, instruction,
-       name_customized, description_customized, instruction_customized,
-       created_at, updated_at
-     ) SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, ?, ? WHERE ${guard.sql}`,
-  ).bind(
-    defaultAiPromptId(workspaceId, seed.key),
-    workspaceId,
-    seed.key,
-    seed.action,
-    seed.parameterKind,
-    seed.resultMode,
-    seed.name,
-    seed.description,
-    seed.instruction,
-    now,
-    now,
-    ...guard.bindings,
-  )),
-];
+  });
 
 // Workspaces created before their user has signed in (a fresh installation's
 // default workspace, or a member added by the owner) wait for that user's

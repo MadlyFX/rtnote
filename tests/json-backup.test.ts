@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import type { AiPromptTemplate, JsonBackupMemo, JsonBackupNotebook, MemoDetail, Notebook, Resource } from "@edgeever/shared";
+import type { JsonBackupMemo, JsonBackupNotebook, MemoDetail, Notebook, Resource } from "@edgeever/shared";
 import { splitMarkdownFrontMatter } from "@edgeever/shared";
 import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
 import {
@@ -66,7 +66,8 @@ const resource: Resource = {
   url: "/api/v1/resources/res_backup/blob",
 };
 
-const prompt: AiPromptTemplate = {
+// An AI prompt as written by versions before AI writing assist was removed.
+const legacyPrompt = {
   id: "aiprompt_backup",
   origin: "custom",
   seedKey: null,
@@ -88,7 +89,6 @@ describe("RTNote ZIP", () => {
     const cursors: (string | undefined)[] = [];
     const blob = await createEdgeEverZip({
       listNotebooks: async () => ({ notebooks: [notebook("nb_child", "Child")] }),
-      listPrompts: async () => ({ prompts: [] }),
       getPage: async (offset, _limit, cursor) => {
         cursors.push(cursor);
         return { memos: [{ ...memo, id: `memo_cursor_${offset}`, contentMarkdown: "body" }], resources: [], revisions: [],
@@ -137,7 +137,6 @@ describe("RTNote ZIP", () => {
     const progress: { completed: number; total: number }[] = [];
     const blob = await createEdgeEverZip({
       listNotebooks: async () => ({ notebooks: [notebook("nb_child", "Child")] }),
-      listPrompts: async () => ({ prompts: [] }),
       getPage: async (offset) => ({
         memos: [{ ...memo, id: `memo_page_${offset}`, contentMarkdown: "body" }],
         resources: [], revisions: [],
@@ -156,7 +155,6 @@ describe("RTNote ZIP", () => {
     const blob = await createEdgeEverZip(
       {
         listNotebooks: async () => ({ notebooks: [notebook("nb_child", "Child", "nb_root"), notebook("nb_root", "Root")] }),
-        listPrompts: async () => ({ prompts: [prompt] }),
         getPage: async () => ({
           memos: [memo],
           resources: [resource],
@@ -192,17 +190,19 @@ describe("RTNote ZIP", () => {
 
     expect(backup.manifest.format).toBe("edgeever-zip");
     expect(backup.manifest.formatVersion).toBe(2);
-    expect(backup.manifest.counts).toEqual({ notebooks: 2, memos: 1, revisions: 1, resources: 1, prompts: 1 });
+    expect(backup.manifest.counts).toEqual({ notebooks: 2, memos: 1, revisions: 1, resources: 1, prompts: 0 });
     expect(backup.notebooks.find((item) => item.id === "nb_child")).toMatchObject({
       color: "#2563eb", textColor: "#123456", colorTarget: "both",
       isBold: true, iconInverted: true, rowInverted: true,
     });
-    expect(backup.prompts).toEqual([prompt]);
+    expect(backup).not.toHaveProperty("prompts");
     expect(backup.notebooks.map((item) => item.id)).toEqual(["nb_root", "nb_child"]);
     expect(backup.memos[0].memo.contentMarkdown).toBe(memo.contentMarkdown);
     expect(backup.archive).toBe(blob);
     expect(resourceChunks).toEqual([1, 2]);
     const files = unzipSync(new Uint8Array(await blob.arrayBuffer()));
+    // Versions before AI removal require prompts.json in a v2 archive.
+    expect(JSON.parse(strFromU8(files["prompts.json"]))).toEqual([]);
     expect(Array.from(files[backup.memos[0].resources[0].archivePath])).toEqual([1, 2, 3]);
     const markdown = strFromU8(files["notes/Root/Child/Backup note.md"]);
     expect(splitMarkdownFrontMatter(markdown)?.values?.edgeever_id).toBe("memo_backup");
@@ -227,14 +227,29 @@ describe("RTNote ZIP", () => {
     })]));
 
     expect(backup.manifest.formatVersion).toBe(1);
-    expect(backup.prompts).toEqual([]);
+    expect(backup).not.toHaveProperty("prompts");
+  });
+
+  test("ignores AI prompts in backups from earlier versions", async () => {
+    const blob = await createEdgeEverZip({
+      listNotebooks: async () => ({ notebooks: [notebook("nb_root", "Root")] }),
+      getPage: async () => ({ memos: [], resources: [], revisions: [], totalCount: 0, nextOffset: null }),
+    }, { edgeeverVersion: "2.22.0", buildId: "old-build" });
+    const files = unzipSync(new Uint8Array(await blob.arrayBuffer()));
+    const manifest = JSON.parse(strFromU8(files["manifest.json"]));
+    manifest.counts.prompts = 1;
+    files["manifest.json"] = strToU8(JSON.stringify(manifest));
+    files["prompts.json"] = strToU8(JSON.stringify([legacyPrompt]));
+
+    const backup = await parseEdgeEverZip(new Blob([zipSync(files)]));
+    expect(backup.notebooks.map((item) => item.id)).toEqual(["nb_root"]);
+    expect(backup).not.toHaveProperty("prompts");
   });
 
   test("imports Markdown attachments without counting them as notes in v1 and v2 backups", async () => {
     const attachment = strToU8("# Attached Markdown\n");
     const blob = await createEdgeEverZip({
       listNotebooks: async () => ({ notebooks: [notebook("nb_child", "Child")] }),
-      listPrompts: async () => ({ prompts: [] }),
       getPage: async () => ({
         memos: [memo],
         resources: [{
@@ -267,7 +282,6 @@ describe("RTNote ZIP", () => {
       await restoreEdgeEverZip(backup, {
         restoreNotebooks: async () => {},
         restoreMemos: async () => {},
-        restorePrompts: async () => {},
         createResourceRestoreSink: async () => ({
           write: async (chunk) => { restored.push(new Uint8Array(chunk)); },
           close: async () => {},
@@ -350,7 +364,7 @@ describe("RTNote ZIP", () => {
       "[Content_Types].xml": strToU8("<Types></Types>"),
       "xl/workbook.xml": strToU8("<workbook/>"),
     });
-    const officeNotebook = notebook("nb_office", "资料");
+    const officeNotebook = notebook("nb_office", "Documents");
     const officeMemo: MemoDetail = {
       ...memo,
       id: "memo_office",
@@ -394,7 +408,6 @@ describe("RTNote ZIP", () => {
     ]);
     const blob = await createEdgeEverZip({
       listNotebooks: async () => ({ notebooks: [officeNotebook] }),
-      listPrompts: async () => ({ prompts: [] }),
       getPage: async () => ({
         memos: [officeMemo],
         resources: [docxResource, xlsxResource],
@@ -410,7 +423,6 @@ describe("RTNote ZIP", () => {
     await restoreEdgeEverZip(backup, {
       restoreNotebooks: async () => {},
       restoreMemos: async () => {},
-      restorePrompts: async () => {},
       createResourceRestoreSink: async (resourceId) => {
         const chunks: Uint8Array[] = [];
         return {
@@ -433,8 +445,8 @@ describe("RTNote ZIP", () => {
 
     expect(backup.manifest.counts.resources).toBe(2);
     expect(backup.memos[0].resources.map((item) => item.archivePath)).toEqual([
-      "notes/资料/Office.assets/brief.docx",
-      "notes/资料/Office.assets/sheet.xlsx",
+      "notes/Documents/Office.assets/brief.docx",
+      "notes/Documents/Office.assets/sheet.xlsx",
     ]);
     expect(restored.get("res_docx")).toEqual(docx);
     expect(restored.get("res_xlsx")).toEqual(xlsx);
@@ -471,14 +483,12 @@ describe("RTNote ZIP", () => {
         updatedAt: memo.updatedAt,
       }] satisfies JsonBackupNotebook[],
       memos: [backupMemo],
-      prompts: [prompt],
       archive: new Blob([zipSync({ "resources/res_backup/asset.png": new Uint8Array([1, 2, 3]) })]),
     };
 
     await restoreEdgeEverZip(backup, {
       restoreNotebooks: async () => { calls.push("notebooks"); },
       restoreMemos: async () => { calls.push("memos"); },
-      restorePrompts: async () => { calls.push("prompts"); },
       createResourceRestoreSink: async () => {
         let byteSize = 0;
         return {
@@ -489,7 +499,7 @@ describe("RTNote ZIP", () => {
       },
     });
 
-    expect(calls).toEqual(["prompts", "notebooks", "memos", "resource:3"]);
+    expect(calls).toEqual(["notebooks", "memos", "resource:3"]);
   });
 
   test("refreshes the workspace after all imported data is restored", async () => {
@@ -517,7 +527,6 @@ describe("RTNote ZIP", () => {
         updatedAt: memo.updatedAt,
       }] satisfies JsonBackupNotebook[],
       memos: [{ memo, revisions: [], resources: [] }] satisfies JsonBackupMemo[],
-      prompts: [],
       archive: new Blob([zipSync({})]),
     };
 
@@ -526,7 +535,6 @@ describe("RTNote ZIP", () => {
       {
         restoreNotebooks: async () => { calls.push("notebooks"); },
         restoreMemos: async () => { calls.push("memos"); },
-        restorePrompts: async () => { calls.push("prompts"); },
         createResourceRestoreSink: async () => ({
           write: async () => {},
           close: async () => { calls.push("resource"); },

@@ -17,6 +17,7 @@ describe("mobile editor contract", () => {
       "undo",
       "redo",
       "image",
+      "voiceMemo",
       "bold",
       "bulletList",
       "taskList",
@@ -32,19 +33,27 @@ describe("mobile editor contract", () => {
   });
 
   test("provides the same localized copy to both mobile clients", () => {
-    expect(getMobileEditorPlaceholder("zh-CN")).toBe("开始记录...");
-    expect(getMobileEditorPlaceholder("en-US")).toBe("Start writing...");
-    expect(getMobileEditorToolbarLabel("zh-CN")).toBe("编辑器工具栏");
-    expect(getMobileEditorToolbarActionLabel("undo", "zh-CN")).toBe("撤销");
-    expect(getMobileEditorToolbarActionLabel("redo", "en-US")).toBe("Redo");
-    expect(getMobileEditorToolbarActionLabel("undo", "ja")).toBe("元に戻す");
-    expect(getMobileEditorToolbarActionLabel("bulletList", "en-US")).toBe("Bullet list");
-    expect(getMobileEditorToolbarActionLabel("taskList", "zh-CN")).toBe("任务清单");
-    expect(getMobileEditorToolbarActionLabel("increaseListIndent", "zh-CN")).toBe("增加列表层级（Tab）");
-    expect(getMobileEditorToolbarActionLabel("decreaseListIndent", "en-US")).toBe("Decrease list level (Shift + Tab)");
-    expect(getMobileEditorToolbarActionLabel("format", "en-US")).toBe("Format");
-    expect(getMobileEditorImageScaleLabel("zh-CN")).toBe("图片显示尺寸");
-    expect(getMobileEditorImageWidthPresetLabel("medium", "en-US")).toBe("Medium");
+    const expectCopy = (read, expected) => {
+      for (const [locale, value] of Object.entries(expected)) expect({ locale, value: read(locale) }).toEqual({ locale, value });
+    };
+    expectCopy(getMobileEditorPlaceholder, { "zh-CN": "开始记录...", "en-US": "Start writing..." });
+    expectCopy(getMobileEditorToolbarLabel, { "zh-CN": "编辑器工具栏" });
+    expectCopy((locale) => getMobileEditorToolbarActionLabel("undo", locale), { "zh-CN": "撤销", ja: "元に戻す" });
+    expectCopy((locale) => getMobileEditorToolbarActionLabel("redo", locale), { "en-US": "Redo" });
+    expectCopy((locale) => getMobileEditorToolbarActionLabel("voiceMemo", locale), { "en-US": "Voice memo" });
+    expectCopy((locale) => getMobileEditorToolbarActionLabel("bulletList", locale), { "en-US": "Bullet list" });
+    expectCopy((locale) => getMobileEditorToolbarActionLabel("taskList", locale), { "zh-CN": "任务清单" });
+    expectCopy((locale) => getMobileEditorToolbarActionLabel("increaseListIndent", locale), { "zh-CN": "增加列表层级（Tab）" });
+    expectCopy((locale) => getMobileEditorToolbarActionLabel("decreaseListIndent", locale), { "en-US": "Decrease list level (Shift + Tab)" });
+    expectCopy((locale) => getMobileEditorToolbarActionLabel("format", locale), { "en-US": "Format" });
+    expectCopy(getMobileEditorImageScaleLabel, { "zh-CN": "图片显示尺寸" });
+    expectCopy((locale) => getMobileEditorImageWidthPresetLabel("medium", locale), { "en-US": "Medium" });
+  });
+
+  test("writes the English attachment prefix in every locale", () => {
+    for (const locale of ["zh-CN", "zh-TW", "en-US", "ja", "pl", "ru", "es", "de", "fr"]) {
+      expect({ locale, prefix: getMobileEditorCopy(locale).attachmentPrefix }).toEqual({ locale, prefix: "Attachment: " });
+    }
   });
 
   test("keeps mobile typing assistance enabled", () => {
@@ -73,9 +82,9 @@ describe("mobile editor copy", () => {
   });
 
   test("localizes editor overlays instead of falling back to English", () => {
-    expect(getMobileEditorCopy("pl").codeBlock.copy).toBe("Kopiuj kod");
-    expect(getMobileEditorCopy("ja").codeBlock.copy).toBe("コードをコピー");
-    expect(getMobileEditorCopy("zh-CN").codeBlock.copy).toBe("复制代码");
-    expect(getMobileEditorCopy("ru").codeBlock.copy).toBe("Копировать код");
+    const expected = { pl: "Kopiuj kod", ja: "コードをコピー", "zh-CN": "复制代码", ru: "Копировать код" };
+    for (const [locale, copy] of Object.entries(expected)) {
+      expect({ locale, copy: getMobileEditorCopy(locale).codeBlock.copy }).toEqual({ locale, copy });
+    }
   });
 });

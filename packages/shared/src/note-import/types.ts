@@ -1,18 +1,20 @@
+import type { TiptapDoc } from "../content";
 import type { MemoDetail } from "../types";
 
-export type ImportFormat = "evernote" | "obsidian" | "joplin";
+export type ImportFormat = "evernote" | "obsidian" | "joplin" | "docx";
 export type ImportFile = { path: string; file: File; expandArchive?: boolean };
 export type ImportIssue = { key: string; severity: "error" | "warning"; code: string; path: string; detail?: string };
 export type SourceEntry = { key: string; path: string; size: number; fileIndex: number; archivePath?: string; offset?: number };
 export type ImportNotebook = { key: string; name: string; parentKey: string | null };
 export type ImportReference = { start: number; end: number; href: string; label: string; image: boolean; wiki: boolean; resourceKey?: string; suffix?: string; targetOnly?: boolean };
-export type ImportResource = { key: string; filename: string; mimeType: string; byteSize: number; entryKey?: string; enex?: boolean; hash?: string; chunks?: number };
+export type ImportResource = { key: string; filename: string; mimeType: string; byteSize: number; entryKey?: string; enex?: boolean; hash?: string; chunks?: number; docxPart?: string };
 export type ImportNote = {
   key: string; path: string; notebookKey: string; title: string; tags: string[];
   createdAt?: string; updatedAt?: string; entryKey: string; ordinal?: number;
   resources: ImportResource[]; references?: ImportReference[]; raw?: boolean;
 };
-export type ImportDocument = { note: ImportNote; contentMarkdown: string; enml?: string };
+/** `contentJson` is set by rich-text sources (DOCX); image sources there use `docx-resource:<part>`. */
+export type ImportDocument = { note: ImportNote; contentMarkdown: string; enml?: string; contentJson?: TiptapDoc };
 export type ImportSummary = { id: string; format: ImportFormat; notebooks: number; notes: number; resources: number; errors: number; warnings: number };
 export type ImportKind = "entry" | "alias" | "note" | "notebook" | "issue" | "raw" | "rawTag" | "rawBinary" | "chunk" | "result" | "folderResult";
 export interface ImportIndex {

@@ -1,3 +1,5 @@
+import { isDefaultMemoTitle } from "./memo-title";
+
 export const isSuspiciousMemoOverwrite = (
   currentTitle: string | null,
   currentContentText: string,
@@ -6,7 +8,9 @@ export const isSuspiciousMemoOverwrite = (
 ) => {
   const currentLength = currentContentText.trim().length;
   const nextLength = nextContentText.trim().length;
-  const titleChanged = (currentTitle ?? "").trim() !== (nextTitle ?? "").trim();
+  // An empty title, "Untitled note" and EdgeEver's default title all mean untitled.
+  const comparableTitle = (title: string | null) => (isDefaultMemoTitle(title) ? "" : (title ?? "").trim());
+  const titleChanged = comparableTitle(currentTitle) !== comparableTitle(nextTitle);
 
   return titleChanged && currentLength >= 200 && nextLength < currentLength * 0.35;
 };

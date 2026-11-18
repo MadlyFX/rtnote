@@ -236,7 +236,7 @@ describe("restored resource security", () => {
 
   test("SVG encoding parameters and bytes survive both restore paths", async () => {
     const mimeType = "image/svg+xml; charset=utf-16le";
-    const bytes = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"><text>旧备份</text></svg>', "utf16le");
+    const bytes = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"><text>Old backup</text></svg>', "utf16le");
     for (const mode of ["legacy", "resumable"]) {
       const f = await fixture();
       const metadata = f.metadata({ mimeType, filename: "encoded.svg", byteSize: bytes.length });
@@ -407,7 +407,7 @@ describe("single-valued resource content types", () => {
   test("quoted commas, semicolons, escaped quotes and SVG charset remain one safely serialized type", async () => {
     const mimeType = 'IMAGE/SVG+XML;\tcharset="utf-16le"; note="a,b; text/html; \\"quoted\\""';
     const header = 'image/svg+xml; charset=utf-16le; note="a,b; text/html; \\"quoted\\""';
-    const bytes = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><text>旧备份</text></svg>', "utf16le");
+    const bytes = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><text>Old backup</text></svg>', "utf16le");
     for (const mode of ["legacy", "resumable"]) {
       const f = await fixture();
       const metadata = f.metadata({ mimeType, filename: "encoded.svg", byteSize: bytes.length });

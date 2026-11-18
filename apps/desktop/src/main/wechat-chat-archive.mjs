@@ -336,10 +336,13 @@ const parseLink = (line) => {
   return { title, url: urlMatch[2] };
 };
 
+// Same text as ATTACHMENT_TEXT_PREFIX in @edgeever/shared, which the desktop main process cannot import.
+const ATTACHMENT_TEXT_PREFIX = "Attachment: ";
+
 const mediaMarkdown = (item) => {
   const label = escapeMarkdownLabel(item.filename);
   const url = `edgeever-wechat-media://${item.id}`;
-  return isImage(item.filename) ? `![${label}](${url})` : `[附件：${label}](${url})`;
+  return isImage(item.filename) ? `![${label}](${url})` : `[${ATTACHMENT_TEXT_PREFIX}${label}](${url})`;
 };
 
 const QUOTE_SEPARATOR = /^[-—─\s]{5,}$/;
@@ -352,7 +355,7 @@ const renderBody = (lines, mediaByName) => {
     const line = lines[index];
     const trimmed = line.trim();
 
-    // 识别微信引用回复：以「开头，以」结尾，紧随其后是分隔线
+    // A WeChat quoted reply opens with 「, closes with 」 and is followed by a separator line.
     if (trimmed.startsWith("「")) {
       let quoteEndIndex = -1;
       for (let cursor = index; cursor < lines.length; cursor += 1) {

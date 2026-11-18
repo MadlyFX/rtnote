@@ -48,6 +48,23 @@ actor APIClient {
         try await request(path: "/api/release")
     }
 
+    // MARK: - Branding
+
+    /// Instance default branding for the sign-in screen (no auth). Older servers answer 404.
+    func getPublicBranding() async throws -> ResolvedBranding {
+        let response: PublicBrandingResponse = try await request(
+            path: "/api/public/branding",
+            notifyUnauthorized: false
+        )
+        return response.branding
+    }
+
+    /// Workspace branding; the app shell shows `effective`. Branding is cosmetic, so a
+    /// 401 here never ends the session on its own; the sync calls decide that.
+    func getBranding() async throws -> WorkspaceBrandingResponse {
+        try await request(path: "/api/v1/branding", notifyUnauthorized: false)
+    }
+
     // MARK: - Auth
 
     /// Password step. When TOTP is enabled the server answers 401 `mfa_required`;
@@ -271,114 +288,6 @@ actor APIClient {
             body: EmptyBody()
         )
         return response.editSession
-    }
-
-    // MARK: - AI note processing
-
-    func listAiPrompts(locale: String) async throws -> [AiPromptTemplate] {
-        let response: AiPromptsResponse = try await request(
-            path: "/api/v1/ai/prompts",
-            query: [.init(name: "locale", value: locale)]
-        )
-        return response.prompts
-    }
-
-    func suggestAiTags(_ input: AiTagSuggestionsInput) async throws -> AiTagSuggestionsResponse {
-        let prepared: AiPreparedTagSuggestions = try await request(path: "/api/v1/ai/tag-suggestions/prepare", method: "POST", body: input)
-        let generation = AiPreparedGeneration(provider: prepared.provider, baseUrl: prepared.baseUrl, apiKey: prepared.apiKey,
-            modelId: prepared.modelId, system: prepared.system, prompt: prepared.prompt, maxOutputTokens: prepared.maxOutputTokens,
-            resultBoundary: AiGenerationResultBoundary(start: "", end: ""))
-        let providerRequest = try AiDirectStream.providerRequest(for: generation)
-        let (bytes, response) = try await session.bytes(for: providerRequest)
-        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
-            throw APIError(status: (response as? HTTPURLResponse)?.statusCode ?? 502, code: "ai_tag_suggestions_failed", message: "The model request failed.")
-        }
-        var text = ""
-        for try await line in bytes.lines {
-            try Task.checkCancellation()
-            guard line.hasPrefix("data:"), let data = line.dropFirst(5).trimmingCharacters(in: .whitespaces).data(using: .utf8),
-                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { continue }
-            text += AiDirectStream.extractDelta(provider: prepared.provider, payload: json).text
-        }
-        return AiTagSuggestionsResponse(suggestions: AiDirectStream.tagSuggestions(text, currentTags: prepared.currentTags, canonicalTags: prepared.canonicalTags))
-    }
-
-    func streamAiGeneration(_ input: AiGenerateInput) -> AsyncThrowingStream<AiStreamEvent, Error> {
-        let session = self.session
-        return AsyncThrowingStream { continuation in
-            let task = Task {
-                do {
-                    // This client can run a long task in parts or continue a cut-off result (#652 PR B).
-                    var first = input
-                    first.segmentation = AiSegmentationRequest()
-                    let prepared: AiPreparedGeneration = try await self.request(path: "/api/v1/ai/generate/prepare", method: "POST", body: first)
-                    try await AiLongGeneration.run(
-                        input: input,
-                        first: prepared,
-                        prepare: { next in try await self.request(path: "/api/v1/ai/generate/prepare", method: "POST", body: next) },
-                        stream: { next, emit in try await Self.streamDirectProvider(next, session: session, emit: emit) },
-                        emit: { event in continuation.yield(event) }
-                    )
-                    continuation.finish()
-                } catch { continuation.finish(throwing: error) }
-            }
-            continuation.onTermination = { _ in task.cancel() }
-        }
-    }
-
-    private static func streamDirectProvider(
-        _ prepared: AiPreparedGeneration,
-        session: URLSession,
-        emit: @Sendable (AiStreamEvent) -> Void
-    ) async throws {
-        let request = try AiDirectStream.providerRequest(for: prepared)
-        let (bytes, response) = try await session.bytes(for: request)
-        guard let http = response as? HTTPURLResponse else {
-            throw APIError(status: -1, code: nil, message: "Invalid response")
-        }
-        guard (200 ..< 300).contains(http.statusCode) else {
-            var data = Data()
-            for try await byte in bytes { data.append(byte) }
-            let raw = String(data: data, encoding: .utf8) ?? HTTPURLResponse.localizedString(forStatusCode: http.statusCode)
-            throw APIError(status: http.statusCode, code: "ai_generation_failed", message: String(raw.prefix(1000)))
-        }
-        emit(AiStreamEvent(type: "start", text: nil, code: nil, message: nil, finishReason: nil, inputTokens: nil, outputTokens: nil))
-        let normalizer = AiGenerationStreamNormalizer(resultBoundary: prepared.resultBoundary)
-        var hasContent = false
-        var finishReason: String?
-        var inputTokens: Int?
-        var outputTokens: Int?
-        for try await line in bytes.lines {
-            try Task.checkCancellation()
-            guard line.hasPrefix("data:") else { continue }
-            let payload = line.dropFirst(5).trimmingCharacters(in: .whitespaces)
-            if payload.isEmpty || payload == "[DONE]" { continue }
-            guard let data = payload.data(using: .utf8),
-                  let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else { continue }
-            let delta = AiDirectStream.extractDelta(provider: prepared.provider, payload: json)
-            if let reason = delta.finishReason { finishReason = reason }
-            if let tokens = delta.inputTokens { inputTokens = tokens }
-            if let tokens = delta.outputTokens { outputTokens = tokens }
-            let text = normalizer.push(delta.text)
-            if text.isEmpty { continue }
-            hasContent = hasContent || !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            emit(AiStreamEvent(type: "text-delta", text: text, code: nil, message: nil, finishReason: nil, inputTokens: nil, outputTokens: nil))
-        }
-        let trailing = normalizer.finish()
-        if !trailing.isEmpty {
-            hasContent = hasContent || !trailing.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            emit(AiStreamEvent(type: "text-delta", text: trailing, code: nil, message: nil, finishReason: nil, inputTokens: nil, outputTokens: nil))
-        }
-        if !hasContent {
-            emit(AiStreamEvent(type: "error", text: nil, code: "ai_generation_failed", message: "The AI did not return a note result.", finishReason: nil, inputTokens: nil, outputTokens: nil))
-            return
-        }
-        switch AiDirectStream.streamEnd(finishReason: finishReason, normalizer: normalizer) {
-        case .interrupted:
-            emit(AiStreamEvent(type: "error", text: nil, code: "ai_stream_interrupted", message: "The connection ended before the AI finished.", finishReason: nil, inputTokens: nil, outputTokens: nil))
-        case .finished(let truncated):
-            emit(AiStreamEvent(type: "finish", text: nil, code: nil, message: nil, finishReason: finishReason, inputTokens: inputTokens, outputTokens: outputTokens, truncated: truncated))
-        }
     }
 
     // MARK: - Templates

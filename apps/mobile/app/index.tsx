@@ -9,14 +9,19 @@ import { MfaRebindScreen } from "../src/screens/MfaRebindScreen";
 import { clearAndRefreshIncomingShare } from "../src/lib/incoming-share-lifecycle";
 import { useSession } from "../src/lib/session";
 import { markStartup } from "../src/lib/startup-performance";
-import { resolveMobileThemeStyles, useMobileTheme } from "../src/lib/mobile-theme";
+import { useMobileBranding } from "../src/lib/mobile-branding";
+import { resolveMobileThemeColor, resolveMobileThemeStyles, useMobileTheme } from "../src/lib/mobile-theme";
+import { BrandLogo } from "../src/components/BrandLogo";
 
 const WorkspaceScreen = lazy(() =>
   import("../src/screens/WorkspaceScreen").then((module) => ({ default: module.WorkspaceScreen }))
 );
 
 export default function IndexScreen() {
-  const { isLoading, session } = useSession();
+  const { isLoading: isSessionLoading, session } = useSession();
+  const { isReady: isBrandingReady } = useMobileBranding();
+  // Wait for the cached branding too, so the first screen already shows it.
+  const isLoading = isSessionLoading || !isBrandingReady;
   const isRestoringCache = useIsRestoring();
   const {
     clearSharedPayloads,
@@ -68,11 +73,15 @@ export default function IndexScreen() {
 
 const StartupPlaceholder = ({ showBrand = false }: { showBrand?: boolean }) => {
   const { resolvedTheme } = useMobileTheme();
+  const { branding, logoUri } = useMobileBranding();
   const themedStyles = resolveMobileThemeStyles(styles, resolvedTheme);
+  const brandLogoUri = showBrand ? logoUri(resolvedTheme) : "";
   return (
     <View style={themedStyles.loading}>
-      {showBrand ? <Text style={themedStyles.brand}>RTNote</Text> : null}
-      <ActivityIndicator color="#15803d" />
+      {brandLogoUri ? <BrandLogo fallback={null} size={56} uri={brandLogoUri} /> : null}
+      {showBrand ? <Text style={themedStyles.brand}>{branding.name}</Text> : null}
+      {/* Resolved as light: the stock spinner keeps this green in dark mode too; only branding recolours it. */}
+      <ActivityIndicator color={resolveMobileThemeColor("#15803d", "light")} />
     </View>
   );
 };

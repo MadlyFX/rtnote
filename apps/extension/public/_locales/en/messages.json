@@ -486,18 +486,6 @@
   "videoNoteSaved": {
     "message": "Saved the video note."
   },
-  "videoTranscriptSaved": {
-    "message": "Saved the captions. No summary was generated."
-  },
-  "videoTranscriptNeedScope": {
-    "message": "Saved the captions. No summary was generated. Add the ai:generate scope to the token in settings, and choose a default model."
-  },
-  "videoTranscriptNeedModel": {
-    "message": "Saved the captions. No summary was generated. Choose a default model first."
-  },
-  "videoTranscriptTooLong": {
-    "message": "Saved the captions. This video is too long to summarize."
-  },
   "videoInfoSaved": {
     "message": "Saved the video details."
   },
@@ -519,14 +507,8 @@
   "videoCapturedAtLabel": {
     "message": "Saved"
   },
-  "videoSummaryHeading": {
-    "message": "Summary"
-  },
   "videoOutlineHeading": {
     "message": "Outline"
-  },
-  "videoTakeawaysHeading": {
-    "message": "Takeaways"
   },
   "videoTranscriptHeading": {
     "message": "Transcript"
@@ -770,23 +752,6 @@
   },
   "pageCaptureRestrictedHint": {
     "message": "Only a restricted preview is available. Get full reading access on the website and refresh, or select a visible passage to save."
-  },
-  "modelDirectPermission": {
-    "message": "Video summaries need direct access to $HOST$. Grant access, then clip the video again.",
-    "placeholders": {
-      "host": {
-        "content": "$1"
-      }
-    }
-  },
-  "modelDirectAllow": {
-    "message": "Allow model access"
-  },
-  "modelDirectReady": {
-    "message": "Access granted. Please clip the video again."
-  },
-  "modelDirectDenied": {
-    "message": "Model access was not granted."
   },
   "regionSelect": {
     "message": "Select area"

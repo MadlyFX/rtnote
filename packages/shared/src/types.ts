@@ -1,10 +1,8 @@
-import type { AiModelCapabilities } from "./ai-model-capabilities";
 import type { TiptapDoc } from "./content";
-import type { AiAction, AiPromptParameterKind, AiPromptResultMode } from "./ai-assistant";
 import type { DiagramKind, DiagramSummaryPreview } from "./diagram";
 import type { TableSummaryPreview } from "./table";
 
-export type NoteCreateKind = DiagramKind | "infographic" | "table" | "poster";
+export type NoteCreateKind = DiagramKind | "infographic" | "table" | "poster" | "voice-memo";
 
 export type Notebook = {
   id: string;
@@ -192,112 +190,6 @@ export type ObjectStorageSettings = {
   forcePathStyle: boolean;
   objectPrefix: string;
   encryptionConfigured: boolean;
-};
-
-export type AiProvider = "openai-compatible" | "anthropic" | "google";
-
-export type AiTranscriptionStandard = "openai-compatible";
-
-export type AiModelConfig = {
-  id: string;
-  providerConfigId: string;
-  modelId: string;
-  displayName: string;
-  /** Model-level output budgets; `null` uses the RTNote default. Older servers omit these fields. */
-  generationMaxOutputTokens?: number | null;
-  tagSuggestionMaxOutputTokens?: number | null;
-  companionMaxOutputTokens?: number | null;
-  /** Limits detected from the provider (#652); `null` when never detected, absent on older servers. */
-  detectedCapabilities?: AiModelCapabilities | null;
-};
-
-export type AiProviderConfig = {
-  id: string;
-  provider: AiProvider;
-  displayName: string;
-  baseUrl: string;
-  isEnabled: boolean;
-  hasApiKey: boolean;
-  models: AiModelConfig[];
-  credentialsUnavailable?: boolean;
-};
-
-export type AiSettings = {
-  providers: AiProviderConfig[];
-  defaultModelId: string | null;
-  encryptionConfigured: boolean;
-  readOnly: boolean;
-};
-
-export type AiTranscriptionModel = {
-  id: string;
-  providerId: string;
-  modelId: string;
-  displayName: string;
-};
-
-export type AiTranscriptionProvider = {
-  id: string;
-  provider: AiTranscriptionStandard;
-  displayName: string;
-  baseUrl: string;
-  isEnabled: boolean;
-  hasApiKey: boolean;
-  models: AiTranscriptionModel[];
-  credentialsUnavailable?: boolean;
-};
-
-export type AiTranscriptionSettings = {
-  providers: AiTranscriptionProvider[];
-  defaultModelId: string | null;
-  enabled: boolean;
-  encryptionConfigured: boolean;
-  readOnly: boolean;
-};
-
-export type AiPromptTemplate = {
-  id: string;
-  origin: "default" | "custom";
-  seedKey: Exclude<AiAction, "custom"> | null;
-  action: AiAction;
-  parameterKind: AiPromptParameterKind;
-  resultMode: AiPromptResultMode;
-  nameCustomized: boolean;
-  descriptionCustomized: boolean;
-  instructionCustomized: boolean;
-  name: string;
-  description: string | null;
-  instruction: string;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type AiDiscoveredModel = {
-  modelId: string;
-  displayName: string;
-};
-
-export type AiStreamEvent =
-  | { type: "start" }
-  | { type: "text-delta"; text: string }
-  /** The whole draft so far; replaces what earlier deltas built (a long run fixes up its parts). */
-  | { type: "text-reset"; text: string }
-  /** A long run moved on to part `part` (1-based) of `parts` (#652). */
-  | { type: "progress"; part: number; parts: number }
-  /**
-   * `truncated`: the provider stopped at its output or context limit, so the result is incomplete.
-   * `incompleteParts`: parts (1-based) of a long run that kept their source text.
-   */
-  | { type: "finish"; finishReason?: string; truncated?: boolean; incompleteParts?: number[]; inputTokens?: number; outputTokens?: number }
-  | { type: "error"; code: string; message: string };
-
-export type AiTagSuggestion = {
-  name: string;
-  existing: boolean;
-};
-
-export type AiTagSuggestionsResponse = {
-  suggestions: AiTagSuggestion[];
 };
 
 export type ApiToken = {

@@ -1,5 +1,6 @@
-import { EDGEEVER_ZIP_FORMAT, EDGEEVER_ZIP_FORMAT_VERSION, JsonBackupManifestSchema, JsonBackupAiPromptSchema, JsonBackupMemoSchema, JsonBackupNotebookSchema, type JsonBackupManifest, type JsonBackupAiPrompt, type JsonBackupMemo, type JsonBackupNotebook, type JsonBackupResource, type JsonBackupRevision } from "./backup";
+import { EDGEEVER_ZIP_FORMAT, EDGEEVER_ZIP_FORMAT_VERSION, JsonBackupManifestSchema, JsonBackupMemoSchema, JsonBackupNotebookSchema, type JsonBackupManifest, type JsonBackupMemo, type JsonBackupNotebook, type JsonBackupResource, type JsonBackupRevision } from "./backup";
 import type { MemoDetail, Notebook, Resource } from "./types";
+import { DEFAULT_MEMO_TITLE, normalizeLegacyMemoTitle } from "./memo-title";
 import { Reader, ZipReader, ZipWriter, Uint8ArrayReader, type CreateReadableOptions } from "@zip.js/zip.js/index-native.js";
 import { buildNoteMarkdown, buildNotebookExportPaths, getExportResourceExtension, replaceExportResourceUrl, sanitizeExportPathSegment, uniqueExportName } from "./backup-markdown";
 const strToU8 = (value: string) => new TextEncoder().encode(value);
@@ -50,7 +51,6 @@ export type JsonBackupSource = {
   getPage: (offset: number, limit: number, cursor?: string) => Promise<JsonBackupPage>;
   getResourceResponse?: (resourceUrl: string) => Promise<Response>;
   getResourceBlob?: (resourceUrl: string) => Promise<Blob>;
-  listPrompts: () => Promise<{ prompts: JsonBackupAiPrompt[] }>;
 };
 
 type JsonResourceRestoreSink = {
@@ -66,14 +66,12 @@ type JsonRestoreTarget = {
     resourceId: string,
     metadata: JsonBackupResource,
   ) => Promise<JsonResourceRestoreSink>;
-  restorePrompts: (prompts: JsonBackupAiPrompt[]) => Promise<unknown>;
 };
 
 export type ParsedEdgeEverZip = {
   manifest: JsonBackupManifest;
   notebooks: JsonBackupNotebook[];
   memos: JsonBackupMemo[];
-  prompts: JsonBackupAiPrompt[];
   archive: Blob;
 };
 
@@ -99,7 +97,7 @@ export const createEdgeEverZipStream = async (
   version: { edgeeverVersion: string; buildId: string },
   onProgress?: (progress: EdgeEverZipProgress) => void,
 ) => {
-  const [{ notebooks }, { prompts }] = await Promise.all([source.listNotebooks(), source.listPrompts()]);
+  const { notebooks } = await source.listNotebooks();
   const output = new TransformStream<Uint8Array, Uint8Array>();
   const reader = output.readable.getReader();
   const abort = new AbortController();
@@ -126,7 +124,8 @@ export const createEdgeEverZipStream = async (
     try {
       const backupNotebooks = notebooks.map(toBackupNotebook);
       await addJson("notebooks.json", backupNotebooks);
-      await addJson("prompts.json", prompts);
+      // Versions before AI removal require prompts.json in a v2 archive; keep it empty.
+      await addJson("prompts.json", []);
       let offset = 0;
       let cursor: string | undefined;
       let completed = 0;
@@ -142,7 +141,7 @@ export const createEdgeEverZipStream = async (
           const notebookPath = notebookPaths.get(memo.notebookId) ?? "Unfiled";
           const usedNames = memoNamesByNotebook.get(notebookPath) ?? new Set<string>();
           memoNamesByNotebook.set(notebookPath, usedNames);
-          const stem = uniqueExportName(sanitizeExportPathSegment(memo.title?.trim() || "Untitled note", "Untitled note"), usedNames);
+          const stem = uniqueExportName(sanitizeExportPathSegment(normalizeLegacyMemoTitle(memo.title?.trim() || DEFAULT_MEMO_TITLE), DEFAULT_MEMO_TITLE), usedNames);
           const directory = `notes/${notebookPath}`;
           const assets = `${stem}.assets`;
           const resourceNames = new Set<string>();
@@ -178,7 +177,7 @@ export const createEdgeEverZipStream = async (
       const manifest: JsonBackupManifest = {
         format: EDGEEVER_ZIP_FORMAT, formatVersion: EDGEEVER_ZIP_FORMAT_VERSION, schemaVersion: 1,
         ...version, exportedAt: new Date().toISOString(), includesTrash: false,
-        counts: { notebooks: backupNotebooks.length, memos: source.onManifest ? completed : total, revisions: revisionCount, resources: resourceCount, prompts: prompts.length },
+        counts: { notebooks: backupNotebooks.length, memos: source.onManifest ? completed : total, revisions: revisionCount, resources: resourceCount, prompts: 0 },
       };
       source.onManifest?.(manifest);
       await addJson("manifest.json", manifest);
@@ -390,14 +389,7 @@ export const parseEdgeEverZip = async (
     throw new EdgeEverZipImportError("invalidData", notebooksResult.error);
   }
   const notebooks = sortNotebooksForRestore(notebooksResult.data);
-  const promptsValue = manifest.formatVersion >= 2
-    ? parseJsonEntry(structuredEntries, "prompts.json")
-    : [];
-  const promptsResult = JsonBackupAiPromptSchema.array().safeParse(promptsValue);
-  if (!promptsResult.success) {
-    throw new EdgeEverZipImportError("invalidData", promptsResult.error);
-  }
-  const prompts = promptsResult.data as JsonBackupAiPrompt[];
+  // AI prompts in older RTNote and EdgeEver backups are ignored: AI writing assist was removed.
   const memoPaths = [...structuredEntries.keys()].filter((path) => /^memos\/[^/]+\.json$/.test(path)).sort();
   const memos: JsonBackupMemo[] = [];
   for (const path of memoPaths) {
@@ -419,7 +411,6 @@ export const parseEdgeEverZip = async (
     manifest.counts.notebooks !== notebooks.length
     || manifest.counts.memos !== memos.length
     || manifest.counts.memos !== markdownCount
-    || (manifest.counts.prompts ?? 0) !== prompts.length
   ) {
     throw new EdgeEverZipImportError("incompleteData");
   }
@@ -442,7 +433,7 @@ export const parseEdgeEverZip = async (
     throw new EdgeEverZipImportError("incompleteResources");
   }
 
-  return { manifest, notebooks, memos, prompts, archive: blob };
+  return { manifest, notebooks, memos, archive: blob };
 };
 
 /** The new desktop path validates relationships before any target write. */
@@ -482,17 +473,9 @@ export const restoreEdgeEverZip = async (
 ) => {
   const total = backup.notebooks.length
     + backup.memos.length
-    + backup.prompts.length
     + backup.manifest.counts.resources;
   let completed = 0;
   onProgress?.({ completed, total });
-
-  for (let index = 0; index < backup.prompts.length; index += 100) {
-    const batch = backup.prompts.slice(index, index + 100);
-    await target.restorePrompts(batch);
-    completed += batch.length;
-    onProgress?.({ completed, total });
-  }
 
   for (let index = 0; index < backup.notebooks.length; index += 100) {
     const batch = backup.notebooks.slice(index, index + 100);

@@ -23,7 +23,7 @@
       },
       "infoPlist": {
         "UIRequiresFullScreen": true,
-        "NSMicrophoneUsageDescription": "RTNote only uses the microphone if web content inside a note explicitly requests it.",
+        "NSMicrophoneUsageDescription": "Allow RTNote to use the microphone to record voice memos into your notes.",
         "NSCameraUsageDescription": "Allow RTNote to use your camera to take photos and insert them into your notes."
       }
     },
@@ -43,7 +43,7 @@
         "expo-image-picker",
         {
           "cameraPermission": "Allow RTNote to take photos and insert them into your notes.",
-          "microphonePermission": false,
+          "microphonePermission": "Allow RTNote to use the microphone to record voice memos into your notes.",
           "photosPermission": "Allow RTNote to choose photos to insert into your notes."
         }
       ],
@@ -88,7 +88,16 @@
         }
       ],
       "expo-sqlite",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Allow RTNote to use the microphone to record voice memos into your notes.",
+          "recordAudioAndroid": true,
+          "enableBackgroundRecording": true,
+          "enableBackgroundPlayback": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

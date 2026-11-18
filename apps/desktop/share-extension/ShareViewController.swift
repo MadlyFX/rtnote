@@ -9,9 +9,15 @@ final class ShareViewController: NSViewController {
     private let incomingDirectoryName = "RTNote Incoming"
     private var started = false
 
+    /// English is the source; Chinese is the only translation this extension ships.
+    private static func localized(_ english: String, zh: String) -> String {
+        Locale.preferredLanguages.first?.hasPrefix("zh") == true ? zh : english
+    }
+
+    private static let sharedFileName = localized("Shared file", zh: "共享的文件")
+
     override func loadView() {
-        let chinese = Locale.preferredLanguages.first?.hasPrefix("zh") == true
-        let label = NSTextField(labelWithString: chinese ? "正在保存到 RTNote…" : "Saving to RTNote…")
+        let label = NSTextField(labelWithString: Self.localized("Saving to RTNote…", zh: "正在保存到 RTNote…"))
         label.frame = NSRect(x: 16, y: 28, width: 248, height: 24)
         let container = NSView(frame: NSRect(x: 0, y: 0, width: 280, height: 80))
         container.addSubview(label)
@@ -74,7 +80,7 @@ final class ShareViewController: NSViewController {
         }
         guard let type = contentType(for: provider) else { return nil }
         // The provider's temporary file exists only inside this callback.
-        let filename = preferredFilename(suggested: provider.suggestedName, fileURL: fileURL, copiedSource: fileURL ?? URL(fileURLWithPath: "共享的文件"))
+        let filename = preferredFilename(suggested: provider.suggestedName, fileURL: fileURL, copiedSource: fileURL ?? URL(fileURLWithPath: Self.sharedFileName))
         return try await copyFileRepresentation(provider, type: type, filename: filename)
     }
 
@@ -215,7 +221,7 @@ final class ShareViewController: NSViewController {
     }
 
     private func sanitizedFilename(_ suggested: String?) -> String {
-        let fallback = Locale.preferredLanguages.first?.hasPrefix("zh") == true ? "共享的文件" : "Shared file"
+        let fallback = Self.sharedFileName
         let base = ((suggested ?? fallback) as NSString).lastPathComponent
         let trimmed = base
             .replacingOccurrences(of: "/", with: "")

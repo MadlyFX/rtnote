@@ -97,15 +97,14 @@ describe("EdgeEverPluginHost", () => {
     const directCalls = [];
     globalThis.window.fetch = async (...input) => { directCalls.push(input); return new Response('direct'); };
     const host = new EdgeEverPluginHost({ repository, scope: 'test',
-      aiAdapter: { status: async () => ({ configured: true }), generate: async input => { calls.push(input); return { text: 'HELLO' }; } },
-      publicNetworkAdapter: { fetchPublic: async input => { calls.push(input); return { url: input.url, status: 429, statusText: 'Too Many Requests', headers: {}, body: new TextEncoder().encode('limited').buffer }; } },
+      publicNetworkAdapter: { fetchPublic: async (input, options) => { calls.push({ ...input, signal: options?.signal }); return { url: input.url, status: 429, statusText: 'Too Many Requests', headers: {}, body: new TextEncoder().encode('limited').buffer }; } },
     });
     const install = async (id, permissions) => {
       host.installManifest({ type: 'plugin', id, name: id, version: '1.0.0', apiVersion: '2', settingsUi: 'host', entry: new URL('./plugin-capabilities.fixture.mjs', import.meta.url).href, ...(permissions ? { permissions } : {}) }, 'https://example.org/manifest.json');
       await host.setEnabled(id, true);
     };
     await install('org.test.trusted');
-    await host.runCommand('org.test.trusted', 'ai'); expect(capabilityResults.get('org.test.trusted')).toEqual({ text: 'HELLO' });
+    await host.runCommand('org.test.trusted', 'retired-ai'); expect(capabilityResults.get('org.test.trusted')).toEqual({ ai: 'undefined', speech: 'function' });
     await host.runCommand('org.test.trusted', 'public'); expect(capabilityResults.get('org.test.trusted')).toEqual({ status: 429, text: 'limited', url: 'https://example.org/feed' });
     await host.runCommand('org.test.trusted', 'direct-unlisted');
     expect(String(directCalls[0][0])).toBe('http://192.168.1.8/feed');

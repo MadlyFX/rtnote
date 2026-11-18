@@ -4,6 +4,7 @@ import { File as ExpoFile } from "expo-file-system";
 import { BackHandler, Platform } from "react-native";
 import {
   DEFAULT_MEMO_TITLE,
+  isDefaultMemoTitle,
   docToMarkdown,
   resolveMemoContentDoc,
   type MemoDetail,
@@ -34,7 +35,7 @@ import {
 } from "./mobile-editor-save-chrome";
 import { useMobileEditorResourceActions } from "./useMobileEditorResourceActions";
 import { useMobileEditorUploadAsset } from "./useMobileEditorUploadAsset";
-import { useMobileSelectionAi } from "./useMobileSelectionAi";
+import { useMobileVoiceMemo } from "./useMobileVoiceMemo";
 import {
   createOnceProtectedResourceFailureNotifier,
   type ProtectedResourceLoadFailure,
@@ -50,7 +51,7 @@ export type MobileMemoUpdateMutation = UseMutationResult<
 
 export const resolveEditableMemoTitle = (title?: string | null) => {
   const trimmedTitle = title?.trim() ?? "";
-  return trimmedTitle === DEFAULT_MEMO_TITLE ? "" : trimmedTitle;
+  return isDefaultMemoTitle(trimmedTitle) ? "" : trimmedTitle;
 };
 
 const createMobileImageUploadId = () =>
@@ -301,7 +302,7 @@ export const useMobileRichEditor = ({
       return savedMemo;
     } catch (saveError) {
       closingRef.current = false;
-      setError(saveError instanceof Error ? saveError.message : "保存失败");
+      setError(saveError instanceof Error ? saveError.message : "Save failed");
       return null;
     } finally {
       savingRef.current = false;
@@ -314,12 +315,6 @@ export const useMobileRichEditor = ({
   };
 
   const flushEditor = () => flushMobileEditor(editorRef, flushResolverRef);
-  const { aiPromptsJson, cancelSelectionAi, requestSelectionAi } = useMobileSelectionAi({
-    client,
-    editorRef,
-    resolvedLocale,
-    titleRef,
-  });
 
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
@@ -378,7 +373,7 @@ export const useMobileRichEditor = ({
       return;
     }
     if (currentMemo.id.startsWith("local:")) {
-      Alert.alert("正在同步新笔记", "首次同步完成后即可上传本地图片；图片链接现在就可以直接粘贴到正文。");
+      Alert.alert("New note is syncing", "Local images can be uploaded after the first sync. Image links can already be pasted into the note.");
       return;
     }
     const assets = await pickUploadAssets();
@@ -401,13 +396,13 @@ export const useMobileRichEditor = ({
         }
         const uploadAsset = await prepareUploadAsset(asset, imageCompressionEnabled);
         const { resource } = await uploadMobileResource(client, currentMemo.id, uploadAsset);
-        applyMobileEditorUpload(editorRef, resource, uploadId, uploadAsset.name || (resource.kind === "image" ? "图片" : "附件"));
+        applyMobileEditorUpload(editorRef, resource, uploadId, uploadAsset.name || (resource.kind === "image" ? "Image" : "Attachment"));
         if (resource.kind === "image") sources.push(resource.url);
         uploadId = null;
       }
     } catch (uploadError) {
       cancelMobileEditorUpload(editorRef, uploadId);
-      setError(uploadError instanceof Error ? uploadError.message : "附件上传失败");
+      setError(uploadError instanceof Error ? uploadError.message : "Could not upload the attachment");
     } finally {
       safeDomCall(() => editorRef.current?.finishImageBatch(sources));
       uploadingRef.current = false;
@@ -436,6 +431,31 @@ export const useMobileRichEditor = ({
     resolvedLocale,
     resourceCacheRef: resourceDataUrlCacheRef,
     sessionBaseUrl: session?.baseUrl,
+    token: session?.token,
+  });
+
+  const voiceMemoBusyRef = useRef(0);
+  const {
+    loadVoiceMemoAudio,
+    openRecorder: recordVoiceMemo,
+    voiceMemoRecorder,
+  } = useMobileVoiceMemo({
+    baseUrl: session?.baseUrl ?? baseUrl,
+    client,
+    editorRef,
+    getDoc: () => contentJsonRef.current,
+    onBusyChange: (busy) => {
+      // Closing waits for an upload that is about to change the note.
+      voiceMemoBusyRef.current += busy ? 1 : -1;
+      const anyBusy = voiceMemoBusyRef.current > 0;
+      uploadingRef.current = anyBusy;
+      setUploading(anyBusy);
+    },
+    ready: active && ready,
+    resolveUploadMemoId: async () => {
+      const currentMemo = memoBaseRef.current;
+      return currentMemo && !currentMemo.id.startsWith("local:") ? currentMemo.id : null;
+    },
     token: session?.token,
   });
 
@@ -483,8 +503,6 @@ export const useMobileRichEditor = ({
   };
 
   return {
-    aiPromptsJson,
-    cancelSelectionAi,
     contentMarkdown: contentMarkdownRef.current,
     deleteResource,
     dirty,
@@ -492,6 +510,7 @@ export const useMobileRichEditor = ({
     draftRestored,
     error,
     loadEditorResource,
+    loadVoiceMemoAudio,
     markDirty,
     notebookId,
     notebookLabel,
@@ -499,9 +518,9 @@ export const useMobileRichEditor = ({
     persistDraft,
     pickAndUploadImage,
     ready,
+    recordVoiceMemo,
     renameResource,
     requestClose,
-    requestSelectionAi,
     resourceTarget,
     saveEmphasized: saveChrome.emphasized,
     saveLabel: saveChrome.label,
@@ -519,6 +538,7 @@ export const useMobileRichEditor = ({
     title,
     uploadSourcePicker,
     uploading,
+    voiceMemoRecorder,
   };
 };
 

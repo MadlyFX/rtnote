@@ -47,14 +47,14 @@ describe("platform release version checks", () => {
   test("selects exact and related locales before falling back to English", () => {
     const changes = {
       "en-US": ["English"],
-      "ja-JP": ["日本語"],
+      "ja-JP": ["Japanese"],
       "pt-BR": ["Português"],
-      "zh-CN": ["中文"],
+      "zh-CN": ["Chinese"],
     };
 
-    expect(resolveLocalizedReleaseChanges(changes, "ja-JP")).toEqual(["日本語"]);
+    expect(resolveLocalizedReleaseChanges(changes, "ja-JP")).toEqual(["Japanese"]);
     expect(resolveLocalizedReleaseChanges(changes, "pt_PT")).toEqual(["Português"]);
-    expect(resolveLocalizedReleaseChanges(changes, "zh-Hans")).toEqual(["中文"]);
+    expect(resolveLocalizedReleaseChanges(changes, "zh-Hans")).toEqual(["Chinese"]);
     expect(resolveLocalizedReleaseChanges(changes, "de-DE")).toEqual(["English"]);
   });
 

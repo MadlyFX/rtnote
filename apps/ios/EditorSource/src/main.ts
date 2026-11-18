@@ -7,7 +7,6 @@ import { Editor } from "@tiptap/core";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import CodeBlock from "@tiptap/extension-code-block";
-import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
 import { NodeSelection } from "@tiptap/pm/state";
 import mermaid from "mermaid";
 import { toCanvas } from "html-to-image";
@@ -33,6 +32,7 @@ import {
   type DiagramDocument,
 } from "@edgeever/shared";
 import { clearMobileEditorUndoHistory, type MobileEditorLocale } from "@edgeever/shared/mobile-editor";
+import { ATTACHMENT_TEXT_PREFIX, LEGACY_ATTACHMENT_PREFIXES } from "@edgeever/shared/edgeever-legacy-values";
 import {
   type NoteImageTheme,
   type NoteImageFontStyle,
@@ -53,6 +53,13 @@ import { createMobileFormatPanel, getMobileCaptionPlaceholder, type MobileFormat
 import { createIosImageGallery } from "./document-nodes";
 import { createImageInsertTransaction, groupUploadedImages, NATIVE_IMAGE_GALLERY_CSS } from "@edgeever/shared/native-image-gallery";
 import { installPhoneImageFillStyle, NEW_IMAGE_WIDTH_PERCENT } from "@edgeever/shared/image-display";
+import { createNativeVoiceMemoExtension, NATIVE_VOICE_MEMO_CSS } from "@edgeever/shared/native-voice-memo";
+import {
+  completeIosVoiceMemo,
+  insertIosVoiceMemo,
+  listIosPendingVoiceMemos,
+  needsNativeAudioLoad,
+} from "./voice-memo-bridge";
 
 const galleryStyle = document.createElement("style");
 galleryStyle.textContent = NATIVE_IMAGE_GALLERY_CSS;
@@ -62,6 +69,10 @@ installPhoneImageFillStyle();
 const detailsStyle = document.createElement("style");
 detailsStyle.textContent = DETAILS_EDITOR_CSS;
 document.head.append(detailsStyle);
+
+const voiceMemoStyle = document.createElement("style");
+voiceMemoStyle.textContent = NATIVE_VOICE_MEMO_CSS;
+document.head.append(voiceMemoStyle);
 
 Graph.registerConnector(MIND_MAP_CONNECTOR_NAME, mindMapConnector, true);
 
@@ -73,6 +84,8 @@ type BridgeMessage =
   | { type: "imagePreview"; source: string; alt: string }
   | { type: "doubleTap" }
   | { type: "pickImage" }
+  | { type: "recordVoiceMemo" }
+  | { type: "loadAudio"; requestId: string; source: string }
   | { type: "searchResult"; count: number; index: number }
   | { type: "readerScroll"; collapsed: boolean }
   | { type: "imageExportFontStatus"; requestId: string; status: "loading" | "fallback" | "ready" }
@@ -127,11 +140,17 @@ function buildImageTargetJson(src: string, filename: string): string | null {
   });
 }
 
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const ATTACHMENT_PREFIX_WORDS = [ATTACHMENT_TEXT_PREFIX, ...LEGACY_ATTACHMENT_PREFIXES]
+  .map((prefix) => escapeRegExp(prefix.trim().replace(/[:：]$/, "")));
+/** RTNote's "Attachment:" label prefix or one of EdgeEver's, with an ASCII or full-width colon. */
+const ATTACHMENT_PREFIX_PATTERN = new RegExp(`^\\s*(?:${ATTACHMENT_PREFIX_WORDS.join("|")})[:：]\\s*`, "i");
+
 function buildAttachmentTargetJson(href: string, label: string): string | null {
   const resourceId = getResourceIdFromHref(href);
   if (!resourceId) return null;
   const filename =
-    label.replace(/^\s*(?:附件[：:]|Attachment:)\s*/i, "").trim() || resourceId;
+    label.replace(ATTACHMENT_PREFIX_PATTERN, "").trim() || resourceId;
   return JSON.stringify({
     kind: "attachment",
     href: normalizeResourceHref(href, resourceId),
@@ -143,7 +162,7 @@ function buildAttachmentTargetJson(href: string, label: string): string | null {
 const ATTACHMENT_KIND_CLASS_PREFIX = "edgeever-attachment-kind-";
 
 function normalizeAttachmentFilename(label: string): string {
-  return label.replace(/^\s*(?:附件[：:]|Attachment:)\s*/i, "").trim();
+  return label.replace(ATTACHMENT_PREFIX_PATTERN, "").trim();
 }
 
 function decorateAttachmentLinks(root: ParentNode): void {
@@ -197,7 +216,15 @@ let locale: MobileEditorLocale = "en-US";
 // Declared before the editor exists: its toolbar refresh reads the panel state.
 let formatPanel: MobileFormatPanel | null = null;
 let formatPanelLocale: MobileEditorLocale | null = null;
-let currentPlaceholder = "开始输入…";
+let currentPlaceholder = "Start typing…";
+
+/** Text for the current editor locale. English is the source text and the fallback. */
+function localized(en: string, translations: { zh?: string; ja?: string; pl?: string }): string {
+  if (locale === "zh-CN") return translations.zh ?? en;
+  if (locale === "ja") return translations.ja ?? en;
+  if (locale === "pl") return translations.pl ?? en;
+  return en;
+}
 let suppressChange = false;
 const resourceResolvers = new Map<string, (dataUrl: string | null) => void>();
 let resourceSeq = 0;
@@ -245,11 +272,11 @@ function needsNativeHydration(src: string): boolean {
   return false;
 }
 
-function requestResource(source: string): Promise<string | null> {
+function requestResource(source: string, kind: "loadResource" | "loadAudio" = "loadResource"): Promise<string | null> {
   return new Promise((resolve) => {
     const requestId = `r${++resourceSeq}`;
     resourceResolvers.set(requestId, resolve);
-    post({ type: "loadResource", requestId, source });
+    post({ type: kind, requestId, source });
     // Timeout so broken resources don't hang forever.
     setTimeout(() => {
       if (resourceResolvers.delete(requestId)) resolve(null);
@@ -346,7 +373,14 @@ function renderViewerDiagram(root: HTMLElement, diagram: DiagramDocument, theme:
   const container = document.createElement("div");
   container.className = "edgeever-x6-diagram";
   container.setAttribute("role", "img");
-  container.setAttribute("aria-label", diagram.kind === "mind-map" ? "思维导图" : diagram.kind === "architecture" ? "架构图" : "流程图");
+  container.setAttribute(
+    "aria-label",
+    diagram.kind === "mind-map"
+      ? localized("Mind map", { zh: "思维导图", ja: "マインドマップ", pl: "Mapa myśli" })
+      : diagram.kind === "architecture"
+        ? localized("Architecture diagram", { zh: "架构图", ja: "アーキテクチャ図", pl: "Diagram architektury" })
+        : localized("Flowchart", { zh: "流程图", ja: "フローチャート", pl: "Schemat blokowy" }),
+  );
   // Keep TipTap's managed DOM intact. Replacing a node inside ProseMirror makes
   // the next setContent call unreliable when SwiftUI reuses this WKWebView.
   proseMirror.hidden = true;
@@ -513,7 +547,7 @@ function createEdgeEverImageExtension() {
         actionButton.className = "edgeever-image-actions";
         actionButton.contentEditable = "false";
         actionButton.hidden = true;
-        actionButton.setAttribute("aria-label", "图片操作");
+        actionButton.setAttribute("aria-label", localized("Image actions", { zh: "图片操作", ja: "画像の操作", pl: "Działania na obrazie" }));
         actionButton.textContent = "⋯";
 
         const sizeControls = document.createElement("div");
@@ -521,7 +555,7 @@ function createEdgeEverImageExtension() {
         sizeControls.contentEditable = "false";
         sizeControls.hidden = true;
         sizeControls.setAttribute("role", "group");
-        sizeControls.setAttribute("aria-label", "图片宽度");
+        sizeControls.setAttribute("aria-label", localized("Image width", { zh: "图片宽度", ja: "画像の幅", pl: "Szerokość obrazu" }));
 
         const applyWidthAtPos = (width: number) => {
           const pos = getPos();
@@ -575,7 +609,7 @@ function createEdgeEverImageExtension() {
             loading.replaceChildren();
             const label = document.createElement("span");
             label.className = "edgeever-image-loading-label";
-            label.textContent = "图片加载失败";
+            label.textContent = localized("Image failed to load", { zh: "图片加载失败", ja: "画像を読み込めませんでした", pl: "Nie udało się wczytać obrazu" });
             loading.append(label);
             loading.hidden = false;
           } else if (phase === "loading") {
@@ -780,6 +814,11 @@ function buildExtensions(placeholder: string) {
       gallery: createIosImageGallery(() => locale),
       pdf: false,
       file: false,
+      // Native loads protected or offline audio and serves it through edgeever-res://.
+      voiceMemo: createNativeVoiceMemoExtension({
+        getLocale: () => locale,
+        resolveAudioUrl: (url) => (needsNativeAudioLoad(url) ? requestResource(url, "loadAudio") : url),
+      }),
       pluginEmbed: false,
       table: { table: { resizable: false } },
       imageCaption: { placeholder: () => getMobileCaptionPlaceholder(locale) },
@@ -817,7 +856,7 @@ function resetReaderScroll() {
 
 const editor = new Editor({
   element: editorEl,
-  extensions: buildExtensions("开始书写…"),
+  extensions: buildExtensions("Start writing…"),
   editable: false,
   content: { type: "doc", content: [{ type: "paragraph" }] },
   onUpdate: ({ editor: ed }) => {
@@ -978,133 +1017,8 @@ function handleResourcePointer(event: Event, kind: "click" | "contextmenu"): boo
   editorEl.addEventListener("touchcancel", clear, { passive: true });
 })();
 
-const LITERAL_DOLLAR_PLACEHOLDER = "\uE000edgeever-dollar\uE001";
-
-const protectLiteralDollarPairs = (value: unknown): unknown => {
-  if (!value || typeof value !== "object") return value;
-  const node = value as { type?: unknown; text?: unknown; content?: unknown };
-  if (node.type === "text" && typeof node.text === "string") {
-    const dollarCount = Array.from(node.text).filter((character) => character === "$").length;
-    return dollarCount >= 2
-      ? { ...node, text: node.text.replaceAll("$", LITERAL_DOLLAR_PLACEHOLDER) }
-      : value;
-  }
-  return Array.isArray(node.content)
-    ? { ...node, content: node.content.map(protectLiteralDollarPairs) }
-    : value;
-};
-
 const serializeEditorMarkdown = (ed: Editor) => {
   return docToMarkdown(restoreNativeEditorContent(ed.getJSON() as TiptapDoc));
-};
-
-let pendingAiSelection: { from: number; to: number; isInline: boolean; documentFingerprint: string } | null = null;
-
-const serializeSelectionMarkdown = (ed: Editor, from: number, to: number) => {
-  const manager = (ed.storage as { markdown?: { manager?: { serialize?: (doc: unknown) => string } } })
-    .markdown?.manager;
-  const content = ed.state.doc.slice(from, to).content.toJSON();
-  if (manager?.serialize) {
-    return manager
-      .serialize(protectLiteralDollarPairs({ type: "doc", content }))
-      .replaceAll(LITERAL_DOLLAR_PLACEHOLDER, "\\$");
-  }
-  return ed.state.doc.textBetween(from, to, "\n\n");
-};
-
-type AiSelectionContext = {
-  from: number;
-  to: number;
-  isInline: boolean;
-  markdown: string;
-  text: string;
-};
-
-type ParsedMarkdownNode = {
-  type?: string;
-  text?: string;
-  content?: ParsedMarkdownNode[];
-  [key: string]: unknown;
-};
-
-const AI_INLINE_SENTINEL = "edgeever-inline-sentinel";
-
-const serializeInlineSelectionMarkdown = (ed: Editor, content: unknown[], fallback: string) => {
-  const manager = (ed.storage as { markdown?: { manager?: { serialize?: (doc: unknown) => string } } })
-    .markdown?.manager;
-  if (!manager?.serialize) return fallback;
-  return manager
-    .serialize(protectLiteralDollarPairs({ type: "doc", content: [{ type: "paragraph", content }] }))
-    .replaceAll(LITERAL_DOLLAR_PLACEHOLDER, "\\$");
-};
-
-const getAiSelectionContext = (ed: Editor): AiSelectionContext | null => {
-  const selection = ed.state.selection;
-  if (selection.empty || selection.from >= selection.to) return null;
-
-  const selectedTextblocks: Array<{
-    node: ProseMirrorNode;
-    contentFrom: number;
-    contentTo: number;
-    from: number;
-    to: number;
-  }> = [];
-  ed.state.doc.nodesBetween(selection.from, selection.to, (node, pos) => {
-    if (!node.isTextblock) return true;
-    const contentFrom = pos + 1;
-    const contentTo = contentFrom + node.content.size;
-    const from = Math.max(selection.from, contentFrom);
-    const to = Math.min(selection.to, contentTo);
-    if (to > from) selectedTextblocks.push({ node, contentFrom, contentTo, from, to });
-    return false;
-  });
-
-  if (selectedTextblocks.length === 1) {
-    const block = selectedTextblocks[0];
-    const selectedBlock = block.node.cut(
-      block.from - block.contentFrom,
-      block.to - block.contentFrom,
-    ).toJSON() as { content?: unknown[] };
-    const text = ed.state.doc.textBetween(block.from, block.to, "\n");
-    const markdown = serializeInlineSelectionMarkdown(ed, selectedBlock.content ?? [], text).trim();
-    return markdown
-      ? { from: block.from, to: block.to, isInline: true, markdown, text }
-      : null;
-  }
-
-  const markdown = serializeSelectionMarkdown(ed, selection.from, selection.to).trim();
-  return markdown
-    ? {
-        from: selection.from,
-        to: selection.to,
-        isInline: false,
-        markdown,
-        text: ed.state.doc.textBetween(selection.from, selection.to, "\n\n"),
-      }
-    : null;
-};
-
-const parseAiSelectionReplacement = (ed: Editor, draft: string, isInline: boolean): unknown[] => {
-  const manager = (ed.storage as { markdown?: { manager?: { parse?: (value: string) => { content?: unknown[] } } } })
-    .markdown?.manager;
-  const normalizedDraft = draft.trim();
-  const blockContent = manager?.parse?.(normalizedDraft).content ?? [{ type: "text", text: normalizedDraft }];
-  if (!isInline) return blockContent;
-
-  const inlineDraft = normalizedDraft.replace(/\s*\n+\s*/g, " ");
-  const inlineContent = manager?.parse?.(`${AI_INLINE_SENTINEL}${inlineDraft}`).content;
-  const paragraph = inlineContent?.length === 1 ? inlineContent[0] as ParsedMarkdownNode : null;
-  const paragraphContent = paragraph?.type === "paragraph" ? paragraph.content ?? [] : [];
-  const firstNode = paragraphContent[0];
-  if (firstNode?.type !== "text" || typeof firstNode.text !== "string" || !firstNode.text.startsWith(AI_INLINE_SENTINEL)) {
-    return [{ type: "text", text: inlineDraft }];
-  }
-
-  const firstText = firstNode.text.slice(AI_INLINE_SENTINEL.length);
-  return [
-    ...(firstText ? [{ ...firstNode, text: firstText }] : []),
-    ...paragraphContent.slice(1),
-  ];
 };
 
 function emitChange(ed: Editor) {
@@ -1184,6 +1098,11 @@ function setToolbarVisible(visible: boolean) {
       label: "▧+",
       run: () => post({ type: "pickImage" }),
     },
+    {
+      id: "voiceMemo",
+      label: "🎙",
+      run: () => post({ type: "recordVoiceMemo" }),
+    },
     { id: "bold", label: "B", run: () => editor.chain().focus().toggleBold().run() },
     {
       id: "bullet",
@@ -1222,10 +1141,11 @@ function setToolbarVisible(visible: boolean) {
     btn.type = "button";
     btn.textContent = action.label;
     btn.dataset.action = action.id;
-    const labels: Record<string, Record<MobileEditorLocale, string>> = {
+    const labels: Record<string, Partial<Record<MobileEditorLocale, string>>> = {
       undo: { "zh-CN": "撤销", "en-US": "Undo", ja: "元に戻す", pl: "Cofnij", ru: "Отменить" },
       redo: { "zh-CN": "重做", "en-US": "Redo", ja: "やり直す", pl: "Ponów", ru: "Повторить" },
       image: { "zh-CN": "插入图片", "en-US": "Insert image", ja: "画像を挿入", pl: "Wstaw obraz", ru: "Вставить изображение" },
+      voiceMemo: { "zh-CN": "录制语音备忘", "zh-TW": "錄製語音備忘", "en-US": "Record voice memo", ja: "ボイスメモを録音", pl: "Nagraj notatkę głosową", ru: "Записать голосовую заметку", es: "Grabar nota de voz", de: "Sprachmemo aufnehmen", fr: "Enregistrer un mémo vocal" },
       bold: { "zh-CN": "粗体", "en-US": "Bold", ja: "太字", pl: "Pogrubienie", ru: "Полужирный" },
       bullet: { "zh-CN": "项目符号列表", "en-US": "Bullet list", ja: "箇条書き", pl: "Lista punktowana", ru: "Маркированный список" },
       task: { "zh-CN": "任务清单", "en-US": "Task list", ja: "タスクリスト", pl: "Lista zadań", ru: "Список задач" },
@@ -1235,10 +1155,10 @@ function setToolbarVisible(visible: boolean) {
       hr: { "zh-CN": "分隔线", "en-US": "Horizontal rule", ja: "区切り線", pl: "Linia pozioma", ru: "Горизонтальная линия" },
       format: { "zh-CN": "格式", "zh-TW": "格式", "en-US": "Format", ja: "書式", pl: "Formatowanie", ru: "Формат", es: "Formato", de: "Format", fr: "Mise en forme" },
     };
-    btn.setAttribute("aria-label", labels[action.id]?.[locale] ?? action.id);
+    btn.setAttribute("aria-label", labels[action.id]?.[locale] ?? labels[action.id]?.["en-US"] ?? action.id);
     btn.addEventListener("click", () => {
       action.run();
-      if (action.id !== "image" && action.id !== "format") emitChange(editor);
+      if (action.id !== "image" && action.id !== "voiceMemo" && action.id !== "format") emitChange(editor);
       refreshToolbarState();
     });
     toolbarEl.appendChild(btn);
@@ -1453,9 +1373,6 @@ export type EdgeEverEditorAPI = {
   resolveResource: (requestId: string, dataUrl: string | null) => void;
   getMarkdown: () => string;
   getDocument: () => string;
-  captureSelection: () => string | null;
-  applySelectionDraft: (markdown: string, mode: "append" | "replace") => boolean;
-  undo: () => boolean;
   focusEnd: () => void;
   flush: () => void;
   exec: (actionId: string) => void;
@@ -1463,6 +1380,12 @@ export type EdgeEverEditorAPI = {
   completeImageUpload: (uploadId: string, imageUrl: string, alt: string) => void;
   groupImages: (sources: string[]) => boolean;
   cancelImageUpload: (uploadId: string) => void;
+  /** Inserts a voice memo block from JSON attrs; returns whether it was inserted. */
+  insertVoiceMemo: (attrsJson: string) => boolean;
+  /** Fills in the pending voice memo with `clientId` once its recording is uploaded. */
+  completeVoiceMemo: (clientId: string, attrsJson: string) => boolean;
+  /** JSON array of client ids of voice memos whose recording is not uploaded yet. */
+  listPendingVoiceMemos: () => string;
   search: (query: string, requestedIndex: number) => void;
   exportImage: (request: ImageExportRequest) => void;
 };
@@ -1582,60 +1505,6 @@ const api: EdgeEverEditorAPI = {
     return JSON.stringify(restoreNativeEditorContent(editor.getJSON() as TiptapDoc));
   },
 
-  captureSelection() {
-    const context = getAiSelectionContext(editor);
-    if (!context) {
-      pendingAiSelection = null;
-      return null;
-    }
-    pendingAiSelection = {
-      from: context.from,
-      to: context.to,
-      isInline: context.isInline,
-      documentFingerprint: JSON.stringify(editor.getJSON()),
-    };
-    return JSON.stringify({
-      from: context.from,
-      to: context.to,
-      markdown: context.markdown,
-      text: context.text,
-    });
-  },
-
-  applySelectionDraft(markdown, applyMode) {
-    const range = pendingAiSelection;
-    if (!range || !markdown.trim()) return false;
-    if (JSON.stringify(editor.getJSON()) !== range.documentFingerprint) {
-      pendingAiSelection = null;
-      return false;
-    }
-    const docSize = editor.state.doc.content.size;
-    const from = Math.min(Math.max(range.from, 0), docSize);
-    const to = Math.min(Math.max(range.to, from), docSize);
-    try {
-      const manager = (editor.storage as { markdown?: { manager?: { parse?: (value: string) => { content?: unknown[] } } } })
-        .markdown?.manager;
-      const parsed = manager?.parse?.(markdown);
-      const content = applyMode === "replace"
-        ? parseAiSelectionReplacement(editor, markdown, range.isInline)
-        : parsed?.content ?? markdown;
-      const insertRange = applyMode === "append" ? { from: to, to } : { from, to };
-      editor.chain().focus().insertContentAt(insertRange, content as never).run();
-      pendingAiSelection = null;
-      emitChange(editor);
-      return true;
-    } catch {
-      return false;
-    }
-  },
-
-  undo() {
-    if (!editor.can().undo()) return false;
-    const changed = editor.commands.undo();
-    if (changed) emitChange(editor);
-    return changed;
-  },
-
   focusEnd() {
     try {
       editor.commands.focus("end");
@@ -1704,6 +1573,22 @@ const api: EdgeEverEditorAPI = {
     const img = editorEl.querySelector(`img[data-upload-id="${uploadId}"]`);
     img?.remove();
     emitChange(editor);
+  },
+
+  insertVoiceMemo(attrsJson) {
+    const inserted = insertIosVoiceMemo(editor, attrsJson);
+    if (inserted) emitChange(editor);
+    return inserted;
+  },
+
+  completeVoiceMemo(clientId, attrsJson) {
+    const completed = completeIosVoiceMemo(editor, clientId, attrsJson);
+    if (completed) emitChange(editor);
+    return completed;
+  },
+
+  listPendingVoiceMemos() {
+    return JSON.stringify(listIosPendingVoiceMemos(editor));
   },
 
   search(query, requestedIndex) {

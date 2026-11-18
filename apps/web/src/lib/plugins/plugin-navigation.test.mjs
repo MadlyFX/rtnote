@@ -37,13 +37,13 @@ describe("plugin settings navigation", () => {
     const groups = getPluginToolbarGroups({
       extensions: [{ manifest: { type: "plugin", id: "tasks" }, enabled: true }],
       commands: [
-        { pluginId: "tasks", id: "open-dashboard", title: "打开待办任务面板", menu: false },
-        { pluginId: "tasks", id: "insert-task", title: "在光标处插入待办任务", listed: false },
-        { pluginId: "tasks", id: "create-or-edit", title: "创建或编辑任务", listed: false },
+        { pluginId: "tasks", id: "open-dashboard", title: "Open Tasks dashboard", menu: false },
+        { pluginId: "tasks", id: "insert-task", title: "Insert a task at the cursor", listed: false },
+        { pluginId: "tasks", id: "create-or-edit", title: "Create or edit task", listed: false },
       ],
       panels: [
-        { pluginId: "tasks", id: "tasks", title: "待办任务", purpose: "dashboard" },
-        { pluginId: "tasks", id: "edit-task", title: "创建或编辑任务", purpose: "workflow" },
+        { pluginId: "tasks", id: "tasks", title: "Tasks", purpose: "dashboard" },
+        { pluginId: "tasks", id: "edit-task", title: "Create or edit task", purpose: "workflow" },
       ],
     });
     expect(groups[0].actions.map((action) => `${action.type}:${action.id}`)).toEqual([
@@ -56,10 +56,23 @@ describe("plugin settings navigation", () => {
   test("hides a dashboard opener command even when menu is left at the default", () => {
     const groups = getPluginToolbarGroups({
       extensions: [{ manifest: { type: "plugin", id: "tasks" }, enabled: true }],
-      commands: [{ pluginId: "tasks", id: "open-dashboard", title: "打开待办任务面板" }],
-      panels: [{ pluginId: "tasks", id: "tasks", title: "待办任务", purpose: "dashboard" }],
+      commands: [{ pluginId: "tasks", id: "open-dashboard", title: "Open Tasks" }],
+      panels: [{ pluginId: "tasks", id: "tasks", title: "Tasks", purpose: "dashboard" }],
     });
     expect(groups[0].actions.map((action) => `${action.type}:${action.id}`)).toEqual(["panel:tasks"]);
+  });
+
+  test("recognises Chinese dashboard opener titles from community plugins", () => {
+    // "Tasks", "Open Tasks" and "Open Tasks panel" in Chinese.
+    const panelTitle = "\u5f85\u529e\u4efb\u52a1";
+    for (const title of [`\u6253\u5f00${panelTitle}`, `\u6253\u5f00${panelTitle}\u9762\u677f`]) {
+      const groups = getPluginToolbarGroups({
+        extensions: [{ manifest: { type: "plugin", id: "tasks" }, enabled: true }],
+        commands: [{ pluginId: "tasks", id: "open-dashboard", title }],
+        panels: [{ pluginId: "tasks", id: "tasks", title: panelTitle, purpose: "dashboard" }],
+      });
+      expect(groups[0].actions.map((action) => `${action.type}:${action.id}`)).toEqual(["panel:tasks"]);
+    }
   });
 
   test("does not expose disabled plugins through the command menu", () => {
