@@ -18,6 +18,11 @@ const BASELINE = "0100_baseline.sql";
 const baseline = readFileSync(`migrations/${BASELINE}`, "utf8");
 // Schema left by EdgeEver's 93 migrations, which the baseline replaces.
 const legacySchema = readFileSync("tests/fixtures/edgeever-0094-schema.sql", "utf8");
+// The same schema if 0094_branding.sql never ran: everything but its tables.
+const partialLegacySchema = legacySchema
+  .split(/;\n/)
+  .filter((statement) => !/branding_(profiles|assets)/.test(statement))
+  .join(";\n");
 
 const databases: Database[] = [];
 afterEach(() => {
@@ -78,10 +83,10 @@ describe("baseline migration", () => {
   });
 
   test("is written in English", () => {
-    expect(baseline).not.toMatch(/[㐀-鿿]/);
+    expect(baseline).not.toMatch(/[\u3400-\u9fff]/);
     const db = open();
     migrate(db);
-    expect(JSON.stringify(dump(db))).not.toMatch(/[㐀-鿿]/);
+    expect(JSON.stringify(dump(db))).not.toMatch(/[\u3400-\u9fff]/);
   });
 
   test("seeds the default workspace from the shared en-US seed definitions", () => {
@@ -162,12 +167,34 @@ describe("baseline migration", () => {
 
   test("refuses a database that stopped partway through the old migrations and leaves it untouched", () => {
     const db = open();
-    // 0094_branding.sql never ran: everything but its tables exists.
-    db.exec(legacySchema.split(/;\n/).filter((statement) => !/branding_(profiles|assets)/.test(statement)).join(";\n"));
+    db.exec(partialLegacySchema);
     db.exec("INSERT INTO workspaces (id, name) VALUES ('ws_default', 'Existing')");
     const before = { schema: schema(db), data: dump(db) };
 
-    expect(() => migrate(db)).toThrow("database stopped partway through the pre-baseline migrations");
+    // The CHECK message, or the marker-table error on bun:sqlite 1.3 (see below).
+    expect(() => migrate(db)).toThrow(
+      /database stopped partway through the pre-baseline migrations|no such table: _rtnote_legacy_migrations_complete/,
+    );
+    expect({ schema: schema(db), data: dump(db) }).toEqual(before);
+  });
+
+  test("still refuses it on a runner that ignores the failed check", () => {
+    // bun:sqlite 1.3 ignores a runtime error in any statement but the last.
+    // Imitate it on any Bun: leave out the two statements that fail at run
+    // time, the guard row and the marker table.
+    const failingStatements = [
+      /INSERT INTO _rtnote_baseline [^;]*;/,
+      /CREATE TABLE _rtnote_legacy_migrations_complete AS[^;]*;/,
+    ];
+    const ignoringRunner = failingStatements.reduce((sql, statement) => {
+      expect(sql).toMatch(statement);
+      return sql.replace(statement, "");
+    }, baseline);
+    const db = open();
+    db.exec(partialLegacySchema);
+    const before = { schema: schema(db), data: dump(db) };
+
+    expect(() => db.transaction(() => db.exec(ignoringRunner))()).toThrow("no such table: _rtnote_legacy_migrations_complete");
     expect({ schema: schema(db), data: dump(db) }).toEqual(before);
   });
 });

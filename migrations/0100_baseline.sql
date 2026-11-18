@@ -25,6 +25,7 @@
 PRAGMA foreign_keys = ON;
 
 DROP TABLE IF EXISTS _rtnote_baseline;
+DROP TABLE IF EXISTS _rtnote_legacy_migrations_complete;
 
 CREATE TABLE _rtnote_baseline (
   is_fresh INTEGER NOT NULL,
@@ -41,6 +42,16 @@ SELECT
   NOT EXISTS (SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'notebooks'),
   NOT EXISTS (SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'notebooks')
     OR EXISTS (SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'branding_assets');
+
+-- Some runners ignore a runtime error in any statement but the last one of a
+-- file (bun:sqlite 1.3 does), so they would carry on past the check above.
+-- The marker table is created only when the check passed: otherwise json()
+-- fails and the table is never made. Dropping it fails while preparing, which
+-- every runner reports, and the runner's transaction undoes the whole file.
+CREATE TABLE _rtnote_legacy_migrations_complete AS
+SELECT json(CASE WHEN EXISTS (SELECT 1 FROM _rtnote_baseline) THEN '1' ELSE 'refused' END) AS ok;
+
+DROP TABLE _rtnote_legacy_migrations_complete;
 
 -- Users and sign-in
 

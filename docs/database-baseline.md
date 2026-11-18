@@ -18,7 +18,7 @@ Every runner (Wrangler for D1, the Docker server and the desktop sidecar) applie
 | --- | --- |
 | Empty | Creates the schema and seeds the default workspace. |
 | Already migrated through `0094_branding.sql` | Changes nothing. Every `CREATE` is `IF NOT EXISTS` and the seeds are skipped. The runner records the baseline as applied, and `/api/health` then reports migration `0100`. |
-| Stopped before `0094_branding.sql` | Refused with `CHECK constraint failed: database stopped partway through the pre-baseline migrations…`. Nothing is changed. |
+| Stopped before `0094_branding.sql` | Refused with `CHECK constraint failed: database stopped partway through the pre-baseline migrations…`. Nothing is changed. The Docker server on Bun 1.3 ignores that error, so it stops at the next statement instead, with `no such table: _rtnote_legacy_migrations_complete`, and nothing is changed either. |
 
 To fix a refused database, deploy the last RTNote release that still shipped the old migrations, let it finish migrating, then deploy this one. On Docker, take a volume backup first as usual.
 
