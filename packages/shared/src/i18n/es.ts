@@ -3390,7 +3390,9 @@ export const es = {
     "resetSuccess": "¡Entorno de demostración restablecido con éxito!",
     "resetFailed": "Error al restablecer el entorno de demostración. Inténtalo de nuevo más tarde.",
     "resetting": "Restableciendo...",
-    "privacyNotice": "Entorno de demostración. No guardes notas privadas."
+    "privacyNotice": "Entorno de demostración. No guardes notas privadas.",
+    "loginNotice": "Esta es una demo pública. La cuenta de demostración compartida ya está rellenada.",
+    "sharedNotice": "Demo pública: todos comparten esta cuenta y pueden ver lo que escribes. Los datos se restablecen cada día y los archivos están limitados a 10 MB."
   },
   "mobile": {
     "common": {

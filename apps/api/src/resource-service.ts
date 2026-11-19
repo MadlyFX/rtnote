@@ -11,6 +11,7 @@ import { format as formatContentType, parse as parseContentType } from "content-
 import { auditStatement } from "./audit";
 import type { AppContext, AuditActor, Bindings } from "./api-context";
 import { AppError } from "./app-error";
+import { isDemoModeEnabled } from "./demo-mode";
 import { createId, isoNow } from "./entity-utils";
 import { sha256Bytes } from "./hash-utils";
 import { resolveObjectStorage } from "./object-storage";
@@ -19,6 +20,16 @@ import type { DatabaseAdapter } from "./storage-contract";
 
 export const MAX_IMAGE_UPLOAD_BYTES = 100 * 1024 * 1024;
 export const MAX_ATTACHMENT_UPLOAD_BYTES = 1024 * 1024 * 1024;
+/** Per-file cap on a public demo, so the shared account cannot be used as free file hosting. */
+export const DEMO_MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+
+type DemoModeEnvironment = Pick<Bindings, "RTNOTE_DEMO_MODE">;
+
+export const assertDemoUploadSize = (environment: DemoModeEnvironment | undefined, size: number) => {
+  if (environment && isDemoModeEnabled(environment.RTNOTE_DEMO_MODE) && size > DEMO_MAX_UPLOAD_BYTES) {
+    throw new AppError("upload_too_large", "The public demo accepts files up to 10 MiB.", 413);
+  }
+};
 
 export { SUPPORTED_IMAGE_MIME_TYPES } from "@rtnote/shared";
 
@@ -96,7 +107,7 @@ export const mapResourceStorageSummary = (
   attachmentCount: row?.attachment_count ?? 0,
 });
 
-export const validateImageUpload = (mimeType: string, size: number) => {
+export const validateImageUpload = (mimeType: string, size: number, environment?: DemoModeEnvironment) => {
   if (!SUPPORTED_IMAGE_MIME_TYPES.has(mimeType)) {
     throw new AppError(
       "unsupported_media_type",
@@ -107,6 +118,7 @@ export const validateImageUpload = (mimeType: string, size: number) => {
   if (size <= 0 || size > MAX_IMAGE_UPLOAD_BYTES) {
     throw new AppError("upload_too_large", "Image must be between 1 byte and 100 MiB.", 413);
   }
+  assertDemoUploadSize(environment, size);
 };
 
 // HTTP field bytes: HTAB, visible ASCII and obs-text, never other controls or DEL.
@@ -143,10 +155,11 @@ export const deleteReleasedResourceObjects = async (
   }
 };
 
-export const validateAttachmentUpload = (size: number) => {
+export const validateAttachmentUpload = (size: number, environment?: DemoModeEnvironment) => {
   if (size <= 0 || size > MAX_ATTACHMENT_UPLOAD_BYTES) {
     throw new AppError("upload_too_large", "Attachment must be between 1 byte and 1 GiB.", 413);
   }
+  assertDemoUploadSize(environment, size);
 };
 
 export const normalizeFilename = (filename: string) => filename
@@ -362,7 +375,7 @@ export const createImageResource = async (
   context: AppContext,
   input: ResourceCreateInput & { source: "upload" | "mcp" },
 ): Promise<Resource> => {
-  validateImageUpload(input.mimeType, input.bytes.byteLength);
+  validateImageUpload(input.mimeType, input.bytes.byteLength, context.env);
   const processed = prepareImageForStorage(input);
   const extension = inferImageExtension(processed.filename, processed.mimeType);
   return storeResource(context, {
@@ -383,7 +396,7 @@ export const createAttachmentResource = async (
   context: AppContext,
   input: ResourceCreateInput,
 ): Promise<Resource> => {
-  validateAttachmentUpload(input.bytes.byteLength);
+  validateAttachmentUpload(input.bytes.byteLength, context.env);
   return storeResource(context, {
     ...input,
     kind: "attachment",
@@ -413,8 +426,8 @@ export const replaceResourceContent = async (
     throw new AppError("resource_conflict", "The resource changed after it was read.", 409);
   }
 
-  if (current.kind === "image") validateImageUpload(input.mimeType, input.bytes.byteLength);
-  else validateAttachmentUpload(input.bytes.byteLength);
+  if (current.kind === "image") validateImageUpload(input.mimeType, input.bytes.byteLength, context.env);
+  else validateAttachmentUpload(input.bytes.byteLength, context.env);
 
   const filename = (input.preserveFilename ? current.filename : normalizeFilename(input.filename)) || current.filename || input.resourceId;
   const mimeType = input.mimeType || "application/octet-stream";

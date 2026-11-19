@@ -21,6 +21,7 @@ import { apiError, badRequest, conflict, notFound } from "./http-errors";
 import { resolveObjectStorage } from "./object-storage";
 import { mapNotebook, notebookSelectSql, type NotebookRow } from "./notebook-service";
 import {
+  assertDemoUploadSize,
   MAX_ATTACHMENT_UPLOAD_BYTES,
   MAX_IMAGE_UPLOAD_BYTES,
   mapResource,
@@ -530,6 +531,12 @@ export const registerBackupRoutes = (
     const maxBytes = metadata.kind === "image" ? MAX_IMAGE_UPLOAD_BYTES : MAX_ATTACHMENT_UPLOAD_BYTES;
     if (file.size <= 0 || file.size > Math.min(maxBytes, MAX_LEGACY_RESTORE_BYTES)) {
       return apiError(context, "upload_too_large", "Backup resource size is invalid.", 413);
+    }
+    try {
+      assertDemoUploadSize(context.env, file.size);
+    } catch (error) {
+      if (error instanceof AppError) return apiError(context, error.code, error.message, error.status);
+      throw error;
     }
 
     const mimeType = metadata.mimeType ?? file.type ?? "application/octet-stream";

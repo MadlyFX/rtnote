@@ -3390,7 +3390,9 @@ export const de = {
     "resetSuccess": "Demo-Umgebung erfolgreich zurückgesetzt!",
     "resetFailed": "Zurücksetzen der Demo-Umgebung fehlgeschlagen. Bitte versuchen Sie es später erneut.",
     "resetting": "Wird zurückgesetzt...",
-    "privacyNotice": "Demo-Umgebung. Bitte speichern Sie keine privaten Notizen."
+    "privacyNotice": "Demo-Umgebung. Bitte speichern Sie keine privaten Notizen.",
+    "loginNotice": "Dies ist eine öffentliche Demo. Das gemeinsame Demo-Konto ist bereits eingetragen.",
+    "sharedNotice": "Öffentliche Demo: Alle nutzen dieses Konto gemeinsam und können sehen, was Sie schreiben. Die Daten werden täglich zurückgesetzt, Dateien sind auf 10 MB begrenzt."
   },
   "mobile": {
     "common": {

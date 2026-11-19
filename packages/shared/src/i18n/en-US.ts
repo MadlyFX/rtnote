@@ -3250,6 +3250,8 @@ export const enUS = {
     resetFailed: "Failed to reset demo environment. Please try again later.",
     resetting: "Resetting...",
     privacyNotice: "Demo environment. Please do not save private notes.",
+    loginNotice: "This is a public demo. The shared demo account is already filled in.",
+    sharedNotice: "Public demo: everyone shares this account and can see what you write. Data resets daily, and files are limited to 10 MB.",
   },
   // Native mobile client copy.
   mobile: {

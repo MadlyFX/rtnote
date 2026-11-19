@@ -3390,7 +3390,9 @@ export const fr = {
     resetSuccess: "Environnement de démonstration réinitialisé avec succès !",
     resetFailed: "Échec de la réinitialisation de l'environnement de démonstration. Veuillez réessayer plus tard.",
     resetting: "Réinitialisation en cours...",
-    privacyNotice: "Environnement de démonstration. Veuillez ne pas enregistrer de notes privées."
+    privacyNotice: "Environnement de démonstration. Veuillez ne pas enregistrer de notes privées.",
+    loginNotice: "Ceci est une démo publique. Le compte de démonstration partagé est déjà renseigné.",
+    sharedNotice: "Démo publique : tout le monde partage ce compte et peut voir ce que vous écrivez. Les données sont réinitialisées chaque jour et les fichiers sont limités à 10 Mo.",
   },
   mobile: {
     common: {

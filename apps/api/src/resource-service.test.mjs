@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  DEMO_MAX_UPLOAD_BYTES,
   MAX_ATTACHMENT_UPLOAD_BYTES,
   MAX_IMAGE_UPLOAD_BYTES,
   contentDispositionAttachment,
@@ -161,5 +162,21 @@ describe("resource service contracts", () => {
       actor: { actorType: "agent", actorId: "token_1" },
     })).rejects.toMatchObject({ code: "resource_conflict", status: 409 });
     expect(stored).toHaveLength(1);
+  });
+});
+
+describe("public demo upload cap", () => {
+  const demo = { RTNOTE_DEMO_MODE: "true" };
+
+  test("rejects files over the demo cap only in demo mode", () => {
+    expect(() => validateAttachmentUpload(DEMO_MAX_UPLOAD_BYTES, demo)).not.toThrow();
+    expect(() => validateAttachmentUpload(DEMO_MAX_UPLOAD_BYTES + 1, demo)).toThrow(
+      expect.objectContaining({ code: "upload_too_large", status: 413 }),
+    );
+    expect(() => validateImageUpload("image/png", DEMO_MAX_UPLOAD_BYTES + 1, demo)).toThrow(
+      expect.objectContaining({ code: "upload_too_large" }),
+    );
+    expect(() => validateAttachmentUpload(DEMO_MAX_UPLOAD_BYTES + 1, { RTNOTE_DEMO_MODE: "false" })).not.toThrow();
+    expect(() => validateAttachmentUpload(DEMO_MAX_UPLOAD_BYTES + 1)).not.toThrow();
   });
 });
