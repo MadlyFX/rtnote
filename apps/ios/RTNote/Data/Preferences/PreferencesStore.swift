@@ -212,7 +212,7 @@ final class PreferencesStore {
         self.localeCode = defaults.string(forKey: Keys.locale) ?? "system"
         self.useCompression = defaults.object(forKey: Keys.compression) as? Bool ?? true
         self.showDescendantNotes = defaults.object(forKey: Keys.showDescendantNotes) as? Bool ?? true
-        self.theme = defaults.string(forKey: Keys.theme) ?? "system"
+        self.theme = defaults.string(forKey: Keys.theme) ?? "light"
         self.voiceMemoMaxMinutes = Self.normalizedVoiceMemoMaxMinutes(defaults.object(forKey: Keys.voiceMemoMaxMinutes) as? Int)
         let densityRaw = defaults.string(forKey: Keys.density) ?? ListDensity.preview.rawValue
         // Migrate legacy "comfortable" → preview

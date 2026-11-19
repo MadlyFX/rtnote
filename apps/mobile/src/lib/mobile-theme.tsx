@@ -21,7 +21,7 @@ const MobileThemeContext = createContext<MobileThemeContextValue | null>(null);
 
 export const MobileThemeProvider = ({ children }: { children: ReactNode }) => {
   const systemTheme = useColorScheme();
-  const [preference, setPreferenceState] = useState<MobileThemePreference>("system");
+  const [preference, setPreferenceState] = useState<MobileThemePreference>("light");
 
   useEffect(() => {
     let active = true;

@@ -172,7 +172,7 @@ const readLocalStorageItem = (key: string): string | null => {
 
 export const getStoredThemePreference = (): ThemePreference => {
   const stored = readLocalStorageItem(THEME_STORAGE_KEY);
-  return stored === "light" || stored === "dark" || stored === "system" ? stored : "system";
+  return stored === "light" || stored === "dark" || stored === "system" ? stored : "light";
 };
 
 const LEGACY_MERMAID_THEMES: Record<string, MermaidThemeName> = {
