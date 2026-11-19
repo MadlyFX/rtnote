@@ -550,7 +550,7 @@ Collect, organize, and express your thoughts in a self-hostable platform
 
 ## Make the words look right
 
-RTNote moves beyond markdown, instead storing every note is a rich-text document. This allows for advanced formatting, fonts, sizing, and color, while still retaining markdown export compatibility for those that need it.
+RTNote moves beyond markdown, instead storing every note as a rich-text document. This allows for advanced formatting, fonts, sizing, and color, while still retaining markdown export compatibility for those that need it.
 
 <span style="font-family: Georgia, 'Times New Roman', Times, serif; font-size: 20px">A serif for long reads.</span> <span style="font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Courier New', monospace">A monospace for code.</span> <span style="color: #337ea9">Blue</span>, <span style="color: #448361">green</span> and <span style="color: #c76b21">orange</span> for emphasis, and <span style="background-color: #fbf3db">a highlight</span> for the line that matters.
 
