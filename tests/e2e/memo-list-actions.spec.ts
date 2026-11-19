@@ -4,7 +4,7 @@ for (const height of [900, 720, 420]) {
   test(`keeps all memo actions reachable in a ${height}px viewport`, async ({ page }) => {
     await page.setViewportSize({ width: 1280, height });
     await page.goto("/");
-    const card = page.locator('[data-memo-id="memo_demo_overview"]');
+    const card = page.locator('[data-memo-id="memo_demo_overview_en"]');
     await card.locator("button").first().click({ button: "right" });
 
     const menu = page.locator("[data-memo-actions-menu]");
@@ -34,7 +34,7 @@ for (const height of [900, 720, 420]) {
 test("anchors a memo's more-actions menu to its visible trigger", async ({ page }) => {
   await page.goto("/");
 
-  const memoCard = page.locator('[data-memo-id="memo_demo_overview"]');
+  const memoCard = page.locator('[data-memo-id="memo_demo_overview_en"]');
   const trigger = memoCard.locator("[data-memo-actions-trigger]");
   await memoCard.hover();
   await trigger.click();

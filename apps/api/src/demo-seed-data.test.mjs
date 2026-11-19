@@ -16,25 +16,18 @@ import {
 } from "./demo-seed-data.ts";
 
 describe("demo seed catalog", () => {
-  test("keeps bilingual memos attached to valid notebooks", () => {
+  test("keeps the English demo memos attached to valid notebooks", () => {
     const notebookIds = new Set(DEMO_SEED_NOTEBOOKS.map((notebook) => notebook.id));
     const memoIds = new Set(DEMO_SEED_MEMOS.map((memo) => memo.id));
 
     expect(notebookIds.size).toBe(DEMO_SEED_NOTEBOOKS.length);
     expect(memoIds.size).toBe(DEMO_SEED_MEMOS.length);
-    expect(memoIds.has("memo_demo_overview")).toBe(true);
     expect(memoIds.has("memo_demo_overview_en")).toBe(true);
-    expect(memoIds.has("memo_demo_poster")).toBe(true);
     expect(memoIds.has("memo_demo_poster_en")).toBe(true);
-    expect(memoIds.has("memo_demo_infographic")).toBe(true);
     expect(memoIds.has("memo_demo_infographic_en")).toBe(true);
-    expect(memoIds.has("memo_demo_table")).toBe(true);
     expect(memoIds.has("memo_demo_table_en")).toBe(true);
-    expect(memoIds.has("memo_demo_architecture")).toBe(true);
     expect(memoIds.has("memo_demo_architecture_en")).toBe(true);
-    expect(memoIds.has("memo_demo_flowchart")).toBe(true);
     expect(memoIds.has("memo_demo_flowchart_en")).toBe(true);
-    expect(memoIds.has("memo_demo_mind_map")).toBe(true);
     expect(memoIds.has("memo_demo_mind_map_en")).toBe(true);
     for (const memo of DEMO_SEED_MEMOS) {
       expect(notebookIds.has(memo.notebookId)).toBe(true);
@@ -44,8 +37,17 @@ describe("demo seed catalog", () => {
     }
   });
 
-  test("seeds one editable example for infographic and structured table in each language", () => {
-    for (const suffix of ["", "_en"]) {
+  test("is English-only so visitors of the public demo never see Chinese sample data", () => {
+    const han = /\p{Script=Han}/u;
+    for (const notebook of DEMO_SEED_NOTEBOOKS) expect(han.test(notebook.name)).toBe(false);
+    for (const entry of [...DEMO_SEED_MEMOS, ...DEMO_SEED_REVISIONS]) {
+      expect(han.test(entry.title)).toBe(false);
+      expect(han.test(entry.markdown)).toBe(false);
+    }
+  });
+
+  test("seeds one editable example for infographic and structured table", () => {
+    for (const suffix of ["_en"]) {
       const infographicMemo = DEMO_SEED_MEMOS.find((c) => c.id === `memo_demo_infographic${suffix}`);
       expect(infographicMemo).toBeDefined();
       const infographic = parseInfographicDocument(infographicMemo?.markdown);
@@ -68,8 +70,8 @@ describe("demo seed catalog", () => {
     }
   });
 
-  test("seeds one editable example for poster notes in each language", () => {
-    for (const suffix of ["", "_en"]) {
+  test("seeds one editable example for poster notes", () => {
+    for (const suffix of ["_en"]) {
       const posterMemo = DEMO_SEED_MEMOS.find((c) => c.id === `memo_demo_poster${suffix}`);
       expect(posterMemo).toBeDefined();
       const poster = parsePosterDocument(posterMemo?.markdown);
@@ -80,8 +82,8 @@ describe("demo seed catalog", () => {
     }
   });
 
-  test("seeds one editable example for every native diagram kind in each language", () => {
-    for (const suffix of ["", "_en"]) {
+  test("seeds one editable example for every native diagram kind", () => {
+    for (const suffix of ["_en"]) {
       const examples = [
         ["architecture", `memo_demo_architecture${suffix}`],
         ["flowchart", `memo_demo_flowchart${suffix}`],
@@ -100,13 +102,13 @@ describe("demo seed catalog", () => {
   });
 
   test("keeps every architecture component inside its labeled system boundary", () => {
-    for (const memoId of ["memo_demo_architecture", "memo_demo_architecture_en"]) {
+    for (const memoId of ["memo_demo_architecture_en"]) {
       const memo = DEMO_SEED_MEMOS.find((candidate) => candidate.id === memoId);
       const diagram = parseDiagramDocument(memo?.markdown);
       expect(diagram).toMatchObject({ kind: "architecture" });
       expect(diagram?.nodes).toHaveLength(20);
-      // The English example also links the API to sharing and the core to transcription.
-      expect(diagram?.edges).toHaveLength(memoId.endsWith("_en") ? 10 : 9);
+      // The API also links to sharing and the core to transcription.
+      expect(diagram?.edges).toHaveLength(10);
 
       const boundaries = new Map(
         diagram?.nodes.filter((node) => node.shape === "boundary").map((node) => [node.id, node]),
@@ -123,7 +125,7 @@ describe("demo seed catalog", () => {
   });
 
   test("keeps automatic layout of architecture examples stable", () => {
-    for (const memoId of ["memo_demo_architecture", "memo_demo_architecture_en"]) {
+    for (const memoId of ["memo_demo_architecture_en"]) {
       const memo = DEMO_SEED_MEMOS.find((candidate) => candidate.id === memoId);
       const diagram = parseDiagramDocument(memo?.markdown);
       expect(diagram).toMatchObject({ kind: "architecture" });

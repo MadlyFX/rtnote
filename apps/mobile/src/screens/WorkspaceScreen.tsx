@@ -82,10 +82,7 @@ import { useDebouncedValue } from "../hooks/useDebouncedValue";
 import { useMobileAutomaticSync } from "../hooks/useMobileAutomaticSync";
 import { useMobileLocalMirrorSync } from "../hooks/useMobileLocalMirrorSync";
 import { useMobileWorkspaceSelection } from "../hooks/useMobileWorkspaceSelection";
-import {
-  flattenNotebooks,
-  isEnglishMobileLocale,
-} from "./workspace-utils";
+import { flattenNotebooks } from "./workspace-utils";
 import {
   applyOptimisticMemoToCache,
   createOptimisticMemo,
@@ -239,17 +236,9 @@ export const WorkspaceScreen = ({
 
   const notebooks = notebooksQuery.data?.notebooks ?? [];
   useEffect(() => {
-    const english = isEnglishMobileLocale(localePreference);
-    const notebookIdForSlug = (slug: string, fallbackId: string) =>
-      notebooks.find((notebook) => notebook.slug === slug)?.id ?? fallbackId;
-    const preferredNotebookId = notebookIdForSlug(
-      english ? "feature-demos" : "demo-features",
-      english ? "nb_demo_features_en" : "nb_demo_features",
-    );
-    const alternateNotebookId = notebookIdForSlug(
-      english ? "demo-features" : "feature-demos",
-      english ? "nb_demo_features" : "nb_demo_features_en",
-    );
+    // The seeded example notes live in one English notebook (stored slug/id).
+    const preferredNotebookId = notebooks.find((notebook) => notebook.slug === "feature-demos")?.id
+      ?? "nb_demo_features_en";
 
     if (!notebooks.some((notebook) => notebook.id === preferredNotebookId)) {
       return;
@@ -258,13 +247,8 @@ export const WorkspaceScreen = ({
     if (!autoSelectedDemoNotebookRef.current && activeNotebookId === ALL_NOTES_ID && !selectedTag) {
       autoSelectedDemoNotebookRef.current = true;
       setActiveNotebookId(preferredNotebookId);
-      return;
     }
-
-    if (activeNotebookId === alternateNotebookId) {
-      setActiveNotebookId(preferredNotebookId);
-    }
-  }, [activeNotebookId, localePreference, notebooks, selectedTag]);
+  }, [activeNotebookId, notebooks, selectedTag]);
 
   const activeNotebook = notebooks.find((notebook) => notebook.id === activeNotebookId) ?? null;
   const activeNotebookScopeIds = useMemo(

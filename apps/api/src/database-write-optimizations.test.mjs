@@ -300,18 +300,18 @@ describe("database write optimizations", () => {
 
     expect((await request()).status).toBe(200);
     expect(sqlite.query(
-      "SELECT COUNT(*) AS count FROM memos WHERE id IN ('memo_demo_overview', 'memo_demo_overview_en')",
-    ).get().count).toBe(2);
+      "SELECT COUNT(*) AS count FROM memos WHERE id = 'memo_demo_overview_en'",
+    ).get().count).toBe(1);
 
     const changesAfterSeed = sqlite.query("SELECT total_changes() AS count").get().count;
     expect((await request()).status).toBe(200);
     expect((await request()).status).toBe(200);
     expect(sqlite.query("SELECT total_changes() AS count").get().count).toBe(changesAfterSeed);
 
-    sqlite.query("UPDATE memos SET title = 'Changed demo title' WHERE id = 'memo_demo_overview'").run();
+    sqlite.query("UPDATE memos SET title = 'Changed demo title' WHERE id = 'memo_demo_overview_en'").run();
     const changesBeforeRepair = sqlite.query("SELECT total_changes() AS count").get().count;
     expect((await request()).status).toBe(200);
-    expect(sqlite.query("SELECT title FROM memos WHERE id = 'memo_demo_overview'").get().title).not.toBe("Changed demo title");
+    expect(sqlite.query("SELECT title FROM memos WHERE id = 'memo_demo_overview_en'").get().title).not.toBe("Changed demo title");
     expect(sqlite.query("SELECT total_changes() AS count").get().count).toBeGreaterThan(changesBeforeRepair);
 
     const changesAfterRepair = sqlite.query("SELECT total_changes() AS count").get().count;

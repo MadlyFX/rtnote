@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
-import { DEMO_FEATURES_NOTEBOOK_NAME_ZH } from "../../apps/api/src/demo-seed-data.zh-CN";
 import { ui } from "./fixtures/ui-labels";
+
+const DEMO_FEATURES_NOTEBOOK_NAME = "Feature Demos";
 
 test("keeps All notes selected when the demo notebook loads late", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
@@ -38,7 +39,7 @@ test("keeps All notes selected when the demo notebook loads late", async ({ page
     await expect(row).toBeVisible();
     expect(await row.boundingBox()).not.toBeNull();
     releaseNotebooks();
-    await expect(page.getByRole("button", { name: DEMO_FEATURES_NOTEBOOK_NAME_ZH })).toBeVisible();
+    await expect(page.getByRole("button", { name: DEMO_FEATURES_NOTEBOOK_NAME })).toBeVisible();
     await expect(allNotes).toHaveAttribute("aria-current", "page");
     await expect(row).toBeVisible();
   } finally {
