@@ -3,7 +3,7 @@ name: Release
 # Pushing a vX.Y.Z tag builds every platform and creates a draft GitHub
 # Release with all packages and checksums. Review the draft, then publish it.
 #
-#   git tag v2.23.0 && git push origin v2.23.0
+#   git tag v1.0.0 && git push origin v2.23.0
 #
 # The tag must match the version in package.json, apps/desktop/package.json
 # and apps/mobile/app.json.
