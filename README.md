@@ -7,7 +7,6 @@
 
 RTNote is an open-source notes app with a classic three-pane layout (notebooks · note list · editor), instant multi-device sync, and a built-in MCP server for external agents. It runs on Cloudflare's free tier or on your own server with Docker.
 
-> **Status:** early development. The app works today, but RTNote has no official releases yet, and identifiers, storage details and features are still changing.
 
 <p align="center">
   <img src="docs/assets/screenshots/workspace.png" alt="RTNote workspace: notebooks, note list and the rich-text editor on the warm paper theme" width="900" />
