@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
-import { DEMO_FEATURES_NOTEBOOK_NAME_ZH } from "../../apps/api/src/demo-seed-data.zh-CN";
 import { ui } from "./fixtures/ui-labels";
+
+const DEMO_FEATURES_NOTEBOOK_NAME = "Feature Demos";
 
 const installDarkTheme = (page: Page) => page.addInitScript(() => {
   localStorage.setItem("rtnote.theme", "dark");
@@ -113,22 +114,22 @@ test.describe("dark mode visual contracts", () => {
     await expect.poll(async () => (await actionCard.boundingBox())?.y ?? Number.POSITIVE_INFINITY).toBeLessThan(120);
 
     const notebookSelect = actionBar.getByRole("combobox");
-    await expect(notebookSelect).toContainText(DEMO_FEATURES_NOTEBOOK_NAME_ZH);
+    await expect(notebookSelect).toContainText(DEMO_FEATURES_NOTEBOOK_NAME);
     await expect(notebookSelect).not.toContainText("└");
     await notebookSelect.click();
 
-    const nestedNotebook = page.getByRole("option", { name: DEMO_FEATURES_NOTEBOOK_NAME_ZH });
+    const nestedNotebook = page.getByRole("option", { name: DEMO_FEATURES_NOTEBOOK_NAME });
     await nestedNotebook.hover();
     await expect.poll(() => nestedNotebook.evaluate((element) => getComputedStyle(element).backgroundColor))
       .not.toBe("rgb(241, 245, 249)");
     expect(await auditVisibleTextContrast(page)).toEqual([]);
 
     await nestedNotebook.click();
-    await expect(notebookSelect).toHaveText(DEMO_FEATURES_NOTEBOOK_NAME_ZH);
+    await expect(notebookSelect).toHaveText(DEMO_FEATURES_NOTEBOOK_NAME);
   });
 
   test("public share content remains readable in dark mode", async ({ page }) => {
-    const memoId = "memo_demo_overview";
+    const memoId = "memo_demo_overview_en";
     const response = await page.request.post(`/api/v1/memos/${memoId}/share`);
     expect(response.ok()).toBe(true);
     const body = await response.json() as { share: { token: string } };

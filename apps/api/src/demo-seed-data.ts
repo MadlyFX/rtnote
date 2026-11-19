@@ -12,23 +12,17 @@ import { DEFAULT_NOTEBOOK_SEEDS } from "@rtnote/shared/default-workspace-seeds";
 import {
   decodeDemoAttachment,
   DEMO_ATTACHMENT_MARKDOWN_EN,
-  DEMO_ATTACHMENT_MARKDOWN_ZH,
   DEMO_ATTACHMENT_RESOURCES,
 } from "./demo-attachments";
-import {
-  DEMO_FEATURES_NOTEBOOK_NAME_ZH,
-  DEMO_SEED_MEMOS_ZH,
-  DEMO_SEED_REVISIONS_ZH,
-} from "./demo-seed-data.zh-CN";
 
 export { decodeDemoAttachment };
 
-// The demo stores the general notebooks under the names the installation
-// migrations seed (zh-CN), so seed localization still recognises them.
+// The demo is English-only. Its general notebooks use the English default
+// names, which seed localization still recognises as untouched seeds.
 const seededNotebookName = (key: (typeof DEFAULT_NOTEBOOK_SEEDS)[number]["key"]) => {
   const seed = DEFAULT_NOTEBOOK_SEEDS.find((candidate) => candidate.key === key);
   if (!seed) throw new Error(`Missing default notebook seed: ${key}`);
-  return seed.names["zh-CN"];
+  return seed.names["en-US"];
 };
 
 export const DEMO_SEED_NOTEBOOKS = [
@@ -37,7 +31,6 @@ export const DEMO_SEED_NOTEBOOKS = [
   { id: "nb_learning", parentId: null, name: seededNotebookName("learning"), slug: "learning-resources", icon: "notebook", color: null, sortOrder: 30 },
   { id: "nb_creative", parentId: null, name: seededNotebookName("creative"), slug: "creative-ideas", icon: "notebook", color: null, sortOrder: 40 },
   { id: "nb_personal", parentId: null, name: seededNotebookName("personal"), slug: "personal-life", icon: "notebook", color: null, sortOrder: 50 },
-  { id: "nb_demo_features", parentId: "nb_projects", name: DEMO_FEATURES_NOTEBOOK_NAME_ZH, slug: "demo-features", icon: "notebook", color: null, sortOrder: 21 },
   { id: "nb_demo_features_en", parentId: "nb_projects", name: "Feature Demos", slug: "feature-demos", icon: "notebook", color: null, sortOrder: 22 },
 ];
 
@@ -729,12 +722,7 @@ export const DEMO_SEED_MEMOS_EN = DEMO_SEED_MEMOS_EN_BASE.map((memo) => ({
   markdown: memo.id === "memo_demo_overview_en" ? `${memo.markdown}${DEMO_ATTACHMENT_MARKDOWN_EN}` : memo.markdown,
 }));
 
-export const DEMO_SEED_MEMOS_ZH_WITH_ATTACHMENTS = DEMO_SEED_MEMOS_ZH.map((memo) => ({
-  ...memo,
-  markdown: memo.id === "memo_demo_overview" ? `${memo.markdown}${DEMO_ATTACHMENT_MARKDOWN_ZH}` : memo.markdown,
-}));
-
-export const DEMO_SEED_MEMOS = [...DEMO_SEED_MEMOS_ZH_WITH_ATTACHMENTS, ...DEMO_SEED_MEMOS_EN];
+export const DEMO_SEED_MEMOS = DEMO_SEED_MEMOS_EN;
 
 const DEMO_SEED_REVISIONS_EN = [
   {
@@ -775,16 +763,12 @@ const DEMO_SEED_REVISIONS_EN = [
   },
 ];
 
-// Each Chinese revision is followed by its English counterpart.
-export const DEMO_SEED_REVISIONS = DEMO_SEED_REVISIONS_ZH.flatMap((revision, index) => [
-  revision,
-  DEMO_SEED_REVISIONS_EN[index],
-]);
+export const DEMO_SEED_REVISIONS = DEMO_SEED_REVISIONS_EN;
 
 export const DEMO_SEED_RESOURCES = [
   {
     id: "res_demo_logo",
-    memoId: "memo_demo_overview",
+    memoId: "memo_demo_overview_en",
     filename: "rtnote-icon.svg",
     mimeType: "image/svg+xml",
     width: 1024,
@@ -794,7 +778,7 @@ export const DEMO_SEED_RESOURCES = [
   },
   {
     id: "res_demo_cat_image",
-    memoId: "memo_demo_overview",
+    memoId: "memo_demo_overview_en",
     filename: "cute-cat-demo.svg",
     mimeType: "image/svg+xml",
     width: 960,

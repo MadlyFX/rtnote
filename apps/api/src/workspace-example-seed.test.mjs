@@ -8,7 +8,6 @@ import {
   omitInstanceUnavailableExampleTips,
 } from "./workspace-example-seed.ts";
 import { DEMO_SEED_MEMOS_EN } from "./demo-seed-data.ts";
-import { DEMO_RESET_TIP_MARKER_ZH } from "./demo-seed-data.zh-CN.ts";
 
 const MIGRATION = "0079_workspace_example_seeds.sql";
 const migrationFiles = globSync("migrations/*.sql").sort();
@@ -79,7 +78,6 @@ describe("workspace example seed", () => {
   test("drops the demo-only reset tip from copied notes", () => {
     const source = [
       "> 7. Click **\"Share as Card\"** to export a social poster card.",
-      `> 8. Click **"${DEMO_RESET_TIP_MARKER_ZH}"** to reset the demo workspace.`,
       "> 8. Click **\"Reset Demo Data\"** in settings or the sidebar anytime to restore the demo workspace.",
     ].join("\n");
 

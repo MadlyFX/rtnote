@@ -738,12 +738,9 @@ export const WorkspaceApp = ({
 
   const notebooks = notebooksQuery.data?.notebooks ?? [];
   useEffect(() => {
-    // Seeded demo notebooks exist only in Chinese and English (stored slugs/ids).
-    const demoNotebook = prefersChineseContent(i18n.resolvedLanguage)
-      ? { slug: "demo-features", id: "nb_demo_features" }
-      : { slug: "feature-demos", id: "nb_demo_features_en" };
-    const preferredNotebookId = notebooks.find((notebook) => notebook.slug === demoNotebook.slug)?.id
-      ?? demoNotebook.id;
+    // The seeded example notes live in one English notebook (stored slug/id).
+    const preferredNotebookId = notebooks.find((notebook) => notebook.slug === "feature-demos")?.id
+      ?? "nb_demo_features_en";
 
     if (!notebooks.some((notebook) => notebook.id === preferredNotebookId)) {
       return;
@@ -753,7 +750,7 @@ export const WorkspaceApp = ({
       demoNotebookAutoSelectionHandledRef.current = true;
       setSelectedNotebookId(preferredNotebookId);
     }
-  }, [i18n.resolvedLanguage, notebooks, selectedNotebookId, selectedTag]);
+  }, [notebooks, selectedNotebookId, selectedTag]);
 
   const mobileEditorReturnMemoId = route.mobileEditorReturnMemoId;
   const visibleActivePane: Pane = mobileEditorReturnMemoId ? "memos" : activePane;

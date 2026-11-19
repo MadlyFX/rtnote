@@ -19,15 +19,14 @@ import {
   DEMO_SEED_MEMOS_EN,
   DEMO_SEED_REVISIONS,
 } from "./demo-seed-data";
-import { DEMO_RESET_TIP_MARKER_ZH } from "./demo-seed-data.zh-CN";
 import { isDemoModeEnabled } from "./demo-mode";
 import { isoNow } from "./entity-utils";
 import { sha256, sha256Bytes } from "./hash-utils";
 import { upsertMemoSearchDocumentStatement } from "./memo-search-index";
 import type { DatabaseAdapter, PreparedStatementAdapter } from "./storage-contract";
 
-// A personal instance gets the English example notes only. The public demo
-// (demo mode) keeps its bilingual catalog in demo-seed-data.ts.
+// A personal instance gets the English example notes. The public demo (demo
+// mode) seeds its own catalog from demo-seed-data.ts instead.
 const EXAMPLE_NOTEBOOKS = [
   { id: "nb_demo_features_en", slug: "feature-demos", name: "Feature Demos", sortOrder: 22 },
 ] as const;
@@ -36,9 +35,8 @@ const EXAMPLE_MEMOS = DEMO_SEED_MEMOS_EN;
 const EXAMPLE_MEMO_IDS = new Set<string>(EXAMPLE_MEMOS.map((memo) => memo.id));
 const EXAMPLE_REVISIONS = DEMO_SEED_REVISIONS.filter((revision) => EXAMPLE_MEMO_IDS.has(revision.memoId));
 
-// The shared demo files belong to the Chinese overview in the demo catalog.
-// Here they belong to the English overview, and files no English note links
-// to are left out.
+// The shared demo files belong to the English overview, and files no example
+// note links to are left out.
 const EXAMPLE_OVERVIEW_MEMO_ID = "memo_demo_overview_en";
 const exampleText = [...EXAMPLE_MEMOS, ...EXAMPLE_REVISIONS].map((entry) => entry.markdown).join("\n");
 const EXAMPLE_RESOURCES = DEMO_SEED_ATTACHMENT_RESOURCES
@@ -55,7 +53,7 @@ const DEFAULT_BUCKET_NAME = "rtnote-resources";
 // instance has no such action, so that tip is left out of the copied notes.
 export const omitInstanceUnavailableExampleTips = (markdown: string) => markdown
   .split("\n")
-  .filter((line) => !line.includes(DEMO_RESET_TIP_MARKER_ZH) && !line.includes("Reset Demo Data"))
+  .filter((line) => !line.includes("Reset Demo Data"))
   .join("\n");
 
 export const markWorkspaceExampleSeedPendingStatement = (
