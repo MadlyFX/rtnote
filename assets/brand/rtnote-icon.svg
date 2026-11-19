@@ -1,10 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
   <title id="title">RTNote</title>
-  <desc id="desc">A yellow sticky note with a peeled corner, a heading and two text lines on the RTNote orange rounded tile.</desc>
-  <rect x="100" y="100" width="824" height="824" rx="188" fill="#f26b1d" />
-  <path fill="#ffc629" d="M300 260H724Q764 260 764 300V600L604 760H300Q260 760 260 720V300Q260 260 300 260Z" />
-  <path fill="#e09a12" d="M764 600H644Q604 600 604 640V760Z" />
-  <rect x="336" y="352" width="240" height="56" rx="28" fill="#24160a" />
-  <rect x="336" y="472" width="352" height="32" rx="16" fill="#24160a" />
-  <rect x="336" y="568" width="216" height="32" rx="16" fill="#24160a" />
+  <desc id="desc">A sheet of paper with an orange folded corner, a heading and three ink text lines on a warm paper tile.</desc>
+  <rect x="100" y="100" width="824" height="824" rx="188" fill="#efe4cf" />
+  <path fill="#fffaf0" stroke="#cfba94" stroke-width="16" stroke-linejoin="round" d="M336 216H616L736 336V760Q736 808 688 808H336Q288 808 288 760V264Q288 216 336 216Z" />
+  <path fill="#f26b1d" d="M616 216V296Q616 336 656 336H736Z" />
+  <rect x="352" y="352" width="200" height="56" rx="28" fill="#24160a" />
+  <rect x="352" y="476" width="320" height="28" rx="14" fill="#6b5a48" />
+  <rect x="352" y="564" width="280" height="28" rx="14" fill="#6b5a48" />
+  <rect x="352" y="652" width="180" height="28" rx="14" fill="#6b5a48" />
 </svg>

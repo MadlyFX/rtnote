@@ -1,5 +1,4 @@
 import {
-  DEFAULT_RESOLVED_BRANDING,
   hexToRgb,
   type BrandColorMode,
   type BrandColorScheme,
@@ -15,9 +14,10 @@ import {
 
 /**
  * Maps the hex literals the screens are written in to the server branding.
- * Screens keep their stock light-theme colours; `resolveMobileThemeColor`
- * consults these maps before the stock dark palette. Default branding builds
- * no maps, so the app stays exactly as it was.
+ * Screens are written in a slate and emerald palette; `resolveMobileThemeColor`
+ * consults these maps before the stock dark palette. Maps are built against
+ * that written palette, so the default branding (warm paper) reaches Android
+ * the same way a custom branding does.
  */
 
 type Rgb = [number, number, number];
@@ -72,10 +72,18 @@ const accentScale = (accent: string, mode: BrandColorMode, darkSurface: string):
   };
 };
 
-/** What the stock app shows for each branding token, so unchanged tokens keep today's colours. */
+/** What the screens draw for each branding token before any map applies. */
 const MOBILE_STOCK_SCHEME: Record<BrandColorMode, Omit<BrandColorScheme, "accent" | "sidebar">> = {
   light: { background: "#f8fafc", surface: "#ffffff", text: "#0f172a", border: "#e2e8f0" },
   dark: { background: "#020617", surface: "#0f172a", text: "#f8fafc", border: "#334155" },
+};
+/** The accent the screens are written in. */
+const MOBILE_STOCK_ACCENT = "#16a06e";
+
+/** Branding colours that match what the screens already draw, so no maps are needed. */
+export const MOBILE_STOCK_COLORS: Record<BrandColorMode, Omit<BrandColorScheme, "sidebar">> = {
+  light: { ...MOBILE_STOCK_SCHEME.light, accent: MOBILE_STOCK_ACCENT },
+  dark: { ...MOBILE_STOCK_SCHEME.dark, accent: MOBILE_STOCK_ACCENT },
 };
 
 type NeutralToken = keyof (typeof MOBILE_STOCK_SCHEME)["light"];
@@ -111,12 +119,9 @@ const emptyMaps = (): MobileBrandColorMaps => ({
 
 /** The colour part of the branding that affects the maps; equal keys build equal maps. */
 export const mobileBrandColorKey = (branding: ResolvedBranding) => {
-  if (!branding.isCustom) {
-    return "";
-  }
-  const stock = DEFAULT_RESOLVED_BRANDING.colors;
   const changed = (["light", "dark"] as const).some((mode) =>
-    (Object.keys(stock[mode]) as BrandColorToken[]).some((token) => branding.colors[mode][token] !== stock[mode][token]));
+    (Object.keys(MOBILE_STOCK_COLORS[mode]) as Exclude<BrandColorToken, "sidebar">[]).some((token) =>
+      branding.colors[mode][token] !== MOBILE_STOCK_COLORS[mode][token]));
   return changed ? JSON.stringify(branding.colors) : "";
 };
 
@@ -136,10 +141,10 @@ export const buildMobileBrandColorMaps = (branding: ResolvedBranding): MobileBra
 
   for (const mode of ["light", "dark"] as const) {
     const scheme = branding.colors[mode];
-    const stock = DEFAULT_RESOLVED_BRANDING.colors[mode];
+    const stock = MOBILE_STOCK_COLORS[mode];
     const customised = (token: NeutralToken) => scheme[token] !== stock[token];
     const effective = Object.fromEntries((Object.keys(MOBILE_STOCK_SCHEME[mode]) as NeutralToken[]).map((token) =>
-      [token, customised(token) ? scheme[token] : MOBILE_STOCK_SCHEME[mode][token]])) as Record<NeutralToken, string>;
+      [token, scheme[token]])) as Record<NeutralToken, string>;
 
     for (const rule of NEUTRAL_RULES) {
       if (!rule.deps.some(customised)) continue;

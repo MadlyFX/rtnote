@@ -53,9 +53,9 @@ struct AccentPalette: Equatable, Sendable {
     /// Default branding (or a custom branding that keeps the stock accent) keeps
     /// `standard` unchanged; any other accent derives a new family.
     static func forBranding(_ branding: ResolvedBranding) -> AccentPalette {
-        let defaultAccent = ResolvedBranding.defaultAccentHex
         guard branding.isCustom,
-              branding.colors.light.accent != defaultAccent || branding.colors.dark.accent != defaultAccent,
+              branding.colors.light.accent != BrandColorScheme.defaultLight.accent
+                  || branding.colors.dark.accent != BrandColorScheme.defaultDark.accent,
               let light = BrandHex.value(branding.colors.light.accent),
               let dark = BrandHex.value(branding.colors.dark.accent)
         else { return .standard }

@@ -46,7 +46,7 @@ export const MERMAID_THEME_PALETTES: Record<MermaidThemeName, MermaidThemePalett
     border: "#d4d4d8",
   },
   "zinc-dark": {
-    bg: "#222325",
+    bg: "#26221d",
     fg: "#e4e5e7",
     line: "#85898f",
     accent: "#c4c7cb",
@@ -146,8 +146,8 @@ const MARKDOWN_THEME_STORAGE_KEY = "rtnote.markdown-theme";
 const EDITOR_THEME_STORAGE_KEY = "rtnote.editor-theme";
 const CUSTOM_EDITOR_THEME_STORAGE_KEY = "rtnote.custom-editor-theme";
 const CUSTOM_EDITOR_THEMES_STORAGE_KEY = "rtnote.custom-editor-themes";
-const LIGHT_THEME_COLOR = "#eef1f4";
-const DARK_THEME_COLOR = "#121315";
+const LIGHT_THEME_COLOR = "#f4efe6";
+const DARK_THEME_COLOR = "#1a1714";
 const AppearanceThemeContext = createContext<AppearanceThemeContextValue | null>(null);
 const MermaidThemeContext = createContext<MermaidThemeContextValue | null>(null);
 const MarkdownThemeContext = createContext<MarkdownThemeContextValue | null>(null);

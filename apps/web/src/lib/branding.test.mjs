@@ -63,7 +63,7 @@ describe("app branding", () => {
     branding.setAppBranding(custom);
     expect(document.title).toBe("Acme");
     expect(favicon.href).toBe("/api/public/branding/assets/bra_logo123");
-    expect(theme.content).toBe("#eef1f4");
+    expect(theme.content).toBe("#f4efe6");
     expect(styles[0].textContent).toContain("--brand-green:#2563eb");
     expect(JSON.parse(target.localStorage.getItem("rtnote.branding.server")).name).toBe("Acme");
     branding.setAppBranding(branding.DEFAULT_BRANDING);

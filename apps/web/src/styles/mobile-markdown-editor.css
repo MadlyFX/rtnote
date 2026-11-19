@@ -172,8 +172,8 @@ input {
 }
 
 .mobile-editor-fatal-actions button.primary {
-  border-color: #16a06e;
-  background: #16a06e;
+  border-color: var(--brand-green, #b5501b);
+  background: var(--brand-green, #b5501b);
   color: #fff;
 }
 
@@ -198,8 +198,8 @@ input {
 }
 
 :root.dark .mobile-editor-fatal-actions button.primary {
-  border-color: #16a06e;
-  background: #16a06e;
+  border-color: var(--brand-green, #b5501b);
+  background: var(--brand-green, #b5501b);
 }
 
 .mobile-editor-title,
@@ -513,8 +513,8 @@ input {
 
 .rtnote-mobile-tiptap-content a:active,
 .rtnote-mobile-tiptap-content a:hover {
-  color: #16a06e;
-  text-decoration-color: #16a06e;
+  color: var(--brand-green, #b5501b);
+  text-decoration-color: var(--brand-green, #b5501b);
 }
 
 .rtnote-mobile-tiptap-content a.rtnote-attachment-link,
@@ -754,7 +754,7 @@ html.dark .rtnote-mobile-tiptap-content a:hover {
   padding: 1rem 0.75rem 0.75rem;
   border: 1px solid #e3ece7;
   border-radius: 8px;
-  background: var(--workspace-editor, #f8fafb);
+  background: var(--workspace-editor, #fbf8f2);
   scrollbar-color: rgb(100 116 139 / 0.35) transparent;
 }
 
