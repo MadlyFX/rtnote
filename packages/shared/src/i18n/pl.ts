@@ -2666,6 +2666,7 @@ export const pl = {
       currentDate: "Bieżąca data",
       currentTime: "Bieżąca godzina",
       currentDateTime: "Bieżąca data i godzina",
+      mermaid: "Diagram Mermaid",
     },
   },
   editorToolbar: {
@@ -2739,6 +2740,7 @@ export const pl = {
     mermaidZoomOut: "Pomniejsz diagram",
     mermaidResetZoom: "Resetuj powiększenie diagramu",
     mermaidCloseViewer: "Zamknij podgląd diagramu",
+    mermaidDelete: "Usuń diagram Mermaid",
     math: "Wstaw wzór",
     blockMath: "Wzór wyróżniony",
     horizontalRule: "Separator",

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { NodeViewContent, NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
 import { useTranslation } from "react-i18next";
-import { Check, CircleAlert, Code2, Copy, Maximize2 } from "lucide-react";
+import { Check, CircleAlert, Code2, Copy, Maximize2, Trash2 } from "lucide-react";
 import { MERMAID_THEME_PALETTES, useMermaidTheme } from "./ThemeProvider";
 import { MermaidViewer } from "./MermaidViewer";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -9,7 +9,7 @@ import { copyTextToClipboard } from "@/lib/clipboard";
 import { renderThemedMermaidSvg } from "@/lib/mermaid-renderer";
 import { mermaidDisplayScale } from "@/lib/mermaid-svg";
 
-export const MermaidCodeBlock = ({ editor, node }: NodeViewProps) => {
+export const MermaidCodeBlock = ({ deleteNode, editor, node }: NodeViewProps) => {
   const { t } = useTranslation();
   const { mermaidTheme } = useMermaidTheme();
   const language = typeof node.attrs.language === "string" ? node.attrs.language.toLowerCase() : "plaintext";
@@ -175,6 +175,28 @@ export const MermaidCodeBlock = ({ editor, node }: NodeViewProps) => {
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">{t("editorToolbar.mermaidOpenViewer")}</TooltipContent>
+              </Tooltip>
+            )}
+            {editor.isEditable && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    className="rtnote-mermaid-tool-button"
+                    data-action="delete"
+                    aria-label={t("editorToolbar.mermaidDelete")}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      deleteNode();
+                      editor.commands.focus();
+                    }}
+                    onMouseDown={(event) => event.preventDefault()}
+                  >
+                    <Trash2 aria-hidden="true" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{t("editorToolbar.mermaidDelete")}</TooltipContent>
               </Tooltip>
             )}
           </div>

@@ -7,7 +7,7 @@ import { escapeRegExp, ui } from './fixtures/ui-labels';
 
 type CaseResult = {
   theme: string; width: number; height: number; expectedWidth: number; expectedHeight: number; density: number;
-  green: number; dark: number; tile: string; mark: string; opacity: number; effects: boolean; overflow: string[];
+  tilePixels: number; dark: number; tile: string; mark: string; opacity: number; effects: boolean; overflow: string[];
   titleSize: number; bodySize: number; headingSizes: number[]; paragraphGap: number | null;
   integrity: { stackedValues: number; mergedCells: number; complete: boolean; imageRatios: number[] } | null;
 };
@@ -48,9 +48,9 @@ for (const theme of NOTE_IMAGE_THEME_OPTIONS) {
       expect(result.width * result.height, label).toBeLessThanOrEqual(80_000_000);
       expect(result.opacity, label).toBe(1);
       expect(result.effects, label).toBe(false);
-      expect(result.tile, label).toBe('#f26b1d');
-      expect(result.mark, label).toBe('#ffc629');
-      expect(result.green, label).toBeGreaterThan(50);
+      expect(result.tile, label).toBe('#efe4cf');
+      expect(result.mark, label).toBe('#fffaf0');
+      expect(result.tilePixels, label).toBeGreaterThan(50);
       expect(result.dark, label).toBeGreaterThan(4);
       expect(result.overflow, label).toEqual([]);
       expect(result.titleSize, label).toBeGreaterThan(Math.max(result.bodySize, ...result.headingSizes));

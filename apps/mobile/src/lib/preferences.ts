@@ -59,7 +59,7 @@ export const writeMobileLocalePreference = (locale: MobileLocalePreference) => A
 
 export const readMobileThemePreference = async (): Promise<MobileThemePreference> => {
   const value = await AsyncStorage.getItem(THEME_PREFERENCE_KEY);
-  return value === "light" || value === "dark" || value === "system" ? value : "system";
+  return value === "light" || value === "dark" || value === "system" ? value : "light";
 };
 
 export const writeMobileThemePreference = (theme: MobileThemePreference) => AsyncStorage.setItem(THEME_PREFERENCE_KEY, theme);

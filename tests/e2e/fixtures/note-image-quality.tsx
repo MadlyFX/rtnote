@@ -83,21 +83,21 @@ const renderCase = async (theme: typeof NOTE_IMAGE_THEME_OPTIONS[number], cardWi
     const x = Math.max(0, Math.floor((logoBox.left - wrapperBox.left) * sx));
     const width = Math.min(image.width - x, Math.ceil(logoBox.width * sx));
     // html-to-image rounds font sizes when cloning, so preceding text can shift
-    // the exported logo vertically. Locate its orange tile in the actual pixels.
+    // the exported logo vertically. Locate its paper tile in the actual pixels.
     const bitmap = await createImageBitmap(image.blob, x, 0, width, image.height);
     const canvas = document.createElement('canvas');
     canvas.width = bitmap.width; canvas.height = bitmap.height;
     const context = canvas.getContext('2d')!;
     context.drawImage(bitmap, 0, 0);
     const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
-    let green = 0; let dark = 0;
+    let tilePixels = 0; let dark = 0;
     let firstTileRow = canvas.height; let lastTileRow = -1;
-    // No other fixture content uses this orange. Restrict dark-pixel checks to
+    // No other fixture content uses this paper colour. Restrict dark-pixel checks to
     // the tile's actual rows, excluding footer text and decorative borders.
     const tolerance = format === 'png' ? 0 : 12;
     for (let i = 0; i < pixels.length; i += 4) {
-      if (Math.abs(pixels[i] - 242) <= tolerance && Math.abs(pixels[i + 1] - 107) <= tolerance && Math.abs(pixels[i + 2] - 29) <= tolerance) {
-        green++;
+      if (Math.abs(pixels[i] - 239) <= tolerance && Math.abs(pixels[i + 1] - 228) <= tolerance && Math.abs(pixels[i + 2] - 207) <= tolerance) {
+        tilePixels++;
         const row = Math.floor(i / 4 / canvas.width);
         firstTileRow = Math.min(firstTileRow, row); lastTileRow = Math.max(lastTileRow, row);
       }
@@ -106,7 +106,7 @@ const renderCase = async (theme: typeof NOTE_IMAGE_THEME_OPTIONS[number], cardWi
       if (.2126 * pixels[i] + .7152 * pixels[i + 1] + .0722 * pixels[i + 2] < 70) dark++;
     }
     bitmap.close(); canvas.width = canvas.height = 0;
-    return { theme, cardWidth, format, length, width: image.width, height: image.height, expectedWidth, expectedHeight, density: image.width / Math.min(654, layoutWidth), green, dark, tile: logo.querySelector("rect")!.getAttribute("fill"), mark: logo.querySelector("path")!.getAttribute("fill"), opacity, effects, overflow, bytes: image.blob.size, titleSize, bodySize, headingSizes, paragraphGap, integrity };
+    return { theme, cardWidth, format, length, width: image.width, height: image.height, expectedWidth, expectedHeight, density: image.width / Math.min(654, layoutWidth), tilePixels, dark, tile: logo.querySelector("rect")!.getAttribute("fill"), mark: logo.querySelector("path")!.getAttribute("fill"), opacity, effects, overflow, bytes: image.blob.size, titleSize, bodySize, headingSizes, paragraphGap, integrity };
   } finally { host.remove(); }
 };
 

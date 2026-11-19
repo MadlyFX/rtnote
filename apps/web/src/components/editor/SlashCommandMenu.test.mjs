@@ -29,6 +29,7 @@ const labels = {
     divider: "Divider",
     fold: "Toggle block",
     table: "Table",
+    mermaid: "Mermaid diagram",
     "inline-math": "Inline math",
     "block-math": "Math block",
     "current-date": "Current date",
@@ -51,7 +52,7 @@ describe("slash command menu", () => {
     const unfilteredItems = filterSlashCommandItems(items, "");
     const heading6Index = unfilteredItems.findIndex((item) => item.id === "heading-6");
 
-    expect(unfilteredItems).toHaveLength(24);
+    expect(unfilteredItems).toHaveLength(25);
     expect(unfilteredItems.slice(heading6Index + 1, heading6Index + 4).map((item) => item.id)).toEqual([
       "current-date",
       "current-time",
@@ -60,7 +61,8 @@ describe("slash command menu", () => {
   });
 
   test("searches localized labels and aliases", () => {
-    expect(filterSlashCommandItems(items, "AI").map((item) => item.id)).toEqual([]);
+    // No AI command exists; "AI" only substring-matches "mermAId".
+    expect(filterSlashCommandItems(items, "AI").map((item) => item.id)).toEqual(["mermaid"]);
     expect(filterSlashCommandItems(items, zh("task-list", 1)).map((item) => item.id)).toEqual(["task-list"]);
     expect(filterSlashCommandItems(items, "h2").map((item) => item.id)).toEqual(["heading-2"]);
     expect(filterSlashCommandItems(items, "h5").map((item) => item.id)).toEqual(["heading-5"]);
@@ -88,6 +90,7 @@ describe("slash command menu", () => {
       "divider",
       "fold",
       "table",
+      "mermaid",
       "math",
       "equation",
       "upload",
@@ -103,6 +106,9 @@ describe("slash command menu", () => {
     expect(filterSlashCommandItems(items, "task").map((item) => item.id)).toEqual(["task-list"]);
     expect(filterSlashCommandItems(items, zh("inline-math", 0)).map((item) => item.id)).toEqual(["inline-math", "block-math"]);
     expect(filterSlashCommandItems(items, "equation").map((item) => item.id)).toEqual(["block-math"]);
+    expect(filterSlashCommandItems(items, "mermaid").map((item) => item.id)).toEqual(["mermaid"]);
+    expect(filterSlashCommandItems(items, "flowchart").map((item) => item.id)).toEqual(["mermaid"]);
+    expect(filterSlashCommandItems(items, zh("mermaid", 1)).map((item) => item.id)).toEqual(["mermaid"]);
     expect(filterSlashCommandItems(items, "record").map((item) => item.id)).toEqual(["voice-memo"]);
     expect(filterSlashCommandItems(items, zh("voice-memo", 0)).map((item) => item.id)).toEqual(["voice-memo"]);
   });

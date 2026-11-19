@@ -548,38 +548,26 @@ Collect, organize, and express your thoughts in a self-hostable platform
 <figcaption>Images can carry a caption, like this one.</figcaption>
 </figure>
 
-## Make the words look right
+<div align="center">
+
+## <span style="background-color: #fbf3db">Move Beyond Markdown</span>
+
+</div>
 
 RTNote moves beyond markdown, instead storing every note as a rich-text document. This allows for advanced formatting, fonts, sizing, and color, while still retaining markdown export compatibility for those that need it.
 
-<span style="font-family: Georgia, 'Times New Roman', Times, serif; font-size: 20px">A serif for long reads.</span> <span style="font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Courier New', monospace">A monospace for code.</span> <span style="color: #337ea9">Blue</span>, <span style="color: #448361">green</span> and <span style="color: #c76b21">orange</span> for emphasis, and <span style="background-color: #fbf3db">a highlight</span> for the line that matters.
-
-<div align="center" style="line-height: 2">
-
-<span style="color: #9065b0; font-size: 20px">Centre a line, or give a paragraph room to breathe.</span>
-
-</div>
-
-<div align="right">
-
-<span style="color: #787774">Right-aligned text works too.</span>
-
-</div>
-
-## Tables that do more
-
-Select cells to merge them, or right-click a cell to colour it.
+## Tables
 
 <table>
 <tr>
-<th colspan="3" style="background-color: #e7f3f8">
+<th colspan="3" colwidth="162,0,0" style="background-color: #e7f3f8">
 
 Where RTNote runs
 
 </th>
 </tr>
 <tr>
-<td style="background-color: #fbecdd">
+<td colwidth="162" style="background-color: #fbecdd">
 
 **Cloudflare**
 
@@ -595,8 +583,8 @@ Runs on the free tier
 
 </td>
 </tr>
-<tr>
-<td style="background-color: #edf3ec">
+<tr style="height: 39px">
+<td colwidth="162" style="background-color: #edf3ec">
 
 **Docker**
 
@@ -614,7 +602,7 @@ SQLite with local or S3 storage
 </tr>
 </table>
 
-## Pictures side by side
+## Pictures and Galleries
 
 Drop several images in a row and they become a gallery:
 
@@ -629,6 +617,15 @@ Word documents and PDFs preview right inside the note:
 [Word document: rtnote-meeting-notes.docx](/api/v1/resources/res_demo_meeting_notes_docx/blob)
 
 [PDF: rtnote-product-brief.pdf](/api/v1/resources/res_demo_product_brief_pdf/blob)
+
+## Diagrams from text
+
+Type \`/mermaid\` to sketch a diagram in plain text. It redraws as you edit the source.
+
+\`\`\`mermaid
+flowchart LR
+  A[Write] --> B[Organize] --> C[Share]
+\`\`\`
 
 ## Try these next
 
@@ -793,7 +790,7 @@ export const DEMO_SEED_RESOURCES = [
     width: 1024,
     height: 1024,
     svg:
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc"><title id="title">RTNote</title><desc id="desc">A yellow sticky note with a peeled corner, a heading and two text lines on the RTNote orange rounded tile.</desc><rect x="100" y="100" width="824" height="824" rx="188" fill="#f26b1d" /><path fill="#ffc629" d="M300 260H724Q764 260 764 300V600L604 760H300Q260 760 260 720V300Q260 260 300 260Z" /><path fill="#e09a12" d="M764 600H644Q604 600 604 640V760Z" /><rect x="336" y="352" width="240" height="56" rx="28" fill="#24160a" /><rect x="336" y="472" width="352" height="32" rx="16" fill="#24160a" /><rect x="336" y="568" width="216" height="32" rx="16" fill="#24160a" />\n</svg>',
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc"><title id="title">RTNote</title><desc id="desc">A sheet of paper with an orange folded corner, a heading and three ink text lines on a warm paper tile.</desc><rect x="100" y="100" width="824" height="824" rx="188" fill="#efe4cf" /><path fill="#fffaf0" stroke="#cfba94" stroke-width="16" stroke-linejoin="round" d="M336 216H616L736 336V760Q736 808 688 808H336Q288 808 288 760V264Q288 216 336 216Z" /><path fill="#f26b1d" d="M616 216V296Q616 336 656 336H736Z" /><rect x="352" y="352" width="200" height="56" rx="28" fill="#24160a" /><rect x="352" y="476" width="320" height="28" rx="14" fill="#6b5a48" /><rect x="352" y="564" width="280" height="28" rx="14" fill="#6b5a48" /><rect x="352" y="652" width="180" height="28" rx="14" fill="#6b5a48" /></svg>',
   },
   {
     id: "res_demo_cat_image",

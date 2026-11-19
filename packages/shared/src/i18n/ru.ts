@@ -2677,6 +2677,7 @@ export const ru = {
       currentDate: "Текущая дата",
       currentTime: "Текущее время",
       currentDateTime: "Дата и время",
+      mermaid: "Диаграмма Mermaid",
     },
   },
   editorToolbar: {
@@ -2750,6 +2751,7 @@ export const ru = {
     mermaidZoomOut: "Уменьшить диаграмму",
     mermaidResetZoom: "Сбросить масштаб диаграммы",
     mermaidCloseViewer: "Закрыть просмотр диаграммы",
+    mermaidDelete: "Удалить диаграмму Mermaid",
     math: "Вставить формулу",
     blockMath: "Формула блоком",
     horizontalRule: "Разделитель",

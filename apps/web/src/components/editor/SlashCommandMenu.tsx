@@ -26,6 +26,7 @@ import {
   Quote,
   Sigma,
   Table,
+  Workflow,
 } from "lucide-react";
 import {
   Command,
@@ -55,6 +56,7 @@ export type SlashCommandId =
   | "divider"
   | "fold"
   | "table"
+  | "mermaid"
   | "inline-math"
   | "block-math"
   | "current-date"
@@ -92,6 +94,8 @@ export type SlashCommandItem = {
   keywords: string[];
   label: string;
 };
+
+export const MERMAID_STARTER_SOURCE = "flowchart LR\n  A[Start] --> B[End]";
 
 const slashCommandPluginKey = new PluginKey("rtnote-slash-command");
 
@@ -132,6 +136,7 @@ export const createSlashCommandItems = (labels: SlashCommandLabels): SlashComman
   { id: "divider", command: "divider", group: "insert", icon: BetweenHorizontalStart, label: labels.items.divider, keywords: withAliases("divider", ["rule"]) },
   { id: "fold", command: "fold", group: "insert", icon: ChevronsDownUp, label: labels.items.fold, keywords: withAliases("fold", ["collapse", "spoiler"]) },
   { id: "table", command: "table", group: "insert", icon: Table, label: labels.items.table, keywords: withAliases("table", []) },
+  { id: "mermaid", command: "mermaid", group: "insert", icon: Workflow, label: labels.items.mermaid, keywords: withAliases("mermaid", ["diagram", "flowchart", "chart", "graph"]) },
   { id: "inline-math", command: "math", group: "insert", icon: Sigma, label: labels.items["inline-math"], keywords: withAliases("inline-math", ["latex", "formula", "katex"]) },
   { id: "block-math", command: "equation", group: "insert", icon: Sigma, label: labels.items["block-math"], keywords: withAliases("block-math", ["latex", "formula", "display", "katex"]) },
   { id: "attachment", command: "upload", group: "insert", icon: FileUp, label: labels.items.attachment, keywords: withAliases("attachment", ["file", "attachment"]) },
@@ -259,6 +264,13 @@ const runSlashCommand = ({
     case "divider": chain.setHorizontalRule().run(); break;
     case "fold": chain.setDetails().run(); break;
     case "table": chain.insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(); break;
+    case "mermaid":
+      chain.insertContent({
+        type: "codeBlock",
+        attrs: { language: "mermaid" },
+        content: [{ type: "text", text: MERMAID_STARTER_SOURCE }],
+      }).run();
+      break;
     case "inline-math":
       chain.run();
       actions.openMathFormula("inline", { from: range.from, to: range.from });
