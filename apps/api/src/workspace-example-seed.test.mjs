@@ -107,7 +107,8 @@ describe("workspace example seed", () => {
       .toEqual({ memo_id: "memo_demo_overview_en" });
     expect(sqlite.query("SELECT COUNT(*) AS count FROM resources WHERE memo_id NOT IN (SELECT id FROM memos)").get())
       .toEqual({ count: 0 });
-    expect(sqlite.query("SELECT id FROM resources WHERE id = 'res_demo_cat_image'").get()).toBeNull();
+    expect(sqlite.query("SELECT memo_id FROM resources WHERE id = 'res_demo_cat_image'").get())
+      .toEqual({ memo_id: "memo_demo_overview_en" });
     expect(puts.some((key) => key.includes("res_demo_logo"))).toBe(true);
 
     const memoCount = sqlite.query("SELECT COUNT(*) AS count FROM memos").get().count;
