@@ -114,7 +114,7 @@ content_text      Plain text for search and summaries
 
 ## Credits
 
-RTNote is built on code from [RTNote](https://github.com/tianma-if/edgeever) by tianma-if and contributors, and is developed independently; it is not affiliated with or endorsed by that project. Some internal identifiers still carry the `rtnote` name. The poster workspace is adapted from [Qiaomu Design](https://github.com/joeseesun/qiaomu-cover-design) under the MIT license. See [NOTICE](NOTICE) for full attribution.
+RTNote is built on code from [EdgeEver](https://github.com/tianma-if/edgeever) by tianma-if and contributors, and is developed independently; it is not affiliated with or endorsed by that project. The poster workspace is adapted from [Qiaomu Design](https://github.com/joeseesun/qiaomu-cover-design) under the MIT license. See [NOTICE](NOTICE) for full attribution.
 
 ## License
 

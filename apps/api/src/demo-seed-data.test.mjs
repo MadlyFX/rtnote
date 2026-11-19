@@ -104,7 +104,8 @@ describe("demo seed catalog", () => {
       const diagram = parseDiagramDocument(memo?.markdown);
       expect(diagram).toMatchObject({ kind: "architecture" });
       expect(diagram?.nodes).toHaveLength(20);
-      expect(diagram?.edges).toHaveLength(9);
+      // The English example also links the API to sharing and the core to transcription.
+      expect(diagram?.edges).toHaveLength(memoId.endsWith("_en") ? 10 : 9);
 
       const boundaries = new Map(
         diagram?.nodes.filter((node) => node.shape === "boundary").map((node) => [node.id, node]),

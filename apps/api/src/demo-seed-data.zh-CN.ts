@@ -434,7 +434,7 @@ export const DEMO_TABLE_DOCUMENT_ZH: TableDocument = {
         fld_status: "已正式发布",
         fld_verified: true,
         fld_date: "2026-09-28",
-        fld_docs: [{ resourceId: "res_demo_attachment_bundle_zip", filename: "rtnote-attachment-demo.zip", mimeType: "application/zip", byteSize: 153 }],
+        fld_docs: [{ resourceId: "res_demo_attachment_bundle_zip", filename: "rtnote-attachment-demo.zip", mimeType: "application/zip", byteSize: 202 }],
       },
     },
     {
@@ -445,7 +445,7 @@ export const DEMO_TABLE_DOCUMENT_ZH: TableDocument = {
         fld_status: "已正式发布",
         fld_verified: true,
         fld_date: "2026-09-15",
-        fld_docs: [{ resourceId: "res_demo_feature_matrix_csv", filename: "feature-matrix.csv", mimeType: "text/csv", byteSize: 99 }],
+        fld_docs: [{ resourceId: "res_demo_feature_matrix_csv", filename: "feature-matrix.csv", mimeType: "text/csv", byteSize: 195 }],
       },
     },
     {
@@ -456,7 +456,7 @@ export const DEMO_TABLE_DOCUMENT_ZH: TableDocument = {
         fld_status: "已正式发布",
         fld_verified: true,
         fld_date: "2026-09-20",
-        fld_docs: [{ resourceId: "res_demo_product_brief_pdf", filename: "rtnote-product-brief.pdf", mimeType: "application/pdf", byteSize: 349 }],
+        fld_docs: [{ resourceId: "res_demo_product_brief_pdf", filename: "rtnote-product-brief.pdf", mimeType: "application/pdf", byteSize: 1026 }],
       },
     },
     {

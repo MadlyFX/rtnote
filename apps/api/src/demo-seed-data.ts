@@ -48,27 +48,27 @@ export const DEMO_ARCHITECTURE_DIAGRAM_EN: DiagramDocument = {
     { id: "boundary-clients", label: "Cross-Platform Experience", x: 32, y: 43, width: 260, height: 694, shape: "boundary" },
     { id: "boundary-platform", label: "Portable Application Platform · Shared Core on Cloudflare Workers or Docker", x: 380, y: 181, width: 732, height: 418, shape: "boundary" },
     { id: "boundary-data", label: "Data & Files · Replaceable Infrastructure Adapters", x: 1200, y: 396, width: 260, height: 436, shape: "boundary" },
-    { id: "boundary-ecosystem", label: "AI & Automation Ecosystem", x: 1200, y: 32, width: 260, height: 308, shape: "boundary" },
+    { id: "boundary-ecosystem", label: "Agents & External Services", x: 1200, y: 32, width: 260, height: 308, shape: "boundary" },
 
     { id: "client-web", label: "Web / PWA\nOffline First", x: 68, y: 99, width: 156, height: 64, shape: "frontend", resourceIcon: "webApp", parentId: "boundary-clients" },
-    { id: "client-desktop", label: "macOS / Windows\nDesktop", x: 68, y: 203, width: 156, height: 70, shape: "client", resourceIcon: "client", parentId: "boundary-clients" },
+    { id: "client-desktop", label: "Desktop Apps\nWin/Mac/Linux", x: 68, y: 203, width: 156, height: 70, shape: "client", resourceIcon: "client", parentId: "boundary-clients" },
     { id: "client-ios", label: "iOS\nNative SwiftUI", x: 68, y: 313, width: 156, height: 70, shape: "client", resourceIcon: "mobileApp", parentId: "boundary-clients" },
     { id: "client-android", label: "Android\nNative Expo", x: 68, y: 423, width: 156, height: 64, shape: "client", resourceIcon: "mobileApp", parentId: "boundary-clients" },
-    { id: "client-clipper", label: "Web Clipper\nChrome / Edge", x: 68, y: 527, width: 156, height: 70, shape: "client", resourceIcon: "website", parentId: "boundary-clients" },
+    { id: "client-clipper", label: "Web Clipper\nChrome / Edge / Firefox", x: 68, y: 527, width: 156, height: 70, shape: "client", resourceIcon: "website", parentId: "boundary-clients" },
     { id: "client-sync", label: "Shared Cross-Client Sync", x: 68, y: 637, width: 156, height: 64, shape: "service", resourceIcon: "apiClient", parentId: "boundary-clients" },
 
-    { id: "platform-api", label: "Unified API Entry\nAuth · Limits · Routing", x: 416, y: 365, width: 156, height: 88, shape: "service", resourceIcon: "apiGateway", parentId: "boundary-platform" },
-    { id: "platform-core", label: "Shared Business Core\nHono · Domain Services", x: 668, y: 301, width: 156, height: 88, shape: "service", resourceIcon: "service", parentId: "boundary-platform" },
-    { id: "platform-sync", label: "Sync & Revision Engine\nOffline Queue · Conflicts", x: 920, y: 301, width: 156, height: 88, shape: "service", resourceIcon: "streamProcessing", parentId: "boundary-platform" },
-    { id: "platform-mcp", label: "Native MCP Endpoint\nAgent Read/Write Tools", x: 416, y: 237, width: 156, height: 88, shape: "service", resourceIcon: "mcpServer", parentId: "boundary-platform" },
-    { id: "platform-model", label: "Client Model Gateway\nPrivate BYOK", x: 416, y: 493, width: 156, height: 70, shape: "service", resourceIcon: "modelGateway", parentId: "boundary-platform" },
+    { id: "platform-api", label: "API Gateway\nAuth · Routing", x: 416, y: 365, width: 156, height: 88, shape: "service", resourceIcon: "apiGateway", parentId: "boundary-platform" },
+    { id: "platform-core", label: "Business Core\nHono Services", x: 668, y: 301, width: 156, height: 88, shape: "service", resourceIcon: "service", parentId: "boundary-platform" },
+    { id: "platform-sync", label: "Sync Engine\nRevisions\nOffline Queue", x: 920, y: 301, width: 156, height: 88, shape: "service", resourceIcon: "streamProcessing", parentId: "boundary-platform" },
+    { id: "platform-mcp", label: "MCP Endpoint\nAgent Tools", x: 416, y: 237, width: 156, height: 88, shape: "service", resourceIcon: "mcpServer", parentId: "boundary-platform" },
+    { id: "platform-sharing", label: "Sharing\nLinks · Sites", x: 416, y: 493, width: 156, height: 70, shape: "service", resourceIcon: "website", parentId: "boundary-platform" },
 
-    { id: "data-search", label: "Search & Semantic Index\nFull Text · Vectors", x: 1239, y: 452, width: 150, height: 106, shape: "database", resourceIcon: "vectorDatabase", parentId: "boundary-data" },
+    { id: "data-search", label: "Search\nSQLite FTS5", x: 1239, y: 452, width: 150, height: 106, shape: "database", resourceIcon: "searchEngine", parentId: "boundary-data" },
     { id: "data-sql", label: "D1 / SQLite\nNotes · Tags · Revisions", x: 1239, y: 598, width: 150, height: 88, shape: "database", resourceIcon: "relationalDatabase", parentId: "boundary-data" },
-    { id: "data-objects", label: "R2 / S3\nImages & Attachments", x: 1236, y: 726, width: 156, height: 70, shape: "storage", resourceIcon: "objectStorage", parentId: "boundary-data" },
+    { id: "data-objects", label: "R2 / S3\nImages & Files", x: 1236, y: 726, width: 156, height: 70, shape: "storage", resourceIcon: "objectStorage", parentId: "boundary-data" },
 
-    { id: "ecosystem-agents", label: "Claude / Cursor\nAutomation Agents", x: 1236, y: 88, width: 156, height: 88, shape: "external", resourceIcon: "aiAgent", parentId: "boundary-ecosystem" },
-    { id: "ecosystem-models", label: "OpenAI / Gemini\nCompatible Models", x: 1236, y: 216, width: 156, height: 88, shape: "external", resourceIcon: "largeLanguageModel", parentId: "boundary-ecosystem" },
+    { id: "ecosystem-agents", label: "Your Agents\nAny MCP Client", x: 1236, y: 88, width: 156, height: 88, shape: "external", resourceIcon: "aiAgent", parentId: "boundary-ecosystem" },
+    { id: "ecosystem-speech", label: "Speech-to-Text\nYour Provider", x: 1236, y: 216, width: 156, height: 88, shape: "external", resourceIcon: "externalApi", parentId: "boundary-ecosystem" },
   ],
   edges: [
     { id: "edge-clients-api", source: "client-sync", target: "platform-api", label: "HTTPS / Sync Cursor", kind: "request" },
@@ -79,7 +79,8 @@ export const DEMO_ARCHITECTURE_DIAGRAM_EN: DiagramDocument = {
     { id: "edge-core-objects", source: "platform-core", target: "data-objects", label: "Objects", kind: "data" },
     { id: "edge-sync-search", source: "platform-sync", target: "data-search", label: "Incremental Index", kind: "data" },
     { id: "edge-agents-mcp", source: "ecosystem-agents", target: "platform-mcp", label: "MCP Tools", kind: "request", bidirectional: true },
-    { id: "edge-model-gateway", source: "platform-model", target: "ecosystem-models", label: "User-Key Direct", kind: "request", bidirectional: true },
+    { id: "edge-api-sharing", source: "platform-api", target: "platform-sharing", label: "Public Pages", kind: "request" },
+    { id: "edge-core-speech", source: "platform-core", target: "ecosystem-speech", label: "Transcription", kind: "request" },
   ],
 };
 
@@ -93,7 +94,7 @@ export const DEMO_FLOWCHART_DIAGRAM_EN: DiagramDocument = {
     { id: "organized", label: "Ready to organize?", x: 516, y: 164, width: 164, height: 72, shape: "decision" },
     { id: "inbox", label: "Keep in Inbox", x: 516, y: 304, width: 164, height: 56, shape: "process" },
     { id: "notebook", label: "Move to a project or topic", x: 748, y: 168, width: 184, height: 64, shape: "process" },
-    { id: "ai", label: "Let AI extract summary & actions", x: 748, y: 304, width: 184, height: 64, shape: "process" },
+    { id: "review", label: "Review, tag & merge notes", x: 748, y: 304, width: 184, height: 64, shape: "process" },
     { id: "publish", label: "Publish, share, or iterate", x: 1000, y: 176, width: 184, height: 48, shape: "terminator" },
   ],
   edges: [
@@ -101,9 +102,9 @@ export const DEMO_FLOWCHART_DIAGRAM_EN: DiagramDocument = {
     { id: "enrich-organized", source: "enrich", target: "organized" },
     { id: "organized-notebook", source: "organized", target: "notebook", label: "Yes" },
     { id: "organized-inbox", source: "organized", target: "inbox", label: "Not yet" },
-    { id: "inbox-ai", source: "inbox", target: "ai", label: "Review later" },
+    { id: "inbox-review", source: "inbox", target: "review", label: "Review later" },
     { id: "notebook-publish", source: "notebook", target: "publish" },
-    { id: "ai-publish", source: "ai", target: "publish" },
+    { id: "review-publish", source: "review", target: "publish" },
   ],
 };
 
@@ -123,7 +124,7 @@ export const DEMO_MIND_MAP_DIAGRAM_EN: DiagramDocument = {
     { id: "capture-files", label: "Images & files", x: 520, y: 144, width: 112, height: 36, shape: "topic", parentId: "capture" },
     { id: "organize-notebooks", label: "Notebook tree", x: 520, y: 200, width: 112, height: 36, shape: "topic", parentId: "organize" },
     { id: "organize-tags", label: "Tags & search", x: 520, y: 256, width: 112, height: 36, shape: "topic", parentId: "organize" },
-    { id: "connect-links", label: "Backlinks", x: 520, y: 312, width: 112, height: 36, shape: "topic", parentId: "connect" },
+    { id: "connect-links", label: "Note links", x: 520, y: 312, width: 112, height: 36, shape: "topic", parentId: "connect" },
     { id: "connect-mcp", label: "MCP agents", x: 520, y: 368, width: 112, height: 36, shape: "topic", parentId: "connect" },
     { id: "create-writing", label: "Focused writing", x: 520, y: 424, width: 112, height: 36, shape: "topic", parentId: "create" },
     { id: "create-share", label: "Publish & share", x: 520, y: 480, width: 112, height: 36, shape: "topic", parentId: "create" },
@@ -147,18 +148,19 @@ export const DEMO_MIND_MAP_DIAGRAM_EN: DiagramDocument = {
 
 export const DEMO_INFOGRAPHIC_SYNTAX_EN = `infographic sequence-timeline-rounded-rect-node
 data
-  title RTNote Evolution Milestones
   sequences
-    - label v1.0 Foundation
-      desc Classic three-pane layout, Serverless D1 storage & sync cursors
-    - label v1.50 Agents & Mobile
-      desc Native MCP endpoint (/mcp), native mobile apps & clipping matrix
-    - label v1.88 Structured Workspace
-      desc AI-driven infographics, structured tables & visual diagram suite
-    - label v1.100 Dual Protocols & Web
-      desc Desktop ACP for local agents, public notebook site publishing & full platform apps
-    - label v1.120 Visual Canvas & Layout
-      desc Native poster notes & canvas layout, voice memos & flexible self-hosting`;
+    - label Desktop and clipper builds
+      desc Windows, macOS and Linux installers plus web clipper packages
+    - label Rich text as the source of truth
+      desc Rich-text documents become the source of truth on every client
+    - label Fonts, alignment and captions
+      desc Fonts, alignment, line spacing, colour, captions and better tables
+    - label AI writing out, MCP stays
+      desc Built-in AI writing removed; the MCP server stays for your own agents
+    - label Voice memos on every device
+      desc Record, play back and transcribe on web, desktop and mobile
+    - label Your name, logo and colours
+      desc Custom name, logo and colours, with English as the default language`;
 
 export const DEMO_INFOGRAPHIC_DOCUMENT_EN: InfographicDocument = {
   schemaVersion: 1,
@@ -172,9 +174,9 @@ export const DEMO_POSTER_DOCUMENT_EN: PosterDocument = {
   background: "#f4efe4",
   templateId: "editorial",
   copy: {
-    badge: "RTNOTE · KNOWLEDGE ART",
-    title: "Next-Gen Second Brain\nfor Geeks & Creators",
-    subtitle: "Revive the beloved three-pane workflow with native AI agents and total data ownership.",
+    badge: "RTNOTE · YOUR NOTES",
+    title: "Your Second Brain,\nOn Your Own Server",
+    subtitle: "A three-pane, rich-text notes workspace that syncs everywhere\nand keeps your data yours.",
   },
   elements: [
     {
@@ -195,7 +197,7 @@ export const DEMO_POSTER_DOCUMENT_EN: PosterDocument = {
       name: "badge",
       type: "text",
       role: "badge",
-      text: "RTNOTE · KNOWLEDGE ART",
+      text: "RTNOTE · YOUR NOTES",
       x: 96,
       y: 150,
       width: 888,
@@ -214,7 +216,7 @@ export const DEMO_POSTER_DOCUMENT_EN: PosterDocument = {
       name: "heading",
       type: "text",
       role: "title",
-      text: "Next-Gen Second Brain\nfor Geeks & Creators",
+      text: "Your Second Brain,\nOn Your Own Server",
       x: 96,
       y: 220,
       width: 888,
@@ -234,7 +236,7 @@ export const DEMO_POSTER_DOCUMENT_EN: PosterDocument = {
       name: "subtitle",
       type: "text",
       role: "subtitle",
-      text: "Revive the beloved three-pane workflow with native AI agents and total data ownership.",
+      text: "A three-pane, rich-text notes workspace that syncs everywhere\nand keeps your data yours.",
       x: 96,
       y: 470,
       width: 888,
@@ -266,7 +268,7 @@ export const DEMO_POSTER_DOCUMENT_EN: PosterDocument = {
       id: "section-1-heading",
       name: "section-1-heading",
       type: "text",
-      text: "01 · Native MCP & ACP Dual Protocols",
+      text: "01 · Built-in MCP Server",
       x: 136,
       y: 630,
       width: 808,
@@ -284,7 +286,7 @@ export const DEMO_POSTER_DOCUMENT_EN: PosterDocument = {
       id: "section-1-body",
       name: "section-1-body",
       type: "text",
-      text: "Connect Claude, Cursor, and Codex via MCP, and drive local agents seamlessly via ACP on desktop.",
+      text: "Connect Claude, Cursor or any MCP client so your own agents\ncan read, write and organise notes.",
       x: 136,
       y: 695,
       width: 808,
@@ -317,7 +319,7 @@ export const DEMO_POSTER_DOCUMENT_EN: PosterDocument = {
       id: "section-2-heading",
       name: "section-2-heading",
       type: "text",
-      text: "02 · 100% Free Serverless & Self-Hosting",
+      text: "02 · Cloudflare or Docker Hosting",
       x: 136,
       y: 880,
       width: 808,
@@ -335,7 +337,7 @@ export const DEMO_POSTER_DOCUMENT_EN: PosterDocument = {
       id: "section-2-body",
       name: "section-2-body",
       type: "text",
-      text: "Run within Cloudflare free quotas or one-command Docker on your VPS/NAS with standard SQLite storage.",
+      text: "Run on Cloudflare's free tier, or with one Docker command\non your VPS or NAS with SQLite storage.",
       x: 136,
       y: 945,
       width: 808,
@@ -368,7 +370,7 @@ export const DEMO_POSTER_DOCUMENT_EN: PosterDocument = {
       id: "section-3-heading",
       name: "section-3-heading",
       type: "text",
-      text: "03 · Full-Platform Apps & Knowledge Sites",
+      text: "03 · Every Platform & Notebook Sites",
       x: 136,
       y: 1130,
       width: 808,
@@ -386,7 +388,7 @@ export const DEMO_POSTER_DOCUMENT_EN: PosterDocument = {
       id: "section-3-body",
       name: "section-3-body",
       type: "text",
-      text: "Native coverage on macOS, Windows, Linux, iOS & Android; publish entire notebooks as standalone sites.",
+      text: "Apps for web, Windows, macOS, Linux, Android and iOS;\npublish whole notebooks as websites.",
       x: 136,
       y: 1195,
       width: 808,
@@ -408,98 +410,109 @@ export const DEMO_TABLE_DOCUMENT_EN: TableDocument = {
   schemaVersion: 1,
   fields: [
     { id: "fld_feature", name: "Feature", type: "text" },
-    { id: "fld_category", name: "Category", type: "select", options: ["AI Agents", "Cross-Platform", "Visuals & Data", "Data & Architecture"] },
-    { id: "fld_status", name: "Status", type: "select", options: ["Released", "Public Beta", "Planned"] },
+    { id: "fld_category", name: "Category", type: "select", options: ["Writing", "Visual Notes", "Sharing & Data", "Agents", "Clients"] },
+    { id: "fld_status", name: "Status", type: "select", options: ["Available", "Beta", "Planned"] },
     { id: "fld_verified", name: "Verified", type: "checkbox" },
-    { id: "fld_date", name: "Release Date", type: "date" },
+    { id: "fld_date", name: "Last Reviewed", type: "date" },
     { id: "fld_docs", name: "Documents", type: "attachment" },
   ],
   records: [
     {
-      id: "rec_poster",
+      id: "rec_formatting",
       cells: {
-        fld_feature: "Native Poster Notes & Canvas Layout",
-        fld_category: "Visuals & Data",
-        fld_status: "Released",
+        fld_feature: "Rich-text formatting & image captions",
+        fld_category: "Writing",
+        fld_status: "Available",
         fld_verified: true,
-        fld_date: "2026-10-05",
+        fld_date: "2026-11-19",
         fld_docs: [],
       },
     },
     {
-      id: "rec_acp",
+      id: "rec_voice",
       cells: {
-        fld_feature: "Desktop ACP Local Agent Integration",
-        fld_category: "AI Agents",
-        fld_status: "Released",
+        fld_feature: "Voice memos & transcription",
+        fld_category: "Writing",
+        fld_status: "Available",
         fld_verified: true,
-        fld_date: "2026-10-08",
+        fld_date: "2026-11-19",
         fld_docs: [],
       },
     },
     {
-      id: "rec_notebook_site",
+      id: "rec_sites",
       cells: {
-        fld_feature: "Notebook Knowledge Base Web Publishing",
-        fld_category: "Data & Architecture",
-        fld_status: "Released",
+        fld_feature: "Shared notes & notebook sites",
+        fld_category: "Sharing & Data",
+        fld_status: "Available",
         fld_verified: true,
-        fld_date: "2026-10-10",
-        fld_docs: [],
-      },
-    },
-    {
-      id: "rec_platforms",
-      cells: {
-        fld_feature: "Full-Platform Apps (macOS / Win / Linux / iOS / Android)",
-        fld_category: "Cross-Platform",
-        fld_status: "Released",
-        fld_verified: true,
-        fld_date: "2026-09-28",
-        fld_docs: [{ resourceId: "res_demo_attachment_bundle_zip", filename: "rtnote-attachment-demo.zip", mimeType: "application/zip", byteSize: 153 }],
+        fld_date: "2026-11-19",
+        fld_docs: [{ resourceId: "res_demo_attachment_bundle_zip", filename: "rtnote-attachment-demo.zip", mimeType: "application/zip", byteSize: 202 }],
       },
     },
     {
       id: "rec_infographic",
       cells: {
-        fld_feature: "AntV AI Infographic Notes",
-        fld_category: "Visuals & Data",
-        fld_status: "Released",
+        fld_feature: "Infographic notes",
+        fld_category: "Visual Notes",
+        fld_status: "Available",
         fld_verified: true,
-        fld_date: "2026-09-15",
-        fld_docs: [{ resourceId: "res_demo_feature_matrix_csv", filename: "feature-matrix.csv", mimeType: "text/csv", byteSize: 99 }],
+        fld_date: "2026-11-19",
+        fld_docs: [{ resourceId: "res_demo_feature_matrix_csv", filename: "feature-matrix.csv", mimeType: "text/csv", byteSize: 195 }],
       },
     },
     {
       id: "rec_table",
       cells: {
-        fld_feature: "Structured Tables & Public Forms",
-        fld_category: "Visuals & Data",
-        fld_status: "Released",
+        fld_feature: "Structured tables & form links",
+        fld_category: "Visual Notes",
+        fld_status: "Available",
         fld_verified: true,
-        fld_date: "2026-09-20",
-        fld_docs: [{ resourceId: "res_demo_product_brief_pdf", filename: "rtnote-product-brief.pdf", mimeType: "application/pdf", byteSize: 349 }],
+        fld_date: "2026-11-19",
+        fld_docs: [{ resourceId: "res_demo_product_brief_pdf", filename: "rtnote-product-brief.pdf", mimeType: "application/pdf", byteSize: 1026 }],
+      },
+    },
+    {
+      id: "rec_poster",
+      cells: {
+        fld_feature: "Poster notes",
+        fld_category: "Visual Notes",
+        fld_status: "Beta",
+        fld_verified: true,
+        fld_date: "2026-11-19",
+        fld_docs: [],
       },
     },
     {
       id: "rec_mcp",
       cells: {
-        fld_feature: "Native MCP Endpoint (/mcp)",
-        fld_category: "AI Agents",
-        fld_status: "Released",
+        fld_feature: "Built-in MCP server (/mcp)",
+        fld_category: "Agents",
+        fld_status: "Available",
         fld_verified: true,
-        fld_date: "2026-08-10",
+        fld_date: "2026-11-19",
         fld_docs: [],
       },
     },
     {
-      id: "rec_clipper",
+      id: "rec_branding",
       cells: {
-        fld_feature: "Web Clipper & Article Capture",
-        fld_category: "Cross-Platform",
-        fld_status: "Released",
+        fld_feature: "Custom branding",
+        fld_category: "Sharing & Data",
+        fld_status: "Available",
         fld_verified: true,
-        fld_date: "2026-09-25",
+        fld_date: "2026-11-19",
+        fld_docs: [],
+      },
+    },
+    {
+      id: "rec_releases",
+      cells: {
+        fld_feature: "Signed builds & app store releases",
+        fld_category: "Clients",
+        fld_status: "Planned",
+        fld_verified: false,
+        fld_date: "2026-11-19",
         fld_docs: [],
       },
     },
@@ -514,229 +527,220 @@ const DEMO_SEED_MEMOS_EN_BASE = [
   {
     id: "memo_demo_overview_en",
     notebookId: "nb_demo_features_en",
-    title: "Welcome to RTNote: Modern Open-Source Knowledge Base for Geeks & Creators",
-    tags: ["overview", "guide", "features", "ai-agent"],
+    title: "Welcome to RTNote: A Self-Hosted, Rich-Text Notes Workspace",
+    tags: ["overview", "guide", "features", "mcp"],
     isPinned: true,
     markdown:
-      `> **RTNote** is an open-source, AI-native, and portable serverless/containerized personal knowledge base that revives the beloved **Evernote-style three-pane layout**. Designed for geeks and content creators, it combines 100% free serverless hosting, absolute data ownership, native cross-platform clients, and seamless AI Agent (MCP) synergy to redefine your digital second brain.
+      `> **RTNote** is an open-source notes workspace with a classic three-pane layout: notebooks, note list and editor. Notes are rich text first, sync across web, desktop and mobile, and live on a server you control: Cloudflare or your own machine with Docker.
+>
+> RTNote is in early development. It works today, but there are no official releases yet, and features may still change.
 
 ---
 
-## 1. Why Choose RTNote?
+## 1. What You Get
 
-*Tip: In editor mode, click any table cell to edit text directly, or right-click to insert/delete rows and columns.*
+*Tip: click any table cell to edit it, or right-click a cell to insert or delete rows and columns.*
 
-| Dimension | Traditional Cloud Notes (e.g. Evernote) | Local Offline Notes (e.g. Obsidian) | RTNote Geek Knowledge Base |
-| :--- | :--- | :--- | :--- |
-| **Source Code** | Closed source | Closed-source core, open files | **Full-stack open source (AGPL-3.0)** |
-| **Hosting Cost** | Costly commercial subscriptions ($10+/mo) | Official cloud sync subscription ($5+/mo) | **100% Free Forever (Cloudflare Free Tier / Docker Self-Hosted)** |
-| **Data Ownership** | Proprietary lock-in, hard to export | Local Markdown, cumbersome mobile sync | **Full Ownership (D1 SQLite, R2 Storage, Lossless ZIP Archives)** |
-| **Writing & Expressive Matrix** | Rich text only, fragile formatting | Plain Markdown, lacks WYSIWYG flow | **Seamless Dual-View (WYSIWYG ⇄ Source) + Native Architecture/Flowchart/Mind-Map/AI Infographic/Structured Table/Poster Notes** |
-| **Publishing Ready** | No typography styling, loses format | Requires 3rd-party plugins or scripts | **One-Click Rich Copy for Substack, Medium, WordPress & Email** |
-| **Social Poster Cards** | Basic screenshots without styling | Requires external tools or plugins | **8 Built-in Exquisite Poster Themes with Typography Options & PNG/JPEG Export** |
-| **Native AI Ecosystem** | Paywalled, limited features | Heavy plugin setup required | **Native MCP Server (\`/mcp\`), Desktop ACP Local Agent Integration & Inline AI** |
-| **Cross-Platform Matrix** | Restricts active free devices | Complex setup across platforms | **Web / PWA / Android / iOS / macOS / Windows / Linux AppImage** |
+| Area | What RTNote does |
+| :--- | :--- |
+| **Source code** | Open source under AGPL-3.0 |
+| **Hosting** | Cloudflare Workers with D1 and R2 (runs on Cloudflare's free tier), or Docker on a VPS, NAS or home server with SQLite and local or S3-compatible storage |
+| **Writing** | A rich-text editor with fonts, text sizes, alignment, line spacing, colour and highlight, tables with merged and coloured cells, captioned images and image galleries |
+| **Visual notes** | Mind maps, flowcharts, architecture diagrams, infographics, structured tables and posters (beta) |
+| **Voice memos** | Record straight into a note, play it back, and transcribe it with your own speech provider |
+| **Your data** | Full-library ZIP backups with Markdown files and attachments, plus Markdown export for single notes |
+| **Agents** | A built-in MCP server, so the agents you choose can read and write your notes. RTNote has no built-in AI writing assistant |
+| **Clients** | Web / PWA, desktop for Windows, macOS and Linux, Android, iOS, and a web clipper for Chrome, Edge and Firefox |
 
 ---
 
-## 2. Architectural Overview & Ecosystem
+## 2. How the Pieces Fit
 
-The Mermaid diagram below demonstrates how RTNote connects cross-platform clients, zero-cost cloud infrastructure, and AI Agents into a cohesive workflow:
+This Mermaid diagram shows how clients, agents and storage connect to one RTNote server:
 
 \`\`\`mermaid
 flowchart LR
-    subgraph ClientsBox["Cross-platform clients & agents"]
-        Clients["Cross-Platform Clients<br/>Web · PWA · Desktop Apps<br/>iOS · Android · Web Clipper"]
-        Agents["External AI Agents<br/>Claude Code · Cursor · Antigravity"]
+    subgraph ClientsBox["Clients & agents"]
+        Clients["Web · PWA · Desktop<br/>Android · iOS<br/>Web clipper"]
+        Agents["Your agents<br/>Any MCP client"]
     end
 
-    subgraph Platform["RTNote Platform Core (Cloudflare Workers / Docker)"]
-        API["Unified REST API Entry<br/>Auth · Rate Limiting · Sync Cursor"]
-        MCP["Native MCP Endpoint (/mcp)<br/>Context Retrieval · Read/Write Tools"]
+    subgraph Platform["RTNote server (Cloudflare Workers or Docker)"]
+        API["REST API<br/>Sign-in · Sync · Sharing"]
+        MCP["MCP endpoint (/mcp)<br/>Note, notebook and tag tools"]
     end
 
-    subgraph BackendBox["AI Models & Data Storage"]
-        LLMs["LLM Providers (Direct BYOK)<br/>OpenAI · Claude · Gemini"]
-        Storage[("Data & Object Storage<br/>Cloudflare D1 / SQLite · R2 / S3 Compatible")]
-    end
+    Storage[("Storage<br/>D1 or SQLite · R2, local or S3")]
 
-    Clients <-->|HTTPS Incremental Sync| API
-    Clients -->|Direct BYOK · Privacy First| LLMs
-    Agents <-->|MCP Tools / SSE Protocol| MCP
+    Clients <-->|HTTPS sync| API
+    Agents <-->|MCP over HTTPS| MCP
     API <--> Storage
     MCP <--> Storage
 \`\`\`
 
 ---
 
-## 3. Immersive Writing & Typography Aesthetics
+## 3. Writing
 
-RTNote is engineered to provide a distraction-free, elegant writing experience:
+### Rich Text First
+- Notes are stored as rich-text documents. Markdown is used for import, export and sharing, not as the source of truth.
+- The toolbar sets the font, text size, alignment, line spacing, text colour and highlight.
+- Tables can merge and split cells and set cell colours and borders.
+- Images can have captions, and several images can be grouped into a gallery.
 
-### Dual-View Editor & Focus Modes
-- **Seamless Dual-View**: Click the \`</>\` button in the top-right corner (or use shortcuts) to instantly toggle between **WYSIWYG Rich Text** and **Markdown Source Code** with 100% fidelity.
-- **Collapsible Outline Navigation**: Automatically indexes \`H1-H3\` heading hierarchies with smooth jump scrolling, keeping lengthy documents organized.
-- **Zen Focus Mode**: Press \`Cmd/Ctrl + Shift + F\` to hide sidebars and distractions, immersing yourself in pure writing flow.
-- **Reading Protection Mode**: When reading or reviewing notes, press \`Cmd/Ctrl + E\` to toggle read-only protection, locking the editor to prevent accidental edits while browsing; press it again to seamlessly resume editing.
+### Editor Tools
+- **Markdown source view**: press \`Cmd/Ctrl + /\`, or use the source button in the toolbar, to switch between rich text and Markdown source.
+- **Outline**: press \`Cmd/Ctrl + Shift + 1\` to show the headings of a long note, then collapse or expand them.
+- **Focus mode**: the focus button at the top of the note hides the sidebars on larger screens.
+- **Reading protection**: press \`Cmd/Ctrl + E\` to make a note read-only while you read it, and again to keep editing.
+- **Quick switcher**: press \`Cmd/Ctrl + O\` to jump to any note.
+- **Editor themes**: choose from Warm Page, Lesson Page, Navy Draft, Minimal Jade, Fresh Mint and more, or build your own.
 
-### Curated Typography Themes & Publishing Export
-- **Preset Editor Themes**: Switch effortlessly between \`Fresh Mint\`, \`Minimal Jade\`, \`Lined Jade\`, and styles such as Warm Page, Lesson Page, and Navy Draft, with custom body and interface typography.
-- **One-Click Publishing Export**: Built for publishers and bloggers. Choose **Copy as Rich Text** from the note menu to format your note with inline CSS. Paste directly into Substack, Medium, WordPress, or an email while preserving layout and syntax highlighting.
+### Share as Image
+Choose **Share as image** from the note menu to turn a note into an image card:
+- **10 themes**: Classic, Glass, Quote, Book excerpt, Memo, Bento, Black Sun, Frame, Handwritten and Code.
+- **Layout**: pick a font, a text size and a compact, standard or wide card, then export a PNG or JPEG or copy the image.
 
-### 8 Exquisite Social Poster Themes
-Click **"Share as Card"** in the top-right menu to turn any note into an eye-catching poster card:
-- **8 Themes**: \`Slate\`, \`Aurora\`, \`Sunset\`, \`Midnight\`, \`Mint\`, \`Notepad\` (skeuomorphic paper), \`Xuan\` (rice paper & Chinese ink), \`Lavender\`.
-- **Customizable Typography**: Switch between Sans, Serif (Songti/Ming), and Monospace fonts, select compact, standard, or wide card widths, and export as high-resolution PNG or JPEG.
-
----
-
-## 4. Visual Richness: Diagrams, AI Infographics & Structured Tables
-
-RTNote transcends traditional plain text notes with native visual and structured data canvases:
-
-### Native Diagram Suite
-- **System Architecture (Architecture)**: Designed for microservices and cloud topologies with boundaries, icons, and automated layout;
-- **Business Workflows (Flowchart)**: Standard terminators, decisions, and process nodes to map workflows cleanly;
-- **Second Brain Mind Maps (Mind Map)**: Radial trees and grouped topics for interconnected thoughts.
-
-### AntV AI Infographic Engine (Infographic)
-Powered by AntV and AI Agents:
-- Select from Timelines, Steps, Quadrants, and Comparison matrices;
-- **Conversational Refinement**: Instruct the AI in natural language directly in the infographic editor (e.g. "focus on cross-platform milestones" or "convert to a chronological timeline") to adjust layouts with full history and undo support.
-
-### Multi-Dimensional Structured Tables (Structured Table)
-Engineered for roadmaps, asset tracking, and form collection:
-- **Rich Field Types**: Native support for Text, Number, Single Select, Date, Checkbox, URL, and **Multi-File Attachments**;
-- **Multi-Condition Filtering & Sorting**: Dynamically combine filters and field order;
-- **Public Form Collection**: Generate a public link for external input that writes directly back to your table in real time.
+### Copy as Rich Text
+Choose **Copy as Rich Text** from the note menu to copy the note with your editor theme's styling, ready to paste into a blog editor or an email.
 
 ---
 
-## 5. Power Productivity Toolbox: Slash Commands, Backlinks & Math
+## 4. Visual and Structured Notes
+
+The new-note menu creates more than plain text. Every type below has an example in this notebook:
+
+- **Mind map, Flowchart and Architecture diagram**: draw, connect and arrange nodes on a canvas.
+- **Infographic**: timelines, steps and comparisons built with AntV Infographic. Edit the source syntax directly and export SVG or PNG.
+- **Structured table**: Text, Number, Checkbox, Date, Select, Link and Attachment fields, with filters and sorting. A form link lets other people add records without seeing the existing rows, with an optional password.
+- **Poster (beta)**: a free-form canvas for laying out a one-page design.
+
+Any note can also include Mermaid diagrams and KaTeX math.
+
+---
+
+## 5. Everyday Tools
 
 ### Slash Commands
-Type \`/\` or press \`Space\` on an empty line to invoke the command menu:
-- Insert \`H1/H2/H3\` headings, quotes, horizontal rules, code blocks, and rich tables;
-- Use \`/date\`, \`/time\`, or \`/now\` to insert current timestamps instantly;
-- Attach files, insert images, or summon the inline AI assistant.
+Type \`/\` in a paragraph to open the command menu:
+- Insert headings, lists, task lists, quotes, code blocks, dividers, tables and math.
+- Use \`/date\`, \`/time\` or \`/datetime\` to insert the current date and time.
+- Use \`/upload\` to attach a file, \`/voice\` to record a voice memo, or \`/note\` to link another note.
 
-### Bi-directional Note Links & Backlinks
-Type \`@\` or insert \`#memo=<memoId>\` links to establish bi-directional references across your knowledge base, building an interconnected web of thoughts.
+### Note Links
+Type \`@\` to search your notes and insert a link to one.
 
-### KaTeX Professional LaTeX Mathematics
-Native support for KaTeX renders complex mathematical equations in milliseconds:
+### KaTeX Math
+Write equations inline or as a block:
 
-- **Inline Math**: For instance, Einstein's mass-energy equivalence $E = mc^2$ or the Gaussian probability density function $f(x) = \\frac{1}{\\sigma \\sqrt{2\\pi}} e^{-\\frac{(x-\\mu)^2}{2\\sigma^2}}$.
-- **Display Block Math**:
+- **Inline math**: Einstein's mass–energy equivalence $E = mc^2$, or the normal distribution $f(x) = \\frac{1}{\\sigma \\sqrt{2\\pi}} e^{-\\frac{(x-\\mu)^2}{2\\sigma^2}}$.
+- **Block math**:
 $$
 \\oint_{\\partial \\Omega} \\mathbf{E} \\cdot d\\mathbf{S} = \\frac{1}{\\varepsilon_0} \\iiint_{\\Omega} \\rho \\, dV, \\quad \\oint_{\\partial \\Omega} \\mathbf{B} \\cdot d\\mathbf{S} = 0
 $$
 
-### Interactive Task Lists
-- [x] Explore RTNote's dual-view editing and outline navigation
-- [x] Experiment with 8 editor themes and 8 social poster card styles
-- [x] View the new 【AI Infographic】 evolution milestones and 【Structured Table】 delivery tracker
-- [ ] Try typing \`/\` on an empty line to insert current timestamp and tables
-- [ ] Connect your AI API Key to experience inline summarization and continuation
-- [ ] Connect AI Agents via MCP to automate note categorization
+### Task Lists
+- [x] Open the examples in this notebook
+- [ ] Type \`/date\` in an empty paragraph to insert today's date
+- [ ] Record a voice memo with \`/voice\`
+- [ ] Choose **Share as image** from the note menu
+- [ ] Create an API token under **Settings → API / MCP** and connect an agent
+- [ ] Set your own name, logo and colours under **Settings → General → Branding**
 
 ---
 
-## 6. Native AI Agent Synergy & MCP Protocol
+## 6. Voice Memos
 
-RTNote is architected for the agentic AI era, weaving LLMs directly into the knowledge management lifecycle:
+- Start a recording from **New voice memo** in the new-note menu, the voice memo button in the toolbar, or \`/voice\`. You can pause and resume, then play it back with seeking.
+- Recordings are ordinary attachments. When you're offline they are saved on the device first.
+- To transcribe, connect your own speech recognition service under **Settings → Audio/video transcription**. Transcripts are searchable.
+
+---
+
+## 7. Agents and MCP
+
+RTNote has no built-in AI writing assistant. Instead, its MCP server lets the agents you choose work with your notes:
 
 \`\`\`mermaid
 sequenceDiagram
     autonumber
-    participant User as Creator / Knowledge Worker
-    participant Client as RTNote Clients
-    participant MCP as RTNote MCP Endpoint
-    participant Agent as AI Agent (Claude / Cursor / Antigravity)
-    participant Database as Notion / Airtable
+    participant User as You
+    participant Client as RTNote clients
+    participant MCP as RTNote MCP endpoint
+    participant Agent as Your agent (Claude, Cursor, …)
 
-    User->>Client: Capture quick spark or meeting notes
-    Agent->>MCP: tools/call memo_search (Query unprocessed memos)
-    MCP-->>Agent: Returns structured Markdown & tags
-    Agent->>Agent: Analyzes content, extracts key takeaways & tags
-    Agent->>MCP: tools/call memo_update (Writes back summary & tags)
-    Agent->>Database: Syncs structured records to master database
-    Client-->>User: Sub-second live updates in client UI
+    User->>Client: Capture an idea or meeting notes
+    Agent->>MCP: tools/call search_memos (find new notes)
+    MCP-->>Agent: Returns matching notes and tags
+    Agent->>Agent: Summarises the notes and picks tags
+    Agent->>MCP: tools/call update_memo (writes the summary)
+    Agent->>MCP: tools/call add_tags_to_memos
+    Client-->>User: Changes sync to every device
 \`\`\`
 
-### 1. Inline AI Assistant
-Press the **\`Space\` bar** in an empty block, type **\`/ai\`**, use the **\`/\`** slash command menu, or select text and click the **AI button** on the floating toolbar to instantly summon the AI writing assistant:
-- **Summarization & Action Items**: Condense documents into key takeaways, conclusions, and actionable todos;
-- **Format-Preserving Translation**: Translate accurately into multiple languages while strictly preserving Markdown, math equations, links, and code blocks;
-- **Rewriting & Continuation**: Polish phrasing, make writing concise, or continue writing seamlessly;
-- **BYOK Direct Key (Bring Your Own Key)**: Direct client-side connection with OpenAI, Anthropic Claude, Google Gemini, and OpenAI-compatible relays with zero third-party data transit.
-
-### 2. Model Context Protocol (MCP) Integration
-Generate an API token in **Settings → MCP Settings** to connect RTNote directly with Claude Code, Cursor, Antigravity, OpenClaw, and other agent platforms:
-- **Direct Reading & Writing**: Connect via the \`/mcp\` endpoint (supports stateless \`2026-07-28\` protocol and handshake-based 2025 specs);
-- **Automated Workflows**: Let AI Agents read, organize, summarize, tag, and synchronize notes with Notion databases and Airtable.
+- **Connect**: create an API token under **Settings → API / MCP**, then point your MCP client at \`https://<your RTNote address>/mcp\`.
+- **Tools**: agents can search, read, create, update, tag, move and merge notes, manage notebooks, and work with tables, diagrams and posters.
 
 ---
 
-## 7. Multi-Platform Ecosystem, Offline Sync & Smart Clipping
+## 8. Clients, Sync and Capture
 
-- **Cross-Platform Native Apps**:
-  - **Web / PWA**: Full-featured in modern browsers with offline installation support;
-  - **Android Native App**: Built with Expo & SQLite, available on Google Play and GitHub Releases;
-  - **iOS Native App**: Native Swift / SwiftUI with GRDB local mirror, available on the App Store;
-  - **macOS Desktop App**: Electron + Rust Sidecar for Apple Silicon & Intel Mac with silent background updates;
-  - **Windows Desktop App**: Official x64 Preview released, featuring auto-launch, global hotkeys, and Windows Explorer context menu integration to send files to notes with one click.
-- **Browser Web Clipper**: Available on Chrome, Edge, and Firefox extension stores to extract clean, ad-free Markdown articles, selected text, high-res images, and full X (Twitter) posts directly from context menus.
-- **Sharing & Publishing**:
-  - **Mobile Article Clipper**: Share any web article to RTNote from your phone to extract and format it as an editable note;
-  - **One-Click Publishing Export**: Choose **Copy as Rich Text** from the note menu to copy formatted rich text ready for publishing.
-- **Offline Drafts & Sync Queue**: Keep writing seamlessly without network connectivity; changes are queued locally and automatically synced once reconnected.
+- **Web / PWA**: works in any modern browser and can be installed. Changes made offline are queued and sync when you reconnect.
+- **Desktop (Windows, macOS, Linux)**: keeps a local copy of your notes for offline use. On Windows it can start with the system, has global shortcuts, and adds **Send to RTNote** to the Explorer menu. Check for new versions under Settings.
+- **Android and iOS**: keep a local copy for offline use, and accept text, links and images shared from other apps.
+- **Web clipper**: saves articles, selections, images, page regions and X posts from Chrome, Edge and Firefox.
+- **Revision history**: every note keeps its earlier versions, so you can restore one.
+
+RTNote has no official releases yet. Desktop and clipper builds are unsigned, and the mobile apps are not in the app stores.
 
 ---
 
-## 8. Rich Media, Lossless Portability & Zero-Cost Hosting
+## 9. Files, Sharing and Your Data
 
-### Smart Client-Side Image Compression
-When pasting or dragging images into notes, RTNote compresses them to WebP locally in your browser before upload, **reducing file size by 50% - 90%** while preserving visual fidelity.
+### Images and Attachments
+Images are converted to WebP in your browser before upload, up to 2560 pixels on the long edge. If WebP isn't smaller, the original is kept.
 
-![RTNote Official Logo](/api/v1/resources/res_demo_logo/blob)
+![RTNote logo](/api/v1/resources/res_demo_logo/blob)
 
-### Universal File Attachments
-Embed Word documents, PDFs, spreadsheets, archives, and multimedia files directly in notes for preview or download:
-- [📝 Meeting notes Word: rtnote-meeting-notes.docx](/api/v1/resources/res_demo_meeting_notes_docx/blob)
-- [📄 Product brief PDF: rtnote-product-brief.pdf](/api/v1/resources/res_demo_product_brief_pdf/blob)
-- [📊 Feature matrix CSV: feature-matrix.csv](/api/v1/resources/res_demo_feature_matrix_csv/blob)
-- [📦 Sample attachment archive: rtnote-attachment-demo.zip](/api/v1/resources/res_demo_attachment_bundle_zip/blob)
+Attach files up to 1 GiB. Word documents and PDFs preview right in the note:
+- [📝 Word document: rtnote-meeting-notes.docx](/api/v1/resources/res_demo_meeting_notes_docx/blob)
+- [📄 PDF: rtnote-product-brief.pdf](/api/v1/resources/res_demo_product_brief_pdf/blob)
+- [📊 CSV: feature-matrix.csv](/api/v1/resources/res_demo_feature_matrix_csv/blob)
+- [📦 ZIP archive: rtnote-attachment-demo.zip](/api/v1/resources/res_demo_attachment_bundle_zip/blob)
 
-### Zero-Cost Serverless & Docker Self-Hosting
-1. **Cloudflare Serverless (Recommended, 100% Free Forever)**: Runs entirely within Cloudflare's free tier (Workers + D1 SQLite + R2 Storage). No server bills, no VPS maintenance.
-2. **Docker One-Command Deployment (VPS / NAS / Home Server)**:
+### Sharing
+- Share a single note as a public link, with an optional password and expiry date.
+- Publish a whole notebook as a website: right-click the notebook and choose **Share notebook**. Sites can have a password and their own branding.
+
+### Hosting
+1. **Cloudflare**: runs on Workers, D1 and R2, within Cloudflare's free tier. There is no server to maintain.
+2. **Docker (VPS, NAS or home server)**:
    \`\`\`sh
    # Build and start with Docker Compose
    docker compose up -d --build
    \`\`\`
    Runs the same application on your own hardware with SQLite and local or S3-compatible storage.
 
-### Complete Data Freedom: Lossless ZIP Portability
-Export your entire library at any time from **Profile → Import and export**. The archive contains pure Markdown files with standard YAML Front Matter, relative media paths, and full revision histories—compatible with Obsidian, VS Code, and any plain text editor.
+### Backups and Imports
+Open **Settings → Backup & Import** to download your whole library as a ZIP: Markdown files with YAML front matter, attachments in folders next to them, and JSON files that keep each note's revision history. You can import from Evernote, Obsidian, Joplin, Word and RTNote backups.
 
 ---
 
-> 💡 **Quick Exploration Tips**:
-> 1. Click **\`</>\`** in the top right to try seamless dual-view toggling;
-> 2. Explore the new **AI Infographic**, **Structured Table**, and **Visual Poster** examples in the sidebar;
-> 3. Press **\`Cmd/Ctrl + E\`** to test reading protection mode against accidental edits;
-> 4. Press **\`Cmd/Ctrl + O\`** to summon the Quick Switcher;
-> 5. Try Notebook Web Publishing: right-click any notebook to publish it as a standalone knowledge base site;
-> 6. Choose **Copy as Rich Text** from the note menu to copy formatted text ready for publishing;
-> 7. Click **"Share as Card"** to export a stunning social poster card;
+> 💡 **Things to Try**:
+> 1. Press **\`Cmd/Ctrl + /\`** to switch this note to Markdown source and back;
+> 2. Open the other examples in **Feature Demos**: posters, infographics, tables and diagrams;
+> 3. Press **\`Cmd/Ctrl + E\`** to turn on reading protection;
+> 4. Press **\`Cmd/Ctrl + O\`** to open the quick switcher;
+> 5. Right-click a notebook and choose **Share notebook** to publish it as a website;
+> 6. Choose **Copy as Rich Text** from the note menu;
+> 7. Choose **Share as image** to make an image card from this note;
 > 8. Click **"Reset Demo Data"** in settings or the sidebar anytime to restore the demo workspace.
 `,
   },
   {
     id: "memo_demo_poster_en",
     notebookId: "nb_demo_features_en",
-    title: "Visual Design: RTNote Geek Second Brain Poster Note",
+    title: "Visual Design: RTNote Poster Note",
     tags: ["poster", "design", "visual-layout", "branding"],
     isPinned: false,
     markdown: serializePosterDocument(DEMO_POSTER_DOCUMENT_EN),
@@ -744,15 +748,15 @@ Export your entire library at any time from **Profile → Import and export**. T
   {
     id: "memo_demo_infographic_en",
     notebookId: "nb_demo_features_en",
-    title: "Evolution Milestones: RTNote Architecture & Release History",
-    tags: ["infographic", "milestone", "timeline", "ai-agent"],
+    title: "Milestones: How RTNote Took Shape",
+    tags: ["infographic", "milestone", "timeline", "roadmap"],
     isPinned: false,
     markdown: serializeInfographicDocument(DEMO_INFOGRAPHIC_DOCUMENT_EN),
   },
   {
     id: "memo_demo_table_en",
     notebookId: "nb_demo_features_en",
-    title: "Delivery Tracking: RTNote Product Roadmap & Release Status",
+    title: "Feature Tracker: What RTNote Can Do Today",
     tags: ["table", "roadmap", "project-management", "tracking"],
     isPinned: false,
     markdown: serializeTableDocument(DEMO_TABLE_DOCUMENT_EN),
@@ -760,8 +764,8 @@ Export your entire library at any time from **Profile → Import and export**. T
   {
     id: "memo_demo_architecture_en",
     notebookId: "nb_demo_features_en",
-    title: "System Architecture: RTNote Portable Full Stack & AI Collaboration",
-    tags: ["architecture", "diagram", "portable-runtime", "cloud-native", "mcp"],
+    title: "System Architecture: How RTNote Fits Together",
+    tags: ["architecture", "diagram", "self-hosting", "sync", "mcp"],
     isPinned: false,
     markdown: serializeDiagramDocument(DEMO_ARCHITECTURE_DIAGRAM_EN),
   },
@@ -800,36 +804,36 @@ const DEMO_SEED_REVISIONS_EN = [
     id: "rev_demo_revision_1_en",
     memoId: "memo_demo_overview_en",
     revision: 1,
-    title: "Welcome to RTNote: Modern Open-Source Knowledge Base for Geeks & Creators",
+    title: "Welcome to RTNote: A Self-Hosted, Rich-Text Notes Workspace",
     markdown:
-      "## Welcome to RTNote (Initial Draft)\n\n- Classic Evernote 3-pane layout & Serverless self-hosted\n- Visual table editing & Markdown source toggle\n- Native MCP & AI agent synergy",
+      "## Welcome to RTNote (First Draft)\n\n- Classic three-pane layout, self-hosted on Cloudflare or Docker\n- Rich text first, with Markdown export\n- A built-in MCP server for the agents you choose",
   },
   {
     id: "rev_demo_poster_1_en",
     memoId: "memo_demo_poster_en",
     revision: 1,
-    title: "Visual Design: RTNote Geek Second Brain Poster Note",
+    title: "Visual Design: RTNote Poster Note",
     markdown: serializePosterDocument(DEMO_POSTER_DOCUMENT_EN),
   },
   {
     id: "rev_demo_infographic_1_en",
     memoId: "memo_demo_infographic_en",
     revision: 1,
-    title: "Evolution Milestones: RTNote Architecture & Release History",
+    title: "Milestones: How RTNote Took Shape",
     markdown: serializeInfographicDocument(DEMO_INFOGRAPHIC_DOCUMENT_EN),
   },
   {
     id: "rev_demo_table_1_en",
     memoId: "memo_demo_table_en",
     revision: 1,
-    title: "Delivery Tracking: RTNote Product Roadmap & Release Status",
+    title: "Feature Tracker: What RTNote Can Do Today",
     markdown: serializeTableDocument(DEMO_TABLE_DOCUMENT_EN),
   },
   {
     id: "rev_demo_architecture_1_en",
     memoId: "memo_demo_architecture_en",
     revision: 1,
-    title: "System Architecture: RTNote Portable Full Stack & AI Collaboration",
+    title: "System Architecture: How RTNote Fits Together",
     markdown: serializeDiagramDocument(DEMO_ARCHITECTURE_DIAGRAM_EN),
   },
 ];
