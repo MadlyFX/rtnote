@@ -51,24 +51,24 @@ export const DEMO_ARCHITECTURE_DIAGRAM_EN: DiagramDocument = {
     { id: "boundary-ecosystem", label: "Agents & External Services", x: 1200, y: 32, width: 260, height: 308, shape: "boundary" },
 
     { id: "client-web", label: "Web / PWA\nOffline First", x: 68, y: 99, width: 156, height: 64, shape: "frontend", resourceIcon: "webApp", parentId: "boundary-clients" },
-    { id: "client-desktop", label: "Windows / macOS\nLinux Desktop", x: 68, y: 203, width: 156, height: 70, shape: "client", resourceIcon: "client", parentId: "boundary-clients" },
+    { id: "client-desktop", label: "Desktop Apps\nWin/Mac/Linux", x: 68, y: 203, width: 156, height: 70, shape: "client", resourceIcon: "client", parentId: "boundary-clients" },
     { id: "client-ios", label: "iOS\nNative SwiftUI", x: 68, y: 313, width: 156, height: 70, shape: "client", resourceIcon: "mobileApp", parentId: "boundary-clients" },
     { id: "client-android", label: "Android\nNative Expo", x: 68, y: 423, width: 156, height: 64, shape: "client", resourceIcon: "mobileApp", parentId: "boundary-clients" },
     { id: "client-clipper", label: "Web Clipper\nChrome / Edge / Firefox", x: 68, y: 527, width: 156, height: 70, shape: "client", resourceIcon: "website", parentId: "boundary-clients" },
     { id: "client-sync", label: "Shared Cross-Client Sync", x: 68, y: 637, width: 156, height: 64, shape: "service", resourceIcon: "apiClient", parentId: "boundary-clients" },
 
-    { id: "platform-api", label: "Unified API Entry\nAuth · Limits · Routing", x: 416, y: 365, width: 156, height: 88, shape: "service", resourceIcon: "apiGateway", parentId: "boundary-platform" },
-    { id: "platform-core", label: "Shared Business Core\nHono · Domain Services", x: 668, y: 301, width: 156, height: 88, shape: "service", resourceIcon: "service", parentId: "boundary-platform" },
-    { id: "platform-sync", label: "Sync & Revision Engine\nOffline Queue · Conflicts", x: 920, y: 301, width: 156, height: 88, shape: "service", resourceIcon: "streamProcessing", parentId: "boundary-platform" },
-    { id: "platform-mcp", label: "Native MCP Endpoint\nAgent Read/Write Tools", x: 416, y: 237, width: 156, height: 88, shape: "service", resourceIcon: "mcpServer", parentId: "boundary-platform" },
-    { id: "platform-sharing", label: "Sharing & Sites\nLinks · Notebook Sites", x: 416, y: 493, width: 156, height: 70, shape: "service", resourceIcon: "website", parentId: "boundary-platform" },
+    { id: "platform-api", label: "API Gateway\nAuth · Routing", x: 416, y: 365, width: 156, height: 88, shape: "service", resourceIcon: "apiGateway", parentId: "boundary-platform" },
+    { id: "platform-core", label: "Business Core\nHono Services", x: 668, y: 301, width: 156, height: 88, shape: "service", resourceIcon: "service", parentId: "boundary-platform" },
+    { id: "platform-sync", label: "Sync Engine\nRevisions\nOffline Queue", x: 920, y: 301, width: 156, height: 88, shape: "service", resourceIcon: "streamProcessing", parentId: "boundary-platform" },
+    { id: "platform-mcp", label: "MCP Endpoint\nAgent Tools", x: 416, y: 237, width: 156, height: 88, shape: "service", resourceIcon: "mcpServer", parentId: "boundary-platform" },
+    { id: "platform-sharing", label: "Sharing\nLinks · Sites", x: 416, y: 493, width: 156, height: 70, shape: "service", resourceIcon: "website", parentId: "boundary-platform" },
 
-    { id: "data-search", label: "Full-Text Search\nSQLite FTS5", x: 1239, y: 452, width: 150, height: 106, shape: "database", resourceIcon: "searchEngine", parentId: "boundary-data" },
+    { id: "data-search", label: "Search\nSQLite FTS5", x: 1239, y: 452, width: 150, height: 106, shape: "database", resourceIcon: "searchEngine", parentId: "boundary-data" },
     { id: "data-sql", label: "D1 / SQLite\nNotes · Tags · Revisions", x: 1239, y: 598, width: 150, height: 88, shape: "database", resourceIcon: "relationalDatabase", parentId: "boundary-data" },
-    { id: "data-objects", label: "R2 / S3\nImages & Attachments", x: 1236, y: 726, width: 156, height: 70, shape: "storage", resourceIcon: "objectStorage", parentId: "boundary-data" },
+    { id: "data-objects", label: "R2 / S3\nImages & Files", x: 1236, y: 726, width: 156, height: 70, shape: "storage", resourceIcon: "objectStorage", parentId: "boundary-data" },
 
     { id: "ecosystem-agents", label: "Your Agents\nAny MCP Client", x: 1236, y: 88, width: 156, height: 88, shape: "external", resourceIcon: "aiAgent", parentId: "boundary-ecosystem" },
-    { id: "ecosystem-speech", label: "Speech-to-Text\nYour Own Provider", x: 1236, y: 216, width: 156, height: 88, shape: "external", resourceIcon: "externalApi", parentId: "boundary-ecosystem" },
+    { id: "ecosystem-speech", label: "Speech-to-Text\nYour Provider", x: 1236, y: 216, width: 156, height: 88, shape: "external", resourceIcon: "externalApi", parentId: "boundary-ecosystem" },
   ],
   edges: [
     { id: "edge-clients-api", source: "client-sync", target: "platform-api", label: "HTTPS / Sync Cursor", kind: "request" },
@@ -148,19 +148,18 @@ export const DEMO_MIND_MAP_DIAGRAM_EN: DiagramDocument = {
 
 export const DEMO_INFOGRAPHIC_SYNTAX_EN = `infographic sequence-timeline-rounded-rect-node
 data
-  title RTNote Milestones
   sequences
-    - label Builds & CI
+    - label Desktop and clipper builds
       desc Windows, macOS and Linux installers plus web clipper packages
-    - label Rich Text First
+    - label Rich text as the source of truth
       desc Rich-text documents become the source of truth on every client
-    - label Richer Formatting
+    - label Fonts, alignment and captions
       desc Fonts, alignment, line spacing, colour, captions and better tables
-    - label Focus on Writing
+    - label AI writing out, MCP stays
       desc Built-in AI writing removed; the MCP server stays for your own agents
-    - label Voice Memos
+    - label Voice memos on every device
       desc Record, play back and transcribe on web, desktop and mobile
-    - label Your Brand
+    - label Your name, logo and colours
       desc Custom name, logo and colours, with English as the default language`;
 
 export const DEMO_INFOGRAPHIC_DOCUMENT_EN: InfographicDocument = {
@@ -177,7 +176,7 @@ export const DEMO_POSTER_DOCUMENT_EN: PosterDocument = {
   copy: {
     badge: "RTNOTE · YOUR NOTES",
     title: "Your Second Brain,\nOn Your Own Server",
-    subtitle: "A three-pane, rich-text notes workspace that syncs everywhere and keeps your data yours.",
+    subtitle: "A three-pane, rich-text notes workspace that syncs everywhere\nand keeps your data yours.",
   },
   elements: [
     {
@@ -237,7 +236,7 @@ export const DEMO_POSTER_DOCUMENT_EN: PosterDocument = {
       name: "subtitle",
       type: "text",
       role: "subtitle",
-      text: "A three-pane, rich-text notes workspace that syncs everywhere and keeps your data yours.",
+      text: "A three-pane, rich-text notes workspace that syncs everywhere\nand keeps your data yours.",
       x: 96,
       y: 470,
       width: 888,
@@ -287,7 +286,7 @@ export const DEMO_POSTER_DOCUMENT_EN: PosterDocument = {
       id: "section-1-body",
       name: "section-1-body",
       type: "text",
-      text: "Connect Claude, Cursor or any MCP client so your own agents can read, write and organise notes.",
+      text: "Connect Claude, Cursor or any MCP client so your own agents\ncan read, write and organise notes.",
       x: 136,
       y: 695,
       width: 808,
@@ -338,7 +337,7 @@ export const DEMO_POSTER_DOCUMENT_EN: PosterDocument = {
       id: "section-2-body",
       name: "section-2-body",
       type: "text",
-      text: "Run on Cloudflare's free tier, or with one Docker command on your VPS or NAS with SQLite storage.",
+      text: "Run on Cloudflare's free tier, or with one Docker command\non your VPS or NAS with SQLite storage.",
       x: 136,
       y: 945,
       width: 808,
@@ -389,7 +388,7 @@ export const DEMO_POSTER_DOCUMENT_EN: PosterDocument = {
       id: "section-3-body",
       name: "section-3-body",
       type: "text",
-      text: "Apps for web, Windows, macOS, Linux, Android and iOS; publish whole notebooks as websites.",
+      text: "Apps for web, Windows, macOS, Linux, Android and iOS;\npublish whole notebooks as websites.",
       x: 136,
       y: 1195,
       width: 808,
@@ -413,7 +412,7 @@ export const DEMO_TABLE_DOCUMENT_EN: TableDocument = {
     { id: "fld_feature", name: "Feature", type: "text" },
     { id: "fld_category", name: "Category", type: "select", options: ["Writing", "Visual Notes", "Sharing & Data", "Agents", "Clients"] },
     { id: "fld_status", name: "Status", type: "select", options: ["Available", "Beta", "Planned"] },
-    { id: "fld_verified", name: "Tried It", type: "checkbox" },
+    { id: "fld_verified", name: "Verified", type: "checkbox" },
     { id: "fld_date", name: "Last Reviewed", type: "date" },
     { id: "fld_docs", name: "Documents", type: "attachment" },
   ],
@@ -562,7 +561,7 @@ This Mermaid diagram shows how clients, agents and storage connect to one RTNote
 \`\`\`mermaid
 flowchart LR
     subgraph ClientsBox["Clients & agents"]
-        Clients["RTNote clients<br/>Web · PWA · Desktop<br/>Android · iOS · Web clipper"]
+        Clients["Web · PWA · Desktop<br/>Android · iOS<br/>Web clipper"]
         Agents["Your agents<br/>Any MCP client"]
     end
 
