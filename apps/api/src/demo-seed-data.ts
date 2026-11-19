@@ -533,24 +533,24 @@ const DEMO_SEED_MEMOS_EN_BASE = [
     markdown:
       `<div align="center">
 
-<span style="font-family: Georgia, 'Times New Roman', Times, serif; font-size: 30px">Your notes, beautifully kept</span>
+<span style="font-family: 'Trebuchet MS', Helvetica, sans-serif; font-size: 30px">**A Feature-Rich Notebook For The Modern Era**</span>
 
 </div>
 
 <div align="center">
 
-<span style="color: #787774; font-size: 18px">Rich text on every device, on a server you control.</span>
+Collect, organize, and express your thoughts in a self-hostable platform
 
 </div>
 
 <figure>
-<img src="/api/v1/resources/res_demo_logo/blob" alt="RTNote logo" />
+<img src="/api/v1/resources/res_demo_logo/blob" alt="RTNote logo" data-image-align="center" width="35%" style="display: block; margin-left: auto; margin-right: auto; width: 35%" />
 <figcaption>Images can carry a caption, like this one.</figcaption>
 </figure>
 
 ## Make the words look right
 
-Every note is a rich-text document, so formatting stays exactly where you put it. Pick a font, a size, a colour or a highlight from the toolbar:
+RTNote moves beyond markdown, instead storing every note as a rich-text document. This allows for advanced formatting, fonts, sizing, and color, while still retaining markdown export compatibility for those that need it.
 
 <span style="font-family: Georgia, 'Times New Roman', Times, serif; font-size: 20px">A serif for long reads.</span> <span style="font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Courier New', monospace">A monospace for code.</span> <span style="color: #337ea9">Blue</span>, <span style="color: #448361">green</span> and <span style="color: #c76b21">orange</span> for emphasis, and <span style="background-color: #fbf3db">a highlight</span> for the line that matters.
 
@@ -666,7 +666,7 @@ Mind maps, flowcharts, architecture diagrams, infographics, tables and posters e
 
 RTNote has no built-in AI writing assistant. Its MCP server lets the agents you choose read and write your notes: create a token under **Settings → API / MCP**.
 
-Download your whole library any time from **Settings → Backup & Import**, as Markdown files with their attachments.
+Download your whole library any time from **Settings → Backup &amp; Import**, as Markdown files with their attachments.
 
 </details>
 
