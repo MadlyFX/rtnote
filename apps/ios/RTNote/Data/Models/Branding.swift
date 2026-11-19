@@ -10,8 +10,8 @@ struct ResolvedBranding: Codable, Equatable, Sendable {
     static let nameMaxLength = 48
     static let footerTextMaxLength = 280
     static let footerLinkLimit = 6
-    /// Default accent of the server palette. The iOS app keeps its own green for it.
-    static let defaultAccentHex = "#16a06e"
+    /// Default light accent of the server palette. The iOS app keeps its own green for it.
+    static let defaultAccentHex = "#b5501b"
 
     var name: String
     /// Light-mode logo: a server-relative path (`/api/public/branding/assets/…`), an
@@ -167,12 +167,12 @@ struct BrandColorScheme: Codable, Equatable, Sendable {
     var accent: String
 
     static let defaultLight = BrandColorScheme(
-        background: "#eef1f4", surface: "#f8fafb", sidebar: "#e7ebef",
-        text: "#212121", border: "#e1e5ea", accent: ResolvedBranding.defaultAccentHex
+        background: "#f4efe6", surface: "#fbf8f2", sidebar: "#ece5d8",
+        text: "#2b2620", border: "#e2d9c9", accent: ResolvedBranding.defaultAccentHex
     )
     static let defaultDark = BrandColorScheme(
-        background: "#121315", surface: "#222325", sidebar: "#17181a",
-        text: "#dedede", border: "#323437", accent: ResolvedBranding.defaultAccentHex
+        background: "#1a1714", surface: "#26221d", sidebar: "#1f1b17",
+        text: "#ece4d6", border: "#3a332b", accent: "#d9692c"
     )
 
     init(background: String, surface: String, sidebar: String, text: String, border: String, accent: String) {

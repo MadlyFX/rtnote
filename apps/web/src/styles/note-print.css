@@ -473,7 +473,7 @@
 
 .rtnote-print-content [data-theme-block-kind="chapter"] {
   border-width: 0;
-  border-left: 4px solid #16a06e;
+  border-left: 4px solid var(--brand-green, #b5501b);
   border-radius: 6px;
   background: #f0f8f4;
 }

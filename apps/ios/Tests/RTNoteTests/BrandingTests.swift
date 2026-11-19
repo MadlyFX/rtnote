@@ -13,13 +13,13 @@ final class BrandingTests: XCTestCase {
         XCTAssertEqual(branding, .default)
         XCTAssertFalse(branding.isCustom)
         XCTAssertEqual(branding.name, "RTNote")
-        XCTAssertEqual(branding.color, "#16a06e")
-        XCTAssertEqual(branding.colors.dark.background, "#121315")
+        XCTAssertEqual(branding.color, "#b5501b")
+        XCTAssertEqual(branding.colors.dark.background, "#1a1714")
     }
 
     func testFullDefaultPayloadDecodesToDefaults() throws {
         let branding = try decode("""
-        {"name":"RTNote","logoUrl":"","logoDarkUrl":"","faviconUrl":"","color":"#16a06e","colors":{"light":{"background":"#eef1f4","surface":"#f8fafb","sidebar":"#e7ebef","text":"#212121","border":"#e1e5ea","accent":"#16a06e"},"dark":{"background":"#121315","surface":"#222325","sidebar":"#17181a","text":"#dedede","border":"#323437","accent":"#16a06e"}},"fonts":{"heading":"system","body":"system"},"footer":{"text":"","links":[]},"isCustom":false}
+        {"name":"RTNote","logoUrl":"","logoDarkUrl":"","faviconUrl":"","color":"#b5501b","colors":{"light":{"background":"#f4efe6","surface":"#fbf8f2","sidebar":"#ece5d8","text":"#2b2620","border":"#e2d9c9","accent":"#b5501b"},"dark":{"background":"#1a1714","surface":"#26221d","sidebar":"#1f1b17","text":"#ece4d6","border":"#3a332b","accent":"#d9692c"}},"fonts":{"heading":"system","body":"system"},"footer":{"text":"","links":[]},"isCustom":false}
         """)
         XCTAssertEqual(branding, .default)
     }
@@ -36,8 +36,8 @@ final class BrandingTests: XCTestCase {
         XCTAssertEqual(branding.color, "#2563eb")
         XCTAssertEqual(branding.colors.dark.accent, "#60a5fa")
         // Missing tokens keep the defaults of their own mode.
-        XCTAssertEqual(branding.colors.light.background, "#eef1f4")
-        XCTAssertEqual(branding.colors.dark.background, "#121315")
+        XCTAssertEqual(branding.colors.light.background, "#f4efe6")
+        XCTAssertEqual(branding.colors.dark.background, "#1a1714")
         XCTAssertEqual(branding.fonts, BrandFonts(heading: "serif", body: "mono"))
         XCTAssertEqual(branding.footer.links, [BrandFooterLink(label: "Site", url: "https://acme.example")])
         XCTAssertTrue(branding.isCustom)
@@ -50,8 +50,8 @@ final class BrandingTests: XCTestCase {
         XCTAssertEqual(branding.name, "RTNote")
         XCTAssertEqual(branding.logoUrl, "")
         XCTAssertEqual(branding.logoDarkUrl, "")
-        XCTAssertEqual(branding.colors.light.accent, "#16a06e")
-        XCTAssertEqual(branding.colors.light.background, "#eef1f4")
+        XCTAssertEqual(branding.colors.light.accent, "#b5501b")
+        XCTAssertEqual(branding.colors.light.background, "#f4efe6")
         // Three-digit hex expands like the server schema does.
         XCTAssertEqual(branding.colors.light.text, "#aabbcc")
         XCTAssertEqual(branding.colors.dark, BrandColorScheme.defaultDark)

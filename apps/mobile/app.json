@@ -31,7 +31,7 @@
       "package": "com.madlyfx.rtnote",
       "versionCode": 260,
       "adaptiveIcon": {
-        "backgroundColor": "#F26B1D",
+        "backgroundColor": "#EFE4CF",
         "backgroundImage": "./assets/icon.png",
         "foregroundImage": "./assets/adaptive-icon-transparent.png"
       }
@@ -50,7 +50,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#F26B1D",
+          "backgroundColor": "#EFE4CF",
           "image": "./assets/icon.png",
           "imageWidth": 180,
           "resizeMode": "contain"

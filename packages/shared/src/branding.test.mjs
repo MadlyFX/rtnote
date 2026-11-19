@@ -110,7 +110,7 @@ describe("resolved branding from untrusted sources", () => {
     expect(resolved.logoUrl).toBe("");
     expect(resolved.logoDarkUrl).toBe("https://cdn.test/dark.png");
     expect(resolved.faviconUrl).toBe("");
-    expect(resolved.colors.light.accent).toBe("#16a06e");
+    expect(resolved.colors.light.accent).toBe("#b5501b");
     expect(resolved.fonts.body).toBe("system");
     expect(resolved.footer.links).toEqual([{ label: "ok", url: "https://ok.test" }]);
     expect(coerceResolvedBranding(null)).toEqual(DEFAULT_RESOLVED_BRANDING);

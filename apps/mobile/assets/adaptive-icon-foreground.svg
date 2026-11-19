@@ -1,4 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="RTNote">
-  <path fill="#24160a" fill-rule="evenodd" d="M300 260H724Q764 260 764 300V600L604 760H300Q260 760 260 720V300Q260 260 300 260ZM764 600H604V760ZM364 352H548A28 28 0 0 1 548 408H364A28 28 0 0 1 364 352ZM352 472H672A16 16 0 0 1 672 504H352A16 16 0 0 1 352 472ZM352 568H536A16 16 0 0 1 536 600H352A16 16 0 0 1 352 568Z" />
-  <path fill="#24160a" d="M696 628H632V692Z" />
+  <g transform="translate(512 512) scale(0.86) translate(-512 -512)">
+    <path fill="#fffaf0" stroke="#cfba94" stroke-width="16" stroke-linejoin="round" d="M336 216H616L736 336V760Q736 808 688 808H336Q288 808 288 760V264Q288 216 336 216Z" />
+    <path fill="#f26b1d" d="M616 216V296Q616 336 656 336H736Z" />
+    <rect x="352" y="352" width="200" height="56" rx="28" fill="#24160a" />
+    <rect x="352" y="476" width="320" height="28" rx="14" fill="#6b5a48" />
+    <rect x="352" y="564" width="280" height="28" rx="14" fill="#6b5a48" />
+    <rect x="352" y="652" width="180" height="28" rx="14" fill="#6b5a48" />
+  </g>
 </svg>

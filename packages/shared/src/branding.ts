@@ -22,8 +22,8 @@ export type BrandColorMode = "light" | "dark";
 
 /** Values match the stock stylesheet, so the default preset changes nothing. */
 const DEFAULT_SCHEME: Record<BrandColorMode, BrandColorScheme> = {
-  light: { background: "#eef1f4", surface: "#f8fafb", sidebar: "#e7ebef", text: "#212121", border: "#e1e5ea", accent: "#16a06e" },
-  dark: { background: "#121315", surface: "#222325", sidebar: "#17181a", text: "#dedede", border: "#323437", accent: "#16a06e" },
+  light: { background: "#f4efe6", surface: "#fbf8f2", sidebar: "#ece5d8", text: "#2b2620", border: "#e2d9c9", accent: "#b5501b" },
+  dark: { background: "#1a1714", surface: "#26221d", sidebar: "#1f1b17", text: "#ece4d6", border: "#3a332b", accent: "#d9692c" },
 };
 
 export const BRAND_COLOR_PRESETS = {
