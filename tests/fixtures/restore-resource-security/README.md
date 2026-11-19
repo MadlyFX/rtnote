@@ -1,8 +1,7 @@
-# Previous-release restore fixture
+# EdgeEver archive fixture
 
+`v2.12.0.zip` is a real backup exported by EdgeEver v2.12.0 (official release commit `eeaab088f41d0417fbce2266f58ff4adde7f5d76`). It holds one notebook, one note with a revision, and four synthetic attachments, with no credentials or user data.
 
-`v2.12.0.zip` was generated with `createRTNoteZip` extracted using `git archive v2.12.0 packages/shared`, from official release commit `eeaab088f41d0417fbce2266f58ff4adde7f5d76`. The released exporter ran directly under Bun with the installed lockfile dependencies; the patched exporter was not used. `source.json` records its synthetic inputs and attachment bytes.
-
-The archive contains one notebook, one pinned/tagged note, one historical revision, a PNG, an inert SVG, an image with null MIME, and a downloadable HTML attachment. The null-MIME image uses a `.bin` filename to exercise the existing binary fallback without file-extension MIME inference. It has no credentials, user data, scripts, or external requests. The security regression test restores this frozen archive through both legacy and resumable APIs and reads the resulting data and bytes back.
+RTNote made a clean break from EdgeEver's stored formats and does not restore EdgeEver backups. The test checks that this archive is rejected as an unsupported format before anything reaches the server.
 
 Run: `bun test apps/api/src/resource-restore-security.test.mjs`.

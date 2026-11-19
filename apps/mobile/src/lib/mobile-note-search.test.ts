@@ -18,22 +18,22 @@ describe("mobile note search", () => {
     const strong = schema.marks.strong.create();
     const doc = schema.node("doc", null, [
       schema.node("paragraph", null, [
-        schema.text("Edge"),
-        schema.text("Ever", [strong]),
+        schema.text("RT"),
+        schema.text("Note", [strong]),
         schema.text(" rtnote"),
       ]),
     ]);
 
     expect(getMobileNoteSearchMatches(doc, "rtnote")).toEqual([
-      { from: 1, to: 9 },
-      { from: 10, to: 18 },
+      { from: 1, to: 7 },
+      { from: 8, to: 14 },
     ]);
   });
 
   test("does not create a match across block boundaries", () => {
     const doc = schema.node("doc", null, [
-      schema.node("paragraph", null, schema.text("edge")),
-      schema.node("paragraph", null, schema.text("ever")),
+      schema.node("paragraph", null, schema.text("rt")),
+      schema.node("paragraph", null, schema.text("note")),
     ]);
 
     expect(getMobileNoteSearchMatches(doc, "rtnote")).toEqual([]);

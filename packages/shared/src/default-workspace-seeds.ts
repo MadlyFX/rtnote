@@ -126,7 +126,7 @@ export const WELCOME_MEMO_ID = "memo_welcome";
 export const WELCOME_MEMO_SEED_TITLE = LEGACY_WELCOME_MEMO_SEED_TITLE;
 export const WELCOME_MEMO_SEED_CONTENT_HASH = "4edcf7092f86c561210d4eb788e96f28ec5c045f93952c82f5f57e1902f548bd";
 // Migration 0071 repairs the original seed's literal backslash-n and advances it to revision 1.
-export const WELCOME_MEMO_REPAIRED_CONTENT_HASH = "30fae5a337f8b9709505c5ab00ee921410b78632c14f4b7577c88aea0f9fc390";
+export const WELCOME_MEMO_REPAIRED_CONTENT_HASH = "189b5908aab07c9d43a58954ab8cf5d87a7f213c8895d381cbed1af5e1f45839";
 
 export type WelcomeMemoTranslation = {
   title: string;
