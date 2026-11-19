@@ -1,6 +1,6 @@
 {
   "name": "@rtnote/desktop",
-  "version": "2.23.0",
+  "version": "1.0.0",
   "desktopName": "RTNote",
   "private": true,
   "description": "Native RTNote desktop client",

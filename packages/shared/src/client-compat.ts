@@ -6,7 +6,7 @@ import { isVersionOutdated } from "./version";
  * open notes read-only instead of saving over it. Raise this when a release
  * adds document content that older clients would drop.
  */
-export const MIN_CLIENT_VERSION = "2.23.0";
+export const MIN_CLIENT_VERSION = "1.0.0";
 
 export const isClientBelowMinimum = (
   clientVersion: string | null | undefined,

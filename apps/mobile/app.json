@@ -3,7 +3,7 @@
     "name": "RTNote",
     "slug": "rtnote",
     "scheme": "rtnote",
-    "version": "2.23.0",
+    "version": "1.0.0",
     "runtimeVersion": {
       "policy": "appVersion"
     },
@@ -29,7 +29,7 @@
     },
     "android": {
       "package": "com.madlyfx.rtnote",
-      "versionCode": 260,
+      "versionCode": 261,
       "adaptiveIcon": {
         "backgroundColor": "#EFE4CF",
         "backgroundImage": "./assets/icon.png",

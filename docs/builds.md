@@ -69,8 +69,8 @@ never be updated.
 2. Tag the merge commit and push the tag:
 
    ```sh
-   git tag v2.23.0
-   git push origin v2.23.0
+   git tag v1.0.0
+   git push origin v1.0.0
    ```
 
 3. The [Release](../.github/workflows/release.yml) workflow checks the
