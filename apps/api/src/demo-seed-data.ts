@@ -531,210 +531,150 @@ const DEMO_SEED_MEMOS_EN_BASE = [
     tags: ["overview", "guide", "features", "mcp"],
     isPinned: true,
     markdown:
-      `> **RTNote** is an open-source notes workspace with a classic three-pane layout: notebooks, note list and editor. Notes are rich text first, sync across web, desktop and mobile, and live on a server you control: Cloudflare or your own machine with Docker.
->
-> RTNote is in early development. It works today, but there are no official releases yet, and features may still change.
+      `<div align="center">
 
----
+<span style="font-family: Georgia, 'Times New Roman', Times, serif; font-size: 30px">Your notes, beautifully kept</span>
 
-## 1. What You Get
+</div>
 
-*Tip: click any table cell to edit it, or right-click a cell to insert or delete rows and columns.*
+<div align="center">
 
-| Area | What RTNote does |
-| :--- | :--- |
-| **Source code** | Open source under AGPL-3.0 |
-| **Hosting** | Cloudflare Workers with D1 and R2 (runs on Cloudflare's free tier), or Docker on a VPS, NAS or home server with SQLite and local or S3-compatible storage |
-| **Writing** | A rich-text editor with fonts, text sizes, alignment, line spacing, colour and highlight, tables with merged and coloured cells, captioned images and image galleries |
-| **Visual notes** | Mind maps, flowcharts, architecture diagrams, infographics, structured tables and posters (beta) |
-| **Voice memos** | Record straight into a note, play it back, and transcribe it with your own speech provider |
-| **Your data** | Full-library ZIP backups with Markdown files and attachments, plus Markdown export for single notes |
-| **Agents** | A built-in MCP server, so the agents you choose can read and write your notes. RTNote has no built-in AI writing assistant |
-| **Clients** | Web / PWA, desktop for Windows, macOS and Linux, Android, iOS, and a web clipper for Chrome, Edge and Firefox |
+<span style="color: #787774; font-size: 18px">Rich text on every device, on a server you control.</span>
 
----
+</div>
 
-## 2. How the Pieces Fit
+<figure>
+<img src="/api/v1/resources/res_demo_logo/blob" alt="RTNote logo" />
+<figcaption>Images can carry a caption, like this one.</figcaption>
+</figure>
 
-This Mermaid diagram shows how clients, agents and storage connect to one RTNote server:
+## Make the words look right
 
-\`\`\`mermaid
-flowchart LR
-    subgraph ClientsBox["Clients & agents"]
-        Clients["Web · PWA · Desktop<br/>Android · iOS<br/>Web clipper"]
-        Agents["Your agents<br/>Any MCP client"]
-    end
+Every note is a rich-text document, so formatting stays exactly where you put it. Pick a font, a size, a colour or a highlight from the toolbar:
 
-    subgraph Platform["RTNote server (Cloudflare Workers or Docker)"]
-        API["REST API<br/>Sign-in · Sync · Sharing"]
-        MCP["MCP endpoint (/mcp)<br/>Note, notebook and tag tools"]
-    end
+<span style="font-family: Georgia, 'Times New Roman', Times, serif; font-size: 20px">A serif for long reads.</span> <span style="font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Courier New', monospace">A monospace for code.</span> <span style="color: #337ea9">Blue</span>, <span style="color: #448361">green</span> and <span style="color: #c76b21">orange</span> for emphasis, and <span style="background-color: #fbf3db">a highlight</span> for the line that matters.
 
-    Storage[("Storage<br/>D1 or SQLite · R2, local or S3")]
+<div align="center" style="line-height: 2">
 
-    Clients <-->|HTTPS sync| API
-    Agents <-->|MCP over HTTPS| MCP
-    API <--> Storage
-    MCP <--> Storage
-\`\`\`
+<span style="color: #9065b0; font-size: 20px">Centre a line, or give a paragraph room to breathe.</span>
 
----
+</div>
 
-## 3. Writing
+<div align="right">
 
-### Rich Text First
-- Notes are stored as rich-text documents. Markdown is used for import, export and sharing, not as the source of truth.
-- The toolbar sets the font, text size, alignment, line spacing, text colour and highlight.
-- Tables can merge and split cells and set cell colours and borders.
-- Images can have captions, and several images can be grouped into a gallery.
+<span style="color: #787774">Right-aligned text works too.</span>
 
-### Editor Tools
-- **Markdown source view**: press \`Cmd/Ctrl + /\`, or use the source button in the toolbar, to switch between rich text and Markdown source.
-- **Outline**: press \`Cmd/Ctrl + Shift + 1\` to show the headings of a long note, then collapse or expand them.
-- **Focus mode**: the focus button at the top of the note hides the sidebars on larger screens.
-- **Reading protection**: press \`Cmd/Ctrl + E\` to make a note read-only while you read it, and again to keep editing.
-- **Quick switcher**: press \`Cmd/Ctrl + O\` to jump to any note.
-- **Editor themes**: choose from Warm Page, Lesson Page, Navy Draft, Minimal Jade, Fresh Mint and more, or build your own.
+</div>
 
-### Share as Image
-Choose **Share as image** from the note menu to turn a note into an image card:
-- **10 themes**: Classic, Glass, Quote, Book excerpt, Memo, Bento, Black Sun, Frame, Handwritten and Code.
-- **Layout**: pick a font, a text size and a compact, standard or wide card, then export a PNG or JPEG or copy the image.
+## Tables that do more
 
-### Copy as Rich Text
-Choose **Copy as Rich Text** from the note menu to copy the note with your editor theme's styling, ready to paste into a blog editor or an email.
+Select cells to merge them, or right-click a cell to colour it.
 
----
+<table>
+<tr>
+<th colspan="3" style="background-color: #e7f3f8">
 
-## 4. Visual and Structured Notes
+Where RTNote runs
 
-The new-note menu creates more than plain text. Every type below has an example in this notebook:
+</th>
+</tr>
+<tr>
+<td style="background-color: #fbecdd">
 
-- **Mind map, Flowchart and Architecture diagram**: draw, connect and arrange nodes on a canvas.
-- **Infographic**: timelines, steps and comparisons built with AntV Infographic. Edit the source syntax directly and export SVG or PNG.
-- **Structured table**: Text, Number, Checkbox, Date, Select, Link and Attachment fields, with filters and sorting. A form link lets other people add records without seeing the existing rows, with an optional password.
-- **Poster (beta)**: a free-form canvas for laying out a one-page design.
+**Cloudflare**
 
-Any note can also include Mermaid diagrams and KaTeX math.
+</td>
+<td>
 
----
+Workers, D1 and R2
 
-## 5. Everyday Tools
+</td>
+<td>
 
-### Slash Commands
-Type \`/\` in a paragraph to open the command menu:
-- Insert headings, lists, task lists, quotes, code blocks, dividers, tables and math.
-- Use \`/date\`, \`/time\` or \`/datetime\` to insert the current date and time.
-- Use \`/upload\` to attach a file, \`/voice\` to record a voice memo, or \`/note\` to link another note.
+Runs on the free tier
 
-### Note Links
-Type \`@\` to search your notes and insert a link to one.
+</td>
+</tr>
+<tr>
+<td style="background-color: #edf3ec">
 
-### KaTeX Math
-Write equations inline or as a block:
+**Docker**
 
-- **Inline math**: Einstein's mass–energy equivalence $E = mc^2$, or the normal distribution $f(x) = \\frac{1}{\\sigma \\sqrt{2\\pi}} e^{-\\frac{(x-\\mu)^2}{2\\sigma^2}}$.
-- **Block math**:
-$$
-\\oint_{\\partial \\Omega} \\mathbf{E} \\cdot d\\mathbf{S} = \\frac{1}{\\varepsilon_0} \\iiint_{\\Omega} \\rho \\, dV, \\quad \\oint_{\\partial \\Omega} \\mathbf{B} \\cdot d\\mathbf{S} = 0
-$$
+</td>
+<td>
 
-### Task Lists
-- [x] Open the examples in this notebook
-- [ ] Type \`/date\` in an empty paragraph to insert today's date
-- [ ] Record a voice memo with \`/voice\`
-- [ ] Choose **Share as image** from the note menu
-- [ ] Create an API token under **Settings → API / MCP** and connect an agent
-- [ ] Set your own name, logo and colours under **Settings → General → Branding**
+Your VPS, NAS or home server
 
----
+</td>
+<td>
 
-## 6. Voice Memos
+SQLite with local or S3 storage
 
-- Start a recording from **New voice memo** in the new-note menu, the voice memo button in the toolbar, or \`/voice\`. You can pause and resume, then play it back with seeking.
-- Recordings are ordinary attachments. When you're offline they are saved on the device first.
-- To transcribe, connect your own speech recognition service under **Settings → Audio/video transcription**. Transcripts are searchable.
+</td>
+</tr>
+</table>
 
----
+## Pictures side by side
 
-## 7. Agents and MCP
-
-RTNote has no built-in AI writing assistant. Instead, its MCP server lets the agents you choose work with your notes:
-
-\`\`\`mermaid
-sequenceDiagram
-    autonumber
-    participant User as You
-    participant Client as RTNote clients
-    participant MCP as RTNote MCP endpoint
-    participant Agent as Your agent (Claude, Cursor, …)
-
-    User->>Client: Capture an idea or meeting notes
-    Agent->>MCP: tools/call search_memos (find new notes)
-    MCP-->>Agent: Returns matching notes and tags
-    Agent->>Agent: Summarises the notes and picks tags
-    Agent->>MCP: tools/call update_memo (writes the summary)
-    Agent->>MCP: tools/call add_tags_to_memos
-    Client-->>User: Changes sync to every device
-\`\`\`
-
-- **Connect**: create an API token under **Settings → API / MCP**, then point your MCP client at \`https://<your RTNote address>/mcp\`.
-- **Tools**: agents can search, read, create, update, tag, move and merge notes, manage notebooks, and work with tables, diagrams and posters.
-
----
-
-## 8. Clients, Sync and Capture
-
-- **Web / PWA**: works in any modern browser and can be installed. Changes made offline are queued and sync when you reconnect.
-- **Desktop (Windows, macOS, Linux)**: keeps a local copy of your notes for offline use. On Windows it can start with the system, has global shortcuts, and adds **Send to RTNote** to the Explorer menu. Check for new versions under Settings.
-- **Android and iOS**: keep a local copy for offline use, and accept text, links and images shared from other apps.
-- **Web clipper**: saves articles, selections, images, page regions and X posts from Chrome, Edge and Firefox.
-- **Revision history**: every note keeps its earlier versions, so you can restore one.
-
-RTNote has no official releases yet. Desktop and clipper builds are unsigned, and the mobile apps are not in the app stores.
-
----
-
-## 9. Files, Sharing and Your Data
-
-### Images and Attachments
-Images are converted to WebP in your browser before upload, up to 2560 pixels on the long edge. If WebP isn't smaller, the original is kept.
+Drop several images in a row and they become a gallery:
 
 ![RTNote logo](/api/v1/resources/res_demo_logo/blob)
 
-Attach files up to 1 GiB. Word documents and PDFs preview right in the note:
-- [📝 Word document: rtnote-meeting-notes.docx](/api/v1/resources/res_demo_meeting_notes_docx/blob)
-- [📄 PDF: rtnote-product-brief.pdf](/api/v1/resources/res_demo_product_brief_pdf/blob)
-- [📊 CSV: feature-matrix.csv](/api/v1/resources/res_demo_feature_matrix_csv/blob)
-- [📦 ZIP archive: rtnote-attachment-demo.zip](/api/v1/resources/res_demo_attachment_bundle_zip/blob)
+![A cat sketch](/api/v1/resources/res_demo_cat_image/blob)
 
-### Sharing
-- Share a single note as a public link, with an optional password and expiry date.
-- Publish a whole notebook as a website: right-click the notebook and choose **Share notebook**. Sites can have a password and their own branding.
+## Files that open in place
 
-### Hosting
-1. **Cloudflare**: runs on Workers, D1 and R2, within Cloudflare's free tier. There is no server to maintain.
-2. **Docker (VPS, NAS or home server)**:
-   \`\`\`sh
-   # Build and start with Docker Compose
-   docker compose up -d --build
-   \`\`\`
-   Runs the same application on your own hardware with SQLite and local or S3-compatible storage.
+Word documents and PDFs preview right inside the note:
 
-### Backups and Imports
-Open **Settings → Backup & Import** to download your whole library as a ZIP: Markdown files with YAML front matter, attachments in folders next to them, and JSON files that keep each note's revision history. You can import from Evernote, Obsidian, Joplin, Word and RTNote backups.
+[Word document: rtnote-meeting-notes.docx](/api/v1/resources/res_demo_meeting_notes_docx/blob)
 
----
+[PDF: rtnote-product-brief.pdf](/api/v1/resources/res_demo_product_brief_pdf/blob)
 
-> 💡 **Things to Try**:
-> 1. Press **\`Cmd/Ctrl + /\`** to switch this note to Markdown source and back;
-> 2. Open the other examples in **Feature Demos**: posters, infographics, tables and diagrams;
-> 3. Press **\`Cmd/Ctrl + E\`** to turn on reading protection;
-> 4. Press **\`Cmd/Ctrl + O\`** to open the quick switcher;
-> 5. Right-click a notebook and choose **Share notebook** to publish it as a website;
-> 6. Choose **Copy as Rich Text** from the note menu;
-> 7. Choose **Share as image** to make an image card from this note;
-> 8. Click **"Reset Demo Data"** in settings or the sidebar anytime to restore the demo workspace.
+## Try these next
+
+- [ ] Type \`/\` in an empty line to open the command menu
+- [ ] Record a voice memo with \`/voice\`
+- [ ] Choose **Share as image** from the note menu
+- [ ] Open the other examples in **Feature Demos**
+- [ ] Set your name, logo and colours in **Settings → General → Branding**
+
+<details>
+<summary>Keyboard shortcuts</summary>
+
+- \`Cmd/Ctrl + /\` switches between rich text and Markdown source
+- \`Cmd/Ctrl + O\` opens the quick switcher
+- \`Cmd/Ctrl + E\` turns on reading protection
+- \`Cmd/Ctrl + Shift + 1\` shows the outline
+
+</details>
+
+<details>
+<summary>Maths and diagrams</summary>
+
+Write equations inline, like $E = mc^2$, or as a block:
+
+$$
+f(x) = \\frac{1}{\\sigma \\sqrt{2\\pi}} e^{-\\frac{(x-\\mu)^2}{2\\sigma^2}}
+$$
+
+Mind maps, flowcharts, architecture diagrams, infographics, tables and posters each have an example in **Feature Demos**.
+
+</details>
+
+<details>
+<summary>Your agents, your data</summary>
+
+RTNote has no built-in AI writing assistant. Its MCP server lets the agents you choose read and write your notes: create a token under **Settings → API / MCP**.
+
+Download your whole library any time from **Settings → Backup & Import**, as Markdown files with their attachments.
+
+</details>
+
+<div align="center">
+
+<span style="color: #787774; font-size: 14px">RTNote is in early development. There are no official releases yet.</span>
+
+</div>
 `,
   },
   {

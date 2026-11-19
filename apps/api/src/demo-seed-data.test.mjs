@@ -6,6 +6,7 @@ import {
   parseTableDocument,
 } from "@rtnote/shared";
 import { computeDiagramLayoutResult } from "../../../packages/shared/src/diagram-layout.ts";
+import { markdownToDoc } from "../../../packages/shared/src/content.ts";
 import {
   decodeDemoAttachment,
   DEMO_SEED_ATTACHMENT_RESOURCES,
@@ -153,6 +154,35 @@ describe("demo seed catalog", () => {
         ? new TextEncoder().encode(resource.svg)
         : decodeDemoAttachment(resource);
       expect(bytes.byteLength).toBeGreaterThan(0);
+    }
+  });
+
+  test("shows off rich-text formatting in the English overview", () => {
+    const memo = DEMO_SEED_MEMOS.find((candidate) => candidate.id === "memo_demo_overview_en");
+    const nodeTypes = new Set();
+    const markAttributes = new Set();
+    const blockAttributes = new Set();
+    const walk = (node) => {
+      nodeTypes.add(node.type);
+      for (const mark of node.marks ?? []) {
+        for (const [key, value] of Object.entries(mark.attrs ?? {})) if (value) markAttributes.add(key);
+      }
+      for (const key of ["textAlign", "lineHeight", "colspan", "backgroundColor"]) {
+        if (node.attrs?.[key] && node.attrs[key] !== 1) blockAttributes.add(`${node.type}.${key}`);
+      }
+      for (const child of node.content ?? []) walk(child);
+    };
+    walk(markdownToDoc(memo.markdown));
+
+    for (const type of ["imageFigure", "imageCaption", "rtnoteImageGallery", "table", "taskList", "details",
+      "rtnoteFileAttachment", "rtnotePdfAttachment", "inlineMath", "blockMath"]) {
+      expect(nodeTypes.has(type)).toBe(true);
+    }
+    for (const key of ["fontFamily", "fontSize", "color", "backgroundColor"]) {
+      expect(markAttributes.has(key)).toBe(true);
+    }
+    for (const attribute of ["paragraph.textAlign", "paragraph.lineHeight", "tableHeader.colspan", "tableCell.backgroundColor"]) {
+      expect(blockAttributes.has(attribute)).toBe(true);
     }
   });
 });
