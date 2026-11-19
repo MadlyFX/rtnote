@@ -10,7 +10,11 @@ import { ensureUserWorkspace } from "../apps/api/src/workspace-provisioning";
 import { createLocalDevelopmentSession } from "../scripts/local-dev-auth.mjs";
 
 const repairPath = "migrations/0071_fix_welcome_memo_markdown.sql";
-const repair = readFileSync(repairPath, "utf8");
+// 0071 repairs the Markdown; 0095 corrects the content hash 0071 writes for
+// the renamed seed. Installations always run both before serving a request.
+const repair = [repairPath, "migrations/0095_fix_welcome_memo_content_hash.sql"]
+  .map((path) => readFileSync(path, "utf8"))
+  .join("\n");
 const migrations = globSync("migrations/*.sql").sort();
 const databases: Database[] = [];
 const directories: string[] = [];

@@ -33,7 +33,7 @@ type Exception = { path: RegExp; reason: string };
 
 const exceptions: Exception[] = [
   // Migrations that already ran are immutable; a fresh English baseline replaces them before 1.0.
-  { path: /^migrations\/00(?:[0-8]\d|9[0-4])_[^/]+\.sql$/, reason: "migrations that already ran must not be edited" },
+  { path: /^migrations\/00(?:[0-8]\d|9[0-5])_[^/]+\.sql$/, reason: "migrations that already ran must not be edited" },
   // Built from apps/ios/EditorSource and the shared catalogs; checked at the source.
   { path: /^apps\/ios\/(?:RTNote\/Resources\/)?EditorBundle\//, reason: "generated iOS editor bundle" },
   // Chinese values RTNote stored in user data, mapped to RTNote's on read.

@@ -16,20 +16,36 @@ import type { Bindings } from "./api-context";
 import {
   decodeDemoAttachment,
   DEMO_SEED_ATTACHMENT_RESOURCES,
-  DEMO_SEED_MEMOS,
+  DEMO_SEED_MEMOS_EN,
   DEMO_SEED_REVISIONS,
 } from "./demo-seed-data";
-import { DEMO_FEATURES_NOTEBOOK_NAME_ZH, DEMO_RESET_TIP_MARKER_ZH } from "./demo-seed-data.zh-CN";
+import { DEMO_RESET_TIP_MARKER_ZH } from "./demo-seed-data.zh-CN";
 import { isDemoModeEnabled } from "./demo-mode";
 import { isoNow } from "./entity-utils";
 import { sha256, sha256Bytes } from "./hash-utils";
 import { upsertMemoSearchDocumentStatement } from "./memo-search-index";
 import type { DatabaseAdapter, PreparedStatementAdapter } from "./storage-contract";
 
+// A personal instance gets the English example notes only. The public demo
+// (demo mode) keeps its bilingual catalog in demo-seed-data.ts.
 const EXAMPLE_NOTEBOOKS = [
-  { id: "nb_demo_features", slug: "demo-features", name: DEMO_FEATURES_NOTEBOOK_NAME_ZH, sortOrder: 21 },
   { id: "nb_demo_features_en", slug: "feature-demos", name: "Feature Demos", sortOrder: 22 },
 ] as const;
+
+const EXAMPLE_MEMOS = DEMO_SEED_MEMOS_EN;
+const EXAMPLE_MEMO_IDS = new Set<string>(EXAMPLE_MEMOS.map((memo) => memo.id));
+const EXAMPLE_REVISIONS = DEMO_SEED_REVISIONS.filter((revision) => EXAMPLE_MEMO_IDS.has(revision.memoId));
+
+// The shared demo files belong to the Chinese overview in the demo catalog.
+// Here they belong to the English overview, and files no English note links
+// to are left out.
+const EXAMPLE_OVERVIEW_MEMO_ID = "memo_demo_overview_en";
+const exampleText = [...EXAMPLE_MEMOS, ...EXAMPLE_REVISIONS].map((entry) => entry.markdown).join("\n");
+const EXAMPLE_RESOURCES = DEMO_SEED_ATTACHMENT_RESOURCES
+  .filter((resource) => exampleText.includes(resource.id))
+  .map((resource) => EXAMPLE_MEMO_IDS.has(resource.memoId)
+    ? resource
+    : { ...resource, memoId: EXAMPLE_OVERVIEW_MEMO_ID });
 
 const WELCOME_MEMO_ID = "memo_welcome";
 const DEFAULT_WORKSPACE_ID = "ws_default";
@@ -123,7 +139,7 @@ const applyImageWidths = (nodes: Array<{ type?: string; attrs?: Record<string, u
   }
 };
 
-const resourceBytes = (resource: (typeof DEMO_SEED_ATTACHMENT_RESOURCES)[number]) => {
+const resourceBytes = (resource: (typeof EXAMPLE_RESOURCES)[number]) => {
   if ("svg" in resource) return new TextEncoder().encode(resource.svg);
   return decodeDemoAttachment(resource);
 };
@@ -156,9 +172,9 @@ export const ensureWorkspaceExampleSeed = async (env: Bindings, workspaceId: str
   }
 
   const canonicalNotebookIds = EXAMPLE_NOTEBOOKS.map((notebook) => notebook.id);
-  const canonicalMemoIds = DEMO_SEED_MEMOS.map((memo) => memo.id);
-  const canonicalRevisionIds = DEMO_SEED_REVISIONS.map((revision) => revision.id);
-  const canonicalResourceIds = DEMO_SEED_ATTACHMENT_RESOURCES.map((resource) => resource.id);
+  const canonicalMemoIds = EXAMPLE_MEMOS.map((memo) => memo.id);
+  const canonicalRevisionIds = EXAMPLE_REVISIONS.map((revision) => revision.id);
+  const canonicalResourceIds = EXAMPLE_RESOURCES.map((resource) => resource.id);
   // The installation workspace keeps the ids the clients already open. Every
   // later workspace gets its own ids so the two copies can exist together.
   const useCanonicalIds = workspaceId === DEFAULT_WORKSPACE_ID
@@ -167,6 +183,23 @@ export const ensureWorkspaceExampleSeed = async (env: Bindings, workspaceId: str
     && await idsAreFree(db, "memo_revisions", canonicalRevisionIds)
     && await idsAreFree(db, "resources", canonicalResourceIds);
   const mapId = (id: string) => useCanonicalIds ? id : `${workspaceId}_${id}`;
+
+  // Every signed-in request runs this, and a client's first page load sends
+  // several at once. A request that started before another one finished
+  // seeding would otherwise see the canonical ids taken and add a second copy
+  // under prefixed ids. This check runs after the ids were chosen, so any
+  // copy committed before that point is found here; one committed later used
+  // the same ids, and INSERT OR IGNORE keeps a single copy.
+  const exampleNotebookIds = canonicalNotebookIds.flatMap((id) => [id, `${workspaceId}_${id}`]);
+  const alreadySeeded = await db.prepare(
+    `SELECT id FROM notebooks
+     WHERE workspace_id = ? AND id IN (${exampleNotebookIds.map(() => "?").join(", ")})
+     LIMIT 1`,
+  ).bind(workspaceId, ...exampleNotebookIds).first<{ id: string }>();
+  if (alreadySeeded) {
+    await clearPending(db, workspaceId);
+    return;
+  }
   const rewriteResourceLinks = (markdown: string) => {
     if (useCanonicalIds) return markdown;
     return canonicalResourceIds.reduce(
@@ -185,7 +218,7 @@ export const ensureWorkspaceExampleSeed = async (env: Bindings, workspaceId: str
     ).bind(mapId(notebook.id), workspaceId, projects.id, notebook.name, notebook.slug, notebook.sortOrder, now, now));
   }
 
-  for (const memo of DEMO_SEED_MEMOS) {
+  for (const memo of EXAMPLE_MEMOS) {
     const markdown = rewriteResourceLinks(omitInstanceUnavailableExampleTips(memo.markdown));
     const contentJson = markdownToDoc(markdown);
     if (Array.isArray(contentJson.content)) applyImageWidths(contentJson.content);
@@ -218,7 +251,7 @@ export const ensureWorkspaceExampleSeed = async (env: Bindings, workspaceId: str
     );
   }
 
-  for (const revision of DEMO_SEED_REVISIONS) {
+  for (const revision of EXAMPLE_REVISIONS) {
     const markdown = rewriteResourceLinks(omitInstanceUnavailableExampleTips(revision.markdown));
     const contentJson = markdownToDoc(markdown);
     const contentHash = await sha256(markdown + JSON.stringify(contentJson));
@@ -239,7 +272,7 @@ export const ensureWorkspaceExampleSeed = async (env: Bindings, workspaceId: str
   }
 
   const bucketName = env.RTNOTE_R2_BUCKET_NAME?.trim() || DEFAULT_BUCKET_NAME;
-  for (const resource of DEMO_SEED_ATTACHMENT_RESOURCES) {
+  for (const resource of EXAMPLE_RESOURCES) {
     const bytes = resourceBytes(resource);
     const extension = "svg" in resource ? "svg" : resource.filename.split(".").pop() || "bin";
     const resourceId = mapId(resource.id);
