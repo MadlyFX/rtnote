@@ -17,6 +17,11 @@ figure[data-type="image-figure"] > figcaption {
 }
 figure[data-type="image-figure"][data-image-align="center"] > figcaption { text-align: center; }
 figure[data-type="image-figure"][data-image-align="right"] > figcaption { text-align: right; }
+/* While editing, the figure element itself is not re-rendered when only the
+   image's alignment changes, so also follow the image node view's attribute. */
+figure[data-type="image-figure"]:has(> [data-image-align="center"]) > figcaption { text-align: center; }
+figure[data-type="image-figure"]:has(> [data-image-align="right"]) > figcaption { text-align: right; }
+figure[data-type="image-figure"]:has(> [data-image-align="left"]) > figcaption { text-align: left; }
 :is(:root.dark, :root[data-theme="dark"]) figure[data-type="image-figure"] > figcaption { color: #9ca3af; }
 
 /* Placeholder while editing an empty caption, positioned where the caret is. */
