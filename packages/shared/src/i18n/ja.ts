@@ -3254,6 +3254,8 @@ export const ja = {
     resetFailed: "デモ環境のリセットに失敗しました。しばらくしてから再試行してください。",
     resetting: "リセット中...",
     privacyNotice: "デモ環境です。非公開のノートは保存しないでください。",
+    loginNotice: "これは公開デモです。共有デモアカウントはすでに入力されています。",
+    sharedNotice: "公開デモ：このアカウントは全員で共有され、書いた内容は誰でも閲覧できます。データは毎日リセットされ、ファイルは 10 MB までです。",
   },
   // Native mobile client copy.
   mobile: {

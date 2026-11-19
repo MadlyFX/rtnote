@@ -3264,6 +3264,8 @@ export const zhTW = {
     resetFailed: "重置演示環境失敗，請稍後重試。",
     resetting: "正在重置...",
     privacyNotice: "當前為演示環境，請勿儲存私密筆記。",
+    loginNotice: "這是公開示範。共用示範帳號已自動填入。",
+    sharedNotice: "公開示範：所有人共用此帳號，你寫的內容其他人都看得到。資料每天重設，檔案大小上限為 10 MB。",
   },
   // Native mobile client copy.
   mobile: {

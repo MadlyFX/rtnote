@@ -191,8 +191,12 @@ const AuthenticatedWorkspace = ({ siteManagement = false }: { siteManagement?: b
         authRequired: true,
         authenticated: false,
         demoMode: sessionQuery.data?.demoMode ?? false,
+        demoLogin: sessionQuery.data?.demoLogin,
         user: null,
       });
+      // A public demo shows its shared account on the sign-in screen; the
+      // signed-in session does not carry it, so ask the server again.
+      if (sessionQuery.data?.demoMode) void queryClient.invalidateQueries({ queryKey: ["auth", "session"] });
     },
   });
 
@@ -209,6 +213,7 @@ const AuthenticatedWorkspace = ({ siteManagement = false }: { siteManagement?: b
         authRequired: current?.authRequired ?? true,
         authenticated: false,
         demoMode: current?.demoMode ?? false,
+        demoLogin: current?.demoLogin,
         user: null,
       });
     };
@@ -259,6 +264,7 @@ const AuthenticatedWorkspace = ({ siteManagement = false }: { siteManagement?: b
     return (
       <Suspense fallback={<AuthLoadingScreen />}>
         <LoginScreen
+          demoLogin={session?.demoLogin}
           error={loginError}
           instanceUrl={desktopBridge?.isAvailable ? configuredDesktopApiBaseUrl : undefined}
           isSubmitting={loginMutation.isPending}

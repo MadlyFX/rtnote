@@ -25,6 +25,7 @@ import type {
   Bindings,
 } from "./api-context";
 import { verifyPassword } from "./auth-crypto";
+import { resolvePublicDemoLogin } from "./demo-mode";
 import type { InstanceAuthMode } from "./auth-state";
 import { registerTotpRoutes, type FinishLoginOptions } from "./auth-totp-routes";
 import { createLoginChallenge, getUserTotp, hashPasswordForUser, isTotpEnabled } from "./auth-totp";
@@ -185,10 +186,12 @@ export const registerAuthRoutes = (
     }
 
     const auth = await dependencies.authenticateRequest(context, false, { allowMfaRestricted: true });
+    const demoLogin = resolvePublicDemoLogin(context.env);
     return context.json({
       authRequired: true,
       authenticated: Boolean(auth && auth.kind === "user"),
       demoMode: dependencies.isDemoEnvironment(context.env),
+      ...(demoLogin ? { demoLogin } : {}),
       user: auth?.kind === "user" ? {
         id: auth.actorId,
         username: auth.username,

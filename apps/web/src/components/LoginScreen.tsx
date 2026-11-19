@@ -1,6 +1,7 @@
 import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
 import { LockKeyhole } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import type { DemoLogin } from "@rtnote/shared";
 import { normalizeInstanceUrl } from "@rtnote/shared/public-demo";
 import { Button } from "@/components/ui/button";
 import { GitHubRepositoryLink } from "@/components/GitHubRepositoryLink";
@@ -19,6 +20,8 @@ interface LoginScreenProps {
   error: { message: string; diagnosticCode: string; rayId?: string } | null;
   instanceUrl?: string;
   isSubmitting: boolean;
+  /** Shared account of a public demo instance, used to fill in the form. */
+  demoLogin?: DemoLogin;
   onSubmit: (payload: { instanceUrl?: string; username: string; password: string }) => void;
   /** Second step after the password was accepted for a TOTP account. */
   mfa?: MfaLoginStepProps | null;
@@ -112,23 +115,18 @@ const MfaLoginForm = ({ username, isSubmitting, error, onSubmit, onBack }: MfaLo
   );
 };
 
-const DEMO_LOGIN_CREDENTIALS = {
-  username: "ee-demo",
-  password: "demo#dZ6Q29Zjfor%",
-};
-
-const getDefaultLoginCredentials = () => {
-  const hostname = window.location.hostname;
-  const isDemoHost = hostname === "demo.rtnote.example" || hostname.startsWith("rtnote-demo.");
-
-  return isDemoHost ? DEMO_LOGIN_CREDENTIALS : { username: "", password: "" };
-};
-
-export const LoginScreen = ({ error, instanceUrl: initialInstanceUrl, isSubmitting, onSubmit, mfa }: LoginScreenProps) => {
+export const LoginScreen = ({ demoLogin, error, instanceUrl: initialInstanceUrl, isSubmitting, onSubmit, mfa }: LoginScreenProps) => {
   const { t } = useTranslation();
   const [instanceUrl, setInstanceUrl] = useState(initialInstanceUrl ?? "");
-  const [username, setUsername] = useState(() => getDefaultLoginCredentials().username);
-  const [password, setPassword] = useState(() => getDefaultLoginCredentials().password);
+  const [username, setUsername] = useState(() => demoLogin?.username ?? "");
+  const [password, setPassword] = useState(() => demoLogin?.password ?? "");
+  // The demo account can arrive after the form mounted (for example after
+  // signing out); fill it in without overwriting anything already typed.
+  useEffect(() => {
+    if (!demoLogin) return;
+    setUsername((current) => current || demoLogin.username);
+    setPassword((current) => current || demoLogin.password);
+  }, [demoLogin]);
   const branding = useBranding();
   const [logoFailed, setLogoFailed] = useState(false);
   useEffect(() => setLogoFailed(false), [branding.logoUrl]);
@@ -191,6 +189,12 @@ export const LoginScreen = ({ error, instanceUrl: initialInstanceUrl, isSubmitti
                 </p>
               ) : null}
             </div>
+          ) : null}
+
+          {demoLogin ? (
+            <p className="rounded-lg border border-amber-200 bg-amber-50/80 px-3.5 py-3 text-sm leading-6 text-amber-900" role="note">
+              {t("demo.loginNotice")}
+            </p>
           ) : null}
 
           {initialInstanceUrl !== undefined ? (

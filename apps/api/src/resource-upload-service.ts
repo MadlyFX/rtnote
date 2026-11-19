@@ -11,6 +11,7 @@ import { createId, isoNow } from "./entity-utils";
 import { resolveObjectStorage } from "./object-storage";
 import {
   SUPPORTED_IMAGE_MIME_TYPES,
+  assertDemoUploadSize,
   getResourceRow,
   inferImageExtension,
   mapResource,
@@ -112,8 +113,8 @@ export const initiateResourceUpload = async (
   await cleanupExpiredResourceUploads(context);
   input = { ...input, mimeType: resolveResourceUploadMimeType(input.filename, input.mimeType) };
   const kind = SUPPORTED_IMAGE_MIME_TYPES.has(input.mimeType) ? "image" : "attachment";
-  if (kind === "image") validateImageUpload(input.mimeType, input.byteSize);
-  else validateAttachmentUpload(input.byteSize);
+  if (kind === "image") validateImageUpload(input.mimeType, input.byteSize, context.env);
+  else validateAttachmentUpload(input.byteSize, context.env);
 
   const uploadId = createId("upload");
   const resourceId = createId("res");
@@ -186,6 +187,7 @@ export const initiateResourceRestoreUpload = async (
   if (!Number.isSafeInteger(metadata.byteSize) || metadata.byteSize <= 0 || metadata.byteSize > maxBytes) {
     throw new AppError("upload_too_large", "Backup resource size is invalid.", 413);
   }
+  assertDemoUploadSize(context.env, metadata.byteSize);
   const mimeType = metadata.mimeType?.trim() || "application/octet-stream";
   validateRestoredResourceMimeType(metadata.kind, metadata.mimeType ?? mimeType, metadata.byteSize);
 

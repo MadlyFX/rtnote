@@ -3254,6 +3254,8 @@ export const pl = {
     resetFailed: "Nie udało się zresetować środowiska demonstracyjnego. Spróbuj ponownie później.",
     resetting: "Resetowanie...",
     privacyNotice: "Środowisko demonstracyjne. Nie zapisuj tu prywatnych notatek.",
+    loginNotice: "To jest publiczne demo. Wspólne konto demonstracyjne jest już wpisane.",
+    sharedNotice: "Publiczne demo: wszyscy korzystają z tego konta i widzą, co piszesz. Dane są resetowane codziennie, a pliki mogą mieć maksymalnie 10 MB.",
   },
   // Native mobile client copy.
   mobile: {

@@ -881,6 +881,11 @@ export const NotebookPane = ({
             />
           )}
         </nav>
+        {demoMode && onResetDemo && (
+          <p className="mb-3 px-2.5 text-xs leading-5 text-amber-800" role="note">
+            {t("demo.sharedNotice")}
+          </p>
+        )}
 
         <div className="group mb-2 flex items-center justify-between gap-2">
           <SidebarSectionLabel

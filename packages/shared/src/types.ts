@@ -227,10 +227,17 @@ export type InstanceUser = AuthUser & {
   createdAt: string;
 };
 
+export type DemoLogin = {
+  username: string;
+  password: string;
+};
+
 export type AuthSession = {
   authRequired: boolean;
   authenticated: boolean;
   demoMode: boolean;
+  /** Shared sign-in for a public demo instance; present only in demo mode. */
+  demoLogin?: DemoLogin;
   user: AuthUser | null;
   sessionToken?: string;
   /** Signed in with a recovery code: only TOTP rebinding is allowed until done. */

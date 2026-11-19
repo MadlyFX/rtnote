@@ -3264,6 +3264,8 @@ export const zhCN = {
     resetFailed: "重置演示环境失败，请稍后重试。",
     resetting: "正在重置...",
     privacyNotice: "当前为演示环境，请勿保存私密笔记。",
+    loginNotice: "这是公开演示。共享演示账号已自动填写。",
+    sharedNotice: "公开演示：所有人共用此账号，你写的内容其他人都能看到。数据每天重置，文件大小上限为 10 MB。",
   },
   // Native mobile client copy.
   mobile: {

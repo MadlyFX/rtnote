@@ -102,6 +102,33 @@ describe("auth route contracts", () => {
     });
   });
 
+  test("shows the shared demo account to signed-out visitors of a public demo", async () => {
+    const app = createApp({ isDemoEnvironment: () => true });
+    const response = await app.request("/api/v1/auth/session", {}, {
+      ...environment,
+      RTNOTE_DEMO_MODE: "true",
+      RTNOTE_AUTH_USERNAME: "demo",
+      RTNOTE_AUTH_PASSWORD: "try-rtnote",
+    });
+
+    expect(await response.json()).toMatchObject({
+      authenticated: false,
+      demoMode: true,
+      demoLogin: { username: "demo", password: "try-rtnote" },
+    });
+  });
+
+  test("never exposes the configured password outside demo mode", async () => {
+    const app = createApp();
+    const response = await app.request("/api/v1/auth/session", {}, {
+      ...environment,
+      RTNOTE_AUTH_USERNAME: "owner",
+      RTNOTE_AUTH_PASSWORD: "secret",
+    });
+
+    expect((await response.json()).demoLogin).toBeUndefined();
+  });
+
   test("does not allow the current session to revoke itself", async () => {
     const app = createApp({ authenticateRequest: async () => interactiveAuth });
     const response = await app.request(
