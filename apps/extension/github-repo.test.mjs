@@ -22,7 +22,7 @@ const labels = {
 };
 
 const source = (overrides = {}) => ({
-  pageUrl: "https://github.com/tianma-if/edgeever",
+  pageUrl: "https://github.com/tianma-if/rtnote",
   openGraphDescription: "",
   embeddedJsonChunks: [],
   aboutText: "",
@@ -52,24 +52,24 @@ const sidebarPayload = (overrides = {}) => JSON.stringify({
 
 describe("github repository addresses", () => {
   test("accepts a repository home and a code tree, and ignores other GitHub pages", () => {
-    expect(githubRepoTarget("https://github.com/tianma-if/edgeever")).toEqual({
+    expect(githubRepoTarget("https://github.com/tianma-if/rtnote")).toEqual({
       owner: "tianma-if",
       name: "rtnote",
-      canonicalUrl: "https://github.com/tianma-if/edgeever",
+      canonicalUrl: "https://github.com/tianma-if/rtnote",
     });
-    expect(githubRepoTarget("https://www.github.com/tianma-if/edgeever/?tab=readme-ov-file#readme")?.canonicalUrl)
-      .toBe("https://github.com/tianma-if/edgeever");
-    expect(githubRepoTarget("https://github.com/tianma-if/edgeever/tree/main")?.canonicalUrl)
-      .toBe("https://github.com/tianma-if/edgeever");
-    expect(githubRepoTarget("https://github.com/tianma-if/edgeever/tree/release/1.0/apps")?.canonicalUrl)
-      .toBe("https://github.com/tianma-if/edgeever");
-    expect(githubRepoTarget("https://github.com/tianma-if/edgeever/issues/12")).toBeNull();
-    expect(githubRepoTarget("https://github.com/tianma-if/edgeever/pull/4")).toBeNull();
-    expect(githubRepoTarget("https://github.com/tianma-if/edgeever/blob/main/README.md")).toBeNull();
-    expect(githubRepoTarget("https://github.com/tianma-if/edgeever/tree")).toBeNull();
+    expect(githubRepoTarget("https://www.github.com/tianma-if/rtnote/?tab=readme-ov-file#readme")?.canonicalUrl)
+      .toBe("https://github.com/tianma-if/rtnote");
+    expect(githubRepoTarget("https://github.com/tianma-if/rtnote/tree/main")?.canonicalUrl)
+      .toBe("https://github.com/tianma-if/rtnote");
+    expect(githubRepoTarget("https://github.com/tianma-if/rtnote/tree/release/1.0/apps")?.canonicalUrl)
+      .toBe("https://github.com/tianma-if/rtnote");
+    expect(githubRepoTarget("https://github.com/tianma-if/rtnote/issues/12")).toBeNull();
+    expect(githubRepoTarget("https://github.com/tianma-if/rtnote/pull/4")).toBeNull();
+    expect(githubRepoTarget("https://github.com/tianma-if/rtnote/blob/main/README.md")).toBeNull();
+    expect(githubRepoTarget("https://github.com/tianma-if/rtnote/tree")).toBeNull();
     expect(githubRepoTarget("https://github.com/tianma-if")).toBeNull();
-    expect(githubRepoTarget("https://gist.github.com/tianma-if/edgeever")).toBeNull();
-    expect(githubRepoTarget("https://example.com/tianma-if/edgeever")).toBeNull();
+    expect(githubRepoTarget("https://gist.github.com/tianma-if/rtnote")).toBeNull();
+    expect(githubRepoTarget("https://example.com/tianma-if/rtnote")).toBeNull();
   });
 });
 
@@ -78,14 +78,14 @@ describe("github repository card", () => {
     const [script] = bundleTestScripts(["capture-github"]);
     for (const json of ["", JSON.stringify({ ownerLogin: "tianma-if", readme: "x".repeat(500_000) })]) {
       const window = createWindow(`
-        <meta name="octolytics-dimension-repository_nwo" content="tianma-if/edgeever">
+        <meta name="octolytics-dimension-repository_nwo" content="tianma-if/rtnote">
         <script type="application/json">${json}</script>
         <div class="sidebarSection__oqw6Y8">
           <h2>About</h2><p class="description__ej4leF">A portable notes workspace.</p>
           <div class="websiteRow__c4vvco"><a href="https://rtnote.example">rtnote.example</a></div>
           <a href="/topics/notes">notes</a>
           <a href="#license"><svg class="octicon-law"></svg>AGPL-3.0 license</a>
-        </div>`, "https://github.com/tianma-if/edgeever/tree/main");
+        </div>`, "https://github.com/tianma-if/rtnote/tree/main");
       Object.getPrototypeOf(window.document.querySelectorAll("span"))[Symbol.iterator] ??= Array.prototype[Symbol.iterator];
       let result;
       runInContext(script, createContext({
@@ -108,17 +108,17 @@ describe("github repository card", () => {
 
   test("drops GitHub's generated description and the repository suffix", () => {
     expect(cleanRepoDescription(
-      "Open-source notes. - tianma-if/edgeever",
+      "Open-source notes. - tianma-if/rtnote",
       "tianma-if",
       "rtnote",
     )).toBe("Open-source notes.");
     expect(cleanRepoDescription(
-      "Open-source notes &amp; sync. - rtnote/apps at main · tianma-if/edgeever",
+      "Open-source notes &amp; sync. - rtnote/apps at main · tianma-if/rtnote",
       "tianma-if",
       "rtnote",
     )).toBe("Open-source notes & sync.");
     expect(cleanRepoDescription(
-      "Contribute to tianma-if/edgeever development by creating an account on GitHub.",
+      "Contribute to tianma-if/rtnote development by creating an account on GitHub.",
       "tianma-if",
       "rtnote",
     )).toBe("");
@@ -132,8 +132,8 @@ describe("github repository card", () => {
 
   test("builds a card from the repository payload and leaves out live counters", () => {
     const facts = githubRepoFactsFromSource(source({
-      pageUrl: "https://github.com/Tianma-IF/EdgeEver/tree/main/apps",
-      openGraphDescription: "Open-source, AI-native knowledge base. - tianma-if/edgeever",
+      pageUrl: "https://github.com/Tianma-IF/RTNote/tree/main/apps",
+      openGraphDescription: "Open-source, AI-native knowledge base. - tianma-if/rtnote",
       embeddedJsonChunks: [sidebarPayload()],
       language: "TypeScript 62.1%",
       topics: ["notes", "sqlite"],
@@ -141,7 +141,7 @@ describe("github repository card", () => {
     expect(facts).toMatchObject({
       owner: "tianma-if",
       name: "rtnote",
-      canonicalUrl: "https://github.com/tianma-if/edgeever",
+      canonicalUrl: "https://github.com/tianma-if/rtnote",
       intro: "Open-source, AI-native knowledge base.",
       homepage: "https://rtnote.example/",
       language: "TypeScript",
@@ -149,13 +149,13 @@ describe("github repository card", () => {
       topics: ["notes", "mcp", "sqlite"],
     });
     const markdown = githubRepoNoteMarkdown({ ...facts, ...labels });
-    expect(githubRepoNoteTitle(facts.owner, facts.name)).toBe("tianma-if/edgeever");
+    expect(githubRepoNoteTitle(facts.owner, facts.name)).toBe("tianma-if/rtnote");
     expect(markdown.startsWith("Open-source, AI-native knowledge base.")).toBe(true);
     expect(markdown).toContain("Homepage: [rtnote.example](https://rtnote.example/)");
     expect(markdown).toContain("Language: TypeScript");
     expect(markdown).toContain("License: AGPL-3.0");
     expect(markdown).toContain("Topics: notes, mcp, sqlite");
-    expect(markdown).toContain("[https://github.com/tianma-if/edgeever](https://github.com/tianma-if/edgeever)");
+    expect(markdown).toContain("[https://github.com/tianma-if/rtnote](https://github.com/tianma-if/rtnote)");
     expect(markdown).toContain("Captured at: 2026-10-01T00:00:00.000Z");
     expect(markdown).not.toContain("1915");
     expect(markdown).not.toContain("995");
@@ -163,8 +163,8 @@ describe("github repository card", () => {
 
   test("reads a code tree that only identifies the repository, then uses the README lead", () => {
     const facts = githubRepoFactsFromSource(source({
-      pageUrl: "https://github.com/tianma-if/edgeever/tree/main",
-      openGraphDescription: "Contribute to tianma-if/edgeever development by creating an account on GitHub.",
+      pageUrl: "https://github.com/tianma-if/rtnote/tree/main",
+      openGraphDescription: "Contribute to tianma-if/rtnote development by creating an account on GitHub.",
       embeddedJsonChunks: [JSON.stringify({
         payload: {
           codeViewLayoutRoute: {
@@ -180,7 +180,7 @@ describe("github repository card", () => {
     const markdown = githubRepoNoteMarkdown({ ...facts, ...labels });
     expect(markdown).not.toContain("Homepage:");
     expect(markdown).not.toContain("Topics:");
-    expect(markdown).toContain("Source: [https://github.com/tianma-if/edgeever](https://github.com/tianma-if/edgeever)");
+    expect(markdown).toContain("Source: [https://github.com/tianma-if/rtnote](https://github.com/tianma-if/rtnote)");
   });
 
   test("does not treat an unrelated GitHub page as the repository in the address", () => {
@@ -190,7 +190,7 @@ describe("github repository card", () => {
       embeddedJsonChunks: [sidebarPayload()],
     }))).toBeNull();
     expect(githubRepoFactsFromSource(source({
-      pageUrl: "https://github.com/tianma-if/edgeever/issues/8",
+      pageUrl: "https://github.com/tianma-if/rtnote/issues/8",
       embeddedJsonChunks: [sidebarPayload()],
     }))).toBeNull();
   });

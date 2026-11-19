@@ -331,8 +331,8 @@ describe("JSON backup and restore", () => {
     expect((await getMemoDetail(target.storage.db, WORKSPACE_ID, "memo_named")).title).toBe("Trip plan");
     const revisionTitles = target.sqlite.query("SELECT id, title FROM memo_revisions ORDER BY id").all();
     expect(revisionTitles).toEqual([
-      { id: "rev_rtnote_untitled", title: DEFAULT_MEMO_TITLE },
       { id: "rev_named", title: "Trip draft" },
+      { id: "rev_rtnote_untitled", title: DEFAULT_MEMO_TITLE },
     ]);
   });
 

@@ -37,7 +37,7 @@ describe("mobile UI contract", () => {
       { id: "personal", name: "Personal Life", parentId: null },
     ];
 
-    expect(Array.from(getMobileNotebookSearchVisibleIds(notebooks, "edge"))).toEqual(["rtnote", "projects"]);
+    expect(Array.from(getMobileNotebookSearchVisibleIds(notebooks, "rtn"))).toEqual(["rtnote", "projects"]);
     expect(Array.from(getMobileNotebookSearchVisibleIds(notebooks, "work"))).toEqual(["projects", "rtnote", "demo"]);
     expect(Array.from(getMobileNotebookSearchVisibleIds(notebooks, "missing"))).toEqual([]);
     expect(Array.from(getMobileNotebookSearchVisibleIds(notebooks, ""))).toEqual(["projects", "rtnote", "demo", "personal"]);

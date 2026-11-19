@@ -272,7 +272,7 @@ describe("memo character count", () => {
   test("counts punctuation while excluding whitespace and formatting", () => {
     const doc = markdownToDoc("Hi, **RTNote**!\n\nNew");
 
-    expect(countMemoCharacters(doc)).toBe(15);
+    expect(countMemoCharacters(doc)).toBe(13);
   });
 
   test("counts grapheme clusters and ignores image labels", () => {

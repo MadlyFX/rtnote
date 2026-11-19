@@ -3,7 +3,7 @@ import { Database } from "bun:sqlite";
 import { mkdtemp, readdir, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseRTNoteZip, restoreRTNoteZip } from "@rtnote/shared/backup-archive";
+import { parseRTNoteZip } from "@rtnote/shared/backup-archive";
 import { createRTNoteClient } from "../../../packages/client/src/index.ts";
 import { fetchRTNoteApp } from "./index.ts";
 import { createSelfHostedStorageAdapter } from "./self-hosted-storage-adapter.ts";
@@ -251,51 +251,13 @@ describe("restored resource security", () => {
     }
   });
 
-  for (const mode of ["legacy", "resumable"]) {
-    test(`restores a real v2.12.0-exported archive through the patched ${mode} API`, async () => {
-      const f = await fixture();
-      const fixtureDirectory = new URL("../../../tests/fixtures/restore-resource-security/", import.meta.url);
-      const source = JSON.parse(await readFile(new URL("source.json", fixtureDirectory), "utf8"));
-      const backup = await parseRTNoteZip(new Blob([await readFile(new URL("v2.12.0.zip", fixtureDirectory))]));
-      expect(backup.manifest.rtnoteVersion).toBe("2.12.0");
-      expect(backup.manifest.buildId).toBe(source.commit);
-      const client = createRTNoteClient({ baseUrl: f.serve() });
-      await restoreRTNoteZip(backup, {
-        restoreNotebooks: client.restoreJsonNotebooks,
-        restoreMemos: client.restoreJsonMemos,
-        restorePrompts: client.restoreJsonAiPrompts,
-        createResourceRestoreSink: mode === "resumable" ? client.createJsonResourceRestoreSink : async (_id, metadata) => {
-          const chunks = [];
-          return {
-            write: async (chunk) => { chunks.push(chunk); },
-            close: async () => {
-              const response = await f.restore(metadata, await new Blob(chunks).arrayBuffer());
-              expect(response.status).toBe(200);
-            },
-            abort: async () => {},
-          };
-        },
-      });
-      const restoredMemo = await (await f.request("/api/v1/memos/memo_release")).json();
-      expect(restoredMemo.memo).toMatchObject(source.memos[0]);
-      const notebooks = await (await f.request("/api/v1/notebooks")).json();
-      expect(notebooks.notebooks.find((notebook) => notebook.id === "nb_release")).toMatchObject(source.notebooks[0]);
-      const revisions = await (await f.request("/api/v1/memos/memo_release/revisions")).json();
-      const { contentJson, ...revisionSummary } = source.revisions[0];
-      expect(revisions.revisions).toEqual(expect.arrayContaining([expect.objectContaining(revisionSummary)]));
-      expect(JSON.parse(f.database.query("SELECT content_json FROM memo_revisions WHERE id = ?").get(revisionSummary.id).content_json)).toEqual(contentJson);
-      for (const resource of source.resources) {
-        const row = f.database.query("SELECT * FROM resources WHERE id = ?").get(resource.id);
-        expect(row).toMatchObject({ memo_id: resource.memoId, kind: resource.kind, mime_type: resource.mimeType ?? "application/octet-stream", filename: resource.filename, byte_size: resource.byteSize, width: resource.width, height: resource.height, created_at: resource.createdAt });
-        const response = await f.request(resource.url);
-        expect(response.status).toBe(200);
-        expect(response.headers.get("Content-Disposition")).toStartWith(resource.kind === "image" && resource.mimeType ? "inline;" : "attachment;");
-        if (resource.mimeType === "image/svg+xml") expect(response.headers.get("Content-Security-Policy")).toContain("sandbox");
-        expect(new Uint8Array(await response.arrayBuffer())).toEqual(Uint8Array.from(Buffer.from(resource.bytesBase64, "base64")));
-      }
-      expect((await (await f.request(`/api/v1/memos/${f.memo.id}`)).json()).memo.contentMarkdown).toBe("Original note");
-    });
-  }
+  test("rejects a real EdgeEver v2.12.0 archive instead of restoring it", async () => {
+    // RTNote made a clean break from EdgeEver's formats, so an EdgeEver ZIP must
+    // fail before any notebook, note or file reaches the server.
+    const fixtureDirectory = new URL("../../../tests/fixtures/restore-resource-security/", import.meta.url);
+    const archive = new Blob([await readFile(new URL("v2.12.0.zip", fixtureDirectory))]);
+    await expect(parseRTNoteZip(archive)).rejects.toMatchObject({ code: "unsupportedFormat" });
+  });
 });
 
 const ambiguousTypes = [

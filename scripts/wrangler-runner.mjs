@@ -13,7 +13,7 @@ const REPOSITORY_WRANGLER_VALUES = {
   bucket_name: "rtnote-resources",
   preview_bucket_name: "rtnote-resources-preview",
 };
-const REPOSITORY_WRANGLER_SHA256 = "d3ba35d5369ef9e9d00383af0dec4f939a732b1b11a2e1f1a958f7499f880f7c";
+const REPOSITORY_WRANGLER_SHA256 = "123277d889edd519657c7e2d0890f451e1afb7cb6c3c85453edc68d90a81a20d";
 
 const configValue = (config, key) => {
   const match = config.match(new RegExp(`^${key}\\s*=\\s*(?:"([^"]*)"|(true|false))`, "m"));
