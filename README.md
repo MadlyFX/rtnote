@@ -9,6 +9,10 @@ RTNote is an open-source notes app with a classic three-pane layout (notebooks Â
 
 > **Status:** early development. The app works today, but RTNote has no official releases yet, and identifiers, storage details and features are still changing.
 
+<p align="center">
+  <img src="docs/assets/screenshots/workspace.png" alt="RTNote workspace: notebooks, note list and the rich-text editor on the warm paper theme" width="900" />
+</p>
+
 ## Principles
 
 - **Rich text first.** Notes are stored as rich-text documents. Markdown is an import and export format, not the source of truth.
