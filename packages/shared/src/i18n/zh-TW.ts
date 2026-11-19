@@ -2676,6 +2676,7 @@ export const zhTW = {
       currentDate: "當前日期",
       currentTime: "當前時間",
       currentDateTime: "當前日期和時間",
+      mermaid: "Mermaid 圖表",
     },
   },
   editorToolbar: {
@@ -2749,6 +2750,7 @@ export const zhTW = {
     mermaidZoomOut: "縮小圖表",
     mermaidResetZoom: "重置圖表縮放",
     mermaidCloseViewer: "關閉圖表檢視器",
+    mermaidDelete: "刪除 Mermaid 圖表",
     math: "插入公式",
     blockMath: "塊級公式",
     horizontalRule: "分割線",

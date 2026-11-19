@@ -2800,7 +2800,8 @@ export const fr = {
     items: {
       currentDate: "Date actuelle",
       currentTime: "Heure actuelle",
-      currentDateTime: "Date et heure actuelles"
+      currentDateTime: "Date et heure actuelles",
+      mermaid: "Diagramme Mermaid"
     }
   },
   editorToolbar: {
@@ -2874,6 +2875,7 @@ export const fr = {
     mermaidZoomOut: "Zoom arrière sur le diagramme",
     mermaidResetZoom: "Réinitialiser le zoom du diagramme",
     mermaidCloseViewer: "Fermer le visualiseur de diagrammes",
+    mermaidDelete: "Supprimer le diagramme Mermaid",
     math: "Insérer une formule",
     blockMath: "Formule hors-ligne",
     horizontalRule: "Séparateur",

@@ -18,6 +18,7 @@ export const SLASH_COMMAND_KEYWORDS_ZH_CN: Record<string, string[]> = {
   divider: ["分割", "分隔"],
   fold: ["折叠"],
   table: ["表格"],
+  mermaid: ["图表", "流程图"],
   "inline-math": ["公式", "数学"],
   "block-math": ["块级公式", "独立公式"],
   attachment: ["文件", "上传", "附件"],

@@ -2666,6 +2666,7 @@ export const ja = {
       currentDate: "今日の日付",
       currentTime: "現在時刻",
       currentDateTime: "現在の日時",
+      mermaid: "Mermaid 図",
     },
   },
   editorToolbar: {
@@ -2739,6 +2740,7 @@ export const ja = {
     mermaidZoomOut: "図を縮小",
     mermaidResetZoom: "図のズームをリセット",
     mermaidCloseViewer: "図ビューアを閉じる",
+    mermaidDelete: "Mermaid 図を削除",
     math: "数式を挿入",
     blockMath: "ブロック数式",
     horizontalRule: "区切り線",

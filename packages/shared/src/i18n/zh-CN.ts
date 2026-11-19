@@ -2676,6 +2676,7 @@ export const zhCN = {
       currentDate: "当前日期",
       currentTime: "当前时间",
       currentDateTime: "当前日期和时间",
+      mermaid: "Mermaid 图表",
     },
   },
   editorToolbar: {
@@ -2749,6 +2750,7 @@ export const zhCN = {
     mermaidZoomOut: "缩小图表",
     mermaidResetZoom: "重置图表缩放",
     mermaidCloseViewer: "关闭图表查看器",
+    mermaidDelete: "删除 Mermaid 图表",
     math: "插入公式",
     blockMath: "块级公式",
     horizontalRule: "分割线",
