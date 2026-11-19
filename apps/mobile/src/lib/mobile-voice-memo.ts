@@ -3,8 +3,8 @@ import {
   createVoiceMemoFilename,
   normalizeVoiceMemoDuration,
   type TiptapDoc,
-} from "@edgeever/shared";
-import { normalizeVoiceMemoMaxDuration } from "@edgeever/shared/voice-memo-names";
+} from "@rtnote/shared";
+import { normalizeVoiceMemoMaxDuration } from "@rtnote/shared/voice-memo-names";
 
 /** Android records AAC in an MPEG-4 container. */
 export const MOBILE_VOICE_MEMO_MIME_TYPE = "audio/mp4";

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronRight, CloudUpload, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import type { DesktopBackupStatus, DesktopOffsiteConfig } from "@edgeever/shared";
+import type { DesktopBackupStatus, DesktopOffsiteConfig } from "@rtnote/shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -35,7 +35,7 @@ export const DesktopOffsiteStatusLines = ({ status, disabled, onUpload }: {
 /** Collapsible WebDAV settings. Saved explicitly because the fields only make sense together. */
 export const DesktopOffsiteSettings = ({ status, disabled }: { status: DesktopBackupStatus; disabled: boolean }) => {
   const { t } = useTranslation();
-  const bridge = window.edgeeverDesktop;
+  const bridge = window.rtnoteDesktop;
   const saved = status.offsite?.config ?? emptyConfig;
   const savedKey = JSON.stringify(saved);
   const [config, setConfig] = useState<DesktopOffsiteConfig>(saved);

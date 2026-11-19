@@ -5,7 +5,7 @@ import {
   getResourceIdFromUrl,
   readVoiceMemoAttrs,
   type TranscriptionSettings,
-} from "@edgeever/shared";
+} from "@rtnote/shared";
 import { createContext, useContext, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { NodeViewWrapper, ReactNodeViewRenderer, useEditorState, type NodeViewProps } from "@tiptap/react";
@@ -56,7 +56,7 @@ const useVoiceMemoSession = (clientId: string) => {
   return { session, snapshot: session?.getSnapshot() ?? null };
 };
 
-const isLocalResourceUrl = (url: string) => url.startsWith("edgeever-staged:") || url.includes("local_resource_");
+const isLocalResourceUrl = (url: string) => url.startsWith("rtnote-staged:") || url.includes("local_resource_");
 
 const RecorderPanel = ({
   snapshot,

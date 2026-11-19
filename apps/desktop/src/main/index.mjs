@@ -101,12 +101,12 @@ const noteWindowHeadingShortcutGuards = new WeakMap();
 
 const linuxUpdateTestMode = process.platform === "linux"
   && process.env.GITHUB_ACTIONS === "true"
-  && process.env.EDGE_EVER_DESKTOP_UPDATE_TEST === "1";
+  && process.env.RTNOTE_DESKTOP_UPDATE_TEST === "1";
 const linuxUpdateTestFeedUrl = linuxUpdateTestMode
-  ? process.env.EDGE_EVER_DESKTOP_UPDATE_TEST_FEED_URL || ""
+  ? process.env.RTNOTE_DESKTOP_UPDATE_TEST_FEED_URL || ""
   : "";
 const requestedUserDataDirectory = linuxUpdateTestMode
-  ? process.env.EDGE_EVER_DESKTOP_UPDATE_TEST_USER_DATA || userDataDirectoryFromArguments(process.argv)
+  ? process.env.RTNOTE_DESKTOP_UPDATE_TEST_USER_DATA || userDataDirectoryFromArguments(process.argv)
   : userDataDirectoryFromArguments(process.argv);
 if (requestedUserDataDirectory) app.setPath("userData", requestedUserDataDirectory);
 
@@ -135,16 +135,16 @@ const applyMacDockIcon = () => {
     }
   }
 };
-const webUrl = process.env.EDGE_EVER_DESKTOP_WEB_URL || "http://127.0.0.1:5173";
+const webUrl = process.env.RTNOTE_DESKTOP_WEB_URL || "http://127.0.0.1:5173";
 // A packaged desktop app is self-hosted-client software: its instance URL must
 // come from the user-facing first-run setup, never from the build environment.
 // Environment URLs are intentionally limited to local development.
-const apiBaseUrl = (!app.isPackaged && (process.env.EDGE_EVER_API_URL || process.env.EDGE_EVER_DESKTOP_WEB_URL)
-  ? process.env.EDGE_EVER_API_URL || webUrl
+const apiBaseUrl = (!app.isPackaged && (process.env.RTNOTE_API_URL || process.env.RTNOTE_DESKTOP_WEB_URL)
+  ? process.env.RTNOTE_API_URL || webUrl
   : "").replace(/\/$/, "");
 let configuredApiBaseUrl = apiBaseUrl;
-const packagedSidecarName = process.platform === "win32" ? "edgeever-sidecar.exe" : "edgeever-sidecar";
-const sidecarPath = process.env.EDGE_EVER_SIDECAR_PATH || (app.isPackaged
+const packagedSidecarName = process.platform === "win32" ? "rtnote-sidecar.exe" : "rtnote-sidecar";
+const sidecarPath = process.env.RTNOTE_SIDECAR_PATH || (app.isPackaged
   ? join(process.resourcesPath, "sidecar", packagedSidecarName)
   : join(projectRoot, "crates/desktop-sidecar/target/debug", packagedSidecarName));
 
@@ -342,10 +342,10 @@ const migrateLegacyAccountData = async (accountId) => {
   if (!accountId) return;
   const source = legacyDataDirectory();
   const destination = sidecarDataDirectory(accountId);
-  if (existsSync(join(destination, "edgeever.sqlite")) || !existsSync(join(source, "edgeever.sqlite"))) return;
+  if (existsSync(join(destination, "rtnote.sqlite")) || !existsSync(join(source, "rtnote.sqlite"))) return;
   await mkdir(destination, { recursive: true });
   await restrictDirectory(destination);
-  for (const name of ["edgeever.sqlite", "edgeever.sqlite-wal", "edgeever.sqlite-shm", "backups", "resource-outbox", "resource-cache"]) {
+  for (const name of ["rtnote.sqlite", "rtnote.sqlite-wal", "rtnote.sqlite-shm", "backups", "resource-outbox", "resource-cache"]) {
     const sourcePath = join(source, name);
     if (existsSync(sourcePath)) await rename(sourcePath, join(destination, name));
   }
@@ -356,10 +356,10 @@ protocol.registerSchemesAsPrivileged([{
   scheme: DESKTOP_APP_SCHEME,
   privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true, stream: true, codeCache: true },
 }, {
-  scheme: "edgeever-resource",
+  scheme: "rtnote-resource",
   privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true, stream: true },
 }, {
-  scheme: "edgeever-staged",
+  scheme: "rtnote-staged",
   privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true, stream: true },
 }]);
 
@@ -389,7 +389,7 @@ const desktopPackageMetadata = JSON.parse(readFileSync(new URL("../../package.js
 
 const desktopRuntimeSystemInfo = () => ({
   appVersion: app.getVersion(),
-  autoUpdateSupported: desktopPackageMetadata.edgeeverUpdatePolicy !== "manual",
+  autoUpdateSupported: desktopPackageMetadata.rtnoteUpdatePolicy !== "manual",
   // Manual and automatic builds both download new versions from GitHub Releases.
   updateDownloadUrl: "https://github.com/MadlyFX/rtnote/releases/latest",
   platform: process.platform,
@@ -1047,7 +1047,7 @@ const handleStagedResourceProtocolRequest = async (request, assertCurrent = () =
     const path = join(directory, `${stagedId}.bin`);
     const size = await stat(path).then((details) => details.size).catch(() => null);
     if (size === null && isSafeResourceId(metadata.resourceId)) {
-      const target = new URL(`edgeever-resource://resource/${encodeURIComponent(metadata.resourceId)}`);
+      const target = new URL(`rtnote-resource://resource/${encodeURIComponent(metadata.resourceId)}`);
       target.search = new URL(request.url).search;
       assertCurrent();
       return handleResourceProtocolRequest(new Request(target, { headers: request.headers, signal: request.signal }), assertCurrent);
@@ -1066,8 +1066,8 @@ const handleStagedResourceProtocolRequest = async (request, assertCurrent = () =
 };
 
 const registerResourceProtocol = () => {
-  protocol.handle("edgeever-resource", (request) => handleResourceProtocolRequest(request));
-  protocol.handle("edgeever-staged", (request) => handleStagedResourceProtocolRequest(request));
+  protocol.handle("rtnote-resource", (request) => handleResourceProtocolRequest(request));
+  protocol.handle("rtnote-staged", (request) => handleStagedResourceProtocolRequest(request));
 };
 
 const registerDesktopAppProtocol = () => {
@@ -1077,8 +1077,8 @@ const registerDesktopAppProtocol = () => {
 };
 
 const preparePackagedRendererOrigin = async () => {
-  if (!app.isPackaged || process.env.EDGE_EVER_DESKTOP_WEB_URL) return;
-  if (process.env.EDGE_EVER_FORCE_FILE_RENDERER === "1") {
+  if (!app.isPackaged || process.env.RTNOTE_DESKTOP_WEB_URL) return;
+  if (process.env.RTNOTE_FORCE_FILE_RENDERER === "1") {
     void writeDiagnostic("renderer.app-protocol-disabled");
     return;
   }
@@ -1186,7 +1186,7 @@ const checkForDesktopUpdate = (reason, { force = false, throwOnError = false } =
 };
 
 const configureAutoUpdater = () => {
-  if (!shouldConfigureDesktopUpdates({ packaged: app.isPackaged, disabled: process.env.EDGE_EVER_DISABLE_AUTO_UPDATE, updatePolicy: desktopPackageMetadata.edgeeverUpdatePolicy })) return;
+  if (!shouldConfigureDesktopUpdates({ packaged: app.isPackaged, disabled: process.env.RTNOTE_DISABLE_AUTO_UPDATE, updatePolicy: desktopPackageMetadata.rtnoteUpdatePolicy })) return;
   // Observe the exact session used by electron-updater, plus net.fetch metadata.
   // No setProxy, request headers, bodies, credentials or response bodies are collected.
   for (const [name, getSession] of [
@@ -1364,7 +1364,7 @@ const attachEditContextMenu = (contents) => {
   });
 };
 
-const desktopRendererEntryUrl = () => app.isPackaged && !process.env.EDGE_EVER_DESKTOP_WEB_URL
+const desktopRendererEntryUrl = () => app.isPackaged && !process.env.RTNOTE_DESKTOP_WEB_URL
   ? (usePrivateAppProtocol ? DESKTOP_APP_ENTRY_URL : pathToFileURL(join(process.resourcesPath, "web/index.html")).href)
   : webUrl;
 
@@ -1495,7 +1495,7 @@ const createWindow = async ({ show = true } = {}) => {
   });
 
   try {
-    if (app.isPackaged && !process.env.EDGE_EVER_DESKTOP_WEB_URL) {
+    if (app.isPackaged && !process.env.RTNOTE_DESKTOP_WEB_URL) {
       if (usePrivateAppProtocol) await mainWindow.loadURL(DESKTOP_APP_ENTRY_URL);
       else await mainWindow.loadFile(join(process.resourcesPath, "web/index.html"));
     } else {
@@ -1717,7 +1717,7 @@ const startApplication = async () => {
     userData: app.getPath("userData"), defaultDirectory: join(app.getPath("documents"), "RTNote Backups"), secureStorage: safeStorage,
     offsite: new OffsiteBackup({ userData: app.getPath("userData"), secureStorage: safeStorage }),
     workerFactory: createBackupWorkerFactory({ utilityProcess, session: session.defaultSession }),
-    version: { edgeeverVersion: app.getVersion(), buildId: app.getVersion() },
+    version: { rtnoteVersion: app.getVersion(), buildId: app.getVersion() },
     onChange: (status) => { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send("desktop:backup-status", status); },
     onDiagnostic: (event, details) => writeDiagnostic(event, details),
     onSuccess: () => {
@@ -1813,7 +1813,7 @@ const startApplication = async () => {
   ipcMain.handle("desktop:copy-file", (_event, bytes, filename) => writeFileClipboard(clipboard, ClipboardItem, {
     bytes,
     filename,
-  }, { directory: join(app.getPath("temp"), "edgeever-clipboard") }));
+  }, { directory: join(app.getPath("temp"), "rtnote-clipboard") }));
   registerClipboardReadIpc(ipcMain, {
     clipboard,
     getMainWindow: () => mainWindow,
@@ -2111,7 +2111,7 @@ const startApplication = async () => {
     getContext: () => attachmentSessionActive && !instanceChangePending && activeAccountId
       ? { key: attachmentScope(), directory: join(sidecarDataDirectory(activeAccountId), "opened-attachments") } : null,
     resolveResourceId: async (url, assertCurrent) => {
-      if (url.startsWith("edgeever-resource:")) return resourceIdFromRequest(url);
+      if (url.startsWith("rtnote-resource:")) return resourceIdFromRequest(url);
       const directory = stagedResourceDirectory();
       const metadata = await readStagedResourceMetadata(directory, resourceIdFromRequest(url));
       assertCurrent();
@@ -2148,7 +2148,7 @@ const startApplication = async () => {
     getScope: attachmentScope,
     getDirectory: () => join(sidecarDataDirectory(activeAccountId), "opened-attachments"),
     readResource: async (url, signal, assertCurrent) => {
-      if (url.startsWith("edgeever-staged:")) return handleStagedResourceProtocolRequest(new Request(url, { signal }), assertCurrent);
+      if (url.startsWith("rtnote-staged:")) return handleStagedResourceProtocolRequest(new Request(url, { signal }), assertCurrent);
       return handleResourceProtocolRequest(new Request(url, { signal, cache: "reload" }), assertCurrent);
     },
     openPath: (path) => shell.openPath(path),
@@ -2254,7 +2254,7 @@ const startApplication = async () => {
     const metadata = await readStagedResourceMetadata(directory, id);
     const bytes = await readFile(join(directory, `${id}.bin`)).catch(async (error) => {
       if (!isSafeResourceId(metadata.resourceId)) throw error;
-      const response = await handleResourceProtocolRequest(new Request(`edgeever-resource://resource/${encodeURIComponent(metadata.resourceId)}`));
+      const response = await handleResourceProtocolRequest(new Request(`rtnote-resource://resource/${encodeURIComponent(metadata.resourceId)}`));
       if (!response.ok) throw new Error(`Resource request failed (${response.status})`);
       return Buffer.from(await response.arrayBuffer());
     });
@@ -2282,7 +2282,7 @@ const startApplication = async () => {
   ipcMain.handle("desktop:read-resource", async (_event, id) => {
     if (!isSafeResourceId(id)) throw new Error("Invalid resource id");
     const response = await handleResourceProtocolRequest(new Request(
-      `edgeever-resource://resource/${encodeURIComponent(id)}`,
+      `rtnote-resource://resource/${encodeURIComponent(id)}`,
     ));
     if (!response.ok) throw new Error(`Resource request failed (${response.status})`);
     return {

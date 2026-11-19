@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { LoginSchema } from "@edgeever/shared";
+import { LoginSchema } from "@rtnote/shared";
 import {
   groupLoginDeviceSessions,
   resolveSessionDeviceId,

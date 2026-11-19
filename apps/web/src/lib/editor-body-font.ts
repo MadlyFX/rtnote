@@ -1,10 +1,10 @@
-import { FONT_IDS, isRemoteNoteImageFont, catalogFontStack, catalogCodeFontStack } from "@edgeever/shared/font-catalog-data";
-import { LEGACY_BODY_FONTS } from "@edgeever/shared/font-defaults";
-import type { BodyFontId } from "@edgeever/shared/font-loader";
+import { FONT_IDS, isRemoteNoteImageFont, catalogFontStack, catalogCodeFontStack } from "@rtnote/shared/font-catalog-data";
+import { LEGACY_BODY_FONTS } from "@rtnote/shared/font-defaults";
+import type { BodyFontId } from "@rtnote/shared/font-loader";
 import { watchEditorCatalogFont } from "./editor-catalog-fonts";
 
-export const EDITOR_BODY_FONT_STORAGE_KEY = "edgeever.editorBodyFont";
-export const EDITOR_BODY_FONT_CUSTOM_STORAGE_KEY = "edgeever.editorBodyFontCustom";
+export const EDITOR_BODY_FONT_STORAGE_KEY = "rtnote.editorBodyFont";
+export const EDITOR_BODY_FONT_CUSTOM_STORAGE_KEY = "rtnote.editorBodyFontCustom";
 
 // Legacy choices remain readable, but new selections use the shared font directory.
 export const LEGACY_EDITOR_BODY_FONT_CHOICES = ["wenkai-screen", "neo-zhi-song", "source-serif"] as const;

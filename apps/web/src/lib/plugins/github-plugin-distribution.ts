@@ -1,4 +1,4 @@
-import { parseExtensionManifest, type ExtensionManifest, type PluginManifest } from "@edgeever/plugin-api";
+import { parseExtensionManifest, type ExtensionManifest, type PluginManifest } from "@rtnote/plugin-api";
 import type { CachedPluginPackage } from "@/lib/plugins/plugin-package-store";
 import { api, ApiRequestError } from "@/lib/api";
 

@@ -218,7 +218,7 @@ export const CustomEditorThemeDialog = ({
 
           {/* Preview Panel */}
           <div
-            className="edgeever-editor rounded-lg border transition-all"
+            className="rtnote-editor rounded-lg border transition-all"
             style={{
               backgroundColor: activeColors.background,
               borderColor: activeColors.border,

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { absolutizeBrandingUrls, type BrandingOverview, type ResolvedBranding } from "@edgeever/shared";
+import { absolutizeBrandingUrls, type BrandingOverview, type ResolvedBranding } from "@rtnote/shared";
 import { api, getConfiguredDesktopApiBaseUrl } from "@/lib/api";
 import { importLegacyBranding, setAppBranding } from "@/lib/branding";
 

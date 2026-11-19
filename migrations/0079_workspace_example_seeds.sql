@@ -20,11 +20,11 @@ WHERE EXISTS (
     AND m.created_by = 'system'
     AND m.updated_by = 'system'
     AND m.title IN (
-      '欢迎来到 EdgeEver',
-      'Welcome to EdgeEver',
-      'EdgeEver へようこそ',
-      'Witaj w EdgeEver',
-      'Добро пожаловать в EdgeEver'
+      '欢迎来到 RTNote',
+      'Welcome to RTNote',
+      'RTNote へようこそ',
+      'Witaj w RTNote',
+      'Добро пожаловать в RTNote'
     )
 )
 AND NOT EXISTS (

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { api } from "@/lib/api";
-import { createEdgeEverZipTemporaryFile, EdgeEverZipMemoryLimitError, type EdgeEverZipProgress } from "@/lib/json-backup";
+import { createRTNoteZipTemporaryFile, RTNoteZipMemoryLimitError, type RTNoteZipProgress } from "@/lib/json-backup";
 import {
   loadWebDavBackupConfig,
   loadWebDavBackupPassword,
@@ -23,7 +23,7 @@ import {
 type OperationState = "idle" | "working" | "complete" | "error";
 type OperationKind = "webdav" | "webdav-test";
 
-const Progress = ({ progress }: { progress: EdgeEverZipProgress }) => {
+const Progress = ({ progress }: { progress: RTNoteZipProgress }) => {
   const percentage = progress.total > 0 ? Math.round((progress.completed / progress.total) * 100) : 0;
   return (
     <div className="h-1.5 overflow-hidden rounded-full bg-slate-200">
@@ -36,7 +36,7 @@ export const WebDavBackupCard = () => {
   const { t } = useTranslation();
   const [state, setState] = useState<OperationState>("idle");
   const [operation, setOperation] = useState<OperationKind>("webdav");
-  const [progress, setProgress] = useState<EdgeEverZipProgress>({ completed: 0, total: 0 });
+  const [progress, setProgress] = useState<RTNoteZipProgress>({ completed: 0, total: 0 });
   const [message, setMessage] = useState<string | null>(null);
   const [config, setConfig] = useState<WebDavBackupConfig>(loadWebDavBackupConfig);
   const [password, setPassword] = useState(loadWebDavBackupPassword);
@@ -52,7 +52,7 @@ export const WebDavBackupCard = () => {
   };
 
   const describeError = (error: unknown) => {
-    if (error instanceof EdgeEverZipMemoryLimitError) return t("dataExport.webdavErrors.largeBackupRequiresStreaming");
+    if (error instanceof RTNoteZipMemoryLimitError) return t("dataExport.webdavErrors.largeBackupRequiresStreaming");
     if (error instanceof TypeError) return t("dataExport.webdavErrors.network");
     if (error instanceof Error && error.message) return error.message;
     return t("dataExport.webdavErrors.unknown");
@@ -80,9 +80,9 @@ export const WebDavBackupCard = () => {
     setMessage(null);
     try {
       const normalized = persistSettings();
-      const temporary = await createEdgeEverZipTemporaryFile(
+      const temporary = await createRTNoteZipTemporaryFile(
         { listNotebooks: api.listNotebooks, getPage: api.getJsonBackupPage, getResourceResponse: api.getResourceResponse },
-        { edgeeverVersion: __EDGEEVER_APP_VERSION__, buildId: __EDGEEVER_BUILD_ID__ },
+        { rtnoteVersion: __RTNOTE_APP_VERSION__, buildId: __RTNOTE_BUILD_ID__ },
         setProgress
       );
       const result = await uploadWebDavBackup(normalized, password, temporary.file)

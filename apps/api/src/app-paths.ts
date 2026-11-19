@@ -14,7 +14,7 @@ const matchesPathPrefix = (pathname: string, prefix: string) =>
  * Paths answered by the RTNote app rather than by static web assets.
  * Cloudflare declares the same set in `run_worker_first` in wrangler.toml.
  */
-export const isEdgeEverAppPath = (pathname: string) =>
+export const isRTNoteAppPath = (pathname: string) =>
   pathname.startsWith("/api/")
   || matchesPathPrefix(pathname, "/mcp")
   || OAUTH_DISCOVERY_PATH_PREFIXES.some((prefix) => matchesPathPrefix(pathname, prefix));

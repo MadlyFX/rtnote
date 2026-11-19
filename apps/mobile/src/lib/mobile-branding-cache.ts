@@ -1,6 +1,6 @@
-import { coerceResolvedBranding, DEFAULT_RESOLVED_BRANDING, type ResolvedBranding } from "@edgeever/shared/branding";
+import { coerceResolvedBranding, DEFAULT_RESOLVED_BRANDING, type ResolvedBranding } from "@rtnote/shared/branding";
 
-export const MOBILE_BRANDING_CACHE_KEY = "edgeever.mobile.branding";
+export const MOBILE_BRANDING_CACHE_KEY = "rtnote.mobile.branding";
 /** Foreground refreshes happen at most this often; sign-in and sign-out always refresh. */
 export const MOBILE_BRANDING_REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 

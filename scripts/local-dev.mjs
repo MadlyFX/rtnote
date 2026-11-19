@@ -84,7 +84,7 @@ const runLocalMigrations = (profile) => {
     ],
     {
       cwd: resolve("."),
-      env: { ...process.env, EDGE_EVER_INSTANCE: "" },
+      env: { ...process.env, RTNOTE_INSTANCE: "" },
       stdio: "inherit",
     },
   );
@@ -107,8 +107,8 @@ const runProfileApi = (profile) => {
       cwd: resolve("."),
       env: {
         ...process.env,
-        EDGE_EVER_INSTANCE: "",
-        EDGE_EVER_LOCAL_DEMO_SEED: String(profile.demoSeed),
+        RTNOTE_INSTANCE: "",
+        RTNOTE_LOCAL_DEMO_SEED: String(profile.demoSeed),
       },
       stdio: "inherit",
     },
@@ -121,7 +121,7 @@ const runProfileWeb = (profile) => {
     cwd: resolve("."),
     env: {
       ...process.env,
-      EDGE_EVER_DEVELOPMENT_PROFILE: profile.name,
+      RTNOTE_DEVELOPMENT_PROFILE: profile.name,
     },
     stdio: "inherit",
   });
@@ -187,7 +187,7 @@ export const buildReadyBanner = (profile) => {
     `[local-dev] ${profile.label} ready`,
     `[local-dev] Web:  ${LOCAL_DEV_WEB_URL}`,
     `[local-dev] API:  ${LOCAL_DEV_API_URL}`,
-    ...(profile.name === "local" ? ["[local-dev] Auth: real local owner session; browser auto-login (EDGE_EVER_LOCAL_AUTO_LOGIN=false to disable)"] : []),
+    ...(profile.name === "local" ? ["[local-dev] Auth: real local owner session; browser auto-login (RTNOTE_LOCAL_AUTO_LOGIN=false to disable)"] : []),
     `[local-dev] Data: ${resolve(profile.statePath)} (${profile.demoSeed ? "resettable demo data" : "persistent development data"})`,
     "",
   ].join("\n");

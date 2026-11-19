@@ -7,7 +7,7 @@ import {
   type BrandAssetMimeType,
   type BrandingSettings,
   type ResolvedBranding,
-} from "@edgeever/shared/branding";
+} from "@rtnote/shared/branding";
 import type { DatabaseAdapter, StorageAdapter } from "./storage-contract";
 import { createId, isoNow } from "./entity-utils";
 

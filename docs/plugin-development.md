@@ -116,10 +116,10 @@ export default {
 };
 ```
 
-TypeScript projects can use `@edgeever/plugin-api`:
+TypeScript projects can use `@rtnote/plugin-api`:
 
 ```ts
-import { definePlugin } from "@edgeever/plugin-api";
+import { definePlugin } from "@rtnote/plugin-api";
 
 export default definePlugin({
   activate(context) {
@@ -312,7 +312,7 @@ await context.infographics.edit(infographicNoteId, {
 
 Plugin saves also compare the local snapshot inside the repository transaction, preventing multiple windows from overwriting each other after host validation. Unresolved sync conflicts block further plugin writes and preserve the queued draft and diagnostics. Desktop plugin saves use a dedicated native method that commits content, history, and outbox together. Older hosts without that method throw `HOST_UPGRADE_REQUIRED`; no unguarded fallback is attempted. Ordinary editor save behavior is unchanged. Server history retains the existing five-minute snapshot policy, so each plugin write is not guaranteed a separate cloud revision.
 
-After building the sidecar, maintainers can run `bun run test:plugin-sync` to verify an isolated Web IndexedDB → local API/SQLite → native sidecar → Web round trip, offline persistence, restart, and conflict recovery. `test:desktop:sidecar` includes this check. Set `EDGE_EVER_LEGACY_SIDECAR_PATH` and optionally `EDGE_EVER_LEGACY_MIGRATIONS_PATH` to also verify data created by an older native service upgrading to the current build. All native processes use temporary test directories; the installed desktop application is not launched and real account data is not read. This verifies the native service on the current host and does not replace device or in-app acceptance on other platforms.
+After building the sidecar, maintainers can run `bun run test:plugin-sync` to verify an isolated Web IndexedDB → local API/SQLite → native sidecar → Web round trip, offline persistence, restart, and conflict recovery. `test:desktop:sidecar` includes this check. Set `RTNOTE_LEGACY_SIDECAR_PATH` and optionally `RTNOTE_LEGACY_MIGRATIONS_PATH` to also verify data created by an older native service upgrading to the current build. All native processes use temporary test directories; the installed desktop application is not launched and real account data is not read. This verifies the native service on the current host and does not replace device or in-app acceptance on other platforms.
 
 
 ### 2. Templates
@@ -401,7 +401,7 @@ if (doc) {
 
 #### Custom Block Embeds
 
-Register custom block-level embed renderers (serialized in Markdown as `edgeever-plugin-embed` code fences):
+Register custom block-level embed renderers (serialized in Markdown as `rtnote-plugin-embed` code fences):
 
 ```ts
 // 1. Register embed renderer
@@ -694,7 +694,7 @@ A plugin distribution bundle must be self-contained:
 - `main.js`: Single-file JavaScript bundle (max 5 MB)
 - `styles.css`: Optional stylesheet (max 1 MB)
 
-If using `@edgeever/plugin-api`, inline it into `main.js` during build.
+If using `@rtnote/plugin-api`, inline it into `main.js` during build.
 
 ### GitHub Distribution
 

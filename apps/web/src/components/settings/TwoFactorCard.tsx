@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Shield, ShieldCheck } from "lucide-react";
-import type { TotpReauthInput, TotpSetupResponse } from "@edgeever/shared";
+import type { TotpReauthInput, TotpSetupResponse } from "@rtnote/shared";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {

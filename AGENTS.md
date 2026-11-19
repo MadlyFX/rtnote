@@ -9,13 +9,17 @@ Rules for AI agents and contributors working on RTNote.
 - Android lives in `apps/mobile` (Expo / React Native). iOS lives in `apps/ios` (native SwiftUI with a bundled TipTap editor built from `apps/ios/EditorSource`).
 - English is the source language for code, comments, UI strings, logs, docs and commit messages. Other languages are translations in `packages/shared/src/i18n/`; English (`en-US`) is the reference catalog.
 
-## Identifiers that must not be renamed
+## Naming
 
-Some identifiers still say `edgeever`. Leave these alone unless a migration plan covers them:
+All identifiers use `rtnote`: packages (`@rtnote/*`), `RTNOTE_*` environment variables, `X-RTNote-*` headers, CSS classes, storage keys, and the default Cloudflare Worker, D1 database (`rtnote`) and R2 bucket (`rtnote-resources`). RTNote made a clean break from EdgeEver's names and does not read EdgeEver's stored formats or backups.
 
-- Stored content formats: TipTap node and mark names (for example `edgeeverImageGallery`), Markdown markers (for example `<!-- edgeever-poster-v1:`, `edgeever-table`), backup format ids and file extensions. Renaming them breaks existing notes and EdgeEver imports.
-- Protocol names shared by clients and server, such as `X-EdgeEver-*` headers and `EDGE_EVER_*` environment variables.
-- Code package names (`@edgeever/*`), CSS classes and storage keys. They are internal; rename them only as a dedicated, complete change.
+Treat these names as stable now. Renaming them breaks existing notes, backups or deployments:
+
+- Stored content formats: TipTap node and mark names (for example `rtnoteImageGallery`), Markdown markers (for example `<!-- rtnote-poster-v1:`, `rtnote-table`), backup format ids and file extensions.
+- Protocol names shared by clients and server, such as `X-RTNote-*` headers and `RTNOTE_*` environment variables.
+- Storage keys, database file names and Cloudflare resource names.
+
+The only remaining `edgeever` references are upstream attribution (`NOTICE`, `README.md`), upstream URLs (the font CDN under `tianma-if/edgeever`, the official plugin registry entries and their ids) and third-party import fixtures.
 
 User-visible text always says RTNote.
 

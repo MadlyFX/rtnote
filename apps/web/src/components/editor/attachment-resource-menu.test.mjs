@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { computePosition } from "@floating-ui/react-dom";
-import { LEGACY_ATTACHMENT_PREFIXES } from "@edgeever/shared/edgeever-legacy-values";
+import { LEGACY_ATTACHMENT_PREFIXES } from "@rtnote/shared/rtnote-legacy-values";
 import {
   attachmentResourceMenuPosition,
   resolveAttachmentMenuFilename,

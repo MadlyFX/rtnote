@@ -23,7 +23,7 @@ const openDatabase = () => {
   const sqlite = new Database(":memory:");
   opened.push(sqlite);
   const puts = [];
-  const { db } = createSelfHostedStorageAdapter(sqlite, "/tmp/edgeever-example-seed-unused");
+  const { db } = createSelfHostedStorageAdapter(sqlite, "/tmp/rtnote-example-seed-unused");
   const env = {
     storage: {
       db,
@@ -194,7 +194,7 @@ describe("workspace example seed", () => {
 
   test("leaves the catalog to demo mode", async () => {
     const { sqlite, env } = freshInstallation();
-    env.EDGE_EVER_DEMO_MODE = "true";
+    env.RTNOTE_DEMO_MODE = "true";
 
     await ensureWorkspaceExampleSeed(env, "ws_default");
 

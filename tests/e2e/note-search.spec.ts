@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { DEFAULT_MEMO_TITLE, type MemoDetail } from "@edgeever/shared";
+import { DEFAULT_MEMO_TITLE, type MemoDetail } from "@rtnote/shared";
 import { ui } from "./fixtures/ui-labels";
 
 const createMemo = async (page: Page, contentMarkdown: string) => {
@@ -41,7 +41,7 @@ const replaceAll = (page: Page) => page.getByRole("button", { name: ui.editor.re
 const readSource = async (page: Page) => (await page.locator(".cm-content .cm-line").allTextContents()).join("\n");
 
 const readLocalMemo = (page: Page, memoId: string) => page.evaluate((id) => new Promise<MemoDetail | undefined>((resolve, reject) => {
-  const open = indexedDB.open("edgeever-local");
+  const open = indexedDB.open("rtnote-local");
   open.onerror = () => reject(open.error);
   open.onsuccess = () => {
     const database = open.result;
@@ -140,7 +140,7 @@ test("source search replaces literal escapes with empty text, supports undo, and
     const original = await readSource(page);
     await openReplace(page, ".cm-content");
     await searchQuery(page).fill("\\");
-    await expect(page.locator(".cm-content .edgeever-search-match")).toHaveCount(6);
+    await expect(page.locator(".cm-content .rtnote-search-match")).toHaveCount(6);
     await expect(page.locator('[aria-live="polite"]').filter({ hasText: "1/6" })).toBeVisible();
     await page.getByRole("button", { name: ui.editor.nextSearchResult, exact: true }).click();
     await expect(page.locator('[aria-live="polite"]').filter({ hasText: "2/6" })).toBeVisible();
@@ -188,7 +188,7 @@ test("search follows the active mode and rich text supports whitespace deletion 
     await expect(replaceAll(page)).toBeDisabled();
     await searchQuery(page).fill(" ");
     const rich = page.locator(".ProseMirror[contenteditable='true']");
-    await expect(rich.locator(".edgeever-search-match")).toHaveCount(3);
+    await expect(rich.locator(".rtnote-search-match")).toHaveCount(3);
     await rich.evaluate((element) => {
       element.setAttribute("data-search-focus-count", "0");
       element.addEventListener("focus", () => {

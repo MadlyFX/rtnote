@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { parseSyntax, getTemplate, getTemplates } from "@antv/infographic";
-import { compileInfographicNote, INFOGRAPHIC_NOTE_TEMPLATES, officialTemplateFamily } from "@edgeever/shared";
+import { compileInfographicNote, INFOGRAPHIC_NOTE_TEMPLATES, officialTemplateFamily } from "@rtnote/shared";
 import { buildInfographicSyntax, buildOfficialInfographicSyntax, INFOGRAPHIC_TEMPLATES } from "./infographic-generation.ts";
 
 const sampleOfficialData = (template) => {

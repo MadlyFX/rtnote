@@ -10,7 +10,7 @@ import { notifyRepositoryMutation } from "@/lib/repository-events";
 export const DesktopAttachmentWritebacks = ({ scope }: { scope: string }) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const bridge = window.edgeeverDesktop;
+  const bridge = window.rtnoteDesktop;
   const [items, setItems] = useState<DesktopAttachmentWriteback[]>([]);
   const [open, setOpen] = useState(false);
   const [failed, setFailed] = useState(false);

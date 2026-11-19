@@ -47,13 +47,13 @@ GitHub Actions builds Windows, Linux and macOS installers and both web clipper p
 
 ### Cloudflare (free tier)
 
-RTNote deploys to Cloudflare Workers with D1 and R2. Fork this repository, create the D1 database `edgeever` and R2 bucket `edgeever-resources`, create a Worker named `edgeever` with the runtime secret `EDGE_EVER_AUTH_PASSWORD`, then connect the Worker to your Fork's `main` branch with Workers Builds. Every push to `main` builds, migrates and deploys.
+RTNote deploys to Cloudflare Workers with D1 and R2. Fork this repository, create the D1 database `rtnote` and R2 bucket `rtnote-resources`, create a Worker named `rtnote` with the runtime secret `RTNOTE_AUTH_PASSWORD`, then connect the Worker to your Fork's `main` branch with Workers Builds. Every push to `main` builds, migrates and deploys.
 
 - [Step-by-step online deployment](docs/deploy-cloudflare-button.md)
 - [Deploying with an AI agent](docs/agent-deploy-cloudflare.md)
 - [Workers Builds configuration](docs/cloudflare-workers-builds.md)
 
-The resource names and `EDGE_EVER_*` settings above are fixed identifiers; use them exactly as written.
+The resource names and `RTNOTE_*` settings above are fixed identifiers; use them exactly as written.
 
 ### Docker
 
@@ -72,7 +72,7 @@ bun install
 bun run dev
 ```
 
-Local development signs in automatically; fresh databases use `owner` / `edgeever-local-dev`.
+Local development signs in automatically; fresh databases use `owner` / `rtnote-local-dev`.
 
 Checks run in CI:
 
@@ -114,7 +114,7 @@ content_text      Plain text for search and summaries
 
 ## Credits
 
-RTNote is built on code from [EdgeEver](https://github.com/tianma-if/edgeever) by tianma-if and contributors, and is developed independently; it is not affiliated with or endorsed by that project. Some internal identifiers still carry the `edgeever` name. The poster workspace is adapted from [Qiaomu Design](https://github.com/joeseesun/qiaomu-cover-design) under the MIT license. See [NOTICE](NOTICE) for full attribution.
+RTNote is built on code from [RTNote](https://github.com/tianma-if/edgeever) by tianma-if and contributors, and is developed independently; it is not affiliated with or endorsed by that project. Some internal identifiers still carry the `rtnote` name. The poster workspace is adapted from [Qiaomu Design](https://github.com/joeseesun/qiaomu-cover-design) under the MIT license. See [NOTICE](NOTICE) for full attribution.
 
 ## License
 

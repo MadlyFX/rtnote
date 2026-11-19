@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { Notebook } from "@edgeever/shared";
+import type { Notebook } from "@rtnote/shared";
 import {
   getMobileCenteredScrollOffset,
   getMobileNotebookSearchVisibleIds,
-} from "@edgeever/shared/mobile-ui";
+} from "@rtnote/shared/mobile-ui";
 import {
   ActivityIndicator,
   Check,

@@ -4,7 +4,7 @@ import {
   TranscriptionModelCreateSchema,
   TranscriptionProviderCreateSchema,
   TranscriptionProviderUpdateSchema,
-} from "@edgeever/shared";
+} from "@rtnote/shared";
 import { zValidator } from "@hono/zod-validator";
 import type { Context, Hono } from "hono";
 import type { AppContext, AppEnv, Bindings } from "./api-context";
@@ -72,7 +72,7 @@ const requireEncryptionKey = (context: AppContext) => {
   if (!key) {
     throw new AppError(
       "ai_encryption_key_missing",
-      "Credential encryption requires instance authentication or an optional EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY.",
+      "Credential encryption requires instance authentication or an optional RTNOTE_CREDENTIALS_ENCRYPTION_KEY.",
       400,
     );
   }

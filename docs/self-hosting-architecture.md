@@ -14,7 +14,7 @@ current concrete implementation lives in
 - `DatabaseAdapter`: SQL statements and batches.
 - `BlobStoreAdapter`: attachment `get`, `put`, and `delete` operations.
 
-Cloudflare injects the D1/R2 adapter into `fetchEdgeEverApp`; the Bun entrypoint
+Cloudflare injects the D1/R2 adapter into `fetchRTNoteApp`; the Bun entrypoint
 injects the SQLite/filesystem or SQLite/S3 adapter into that same function.
 Neither entrypoint owns route or business decisions.
 
@@ -35,8 +35,8 @@ persistent `/data` mount:
 
 ```text
 RTNote container
-├── SQLite database          -> /data/edgeever.sqlite
-├── credential secrets       -> /data/edgeever-secrets.json
+├── SQLite database          -> /data/rtnote.sqlite
+├── credential secrets       -> /data/rtnote-secrets.json
 └── attachment store         -> /data/resources
 ```
 
@@ -61,7 +61,7 @@ ambiguous.
   keep credential encryption. Cloudflare continues to use Worker secrets only.
   Object-storage secrets and personal speech service API keys use separate
   purpose-specific keys derived from the existing instance authentication
-  secret. An optional `EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY` can override the
+  secret. An optional `RTNOTE_CREDENTIALS_ENCRYPTION_KEY` can override the
   speech credential key for advanced rotation. Stored credentials must remain
   AES-GCM ciphertext.
 - Make `/data` the only required persistent application path so NAS users can
@@ -69,7 +69,7 @@ ambiguous.
 - Keep the production entry at `scripts/self-hosted-server.js`, and keep
   `scripts/self-hosted-server.mjs` as an alias for NAS/GUI command overrides
   saved from v1.62 and earlier.
-- Support `EDGE_EVER_AUTH_USERNAME`, `EDGE_EVER_AUTH_PASSWORD`, and session
+- Support `RTNOTE_AUTH_USERNAME`, `RTNOTE_AUTH_PASSWORD`, and session
   settings without Cloudflare-specific naming assumptions in the container
   entrypoint.
 - Keep login brute-force protection in the application layer with SQLite/D1-
@@ -85,23 +85,23 @@ The Docker image and local development use the same Bun runtime:
 
 ```sh
 bun run build:web
-EDGE_EVER_AUTH_PASSWORD='<strong-password>' bun run start:self-hosted
+RTNOTE_AUTH_PASSWORD='<strong-password>' bun run start:self-hosted
 ```
 
-Set `EDGE_EVER_DATA_DIR` to the directory that should be persisted by Docker
+Set `RTNOTE_DATA_DIR` to the directory that should be persisted by Docker
 or a NAS volume.
 Long-running streaming responses use a 120-second idle timeout by default. Set
-`EDGE_EVER_IDLE_TIMEOUT_SECONDS` to a value from 10 to 255 to override it.
+`RTNOTE_IDLE_TIMEOUT_SECONDS` to a value from 10 to 255 to override it.
 
 The same runtime can use an S3-compatible object store:
 
 ```sh
-EDGE_EVER_STORAGE_BACKEND=s3 \
-EDGE_EVER_S3_ENDPOINT='http://minio:9000' \
-EDGE_EVER_S3_REGION='us-east-1' \
-EDGE_EVER_S3_BUCKET='edgeever' \
-EDGE_EVER_S3_ACCESS_KEY_ID='<access-key>' \
-EDGE_EVER_S3_SECRET_ACCESS_KEY='<secret-key>' \
+RTNOTE_STORAGE_BACKEND=s3 \
+RTNOTE_S3_ENDPOINT='http://minio:9000' \
+RTNOTE_S3_REGION='us-east-1' \
+RTNOTE_S3_BUCKET='rtnote' \
+RTNOTE_S3_ACCESS_KEY_ID='<access-key>' \
+RTNOTE_S3_SECRET_ACCESS_KEY='<secret-key>' \
 bun run start:self-hosted
 ```
 

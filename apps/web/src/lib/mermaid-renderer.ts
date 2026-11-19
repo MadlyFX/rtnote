@@ -50,7 +50,7 @@ export const renderThemedMermaidSvg = (
     host.style.zoom = documentZoom === 1 ? "reset" : String(1 / documentZoom);
     document.body.appendChild(host);
     try {
-      const { svg } = await mermaid.render(`edgeever-mermaid-${++renderSequence}`, source, host);
+      const { svg } = await mermaid.render(`rtnote-mermaid-${++renderSequence}`, source, host);
       return svg;
     } finally {
       host.remove();

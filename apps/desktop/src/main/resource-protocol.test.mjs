@@ -10,7 +10,7 @@ import { createResourceProtocolHandler } from "./resource-protocol.mjs";
 const directories = [];
 afterEach(async () => { await Promise.all(directories.splice(0).map(path => rm(path, { recursive: true, force: true }))); });
 const fixture = async ({ status = 503, cached = true, fetch: fetchOverride } = {}) => {
-  const root = await mkdtemp(join(tmpdir(), "edgeever-resource-protocol-")); directories.push(root);
+  const root = await mkdtemp(join(tmpdir(), "rtnote-resource-protocol-")); directories.push(root);
   const directory = join(root, "account-a"); await mkdir(directory);
   if (cached) {
     await writeFile(join(directory, "res_1.bin"), "current account bytes");
@@ -29,7 +29,7 @@ const fixture = async ({ status = 503, cached = true, fetch: fetchOverride } = {
   const handler = createResourceProtocolHandler(options);
   return { root, directory, options, handler, get cancelled() { return cancelled; }, get requests() { return requests; } };
 };
-const reload = () => new Request("edgeever-resource://resource/res_1", { cache: "reload" });
+const reload = () => new Request("rtnote-resource://resource/res_1", { cache: "reload" });
 
 test("HTTP 502/503 preserves current-account cached opening and cancels the error body", async () => {
   for (const status of [502, 503]) {
@@ -69,7 +69,7 @@ test("account changes after opening the cached response close its abandoned file
 
 test("existing cached range reads do not fetch, while fresh bytes replace the same cache", async () => {
   const f = await fixture({ fetch: async () => new Response("fresh server bytes", { headers: { "Content-Type": "application/pdf" } }) });
-  const ranged = await f.handler(new Request("edgeever-resource://resource/res_1", { headers: { Range: "bytes=0-6" } }));
+  const ranged = await f.handler(new Request("rtnote-resource://resource/res_1", { headers: { Range: "bytes=0-6" } }));
   expect(ranged.status).toBe(206); expect(await ranged.text()).toBe("current"); expect(f.requests).toBe(0);
   const fresh = await f.handler(reload()); expect(await fresh.text()).toBe("fresh server bytes");
   expect(await readFile(join(f.directory, "res_1.bin"), "utf8")).toBe("fresh server bytes");

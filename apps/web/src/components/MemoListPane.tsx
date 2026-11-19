@@ -68,8 +68,8 @@ import { ClipboardCopyNotice } from "./ClipboardCopyNotice";
 import { WeChatCopyProgress } from "./WeChatCopyProgress";
 import { cn } from "@/lib/utils";
 import { WORKSPACE_PAGE_TITLE_CLASSNAME } from "@/lib/workspace-ui";
-import type { Notebook, MemoSummary } from "@edgeever/shared";
-import { toggleMobileMemoFilterMode } from "@edgeever/shared/mobile-ui";
+import type { Notebook, MemoSummary } from "@rtnote/shared";
+import { toggleMobileMemoFilterMode } from "@rtnote/shared/mobile-ui";
 import type {
   MemoFilterMode,
   MemoSortMode,

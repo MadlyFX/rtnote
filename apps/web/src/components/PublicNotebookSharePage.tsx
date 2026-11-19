@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { isSharePasswordError, PublicSharePasswordForm, PublicShareArticle } from "./PublicSharePage";
 import { PublicNotebookSite } from "./PublicNotebookSite";
 import { withEnvironmentTitlePrefix } from "@/lib/environment-title";
-import { PUBLIC_PAGE_ROBOTS } from "@edgeever/shared/public-page-headers";
+import { PUBLIC_PAGE_ROBOTS } from "@rtnote/shared/public-page-headers";
 
 export const PublicNotebookSharePage = () => {
   const { t } = useTranslation();
@@ -67,7 +67,7 @@ export const PublicNotebookSharePage = () => {
       `${note?.title?.trim() || share?.name || t("sharing.notebookTitle")} · ${share?.branding?.name ?? "RTNote"}`,
       {
         development: import.meta.env.DEV,
-        profile: __EDGEEVER_DEVELOPMENT_PROFILE__,
+        profile: __RTNOTE_DEVELOPMENT_PROFILE__,
       },
     );
     return () => {

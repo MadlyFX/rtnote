@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
 import { ui } from "./fixtures/ui-labels";
 
-const NOTEBOOK_SIDEBAR_WIDTH_STORAGE_KEY = "edgeever.notebookSidebarWidth";
-const E2E_WEB_URL = process.env.EDGE_EVER_E2E_WEB_URL ?? "/";
+const NOTEBOOK_SIDEBAR_WIDTH_STORAGE_KEY = "rtnote.notebookSidebarWidth";
+const E2E_WEB_URL = process.env.RTNOTE_E2E_WEB_URL ?? "/";
 
 test("resizes the notebook pane from a fully clickable drag handle", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
@@ -10,7 +10,7 @@ test("resizes the notebook pane from a fully clickable drag handle", async ({ pa
   await page.evaluate((storageKey) => window.localStorage.removeItem(storageKey), NOTEBOOK_SIDEBAR_WIDTH_STORAGE_KEY);
   await page.reload();
 
-  const sidebar = page.locator("#edgeever-notebook-sidebar");
+  const sidebar = page.locator("#rtnote-notebook-sidebar");
   const handle = page.getByRole("separator", { name: ui.workspaceDialogs.resizeNotebookSidebar });
   await expect(sidebar).toBeVisible();
   await expect(handle).toBeVisible();

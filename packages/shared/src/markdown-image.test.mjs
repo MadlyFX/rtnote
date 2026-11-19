@@ -67,7 +67,7 @@ describe("isSupportedMarkdownImageSource", () => {
     expect(isSupportedMarkdownImageSource("https://example.com/image.png")).toBe(true);
     expect(isSupportedMarkdownImageSource("http://example.com/image.png")).toBe(true);
     expect(isSupportedMarkdownImageSource("/api/v1/resources/res_1/blob")).toBe(true);
-    expect(isSupportedMarkdownImageSource("edgeever-resource://resource/res_1")).toBe(true);
-    expect(isSupportedMarkdownImageSource("edgeever-staged://stage_1")).toBe(true);
+    expect(isSupportedMarkdownImageSource("rtnote-resource://resource/res_1")).toBe(true);
+    expect(isSupportedMarkdownImageSource("rtnote-staged://stage_1")).toBe(true);
   });
 });

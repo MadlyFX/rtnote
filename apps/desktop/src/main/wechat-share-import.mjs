@@ -79,7 +79,7 @@ const incomingDirectory = (downloadsPath) => join(downloadsPath, WECHAT_INCOMING
 // Keep the marker beside the incoming file, including when the temp directory
 // is cleared. Hidden markers are never treated as shared attachments.
 const failureMarkerPath = (sourcePath) => join(dirname(sourcePath),
-  `.edgeever-import-failed-${createHash("sha256").update(basename(sourcePath)).digest("hex")}`);
+  `.rtnote-import-failed-${createHash("sha256").update(basename(sourcePath)).digest("hex")}`);
 
 const assertIncomingFile = async (filePath, downloadsPath) => {
   const root = incomingDirectory(downloadsPath);
@@ -244,7 +244,7 @@ export const createWeChatShareController = ({
         return;
       }
       const importId = randomUUID();
-      const directory = join(tempPath(), "edgeever-wechat-import", importId);
+      const directory = join(tempPath(), "rtnote-wechat-import", importId);
       preparedDirectory = directory;
       await mkdir(directory, { recursive: true });
       const media = new Map();

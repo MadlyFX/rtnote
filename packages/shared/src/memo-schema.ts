@@ -7,7 +7,7 @@ import { hasTableDocumentMarker } from "./table";
  * memo_contents.schema_version values.
  *
  * 1 — legacy: content_markdown may be the authoritative copy (Markdown-only
- *     writes, structured notes, and notes inherited from EdgeEver).
+ *     writes, structured notes, and notes inherited from RTNote).
  * 2 — rich text: content_json is the only source and content_markdown is
  *     regenerated from it on every write.
  */

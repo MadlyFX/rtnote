@@ -56,7 +56,7 @@ describe("app page paths", () => {
 
   test("keeps the existing packaged desktop data scope after leaving file URLs", () => {
     expect(getPersistentDataScopeOrigin("null")).toBe("null");
-    expect(getPersistentDataScopeOrigin("edgeever-app://app")).toBe("null");
+    expect(getPersistentDataScopeOrigin("rtnote-app://app")).toBe("null");
     expect(getPersistentDataScopeOrigin("https://notes.example.com")).toBe("https://notes.example.com");
   });
 });

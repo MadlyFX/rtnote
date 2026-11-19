@@ -21,7 +21,7 @@ describe("infographic note format", () => {
 
   test("empty and invalid notes do not claim a valid document", () => {
     expect(parseInfographicDocument(serializeInfographicDocument(createDefaultInfographicDocument()))).toEqual(createDefaultInfographicDocument());
-    expect(parseInfographicDocument("<!-- edgeever-infographic-v1:broken -->")).toBeNull();
+    expect(parseInfographicDocument("<!-- rtnote-infographic-v1:broken -->")).toBeNull();
     expect(getInfographicSummary("regular note")).toEqual({ infographic: false });
   });
 

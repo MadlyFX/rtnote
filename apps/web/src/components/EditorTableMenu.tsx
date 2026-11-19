@@ -1,5 +1,5 @@
 import { Fragment } from "react";
-import { CELL_BORDER_NONE, TEXT_COLORS } from "@edgeever/shared";
+import { CELL_BORDER_NONE, TEXT_COLORS } from "@rtnote/shared";
 import { getEditorTableActions, getTableCellStyle, setTableCellStyle, type TableCellStyleProperty } from "@/lib/editor-table-actions";
 import { useEditorState, type Editor } from "@tiptap/react";
 import { Table } from "lucide-react";

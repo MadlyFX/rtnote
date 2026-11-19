@@ -1,4 +1,4 @@
-import type { TotpReauthInput, TotpSetupResponse } from "@edgeever/shared";
+import type { TotpReauthInput, TotpSetupResponse } from "@rtnote/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";

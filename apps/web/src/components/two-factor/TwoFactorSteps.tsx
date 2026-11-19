@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AlertTriangle, Check, Copy, Download } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
-import type { TotpSetupResponse } from "@edgeever/shared";
+import type { TotpSetupResponse } from "@rtnote/shared";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -209,7 +209,7 @@ export const RecoveryCodesStep = ({
           type="button"
           size="sm"
           variant="outline"
-          onClick={() => downloadBlob(new Blob([text], { type: "text/plain" }), "edgeever-recovery-codes.txt")}
+          onClick={() => downloadBlob(new Blob([text], { type: "text/plain" }), "rtnote-recovery-codes.txt")}
         >
           <Download aria-hidden className="h-3.5 w-3.5" />
           {t("twoFactor.download")}

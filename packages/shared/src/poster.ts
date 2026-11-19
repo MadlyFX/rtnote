@@ -2,7 +2,7 @@ import { Base64 } from "js-base64";
 import { z } from "zod";
 import { POSTER_TEMPLATE_USES_ZH_CN } from "./poster.zh-CN";
 
-const MARKER = "edgeever-poster-v1";
+const MARKER = "rtnote-poster-v1";
 const COLOR = z.string().regex(/^#[0-9a-f]{6}$/i);
 export const PosterGradientSchema = z.object({
   kind: z.enum(["linear", "radial"]),
@@ -297,12 +297,12 @@ export const resizePosterDocument = (
 export const hasPosterDocumentMarker = (markdown: string | null | undefined) =>
   Boolean(markdown?.includes(`<!-- ${MARKER}:`));
 export const stripPosterDocumentMarker = (markdown: string) =>
-  markdown.replace(/<!--\s*edgeever-poster-v1:[\s\S]*?-->/g, "").trim();
+  markdown.replace(/<!--\s*rtnote-poster-v1:[\s\S]*?-->/g, "").trim();
 export const parsePosterDocument = (
   markdown: string | null | undefined,
 ): PosterDocument | null => {
   const encoded = markdown?.match(
-    /<!--\s*edgeever-poster-v1:([A-Za-z0-9_-]+)\s*-->/,
+    /<!--\s*rtnote-poster-v1:([A-Za-z0-9_-]+)\s*-->/,
   )?.[1];
   if (!encoded || encoded.length > 2_000_000) return null;
   try {

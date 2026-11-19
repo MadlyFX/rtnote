@@ -1,9 +1,9 @@
-# @edgeever/plugin-api
+# @rtnote/plugin-api
 
 Public TypeScript contracts and runtime manifest helpers for RTNote client plugins and code-free themes.
 
 ```ts
-import { definePlugin } from "@edgeever/plugin-api";
+import { definePlugin } from "@rtnote/plugin-api";
 
 export default definePlugin({
   activate(context) {

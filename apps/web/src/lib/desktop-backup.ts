@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { DesktopBackupStatus, DesktopBackupError, DesktopBackupConfig, DesktopOffsiteConfig } from "@edgeever/shared";
+import type { DesktopBackupStatus, DesktopBackupError, DesktopBackupConfig, DesktopOffsiteConfig } from "@rtnote/shared";
 import type { TFunction } from "i18next";
 
 const createDevMockBackupState = (): DesktopBackupStatus => {
@@ -68,7 +68,7 @@ const createDevBackupBridge = () => {
     listeners.forEach((listener) => listener(devStatus));
   };
 
-  const bridge: Pick<EdgeEverDesktopBridge, "backup" | "onBackupStatus"> = {
+  const bridge: Pick<RTNoteDesktopBridge, "backup" | "onBackupStatus"> = {
     onBackupStatus(listener) {
       listeners.add(listener);
       return () => listeners.delete(listener);
@@ -153,7 +153,7 @@ const devBackupBridge = import.meta.env.DEV ? createDevBackupBridge() : undefine
 
 export const useDesktopBackup = () => {
   const [status, setStatus] = useState<DesktopBackupStatus | null>(null);
-  const desktopBridge = window.edgeeverDesktop;
+  const desktopBridge = window.rtnoteDesktop;
   const bridge = desktopBridge?.backup ? desktopBridge : devBackupBridge;
   useEffect(() => {
     if (!bridge?.backup) return;

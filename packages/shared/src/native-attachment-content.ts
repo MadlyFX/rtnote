@@ -4,7 +4,7 @@ import { FILE_ATTACHMENT_NODE_TYPE } from "./file-attachment";
 import { PDF_ATTACHMENT_NODE_TYPE } from "./pdf-attachment";
 import type { TiptapDoc, TiptapMark, TiptapNode, TiptapTextNode } from "./content";
 import { formatAttachmentMetadata, normalizeAttachmentByteSize } from "./attachment-metadata";
-import { ATTACHMENT_LABEL_PREFIX_PATTERN } from "./edgeever-legacy-values";
+import { ATTACHMENT_LABEL_PREFIX_PATTERN } from "./rtnote-legacy-values";
 
 const ATTACHMENT_NODE_TYPES = new Set<string>([
   FILE_ATTACHMENT_NODE_TYPE,
@@ -16,7 +16,7 @@ const getStringAttr = (node: TiptapNode, key: string) => {
   return typeof value === "string" ? value : "";
 };
 
-const ATTACHMENT_KIND_CLASS_PREFIX = "edgeever-attachment-kind-";
+const ATTACHMENT_KIND_CLASS_PREFIX = "rtnote-attachment-kind-";
 
 const normalizeAttachmentFilename = (label: string) =>
   label.replace(ATTACHMENT_LABEL_PREFIX_PATTERN, "").trim();
@@ -29,14 +29,14 @@ export const getNativeAttachmentLinkClass = (
   const preservedClasses = typeof existingClass === "string"
     ? existingClass.split(/\s+/).filter((className) =>
         className &&
-        className !== "edgeever-attachment-link" &&
+        className !== "rtnote-attachment-link" &&
         !className.startsWith(ATTACHMENT_KIND_CLASS_PREFIX)
       )
     : [];
   const kind = resolveAttachmentKind(mimeType, normalizeAttachmentFilename(filename));
   return [
     ...preservedClasses,
-    "edgeever-attachment-link",
+    "rtnote-attachment-link",
     `${ATTACHMENT_KIND_CLASS_PREFIX}${kind}`,
   ].join(" ");
 };
@@ -44,7 +44,7 @@ export const getNativeAttachmentLinkClass = (
 export const getMobileAttachmentLinkClass = getNativeAttachmentLinkClass;
 
 export const NativeAttachmentMetadata = Extension.create({
-  name: "edgeeverNativeAttachmentMetadata",
+  name: "rtnoteNativeAttachmentMetadata",
   addGlobalAttributes() {
     return [{
       types: ["link"],
@@ -86,7 +86,7 @@ const isAttachmentMark = (mark: TiptapMark) => {
   if (mark.type !== "link") return false;
   const href = typeof mark.attrs?.href === "string" ? mark.attrs.href : "";
   const className = typeof mark.attrs?.class === "string" ? mark.attrs.class : "";
-  return className.split(/\s+/).includes("edgeever-attachment-link") || href.includes("/api/v1/resources/");
+  return className.split(/\s+/).includes("rtnote-attachment-link") || href.includes("/api/v1/resources/");
 };
 
 const withAttachmentKindClass = (node: TiptapTextNode): TiptapTextNode => {

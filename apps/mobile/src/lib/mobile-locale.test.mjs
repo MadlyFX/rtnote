@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { DEFAULT_MEMO_TITLE, LEGACY_DEFAULT_MEMO_TITLES } from "@edgeever/shared";
-import { ja, zhCN, zhTW } from "@edgeever/shared/i18n";
+import { DEFAULT_MEMO_TITLE, LEGACY_DEFAULT_MEMO_TITLES } from "@rtnote/shared";
+import { ja, zhCN, zhTW } from "@rtnote/shared/i18n";
 import { mobileDe } from "./i18n/de.ts";
 import { mobileEs } from "./i18n/es.ts";
 import { mobileFr } from "./i18n/fr.ts";
@@ -108,7 +108,7 @@ describe("mobile locale translation", () => {
   test("localizes only the default untitled title and the missing-notebook fallback", () => {
     expect(localizeUntitledMemoTitle("", "en-US")).toBe("Untitled note");
     expect(localizeUntitledMemoTitle(DEFAULT_MEMO_TITLE, "en-US")).toBe("Untitled note");
-    // EdgeEver stored a Chinese default title; it still counts as untitled.
+    // RTNote stored a Chinese default title; it still counts as untitled.
     expect(localizeUntitledMemoTitle(LEGACY_DEFAULT_MEMO_TITLES[0], "en-US")).toBe("Untitled note");
     expect(localizeUntitledMemoTitle(LEGACY_DEFAULT_MEMO_TITLES[0], "ja")).toBe(ja.common.untitledMemo);
     expect(localizeUntitledMemoTitle(`  ${DEFAULT_MEMO_TITLE}  `, "zh-CN")).toBe(zhCN.common.untitledMemo);

@@ -1,12 +1,12 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { normalizeVoiceMemoMaxDuration, type VoiceMemoMaxDurationMinutes } from "@edgeever/shared/voice-memo-names";
+import { normalizeVoiceMemoMaxDuration, type VoiceMemoMaxDurationMinutes } from "@rtnote/shared/voice-memo-names";
 
-const MEMO_LIST_DENSITY_KEY = "edgeever.mobile.memoListDensity";
-const IMAGE_COMPRESSION_KEY = "edgeever.mobile.imageCompressionEnabled";
-const SHOW_DESCENDANT_NOTES_KEY = "edgeever.mobile.showDescendantNotes";
-const LOCALE_PREFERENCE_KEY = "edgeever.mobile.localePreference";
-const THEME_PREFERENCE_KEY = "edgeever.mobile.themePreference";
-const VOICE_MEMO_MAX_DURATION_KEY = "edgeever.mobile.voiceMemoMaxDurationMinutes";
+const MEMO_LIST_DENSITY_KEY = "rtnote.mobile.memoListDensity";
+const IMAGE_COMPRESSION_KEY = "rtnote.mobile.imageCompressionEnabled";
+const SHOW_DESCENDANT_NOTES_KEY = "rtnote.mobile.showDescendantNotes";
+const LOCALE_PREFERENCE_KEY = "rtnote.mobile.localePreference";
+const THEME_PREFERENCE_KEY = "rtnote.mobile.themePreference";
+const VOICE_MEMO_MAX_DURATION_KEY = "rtnote.mobile.voiceMemoMaxDurationMinutes";
 
 export type MobileMemoListDensity = "preview" | "compact";
 export type MobileLocalePreference = "system" | "zh-CN" | "zh-TW" | "en-US" | "ja" | "pl" | "ru" | "es" | "de" | "fr";

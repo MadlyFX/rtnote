@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { DIAGRAM_SEED_SIZING_LABELS, createDefaultDiagramDocument } from "@edgeever/shared";
+import { DIAGRAM_SEED_SIZING_LABELS, createDefaultDiagramDocument } from "@rtnote/shared";
 import {
   compileDiagramIr,
   compactArchitectureNodeSize,

@@ -9,7 +9,7 @@ afterAll(() => { restoreGithubInstance?.(); });
 
 const pluginManifest = {
   type: "plugin",
-  id: "org.edgeever.update-test",
+  id: "org.rtnote.update-test",
   name: "Update Test",
   version: "1.0.0",
   apiVersion: "2",
@@ -93,7 +93,7 @@ describe("plugin update checks", () => {
   });
 
   test("isolates a failed source while checking other extensions", async () => {
-    const broken = installed({ manifest: { ...pluginManifest, id: "org.edgeever.broken" }, manifestUrl: "https://broken.example/manifest.json" });
+    const broken = installed({ manifest: { ...pluginManifest, id: "org.rtnote.broken" }, manifestUrl: "https://broken.example/manifest.json" });
     const request = async (input) => String(input).includes("broken")
       ? new Response(null, { status: 503 })
       : Response.json({ ...pluginManifest, version: "2.0.0" });
@@ -101,11 +101,11 @@ describe("plugin update checks", () => {
     const result = await checkPluginUpdates([broken, installed()], [], request);
 
     expect(result.updates.map((update) => update.pluginId)).toEqual([pluginManifest.id]);
-    expect(result.errors["org.edgeever.broken"]).toContain("503");
+    expect(result.errors["org.rtnote.broken"]).toContain("503");
   });
 
   test("automatically applies only checksum-pinned official marketplace updates", async () => {
-    const communityManifest = { ...pluginManifest, id: "org.edgeever.community-test" };
+    const communityManifest = { ...pluginManifest, id: "org.rtnote.community-test" };
     const extensions = [
       installed({ source: { kind: "marketplace", verified: true } }),
       installed({ manifest: communityManifest, source: { kind: "marketplace", verified: true } }),
@@ -116,7 +116,7 @@ describe("plugin update checks", () => {
         name: pluginManifest.name,
         description: "Official plugin",
         author: "RTNote",
-        publisher: "edgeever",
+        publisher: "rtnote",
         category: "Productivity",
         repositoryUrl: "https://github.com/example/official-plugin",
         distribution: { type: "manifest", manifestUrl: "https://example.com/official/manifest.json" },
@@ -158,7 +158,7 @@ describe("plugin update checks", () => {
       name: pluginManifest.name,
       description: "Official plugin",
       author: "RTNote",
-      publisher: "edgeever",
+      publisher: "rtnote",
       category: "Productivity",
       repositoryUrl: "https://github.com/example/official-plugin",
       distribution: { type: "manifest", manifestUrl: "https://example.com/official/manifest.json" },

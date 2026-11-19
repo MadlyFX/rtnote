@@ -3,12 +3,12 @@ import { resourceResponseHeaders } from "./resource-url.mjs";
 import { isAllowedAppNavigation } from "./window-open-policy.mjs";
 import { credentialForUrl, decodeSessionCredential, encodeSessionCredential } from "./session-credential.mjs";
 import { validateAiProviderUrl } from "./ai-direct.mjs";
-import { createPublicLookup } from "@edgeever/public-network/node";
+import { createPublicLookup } from "@rtnote/public-network/node";
 
 test("privileged window cannot navigate to resource documents or origin-prefix spoofs", () => {
-  for (const app of ["http://127.0.0.1:5173/", "edgeever-app://app/index.html", "file:///app/web/index.html"]) {
+  for (const app of ["http://127.0.0.1:5173/", "rtnote-app://app/index.html", "file:///app/web/index.html"]) {
     expect(isAllowedAppNavigation(app, app)).toBe(true);
-    for (const target of ["http://127.0.0.1:5173@evil.example/", "http://127.0.0.1:51730/", "edgeever-app://app.evil/index.html", "edgeever-resource://resource/html", "edgeever-staged://html", "file:///etc/passwd"]) {
+    for (const target of ["http://127.0.0.1:5173@evil.example/", "http://127.0.0.1:51730/", "rtnote-app://app.evil/index.html", "rtnote-resource://resource/html", "rtnote-staged://html", "file:///etc/passwd"]) {
       expect(isAllowedAppNavigation(target, app)).toBe(false);
     }
   }

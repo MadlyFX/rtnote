@@ -10,9 +10,9 @@ android/
 ios/
 
 # Keep local Expo module sources while excluding their generated artifacts.
-!modules/edgeever-keyboard/android/
-modules/edgeever-keyboard/android/build/
-!modules/edgeever-app-installer/android/
-modules/edgeever-app-installer/android/build/
-!modules/edgeever-app-store/android/
-modules/edgeever-app-store/android/build/
+!modules/rtnote-keyboard/android/
+modules/rtnote-keyboard/android/build/
+!modules/rtnote-app-installer/android/
+modules/rtnote-app-installer/android/build/
+!modules/rtnote-app-store/android/
+modules/rtnote-app-store/android/build/

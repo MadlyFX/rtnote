@@ -1,8 +1,8 @@
 import { Base64 } from "js-base64";
 
 export const INFOGRAPHIC_SCHEMA_VERSION = 1 as const;
-const MARKER = "edgeever-infographic-v1";
-const COMMENT = /<!--\s*edgeever-infographic-v1:([A-Za-z0-9_-]+)\s*-->/;
+const MARKER = "rtnote-infographic-v1";
+const COMMENT = /<!--\s*rtnote-infographic-v1:([A-Za-z0-9_-]+)\s*-->/;
 const SESSION_ID = /^[A-Za-z0-9_-]{1,80}$/;
 
 export type InfographicDocument = {
@@ -45,7 +45,7 @@ export const hasInfographicDocumentMarker = (markdown: string | null | undefined
   Boolean(markdown?.includes(`<!-- ${MARKER}:`));
 
 export const stripInfographicDocumentMarker = (markdown: string) =>
-  markdown.replace(/<!--\s*edgeever-infographic-v1:[\s\S]*?-->/g, "").trim();
+  markdown.replace(/<!--\s*rtnote-infographic-v1:[\s\S]*?-->/g, "").trim();
 
 export const parseInfographicDocument = (markdown: string | null | undefined): InfographicDocument | null => {
   const encoded = markdown?.match(COMMENT)?.[1];

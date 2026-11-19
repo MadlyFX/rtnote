@@ -6,7 +6,7 @@ import {
   type BrandAsset,
   type BrandingOverview,
   type NotebookBranding,
-} from "@edgeever/shared";
+} from "@rtnote/shared";
 import { zValidator } from "@hono/zod-validator";
 import type { Hono } from "hono";
 import type { AppContext, AppEnv } from "./api-context";

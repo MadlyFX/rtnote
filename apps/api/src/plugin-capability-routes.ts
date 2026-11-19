@@ -1,4 +1,4 @@
-import { PluginPublicFetchSchema } from '@edgeever/shared';
+import { PluginPublicFetchSchema } from '@rtnote/shared';
 import { zValidator } from '@hono/zod-validator';
 import { bodyLimit } from 'hono/body-limit';
 import type { Hono } from 'hono';
@@ -37,10 +37,10 @@ export function registerPluginCapabilityRoutes(app: Hono<AppEnv>, dependencies: 
       const outputHeaders = new Headers({
         'Cache-Control': 'no-store',
         'Content-Type': 'application/octet-stream',
-        'X-EdgeEver-Upstream-Status': String(response.status),
-        'X-EdgeEver-Upstream-Status-Text': encodeURIComponent(response.statusText),
+        'X-RTNote-Upstream-Status': String(response.status),
+        'X-RTNote-Upstream-Status-Text': encodeURIComponent(response.statusText),
       });
-      for (const [name, value] of Object.entries(publicResponseHeaders(response.headers))) outputHeaders.set(`X-EdgeEver-Upstream-Header-${name}`, value);
+      for (const [name, value] of Object.entries(publicResponseHeaders(response.headers))) outputHeaders.set(`X-RTNote-Upstream-Header-${name}`, value);
       const body = bytes.buffer instanceof ArrayBuffer
         ? bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)
         : new Uint8Array(bytes).buffer;

@@ -15,7 +15,7 @@ const i18n = i18next.createInstance();
 await i18n.init({ lng: "zh-CN", resources: { "zh-CN": { translation: zhCN } }, initAsync: false });
 let resolveOpen: ((value: { ok: boolean; code?: string }) => void) | undefined;
 const calls: Array<{ url: string; filename: string }> = [];
-Object.defineProperty(window, "edgeeverDesktop", { configurable: true, value: {
+Object.defineProperty(window, "rtnoteDesktop", { configurable: true, value: {
   isAvailable: true,
   apiBaseUrl: "http://attachment-fixture.invalid",
   openAttachment: (input: { url: string; filename: string }) => {
@@ -26,7 +26,7 @@ Object.defineProperty(window, "edgeeverDesktop", { configurable: true, value: {
 } });
 const editor = new Editor({ extensions: [StarterKit, FileAttachment], content: {
   type: "doc", content: [{ type: "paragraph", content: [{ type: FileAttachment.name, attrs: {
-    url: "edgeever-resource://resource/sheet_1", label: "Training plan.xlsx", filename: "Training plan.xlsx",
+    url: "rtnote-resource://resource/sheet_1", label: "Training plan.xlsx", filename: "Training plan.xlsx",
     mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", byteSize: 6440,
   } }] }],
 } });
@@ -40,16 +40,16 @@ const Fixture = () => {
       <button onClick={() => resolveOpen?.({ ok: false, code: "open-failed" })}>Simulate no associated app</button>
       <button onClick={() => {
         const next = !desktop;
-        window.edgeeverDesktop!.isAvailable = next;
+        window.rtnoteDesktop!.isAvailable = next;
         editor.commands.setContent({ type: "doc", content: [{ type: "paragraph", content: [{ type: FileAttachment.name, attrs: {
-          url: next ? "edgeever-resource://resource/sheet_1" : "/api/v1/resources/sheet_1/blob",
+          url: next ? "rtnote-resource://resource/sheet_1" : "/api/v1/resources/sheet_1/blob",
           label: "Training plan.xlsx", filename: "Training plan.xlsx", byteSize: 6440,
         } }] }] });
         setDesktop(next);
       }}>Runtime: {desktop ? "Desktop" : "Web"}</button>
     </div>
     <EditorContent editor={editor} />
-    <PdfViewer url={desktop ? "edgeever-staged://pdf_1" : "/api/v1/resources/pdf_1/blob"} label="Report.pdf" filename="Report.pdf" byteSize={1000} />
+    <PdfViewer url={desktop ? "rtnote-staged://pdf_1" : "/api/v1/resources/pdf_1/blob"} label="Report.pdf" filename="Report.pdf" byteSize={1000} />
     <pre id="calls" className="mt-5 whitespace-pre-wrap text-xs">[]</pre>
   </I18nextProvider>;
 };

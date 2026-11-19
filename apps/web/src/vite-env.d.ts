@@ -1,18 +1,18 @@
 /// <reference types="vite/client" />
 /// <reference types="vite-plugin-pwa/client" />
 
-declare const __EDGEEVER_BUILD_ID__: string;
-declare const __EDGEEVER_BUILD_LABEL__: string;
-declare const __EDGEEVER_APP_VERSION__: string;
-declare const __EDGEEVER_RELEASED_AT__: string;
-declare const __EDGEEVER_RELEASE_SUMMARY__: {
+declare const __RTNOTE_BUILD_ID__: string;
+declare const __RTNOTE_BUILD_LABEL__: string;
+declare const __RTNOTE_APP_VERSION__: string;
+declare const __RTNOTE_RELEASED_AT__: string;
+declare const __RTNOTE_RELEASE_SUMMARY__: {
   version: string;
   changes: Record<string, string[]>;
 };
-declare const __EDGEEVER_DEPLOYMENT_TRIGGER__: string;
-declare const __EDGEEVER_DEPLOYMENT_METHOD__: string;
-declare const __EDGEEVER_DEVELOPMENT_PROFILE__: "" | "local" | "demo";
-declare const __EDGEEVER_DESKTOP_BUILD__: boolean;
+declare const __RTNOTE_DEPLOYMENT_TRIGGER__: string;
+declare const __RTNOTE_DEPLOYMENT_METHOD__: string;
+declare const __RTNOTE_DEVELOPMENT_PROFILE__: "" | "local" | "demo";
+declare const __RTNOTE_DESKTOP_BUILD__: boolean;
 
 interface DesktopGlobalShortcutBinding {
   key: string;
@@ -43,12 +43,12 @@ interface DesktopNoteWindowSyncUpdate {
   failed: number;
   conflicted: number;
   /** The note as acknowledged by this sync, when it was part of it. */
-  memo: import("@edgeever/shared").MemoDetail | null;
+  memo: import("@rtnote/shared").MemoDetail | null;
 }
 
-interface EdgeEverDesktopBridge {
-  backup<A extends keyof import("@edgeever/shared").DesktopBackupActions>(action: A, input?: import("@edgeever/shared").DesktopBackupActions[A]["input"]): Promise<import("@edgeever/shared").DesktopBackupActions[A]["output"]>;
-  onBackupStatus(callback: (status: import("@edgeever/shared").DesktopBackupStatus | null) => void): () => void;
+interface RTNoteDesktopBridge {
+  backup<A extends keyof import("@rtnote/shared").DesktopBackupActions>(action: A, input?: import("@rtnote/shared").DesktopBackupActions[A]["input"]): Promise<import("@rtnote/shared").DesktopBackupActions[A]["output"]>;
+  onBackupStatus(callback: (status: import("@rtnote/shared").DesktopBackupStatus | null) => void): () => void;
   isAvailable: boolean;
   canClearLocalData: boolean;
   recoveredAfterAbnormalExit: boolean;
@@ -74,7 +74,7 @@ interface EdgeEverDesktopBridge {
     uploadChannel: import("@/lib/imgbed").ImgBedUploadChannel; serverCompress: boolean;
     bytes: Uint8Array; filename: string; mimeType: string; copy: import("@/lib/picgo").PicGoFailureCopy;
   }): Promise<{ url: string } | { fallback: true }>;
-  publicNetworkFetch(requestId: string, input: import("@edgeever/shared").PluginPublicFetchRequest): Promise<import("@edgeever/shared").PluginPublicFetchResponse>;
+  publicNetworkFetch(requestId: string, input: import("@rtnote/shared").PluginPublicFetchRequest): Promise<import("@rtnote/shared").PluginPublicFetchResponse>;
   cancelPublicNetworkFetch(requestId: string): Promise<void>;
   openAiProviderStream(requestId: string, input: {
     url: string;
@@ -127,7 +127,7 @@ interface EdgeEverDesktopBridge {
   attachmentWritebacks?(): Promise<DesktopAttachmentWriteback[]>;
   retryAttachmentWriteback?(id: string): Promise<void>;
   revealAttachmentWriteback?(id: string): Promise<void>;
-  onAttachmentResourceSaved?(callback: (resource: import("@edgeever/shared").Resource) => void): () => void;
+  onAttachmentResourceSaved?(callback: (resource: import("@rtnote/shared").Resource) => void): () => void;
   beginStagedResource(input: { memoId: string; name: string; type: string; size: number }): Promise<{ id: string; partSize: number }>;
   appendStagedResource(id: string, bytes: ArrayBuffer): Promise<{ receivedBytes: number }>;
   completeStagedResource(id: string): Promise<{ id: string }>;
@@ -156,9 +156,9 @@ interface EdgeEverDesktopBridge {
   setRichTextHeadingShortcutActive?(active: boolean): void;
   onHeadingShortcut?(callback: (level: number) => void): () => void;
   onHibernatePrepare?(callback: () => void | Promise<void>): () => void;
-  syncScheduledTasks(tasks: import("@edgeever/shared").ScheduledTask[]): Promise<{ scheduled: number }>;
+  syncScheduledTasks(tasks: import("@rtnote/shared").ScheduledTask[]): Promise<{ scheduled: number }>;
   onScheduledTask(callback: (payload: {
-    task: import("@edgeever/shared").ScheduledTask;
+    task: import("@rtnote/shared").ScheduledTask;
     scheduledFor: string;
   }) => void | Promise<void>): () => void;
   onImportMarkdown(callback: (payload: { name: string; content: string }) => void): () => void;
@@ -244,13 +244,13 @@ interface DesktopRendererErrorDetails {
   exitCode?: number;
 }
 
-interface EdgeEverPrintBridge {
+interface RTNotePrintBridge {
   savePdf: () => Promise<Uint8Array>;
 }
 
 interface Window {
-  edgeeverDesktop?: EdgeEverDesktopBridge;
-  edgeeverPrint?: EdgeEverPrintBridge;
+  rtnoteDesktop?: RTNoteDesktopBridge;
+  rtnotePrint?: RTNotePrintBridge;
 }
 
 interface DesktopAttachmentWriteback {

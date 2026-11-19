@@ -30,7 +30,7 @@ export const brandTargets = [
       .replace(/^(\s*CFBundleName:).*$/m, `$1 ${yamlString(config.shortName)}`),
   },
   {
-    file: "apps/ios/EdgeEver/Resources/Info.plist",
+    file: "apps/ios/RTNote/Resources/Info.plist",
     update: (text, config) => text
       .replace(/(<key>CFBundleDisplayName<\/key>\s*<string>)[^<]*(<\/string>)/, `$1${xmlEscape(config.name)}$2`)
       .replace(/(<key>CFBundleName<\/key>\s*<string>)[^<]*(<\/string>)/, `$1${xmlEscape(config.shortName)}$2`),

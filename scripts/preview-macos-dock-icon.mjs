@@ -86,14 +86,14 @@ export const launchDockIconPreview = async ({ iconPath = defaultIconPath } = {})
   const resolvedIconPath = resolve(iconPath);
   assertMacIcnsComplete(await readFile(resolvedIconPath), resolvedIconPath);
 
-  const previewRoot = await mkdtemp(join(tmpdir(), "edgeever-dock-icon-preview-"));
+  const previewRoot = await mkdtemp(join(tmpdir(), "rtnote-dock-icon-preview-"));
   const appPath = join(previewRoot, `${PREVIEW_APP_NAME}.app`);
   const contentsPath = join(appPath, "Contents");
   const macosPath = join(contentsPath, "MacOS");
   const resourcesPath = join(contentsPath, "Resources");
   const sourcePath = join(previewRoot, "DockIconPreview.swift");
   const executablePath = join(macosPath, "DockIconPreview");
-  const bundleIdentifier = `org.edgeever.logo-preview.v${Date.now()}p${process.pid}`;
+  const bundleIdentifier = `org.rtnote.logo-preview.v${Date.now()}p${process.pid}`;
 
   await mkdir(macosPath, { recursive: true });
   await mkdir(resourcesPath, { recursive: true });

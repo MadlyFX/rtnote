@@ -6,7 +6,7 @@
   <text x="120" y="100" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#1d2733">Create Custom Token</text>
   <text x="120" y="145" font-family="Arial, sans-serif" font-size="16" fill="#4a5565">Token name</text>
   <rect x="120" y="160" width="700" height="44" rx="5" fill="#fff" stroke="#8a96a8"/>
-  <text x="136" y="189" font-family="Arial, sans-serif" font-size="17" fill="#273142">edgeever automated deployment</text>
+  <text x="136" y="189" font-family="Arial, sans-serif" font-size="17" fill="#273142">rtnote automated deployment</text>
   <text x="120" y="250" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#1d2733">Permissions</text>
   <text x="120" y="281" font-family="Arial, sans-serif" font-size="15" fill="#4a5565">Select only these two Account permissions.</text>
   <g font-family="Arial, sans-serif" font-size="16" fill="#273142">

@@ -1,10 +1,10 @@
-name = "edgeever"
-main = ".wrangler/edgeever-worker/index.js"
+name = "rtnote"
+main = ".wrangler/rtnote-worker/index.js"
 compatibility_date = "2026-06-26"
 workers_dev = true
 no_bundle = true
 find_additional_modules = true
-base_dir = ".wrangler/edgeever-worker"
+base_dir = ".wrangler/rtnote-worker"
 
 [[rules]]
 type = "ESModule"
@@ -23,14 +23,14 @@ run_worker_first = ["/api/*", "/mcp", "/mcp/*", "/.well-known/oauth-protected-re
 
 [[d1_databases]]
 binding = "DB"
-database_name = "edgeever"
+database_name = "rtnote"
 database_id = "00000000-0000-0000-0000-000000000000"
 migrations_dir = "migrations"
 
 [[r2_buckets]]
 binding = "RESOURCES"
-bucket_name = "edgeever-resources"
-preview_bucket_name = "edgeever-resources-preview"
+bucket_name = "rtnote-resources"
+preview_bucket_name = "rtnote-resources-preview"
 
 [observability]
 enabled = true

@@ -1,6 +1,6 @@
-import { getMemoSaveErrorReasonKey, DEFAULT_MEMO_TITLE, isDefaultMemoTitle } from "@edgeever/shared";
-import { de, enUS, es, fr, ja, pl, ru, zhCN, zhTW } from "@edgeever/shared/i18n";
-import { resolveSupportedLocale } from "@edgeever/shared/i18n/locales";
+import { getMemoSaveErrorReasonKey, DEFAULT_MEMO_TITLE, isDefaultMemoTitle } from "@rtnote/shared";
+import { de, enUS, es, fr, ja, pl, ru, zhCN, zhTW } from "@rtnote/shared/i18n";
+import { resolveSupportedLocale } from "@rtnote/shared/i18n/locales";
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { mobileDe } from "./i18n/de";
 import { mobileEs } from "./i18n/es";

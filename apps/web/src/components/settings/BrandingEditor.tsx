@@ -21,7 +21,7 @@ import {
   type BrandFontId,
   type BrandingSettings,
   type ResolvedBranding,
-} from "@edgeever/shared";
+} from "@rtnote/shared";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";

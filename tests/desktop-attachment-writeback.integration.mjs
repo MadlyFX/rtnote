@@ -1,4 +1,4 @@
-// Run with Node after EDGE_EVER_DESKTOP_BUILD=1 build:web, building the sidecar and the backup
+// Run with Node after RTNOTE_DESKTOP_BUILD=1 build:web, building the sidecar and the backup
 // worker. Uses the development Electron shell, an isolated profile and real API.
 // Only OS launching/revealing and a temporary network outage are simulated.
 import assert from "node:assert/strict";
@@ -11,7 +11,7 @@ import { join, resolve } from "node:path";
 import { _electron as electron, expect } from "@playwright/test";
 
 const require = createRequire(resolve("apps/desktop/package.json"));
-const directory = await mkdtemp(join(tmpdir(), "edgeever-writeback-desktop-"));
+const directory = await mkdtemp(join(tmpdir(), "rtnote-writeback-desktop-"));
 const profile = join(directory, "profile");
 const evidence = resolve(process.argv[2] ?? join(tmpdir(), "rtnote-writeback-evidence"));
 const webUrl = pathToFileURL(resolve("apps/web/dist/index.html")).href;
@@ -26,8 +26,8 @@ const launch = async () => {
   application = await electron.launch({
     executablePath: require("electron"),
     args: [resolve("apps/desktop"), `--user-data-dir=${profile}`],
-    env: { ...process.env, EDGE_EVER_DISABLE_AUTO_UPDATE: "1", EDGE_EVER_API_URL: baseUrl,
-      EDGE_EVER_DESKTOP_WEB_URL: webUrl, EDGE_EVER_SIDECAR_PATH: resolve("crates/desktop-sidecar/target/release/edgeever-sidecar") },
+    env: { ...process.env, RTNOTE_DISABLE_AUTO_UPDATE: "1", RTNOTE_API_URL: baseUrl,
+      RTNOTE_DESKTOP_WEB_URL: webUrl, RTNOTE_SIDECAR_PATH: resolve("crates/desktop-sidecar/target/release/rtnote-sidecar") },
     timeout: 60_000,
   });
   await application.evaluate(({ shell, net }) => {
@@ -41,12 +41,12 @@ const launch = async () => {
     };
   });
   page = await application.firstWindow();
-  await page.waitForSelector('[data-edgeever-renderer-ready="true"]', { timeout: 60_000 });
-  await page.evaluate(() => localStorage.setItem("edgeever.locale.preference", "en-US"));
+  await page.waitForSelector('[data-rtnote-renderer-ready="true"]', { timeout: 60_000 });
+  await page.evaluate(() => localStorage.setItem("rtnote.locale.preference", "en-US"));
   await page.reload();
-  await page.waitForSelector('[data-edgeever-renderer-ready="true"]', { timeout: 60_000 });
+  await page.waitForSelector('[data-rtnote-renderer-ready="true"]', { timeout: 60_000 });
   await expect.poll(() => page.evaluate(async id => {
-    const result = await window.edgeeverDesktop.sidecarRequest("memo.get", { memoId: id });
+    const result = await window.rtnoteDesktop.sidecarRequest("memo.get", { memoId: id });
     return result.memo?.id === id;
   }, fixtureMemoId).catch(() => false), { timeout: 30_000 }).toBe(true);
   await page.getByRole("button", { name: /(?:Switch to|Current:) Writeback acceptance,/ }).click({ timeout: 30_000 });
@@ -80,8 +80,8 @@ try {
   assert.equal(await readFile(localPath, "utf8"), "original attachment");
   await writeFile(localPath, "saved through external editing");
   await expect.poll(cloudText, { timeout: 20_000 }).toBe("saved through external editing");
-  await expect.poll(() => page.evaluate(id => window.edgeeverDesktop.readResource(id).then(file => new TextDecoder().decode(file.bytes)), resource.id)).toBe("saved through external editing");
-  await expect(page.locator(".edgeever-file-viewer")).toContainText(`${Buffer.byteLength("saved through external editing")} B`);
+  await expect.poll(() => page.evaluate(id => window.rtnoteDesktop.readResource(id).then(file => new TextDecoder().decode(file.bytes)), resource.id)).toBe("saved through external editing");
+  await expect(page.locator(".rtnote-file-viewer")).toContainText(`${Buffer.byteLength("saved through external editing")} B`);
   await page.getByRole("button", { name: "Attachment writeback", exact: true }).click();
   await expect(page.getByText("Synced to the original attachment", { exact: true })).toBeVisible();
   await page.waitForFunction(() => {
@@ -100,18 +100,18 @@ try {
 
   await application.evaluate(() => { globalThis.testOffline = true; });
   await writeFile(localPath, "offline edit recovered after restarting RTNote");
-  await expect.poll(() => page.evaluate(() => window.edgeeverDesktop.attachmentWritebacks().then(items => items.some(item => item.status === "error"))), { timeout: 20_000 }).toBe(true);
+  await expect.poll(() => page.evaluate(() => window.rtnoteDesktop.attachmentWritebacks().then(items => items.some(item => item.status === "error"))), { timeout: 20_000 }).toBe(true);
   await application.close(); application = null;
   await launch();
   await expect.poll(cloudText, { timeout: 45_000 }).toBe("offline edit recovered after restarting RTNote");
-  await expect(page.locator(".edgeever-file-viewer")).toContainText(`${Buffer.byteLength("offline edit recovered after restarting RTNote")} B`);
+  await expect(page.locator(".rtnote-file-viewer")).toContainText(`${Buffer.byteLength("offline edit recovered after restarting RTNote")} B`);
   results.push("offline pending snapshot survives an actual Electron restart and resumes in the original account, including displayed file metadata");
 
   const latest = (await (await api("/resources")).json()).resources.find(item => item.id === resource.id);
   const competing = new FormData(); competing.append("file", new File(["another device's edit"], "Café quarterly budget.txt", { type: "text/plain" })); competing.append("expectedContentHash", latest.sha256);
   await api(`/resources/${resource.id}/blob`, { method: "PUT", body: competing });
   await writeFile(localPath, "conflicting local changes");
-  await expect.poll(() => page.evaluate(() => window.edgeeverDesktop.attachmentWritebacks().then(items => items.some(item => item.status === "conflict"))), { timeout: 20_000 }).toBe(true);
+  await expect.poll(() => page.evaluate(() => window.rtnoteDesktop.attachmentWritebacks().then(items => items.some(item => item.status === "conflict"))), { timeout: 20_000 }).toBe(true);
   await page.getByRole("button", { name: /Unsynced attachments ·/ }).click();
   await expect(page.getByText("The original attachment changed. Your local edits are kept; neither version was overwritten.")).toBeVisible();
   await page.waitForFunction(() => {
@@ -121,7 +121,7 @@ try {
   await page.screenshot({ path: join(evidence, "conflict.png") });
   assert.equal(await cloudText(), "another device's edit"); assert.equal(await readFile(localPath, "utf8"), "conflicting local changes");
   await page.getByRole("button", { name: "Retry", exact: true }).click();
-  await expect.poll(() => page.evaluate(() => window.edgeeverDesktop.attachmentWritebacks().then(items => items.some(item => item.status === "conflict")))).toBe(true);
+  await expect.poll(() => page.evaluate(() => window.rtnoteDesktop.attachmentWritebacks().then(items => items.some(item => item.status === "conflict")))).toBe(true);
   assert.equal(await cloudText(), "another device's edit");
   results.push("competing device causes a visible conflict; local edits survive and Retry never forces an overwrite");
   await writeFile(join(evidence, "results.json"), JSON.stringify({ platform: process.platform, baseline: "6be20cfc", results, limitations: ["OS launching/revealing and network outage are simulated", "No Windows Excel/WPS or old-release upgrade acceptance"] }, null, 2) + "\n");

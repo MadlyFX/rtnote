@@ -34,7 +34,7 @@ Omit `--scope user` to register the server for the current project only.
 
 ### VS Code
 
-Use `servers` and `type: "http"` in `.vscode/mcp.json` or your user-level `mcp.json`. This example prompts for the token. You can also use `${env:EDGEEVER_TOKEN}` to read it from the environment.
+Use `servers` and `type: "http"` in `.vscode/mcp.json` or your user-level `mcp.json`. This example prompts for the token. You can also use `${env:RTNOTE_TOKEN}` to read it from the environment.
 
 ```json
 {
@@ -61,14 +61,14 @@ Use `servers` and `type: "http"` in `.vscode/mcp.json` or your user-level `mcp.j
 Install Bun, save a connection profile from the repository root, then configure the client to launch the bridge. Replace the example path with the script's absolute path.
 
 ```bash
-# Once: save a profile in ~/.edgeever/config.json
+# Once: save a profile in ~/.rtnote/config.json
 bun run cli -- profile set personal --url https://notes.example.com --token "<token>"
 
 # In the client, run:
-bun /path/to/edgeever/scripts/edgeever-mcp-stdio.mjs --profile personal
+bun /path/to/rtnote/scripts/rtnote-mcp-stdio.mjs --profile personal
 ```
 
-You can use the `EDGEEVER_URL` and `EDGEEVER_TOKEN` environment variables instead of `--profile`. OAuth-only connectors cannot connect directly. Use the bridge if your client can launch a local command.
+You can use the `RTNOTE_URL` and `RTNOTE_TOKEN` environment variables instead of `--profile`. OAuth-only connectors cannot connect directly. Use the bridge if your client can launch a local command.
 
 ## 2. Verify the connection
 

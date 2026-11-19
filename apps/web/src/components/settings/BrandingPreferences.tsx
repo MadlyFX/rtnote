@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { absolutizeBrandingUrls, brandAssetPath, type BrandingOverview, type BrandingSettings } from "@edgeever/shared";
+import { absolutizeBrandingUrls, brandAssetPath, type BrandingOverview, type BrandingSettings } from "@rtnote/shared";
 import { Button } from "@/components/ui/button";
 import { api, getConfiguredDesktopApiBaseUrl } from "@/lib/api";
 import { setAppBranding } from "@/lib/branding";

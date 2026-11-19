@@ -2,17 +2,17 @@
  * Safe CSS filter and scope limiter for user note CSS.
  */
 
-import { sanitizeNoteProseDeclarationBlock } from "@edgeever/shared";
+import { sanitizeNoteProseDeclarationBlock } from "@rtnote/shared";
 
 const sanitizeRulesBlock = (block: string): string => sanitizeNoteProseDeclarationBlock(block);
 
 const scopeSelector = (selector: string): string => {
   const trimmed = selector.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/\s+/g, " ").trim();
   if (!trimmed) return "";
-  if (trimmed.startsWith(".ProseMirror") || trimmed.includes(".edgeever-editor")) return trimmed;
+  if (trimmed.startsWith(".ProseMirror") || trimmed.includes(".rtnote-editor")) return trimmed;
   const dark = trimmed.match(/^(?:html\.dark|:root\.dark)\s+(.+)$/);
-  if (dark) return `:root.dark .edgeever-editor .ProseMirror ${dark[1]}`;
-  return `.edgeever-editor .ProseMirror ${trimmed}`;
+  if (dark) return `:root.dark .rtnote-editor .ProseMirror ${dark[1]}`;
+  return `.rtnote-editor .ProseMirror ${trimmed}`;
 };
 
 /**

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { VOICE_MEMO_NODE_TYPE, type TiptapDoc } from "@edgeever/shared";
+import { VOICE_MEMO_NODE_TYPE, type TiptapDoc } from "@rtnote/shared";
 import {
   INITIAL_MOBILE_VOICE_MEMO_RECORDER_STATE,
   buildPendingVoiceMemoAttrs,

@@ -1,6 +1,6 @@
 import type { Editor } from "@tiptap/core";
 import { TextSelection } from "@tiptap/pm/state";
-import { VOICE_MEMO_NODE_TYPE, readVoiceMemoAttrs, type VoiceMemoAttrs } from "@edgeever/shared";
+import { VOICE_MEMO_NODE_TYPE, readVoiceMemoAttrs, type VoiceMemoAttrs } from "@rtnote/shared";
 
 /**
  * Voice memo calls from the Swift host. Swift records and uploads; the editor
@@ -13,7 +13,7 @@ import { VOICE_MEMO_NODE_TYPE, readVoiceMemoAttrs, type VoiceMemoAttrs } from "@
 
 /** Server and remote URLs need native loading (auth, offline cache, custom scheme). */
 export const needsNativeAudioLoad = (url: string) =>
-  Boolean(url) && !url.startsWith("edgeever-res:") && !url.startsWith("data:") && !url.startsWith("blob:");
+  Boolean(url) && !url.startsWith("rtnote-res:") && !url.startsWith("data:") && !url.startsWith("blob:");
 
 const parseAttrs = (json: string): Partial<VoiceMemoAttrs> | null => {
   try {

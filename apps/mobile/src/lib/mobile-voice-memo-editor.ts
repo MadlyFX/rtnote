@@ -1,4 +1,4 @@
-import { VOICE_MEMO_NODE_TYPE, readVoiceMemoAttrs, type VoiceMemoAttrs } from "@edgeever/shared";
+import { VOICE_MEMO_NODE_TYPE, readVoiceMemoAttrs, type VoiceMemoAttrs } from "@rtnote/shared";
 import type { EditorState, Transaction } from "@tiptap/pm/state";
 
 /** Parses voice memo attributes sent over the editor bridge. */

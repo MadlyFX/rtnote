@@ -77,7 +77,7 @@ describe("web clipper store command", () => {
   });
 
   test("preserves Chrome publish failure when the subsequent status check fails", async () => {
-    const directory = mkdtempSync(join(tmpdir(), "edgeever-submit-diagnostics-"));
+    const directory = mkdtempSync(join(tmpdir(), "rtnote-submit-diagnostics-"));
     const zip = join(directory, "addon.zip");
     writeFileSync(zip, "zip");
     let statusCalls = 0;
@@ -111,7 +111,7 @@ describe("web clipper store command", () => {
   });
 
   test("writes preparation failure details to Actions Summary and exits nonzero", () => {
-    const directory = mkdtempSync(join(tmpdir(), "edgeever-report-test-"));
+    const directory = mkdtempSync(join(tmpdir(), "rtnote-report-test-"));
     const summary = join(directory, "summary.md");
     try {
       const result = spawnSync(process.execPath, [new URL("./publish-web-clipper.mjs", import.meta.url).pathname, "--invalid-option"], {
@@ -317,7 +317,7 @@ describe("web clipper store command", () => {
   });
 
   test("refuses to submit from a fork", () => {
-    expect(() => assertOfficialRepository("someone/edgeever")).toThrow(OFFICIAL_REPOSITORY);
+    expect(() => assertOfficialRepository("someone/rtnote")).toThrow(OFFICIAL_REPOSITORY);
     expect(() => assertOfficialRepository("")).not.toThrow();
   });
 
@@ -342,7 +342,7 @@ describe("web clipper store command", () => {
     expect(shouldCopyExtensionSource("src/background.ts")).toBe(true);
     expect(shouldCopyExtensionSource("dist/manifest.json")).toBe(false);
     expect(shouldCopyExtensionSource("node_modules/web-ext/package.json")).toBe(false);
-    expect(shouldCopyExtensionSource("store-assets/edgeever-web-clipper-v0.1.8.zip")).toBe(false);
+    expect(shouldCopyExtensionSource("store-assets/rtnote-web-clipper-v0.1.8.zip")).toBe(false);
     expect(shouldCopyExtensionSource("store-assets/store-icon-128.png")).toBe(true);
 
     const manifests = workspacePackageManifests(new URL("..", import.meta.url).pathname);
@@ -352,7 +352,7 @@ describe("web clipper store command", () => {
   });
 
   test("review source contains shared UI imports without copying the whole Web app", () => {
-    const staging = mkdtempSync(join(tmpdir(), "edgeever-source-test-"));
+    const staging = mkdtempSync(join(tmpdir(), "rtnote-source-test-"));
     try {
       copySourceArchive(new URL("..", import.meta.url).pathname, staging);
       for (const file of SHARED_EXTENSION_SOURCE_FILES) {
@@ -366,7 +366,7 @@ describe("web clipper store command", () => {
   });
 
   test("source rebuild audit rejects missing, extra and changed artifacts", () => {
-    const staging = mkdtempSync(join(tmpdir(), "edgeever-rebuild-test-"));
+    const staging = mkdtempSync(join(tmpdir(), "rtnote-rebuild-test-"));
     const expected = join(staging, "expected"), rebuilt = join(staging, "rebuilt");
     mkdirSync(expected); mkdirSync(rebuilt);
     try {
@@ -382,7 +382,7 @@ describe("web clipper store command", () => {
   });
 
   test("independent builds do not inherit store credentials or external module paths", () => {
-    const environment = sourceRebuildEnvironment({ PATH: "/usr/bin", HOME: "/tmp/example", CHROME_WEB_STORE_CLIENT_SECRET: "secret", AMO_JWT_SECRET: "secret", EDGE_EVER_REVIEW_API_TOKEN: "secret", GITHUB_TOKEN: "secret", GH_TOKEN: "secret", NODE_PATH: "/original/node_modules", NODE_OPTIONS: "--require external.js" });
+    const environment = sourceRebuildEnvironment({ PATH: "/usr/bin", HOME: "/tmp/example", CHROME_WEB_STORE_CLIENT_SECRET: "secret", AMO_JWT_SECRET: "secret", RTNOTE_REVIEW_API_TOKEN: "secret", GITHUB_TOKEN: "secret", GH_TOKEN: "secret", NODE_PATH: "/original/node_modules", NODE_OPTIONS: "--require external.js" });
     expect(environment).toEqual({ PATH: "/usr/bin", HOME: "/tmp/example", NODE_PATH: "", NODE_OPTIONS: "" });
   });
 
@@ -434,7 +434,7 @@ describe("web clipper store command", () => {
     const chrome = createChromeClient({ fetchImpl, accessToken: "token" });
     await chrome.publish();
 
-    const directory = mkdtempSync(join(tmpdir(), "edgeever-clipper-api-"));
+    const directory = mkdtempSync(join(tmpdir(), "rtnote-clipper-api-"));
     const packagePath = join(directory, "addon.zip");
     writeFileSync(packagePath, "zip");
     const firefox = createFirefoxClient({

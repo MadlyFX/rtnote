@@ -1,4 +1,4 @@
-import type { TotpSetupResponse } from "@edgeever/shared";
+import type { TotpSetupResponse } from "@rtnote/shared";
 import * as Clipboard from "expo-clipboard";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { Keyboard, Linking, Share, StyleSheet, View, type StyleProp, type TextStyle } from "react-native";

@@ -62,7 +62,7 @@ test("rejects invalid release responses instead of claiming the app is current",
   })))).rejects.toThrow("exactly one Android APK");
   await expect(findNewerMobileRelease("0.4.14", async () => new Response(JSON.stringify({
     assets: [{
-      browser_download_url: "https://attacker.invalid/edgeever.apk",
+      browser_download_url: "https://attacker.invalid/rtnote.apk",
       digest: `sha256:${"a".repeat(64)}`,
       name: "rtnote-android-v0.4.15-arm64-v8a.apk",
       size: 48_000_000,

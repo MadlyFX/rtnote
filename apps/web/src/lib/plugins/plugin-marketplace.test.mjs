@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { parseMarketplaceRegistry } from "@edgeever/plugin-api";
+import { parseMarketplaceRegistry } from "@rtnote/plugin-api";
 import { sha256Hex } from "./github-plugin-distribution.ts";
 import { loadPluginMarketplace, resolveOfficialPluginMarketplace } from "./plugin-marketplace.ts";
 import { stubUnavailableGithubInstance } from "./github-plugin-test-api.mjs";
@@ -28,8 +28,8 @@ describe("bundled plugin marketplace", () => {
 
   test("keeps verified checksums aligned with bundled extension files", async () => {
     const registry = parseMarketplaceRegistry(await Bun.file(new URL("../../../public/extensions/registry.json", import.meta.url)).json());
-    expect(registry.entries.map((entry) => entry.id)).not.toContain("org.edgeever.examples.recent-notes");
-    expect(registry.entries.map((entry) => entry.id)).not.toContain("org.edgeever.themes.nord-emerald");
+    expect(registry.entries.map((entry) => entry.id)).not.toContain("org.rtnote.examples.recent-notes");
+    expect(registry.entries.map((entry) => entry.id)).not.toContain("org.rtnote.themes.nord-emerald");
     for (const entry of registry.entries) {
       if (entry.distribution.type !== "manifest") continue;
       const relativeManifestPath = entry.distribution.manifestUrl.replace(/^\/extensions\//, "");
@@ -45,10 +45,10 @@ describe("bundled plugin marketplace", () => {
 
   test("pins the official Tasks release and all distributed assets", async () => {
     const registry = parseMarketplaceRegistry(await Bun.file(new URL("../../../public/extensions/registry.json", import.meta.url)).json());
-    const entry = registry.entries.find((candidate) => candidate.id === "org.edgeever.tasks");
+    const entry = registry.entries.find((candidate) => candidate.id === "org.rtnote.tasks");
 
     expect(entry).toMatchObject({
-      publisher: "edgeever",
+      publisher: "rtnote",
       repositoryUrl: "https://github.com/tianma-if/edgeever-tasks",
       distribution: { type: "github", repositoryUrl: "https://github.com/tianma-if/edgeever-tasks" },
       verification: {
@@ -64,10 +64,10 @@ describe("bundled plugin marketplace", () => {
 
   test("pins the official AI RSS release and all distributed assets", async () => {
     const registry = parseMarketplaceRegistry(await Bun.file(new URL("../../../public/extensions/registry.json", import.meta.url)).json());
-    const entry = registry.entries.find((candidate) => candidate.id === "org.edgeever.plugins.ai-rss");
+    const entry = registry.entries.find((candidate) => candidate.id === "org.rtnote.plugins.ai-rss");
 
     expect(entry).toMatchObject({
-      publisher: "edgeever",
+      publisher: "rtnote",
       repositoryUrl: "https://github.com/tianma-if/edgeever-ai-rss",
       distribution: { type: "github", repositoryUrl: "https://github.com/tianma-if/edgeever-ai-rss" },
       verification: {
@@ -86,11 +86,11 @@ describe("bundled plugin marketplace", () => {
       registryVersion: "1",
       updatedAt: "2026-09-08T00:00:00.000Z",
       entries: [{
-        id: "org.edgeever.plugins.ai-rss",
+        id: "org.rtnote.plugins.ai-rss",
         name: "RTNote AI RSS",
         description: "RSS",
         author: "RTNote",
-        publisher: "edgeever",
+        publisher: "rtnote",
         category: "News & AI",
         repositoryUrl: "https://github.com/tianma-if/edgeever-ai-rss",
         distribution: { type: "github", repositoryUrl: "https://github.com/tianma-if/edgeever-ai-rss" },
@@ -99,7 +99,7 @@ describe("bundled plugin marketplace", () => {
     });
     const manifest = {
       type: "plugin",
-      id: "org.edgeever.plugins.ai-rss",
+      id: "org.rtnote.plugins.ai-rss",
       name: "RTNote AI RSS",
       version: "0.5.3",
       apiVersion: "2",
@@ -162,11 +162,11 @@ describe("bundled plugin marketplace", () => {
       registryVersion: "1",
       updatedAt: "2026-09-08T00:00:00.000Z",
       entries: [{
-        id: "org.edgeever.plugins.ai-rss",
+        id: "org.rtnote.plugins.ai-rss",
         name: "RTNote AI RSS",
         description: "RSS",
         author: "RTNote",
-        publisher: "edgeever",
+        publisher: "rtnote",
         category: "News & AI",
         repositoryUrl: "https://github.com/tianma-if/edgeever-ai-rss",
         distribution: { type: "github", repositoryUrl: "https://github.com/tianma-if/edgeever-ai-rss" },
@@ -179,7 +179,7 @@ describe("bundled plugin marketplace", () => {
       if (String(input).includes("/releases/latest/download/manifest.json")) {
         return new Response(JSON.stringify({
           type: "plugin",
-          id: "org.edgeever.plugins.ai-rss",
+          id: "org.rtnote.plugins.ai-rss",
           name: "RTNote AI RSS",
           version: "0.5.5",
           apiVersion: "2",
@@ -211,11 +211,11 @@ describe("bundled plugin marketplace", () => {
       registryVersion: "1",
       updatedAt: "2026-09-08T00:00:00.000Z",
       entries: [{
-        id: "org.edgeever.plugins.ai-rss",
+        id: "org.rtnote.plugins.ai-rss",
         name: "RTNote AI RSS",
         description: "RSS",
         author: "RTNote",
-        publisher: "edgeever",
+        publisher: "rtnote",
         category: "News & AI",
         repositoryUrl: "https://github.com/tianma-if/edgeever-ai-rss",
         distribution: { type: "github", repositoryUrl: "https://github.com/tianma-if/edgeever-ai-rss" },

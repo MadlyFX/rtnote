@@ -36,7 +36,7 @@ describe("login error classification", () => {
   test("identifies Cloudflare challenges and preserves the Ray ID", () => {
     const challenge = new ApiRequestError("Forbidden", 403, undefined, undefined, {
       cloudflareMitigated: true,
-      isEdgeEverApiError: false,
+      isRTNoteApiError: false,
       rayId: "abc123-SJC",
     });
 
@@ -50,12 +50,12 @@ describe("login error classification", () => {
   test("distinguishes an edge security block from an RTNote forbidden response", () => {
     const blocked = new ApiRequestError("Forbidden", 403, undefined, undefined, {
       cloudflareMitigated: false,
-      isEdgeEverApiError: false,
+      isRTNoteApiError: false,
       rayId: "def456-NRT",
     });
     const forbidden = new ApiRequestError("Forbidden", 403, "forbidden", undefined, {
       cloudflareMitigated: false,
-      isEdgeEverApiError: true,
+      isRTNoteApiError: true,
       rayId: "ghi789-LAX",
     });
 

@@ -1,5 +1,5 @@
-import { prepareNoteImageAssets } from "@edgeever/shared/note-image-fonts";
-import { noteImageAssetUrls } from "@edgeever/shared/note-image-assets";
+import { prepareNoteImageAssets } from "@rtnote/shared/note-image-fonts";
+import { noteImageAssetUrls } from "@rtnote/shared/note-image-assets";
 import "./styles.css";
 import "katex/dist/katex.min.css";
 import { Graph } from "@antv/x6";
@@ -11,7 +11,7 @@ import { NodeSelection } from "@tiptap/pm/state";
 import mermaid from "mermaid";
 import { toCanvas } from "html-to-image";
 import {
-  createEdgeEverDocumentExtensions,
+  createRTNoteDocumentExtensions,
   applyImageAlignment,
   createNativeUnsupportedContentExtensions,
   DETAILS_EDITOR_CSS,
@@ -30,9 +30,9 @@ import {
   wrapDetailsContentHtml,
   type TiptapDoc,
   type DiagramDocument,
-} from "@edgeever/shared";
-import { clearMobileEditorUndoHistory, type MobileEditorLocale } from "@edgeever/shared/mobile-editor";
-import { ATTACHMENT_TEXT_PREFIX, LEGACY_ATTACHMENT_PREFIXES } from "@edgeever/shared/edgeever-legacy-values";
+} from "@rtnote/shared";
+import { clearMobileEditorUndoHistory, type MobileEditorLocale } from "@rtnote/shared/mobile-editor";
+import { ATTACHMENT_TEXT_PREFIX, LEGACY_ATTACHMENT_PREFIXES } from "@rtnote/shared/rtnote-legacy-values";
 import {
   type NoteImageTheme,
   type NoteImageFontStyle,
@@ -47,13 +47,13 @@ import {
   generateCardCss,
   prepareNoteImageContent,
   planNativeNoteImageRender,
-} from "@edgeever/shared/note-image-card";
-import { createEdgeEverMathematics } from "@edgeever/shared/mathematics";
-import { createMobileFormatPanel, getMobileCaptionPlaceholder, type MobileFormatPanel } from "@edgeever/shared/mobile-format-panel";
+} from "@rtnote/shared/note-image-card";
+import { createRTNoteMathematics } from "@rtnote/shared/mathematics";
+import { createMobileFormatPanel, getMobileCaptionPlaceholder, type MobileFormatPanel } from "@rtnote/shared/mobile-format-panel";
 import { createIosImageGallery } from "./document-nodes";
-import { createImageInsertTransaction, groupUploadedImages, NATIVE_IMAGE_GALLERY_CSS } from "@edgeever/shared/native-image-gallery";
-import { installPhoneImageFillStyle, NEW_IMAGE_WIDTH_PERCENT } from "@edgeever/shared/image-display";
-import { createNativeVoiceMemoExtension, NATIVE_VOICE_MEMO_CSS } from "@edgeever/shared/native-voice-memo";
+import { createImageInsertTransaction, groupUploadedImages, NATIVE_IMAGE_GALLERY_CSS } from "@rtnote/shared/native-image-gallery";
+import { installPhoneImageFillStyle, NEW_IMAGE_WIDTH_PERCENT } from "@rtnote/shared/image-display";
+import { createNativeVoiceMemoExtension, NATIVE_VOICE_MEMO_CSS } from "@rtnote/shared/native-voice-memo";
 import {
   completeIosVoiceMemo,
   insertIosVoiceMemo,
@@ -110,7 +110,7 @@ type BridgeMessage =
 /** Match shared `getResourceIdFromUrl` — never return bare `blob`. */
 function getResourceIdFromHref(href: string): string | null {
   try {
-    const parsed = new URL(href, "http://edgeever.local");
+    const parsed = new URL(href, "http://rtnote.local");
     const match = parsed.pathname.match(/^\/api\/v1\/resources\/([^/]+)(?:\/blob)?\/?$/);
     if (match?.[1]) return decodeURIComponent(match[1]);
   } catch {
@@ -143,7 +143,7 @@ function buildImageTargetJson(src: string, filename: string): string | null {
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const ATTACHMENT_PREFIX_WORDS = [ATTACHMENT_TEXT_PREFIX, ...LEGACY_ATTACHMENT_PREFIXES]
   .map((prefix) => escapeRegExp(prefix.trim().replace(/[:：]$/, "")));
-/** RTNote's "Attachment:" label prefix or one of EdgeEver's, with an ASCII or full-width colon. */
+/** RTNote's "Attachment:" label prefix or one of RTNote's, with an ASCII or full-width colon. */
 const ATTACHMENT_PREFIX_PATTERN = new RegExp(`^\\s*(?:${ATTACHMENT_PREFIX_WORDS.join("|")})[:：]\\s*`, "i");
 
 function buildAttachmentTargetJson(href: string, label: string): string | null {
@@ -159,7 +159,7 @@ function buildAttachmentTargetJson(href: string, label: string): string | null {
   });
 }
 
-const ATTACHMENT_KIND_CLASS_PREFIX = "edgeever-attachment-kind-";
+const ATTACHMENT_KIND_CLASS_PREFIX = "rtnote-attachment-kind-";
 
 function normalizeAttachmentFilename(label: string): string {
   return label.replace(ATTACHMENT_PREFIX_PATTERN, "").trim();
@@ -167,14 +167,14 @@ function normalizeAttachmentFilename(label: string): string {
 
 function decorateAttachmentLinks(root: ParentNode): void {
   root.querySelectorAll<HTMLAnchorElement>(
-    'a.edgeever-attachment-link, a[href*="/api/v1/resources/"]'
+    'a.rtnote-attachment-link, a[href*="/api/v1/resources/"]'
   ).forEach((link) => {
     Array.from(link.classList).forEach((className) => {
       if (className.startsWith(ATTACHMENT_KIND_CLASS_PREFIX)) link.classList.remove(className);
     });
     const filename = normalizeAttachmentFilename(link.textContent || "");
     link.classList.add(
-      "edgeever-attachment-link",
+      "rtnote-attachment-link",
       `${ATTACHMENT_KIND_CLASS_PREFIX}${resolveAttachmentKind(null, filename)}`,
     );
   });
@@ -231,8 +231,8 @@ let resourceSeq = 0;
 
 function post(msg: BridgeMessage) {
   try {
-    (window as unknown as { webkit?: { messageHandlers?: { edgeever?: { postMessage: (m: unknown) => void } } } })
-      .webkit?.messageHandlers?.edgeever?.postMessage(msg);
+    (window as unknown as { webkit?: { messageHandlers?: { rtnote?: { postMessage: (m: unknown) => void } } } })
+      .webkit?.messageHandlers?.rtnote?.postMessage(msg);
   } catch {
     // native host unavailable (browser preview)
   }
@@ -260,7 +260,7 @@ function isProtectedResource(src: string): boolean {
 
 /** file:// editor pages often cannot load remote/protected img srcs; native must rewrite them. */
 function needsNativeHydration(src: string): boolean {
-  if (!src || src.startsWith("data:") || src.startsWith("blob:") || src.startsWith("edgeever-res:")) {
+  if (!src || src.startsWith("data:") || src.startsWith("blob:") || src.startsWith("rtnote-res:")) {
     return false;
   }
   // Protected API paths always need auth + rewrite.
@@ -328,7 +328,7 @@ async function renderMermaidBlocks(root: HTMLElement, theme: "light" | "dark") {
       const id = `mmd-${Date.now()}-${i++}`;
       const { svg } = await mermaid.render(id, source);
       const wrap = document.createElement("div");
-      wrap.className = "edgeever-mermaid";
+      wrap.className = "rtnote-mermaid";
       wrap.innerHTML = svg;
       const renderedSvg = wrap.querySelector("svg");
       const viewBox = renderedSvg?.viewBox.baseVal;
@@ -371,7 +371,7 @@ function renderViewerDiagram(root: HTMLElement, diagram: DiagramDocument, theme:
   if (!proseMirror) return false;
   const cells = diagramDocumentToX6Cells(diagram, theme);
   const container = document.createElement("div");
-  container.className = "edgeever-x6-diagram";
+  container.className = "rtnote-x6-diagram";
   container.setAttribute("role", "img");
   container.setAttribute(
     "aria-label",
@@ -506,7 +506,7 @@ function bindImageControlTap(el: HTMLElement, action: () => void) {
  * - viewer: tap image → fullscreen preview; ⋯ → resource sheet
  * - editor: tap image → select + show width bar (25/50/75/100%); ⋯ → resource sheet
  */
-function createEdgeEverImageExtension() {
+function createRTNoteImageExtension() {
   return Image.extend({
     addAttributes() {
       return {
@@ -528,14 +528,14 @@ function createEdgeEverImageExtension() {
       return ({ editor: ed, getPos, node }) => {
         let currentNode = node;
         const wrapper = document.createElement("figure");
-        wrapper.className = "edgeever-image-node is-loading";
+        wrapper.className = "rtnote-image-node is-loading";
         wrapper.contentEditable = "false";
         wrapper.setAttribute("role", "img");
 
         const loading = document.createElement("div");
-        loading.className = "edgeever-image-loading";
+        loading.className = "rtnote-image-loading";
         const spinner = document.createElement("span");
-        spinner.className = "edgeever-image-upload-spinner";
+        spinner.className = "rtnote-image-upload-spinner";
         loading.append(spinner);
 
         const image = document.createElement("img");
@@ -544,14 +544,14 @@ function createEdgeEverImageExtension() {
 
         const actionButton = document.createElement("button");
         actionButton.type = "button";
-        actionButton.className = "edgeever-image-actions";
+        actionButton.className = "rtnote-image-actions";
         actionButton.contentEditable = "false";
         actionButton.hidden = true;
         actionButton.setAttribute("aria-label", localized("Image actions", { zh: "图片操作", ja: "画像の操作", pl: "Działania na obrazie" }));
         actionButton.textContent = "⋯";
 
         const sizeControls = document.createElement("div");
-        sizeControls.className = "edgeever-image-size-controls";
+        sizeControls.className = "rtnote-image-size-controls";
         sizeControls.contentEditable = "false";
         sizeControls.hidden = true;
         sizeControls.setAttribute("role", "group");
@@ -582,7 +582,7 @@ function createEdgeEverImageExtension() {
         for (const preset of IMAGE_WIDTH_PRESETS) {
           const btn = document.createElement("button");
           btn.type = "button";
-          btn.className = "edgeever-image-size-button";
+          btn.className = "rtnote-image-size-button";
           btn.textContent = preset.label;
           btn.setAttribute("aria-label", preset.label);
           btn.setAttribute("aria-pressed", "false");
@@ -608,7 +608,7 @@ function createEdgeEverImageExtension() {
           if (phase === "failed") {
             loading.replaceChildren();
             const label = document.createElement("span");
-            label.className = "edgeever-image-loading-label";
+            label.className = "rtnote-image-loading-label";
             label.textContent = localized("Image failed to load", { zh: "图片加载失败", ja: "画像を読み込めませんでした", pl: "Nie udało się wczytać obrazu" });
             loading.append(label);
             loading.hidden = false;
@@ -619,7 +619,7 @@ function createEdgeEverImageExtension() {
 
         const resourceHrefFromAttrs = (attrs: Record<string, unknown>) => {
           const src = String(attrs.src ?? "");
-          // Prefer protected API path over display data:/edgeever-res:
+          // Prefer protected API path over display data:/rtnote-res:
           if (isProtectedResource(src) || getResourceIdFromHref(src)) return src;
           return wrapper.dataset.resourceHref || src;
         };
@@ -664,7 +664,7 @@ function createEdgeEverImageExtension() {
         // Image body: only stopPropagation on pointerdown (keeps scroll working).
         let lastImageActivate = 0;
         const onImageActivate = (event: Event) => {
-          if (event.target instanceof Element && event.target.closest(".edgeever-image-actions")) {
+          if (event.target instanceof Element && event.target.closest(".rtnote-image-actions")) {
             return;
           }
           const now = Date.now();
@@ -741,7 +741,7 @@ function createEdgeEverImageExtension() {
             setPhase("failed");
             return;
           }
-          if (src.startsWith("data:") || src.startsWith("edgeever-res:") || src.startsWith("blob:")) {
+          if (src.startsWith("data:") || src.startsWith("rtnote-res:") || src.startsWith("blob:")) {
             finish(src);
             return;
           }
@@ -807,14 +807,14 @@ function createEdgeEverImageExtension() {
 
 function buildExtensions(placeholder: string) {
   return [
-    ...createEdgeEverDocumentExtensions({
-      mathematics: createEdgeEverMathematics(),
+    ...createRTNoteDocumentExtensions({
+      mathematics: createRTNoteMathematics(),
       starterKit: { codeBlock: false, link: false },
-      image: createEdgeEverImageExtension(),
+      image: createRTNoteImageExtension(),
       gallery: createIosImageGallery(() => locale),
       pdf: false,
       file: false,
-      // Native loads protected or offline audio and serves it through edgeever-res://.
+      // Native loads protected or offline audio and serves it through rtnote-res://.
       voiceMemo: createNativeVoiceMemoExtension({
         getLocale: () => locale,
         resolveAudioUrl: (url) => (needsNativeAudioLoad(url) ? requestResource(url, "loadAudio") : url),
@@ -868,7 +868,7 @@ const editor = new Editor({
   onSelectionUpdate: () => refreshToolbarState(),
   editorProps: {
     attributes: {
-      class: "edgeever-prose",
+      class: "rtnote-prose",
       spellcheck: "true",
     },
     transformPastedHTML(html) {
@@ -890,7 +890,7 @@ const editor = new Editor({
 editorEl.addEventListener("dblclick", (event) => {
   if (mode !== "viewer") return;
   const target = event.target as HTMLElement | null;
-  if (!target || target.closest("a, button, img, input, textarea, select, .edgeever-image-node")) return;
+  if (!target || target.closest("a, button, img, input, textarea, select, .rtnote-image-node")) return;
   event.preventDefault();
   event.stopPropagation();
   post({ type: "doubleTap" });
@@ -910,9 +910,9 @@ function handleResourcePointer(event: Event, kind: "click" | "contextmenu"): boo
 
   // Size / ⋯ controls own their gestures — never intercept from PM handleClick.
   if (
-    target.closest(".edgeever-image-size-controls") ||
-    target.closest(".edgeever-image-actions") ||
-    target.closest(".edgeever-image-size-button")
+    target.closest(".rtnote-image-size-controls") ||
+    target.closest(".rtnote-image-actions") ||
+    target.closest(".rtnote-image-size-button")
   ) {
     return true;
   }
@@ -934,7 +934,7 @@ function handleResourcePointer(event: Event, kind: "click" | "contextmenu"): boo
   const img = target.closest("img");
   if (img instanceof HTMLImageElement) {
     // Custom image nodeView owns image taps (select/preview/⋯).
-    if (img.closest("figure.edgeever-image-node") && kind === "click") {
+    if (img.closest("figure.rtnote-image-node") && kind === "click") {
       return false;
     }
 
@@ -1272,7 +1272,7 @@ async function exportNoteImage(request: ImageExportRequest) {
       new Promise<void>((resolve) => window.setTimeout(resolve, 8_000)),
     ]);
     const exportedImages = Array.from(
-      documentRoot.querySelectorAll<HTMLImageElement>(".edgeever-card-body img"),
+      documentRoot.querySelectorAll<HTMLImageElement>(".rtnote-card-body img"),
     );
     const failedImages = exportedImages.filter((image) => !image.complete || image.naturalWidth === 0).length;
     const totalHeight = Math.max(1, Math.ceil(documentRoot.getBoundingClientRect().height));
@@ -1365,7 +1365,7 @@ async function exportNoteImage(request: ImageExportRequest) {
   }
 }
 
-export type EdgeEverEditorAPI = {
+export type RTNoteEditorAPI = {
   configure: (opts: ConfigureOptions) => void;
   setMarkdown: (md: string) => void;
   setDocumentFromJSON: (json: string) => void;
@@ -1390,7 +1390,7 @@ export type EdgeEverEditorAPI = {
   exportImage: (request: ImageExportRequest) => void;
 };
 
-const api: EdgeEverEditorAPI = {
+const api: RTNoteEditorAPI = {
   resetReaderScroll,
   exportImage(request) {
     void exportNoteImage(request);
@@ -1611,6 +1611,6 @@ const api: EdgeEverEditorAPI = {
   },
 };
 
-(window as unknown as { EdgeEverEditor: EdgeEverEditorAPI }).EdgeEverEditor = api;
+(window as unknown as { RTNoteEditor: RTNoteEditorAPI }).RTNoteEditor = api;
 setToolbarVisible(false);
 post({ type: "ready", startupMs: Math.round(performance.now() - startedAt) });

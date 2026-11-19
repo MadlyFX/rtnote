@@ -34,6 +34,6 @@ describe("infographic editor header", () => {
     expect(source).not.toContain("<AiSidebar");
     expect(source).toContain("...(history.length ? { history } : {})");
     expect(source).toContain("activeSessionId");
-    expect(source).toContain("edgeever-infographic-preview");
+    expect(source).toContain("rtnote-infographic-preview");
   });
 });

@@ -12,7 +12,7 @@ import { verifyWindowsUpdateRelease } from "./verify-windows-update-release.mjs"
 
 describe("Windows update release metadata", () => {
   test("creates installer metadata consumed by electron-updater and the trust gate", async () => {
-    const directory = await mkdtemp(join(tmpdir(), "edgeever-windows-metadata-"));
+    const directory = await mkdtemp(join(tmpdir(), "rtnote-windows-metadata-"));
     try {
       await writeFile(join(directory, "RTNote-1.49.0-windows-x64.exe"), "payload");
       const manifest = await createWindowsUpdateMetadata({ directory, version: "1.49.0" });
@@ -31,7 +31,7 @@ describe("Windows update release metadata", () => {
   });
 
   test("signs only with the private key matching the expected public key", async () => {
-    const directory = await mkdtemp(join(tmpdir(), "edgeever-windows-signing-"));
+    const directory = await mkdtemp(join(tmpdir(), "rtnote-windows-signing-"));
     const { privateKey, publicKey } = generateKeyPairSync("ed25519");
     const { publicKey: otherPublicKey } = generateKeyPairSync("ed25519");
     const manifestPath = join(directory, "latest-windows.json");
@@ -40,7 +40,7 @@ describe("Windows update release metadata", () => {
     try {
       await writeFile(manifestPath, `${JSON.stringify({
         schemaVersion: 1,
-        keyId: "edgeever-windows-update-2026-01",
+        keyId: "rtnote-windows-update-2026-01",
         version: "1.49.0",
         platform: "win32",
         arch: "x64",
@@ -74,13 +74,13 @@ describe("Windows update release metadata", () => {
     }
   });
 
-  // The fixture signature was made with EdgeEver's private update key over an
-  // EdgeEver-named installer. Re-enable once RTNote has its own key (Phase 1).
+  // The fixture signature was made with RTNote's private update key over an
+  // RTNote-named installer. Re-enable once RTNote has its own key (Phase 1).
   test.skip("audits the complete production release asset set", async () => {
-    const directory = await mkdtemp(join(tmpdir(), "edgeever-windows-release-audit-"));
+    const directory = await mkdtemp(join(tmpdir(), "rtnote-windows-release-audit-"));
     const manifest = {
       schemaVersion: 1,
-      keyId: "edgeever-windows-update-2026-01",
+      keyId: "rtnote-windows-update-2026-01",
       version: "1.49.0",
       platform: "win32",
       arch: "x64",

@@ -1,4 +1,4 @@
-import { buildOfficialInfographicSyntax } from "@edgeever/shared";
+import { buildOfficialInfographicSyntax } from "@rtnote/shared";
 
 export { buildOfficialInfographicSyntax };
 

@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { Editor } from "@tiptap/core";
-import { VOICE_MEMO_NODE_TYPE, createEdgeEverDocumentExtensions } from "@edgeever/shared";
-import { createEdgeEverMathematics } from "@edgeever/shared/mathematics";
+import { VOICE_MEMO_NODE_TYPE, createRTNoteDocumentExtensions } from "@rtnote/shared";
+import { createRTNoteMathematics } from "@rtnote/shared/mathematics";
 import {
   completeIosVoiceMemo,
   insertIosVoiceMemo,
@@ -11,7 +11,7 @@ import {
 
 const createEditor = (content = { type: "doc", content: [{ type: "paragraph" }] }) => {
   const editor = new Editor({
-    extensions: createEdgeEverDocumentExtensions({ mathematics: createEdgeEverMathematics() }),
+    extensions: createRTNoteDocumentExtensions({ mathematics: createRTNoteMathematics() }),
     content,
   });
   // Headless editors report isDestroyed without a mounted view; commands still work.
@@ -80,7 +80,7 @@ describe("iOS voice memo bridge", () => {
   test("only server and remote URLs go through native loading", () => {
     expect(needsNativeAudioLoad("/api/v1/resources/x/blob")).toBe(true);
     expect(needsNativeAudioLoad("https://example.com/a.m4a")).toBe(true);
-    expect(needsNativeAudioLoad("edgeever-res://local/x")).toBe(false);
+    expect(needsNativeAudioLoad("rtnote-res://local/x")).toBe(false);
     expect(needsNativeAudioLoad("data:audio/mp4;base64,AA==")).toBe(false);
     expect(needsNativeAudioLoad("")).toBe(false);
   });

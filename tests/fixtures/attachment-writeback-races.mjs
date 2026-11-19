@@ -15,10 +15,10 @@ fs.rename = (...args) => renameFile ? renameFile(...args) : realRename(...args);
 fs.rm = (...args) => removeFile ? removeFile(...args) : realRm(...args);
 syncBuiltinESMExports();
 const { createAttachmentWritebackManager } = await import("../../apps/desktop/src/main/attachment-writeback.mjs");
-const root = await fs.mkdtemp(join(tmpdir(), "edgeever-writeback-races-"));
+const root = await fs.mkdtemp(join(tmpdir(), "rtnote-writeback-races-"));
 const folder = join(root, "open-one");
 const path = join(folder, "a.xlsx");
-const metadata = join(folder, ".edgeever-writeback.json");
+const metadata = join(folder, ".rtnote-writeback.json");
 const hash = value => createHash("sha256").update(value).digest("hex");
 const deferred = () => {
   let resolve;
@@ -45,7 +45,7 @@ const options = {
 let manager = createAttachmentWritebackManager(options);
 try {
   await fs.mkdir(folder); await fs.writeFile(path, cloud);
-  await manager.track({ folder, url: "edgeever-resource://resource/res_1", filename: "a.xlsx", mimeType: "application/test" });
+  await manager.track({ folder, url: "rtnote-resource://resource/res_1", filename: "a.xlsx", mimeType: "application/test" });
   await fs.writeFile(path, "edit"); await manager.tick(); now += 2000;
   if (scenario === "abort" || scenario === "replace-during-snapshot") {
     let reads = 0;
@@ -114,7 +114,7 @@ try {
   } else if (scenario === "pending-lock") {
     let first = true;
     beforeLstat = value => {
-      if (value === join(folder, ".edgeever-writeback.pending") && first) {
+      if (value === join(folder, ".rtnote-writeback.pending") && first) {
         first = false; throw Object.assign(new Error("Pending snapshot still locked"), { code: "EBUSY" });
       }
     };
@@ -122,7 +122,7 @@ try {
     assert.equal(cloud, "edit"); assert.equal((await manager.list())[0].status, "saved");
   } else if (scenario === "cleanup-after-acknowledgement") {
     removeFile = (value, ...args) => {
-      if (value === join(folder, ".edgeever-writeback.pending")) throw Object.assign(new Error("Snapshot still locked"), { code: "EBUSY" });
+      if (value === join(folder, ".rtnote-writeback.pending")) throw Object.assign(new Error("Snapshot still locked"), { code: "EBUSY" });
       return realRm(value, ...args);
     };
     await manager.tick();

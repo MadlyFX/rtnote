@@ -5,8 +5,8 @@ import { basename, join } from "node:path";
 import { restrictFile } from "./file-permissions.mjs";
 import { isSafeResourceId, resourceIdFromRequest } from "./resource-url.mjs";
 
-export const WRITEBACK_METADATA = ".edgeever-writeback.json";
-const PENDING_BYTES = ".edgeever-writeback.pending";
+export const WRITEBACK_METADATA = ".rtnote-writeback.json";
+const PENDING_BYTES = ".rtnote-writeback.pending";
 const QUIET_MS = 1500;
 const RETRY_MS = 30_000;
 // The existing PUT /resources/:id/blob contract, not a new opening limit.
@@ -66,8 +66,8 @@ const validRecord = record => {
   try {
     const url = new URL(record.url);
     return !url.username && !url.password && !url.port && !url.search && !url.hash
-      && (url.protocol === "edgeever-resource:" && url.hostname === "resource" && isSafeResourceId(decodeURIComponent(url.pathname.slice(1)))
-        || url.protocol === "edgeever-staged:" && ["", "/"].includes(url.pathname) && isSafeResourceId(url.hostname));
+      && (url.protocol === "rtnote-resource:" && url.hostname === "resource" && isSafeResourceId(decodeURIComponent(url.pathname.slice(1)))
+        || url.protocol === "rtnote-staged:" && ["", "/"].includes(url.pathname) && isSafeResourceId(url.hostname));
   } catch { return false; }
 };
 
@@ -114,7 +114,7 @@ export const replaceAttachmentResource = async (request, input) => {
     input.assertCurrent();
     // An older server must reject this dedicated route, even if it replaced a
     // supported server between the capability read and the write.
-    if (response.status === 404 && response.headers.get("X-EdgeEver-Writeback") !== "preserve-filename") {
+    if (response.status === 404 && response.headers.get("X-RTNote-Writeback") !== "preserve-filename") {
       await response.body?.cancel();
       throw failure("writeback_unsupported");
     }
@@ -289,7 +289,7 @@ export const createAttachmentWritebackManager = options => {
       const version = generation; const key = context.key;
       const path = join(folder, localFilename);
       const info = await lstat(path);
-      const record = { url, filename, localFilename, resourceId: url.startsWith("edgeever-resource:") ? resourceIdFromRequest(url) : null, byteSize: info.size, metadataAt: now(), mimeType: mimeType || "application/octet-stream", baseHash: await hashFile(path), signature: signature(info), status: "watching", savedAt: null };
+      const record = { url, filename, localFilename, resourceId: url.startsWith("rtnote-resource:") ? resourceIdFromRequest(url) : null, byteSize: info.size, metadataAt: now(), mimeType: mimeType || "application/octet-stream", baseHash: await hashFile(path), signature: signature(info), status: "watching", savedAt: null };
       assertScope(key, version);
       if (!info.isFile() || !validRecord(record)) throw failure("local_file_unavailable");
       const entry = { folder, record, observed: null, observedAt: now() };

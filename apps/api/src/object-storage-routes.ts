@@ -1,7 +1,7 @@
 import {
   ObjectStorageConnectionTestSchema,
   ObjectStorageSettingsUpdateSchema,
-} from "@edgeever/shared";
+} from "@rtnote/shared";
 import { zValidator } from "@hono/zod-validator";
 import type { Hono } from "hono";
 import { auditStatement } from "./audit";

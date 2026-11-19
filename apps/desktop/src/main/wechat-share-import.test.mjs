@@ -72,7 +72,7 @@ afterEach(async () => {
 });
 
 describe("WeChat share handoff", () => {
-  test("accepts only an absolute file from the edgeever share URL", () => {
+  test("accepts only an absolute file from the rtnote share URL", () => {
     expect(wechatImportFilePath("rtnote://wechat-import?path=/Users/me/Downloads/RTNote%20Incoming/a/chat.zip")).toBe(
       "/Users/me/Downloads/RTNote Incoming/a/chat.zip",
     );
@@ -88,7 +88,7 @@ describe("WeChat share handoff", () => {
   });
 
   test("imports a zip from the incoming folder and then deletes it", async () => {
-    const root = await mkdtemp(join(tmpdir(), "edgeever-wechat-share-"));
+    const root = await mkdtemp(join(tmpdir(), "rtnote-wechat-share-"));
     roots.push(root);
     const downloads = join(root, "Downloads");
     const temp = join(root, "temp");
@@ -112,18 +112,18 @@ describe("WeChat share handoff", () => {
     expect(sent).toHaveLength(1);
     expect(sent[0].ok).toBe(true);
     expect(sent[0].title).toBe("聊天记录_20260922_223222");
-    expect(sent[0].markdown).toContain("![微信图片_1.jpg](edgeever-wechat-media://m1)");
+    expect(sent[0].markdown).toContain("![微信图片_1.jpg](rtnote-wechat-media://m1)");
     const media = await controller.readMedia(sent[0].importId, "m1");
     expect(Buffer.from(media.bytes).toString()).toBe("jpeg");
     expect((await stat(zipPath)).isFile()).toBe(true);
     await controller.finish(sent[0].importId, true);
     await expect(stat(zipPath)).rejects.toThrow();
     await expect(stat(batch)).rejects.toThrow();
-    await expect(readFile(join(temp, "edgeever-wechat-import", sent[0].importId, "m1.bin"))).rejects.toThrow();
+    await expect(readFile(join(temp, "rtnote-wechat-import", sent[0].importId, "m1.bin"))).rejects.toThrow();
   });
 
   test("does not read a zip outside the incoming folder", async () => {
-    const root = await mkdtemp(join(tmpdir(), "edgeever-wechat-share-"));
+    const root = await mkdtemp(join(tmpdir(), "rtnote-wechat-share-"));
     roots.push(root);
     const outside = join(root, "secret.zip");
     await writeFile(outside, Buffer.from("secret"));
@@ -139,7 +139,7 @@ describe("WeChat share handoff", () => {
   });
 
   test("accepts the share extension's sandbox Downloads alias without a duplicate scan", async () => {
-    const root = await mkdtemp(join(tmpdir(), "edgeever-wechat-share-"));
+    const root = await mkdtemp(join(tmpdir(), "rtnote-wechat-share-"));
     roots.push(root);
     const downloads = join(root, "Downloads");
     const batch = join(downloads, WECHAT_INCOMING_DIRECTORY_NAME, "batch");
@@ -169,7 +169,7 @@ describe("WeChat share handoff", () => {
   });
 
   test("rejects a link in the incoming folder that resolves outside it", async () => {
-    const root = await mkdtemp(join(tmpdir(), "edgeever-wechat-share-"));
+    const root = await mkdtemp(join(tmpdir(), "rtnote-wechat-share-"));
     roots.push(root);
     const downloads = join(root, "Downloads");
     const batch = join(downloads, WECHAT_INCOMING_DIRECTORY_NAME, "batch");
@@ -190,7 +190,7 @@ describe("WeChat share handoff", () => {
   });
 
   test("a rejected protocol path does not report failure before a valid share is scanned", async () => {
-    const root = await mkdtemp(join(tmpdir(), "edgeever-wechat-share-"));
+    const root = await mkdtemp(join(tmpdir(), "rtnote-wechat-share-"));
     roots.push(root);
     const downloads = join(root, "Downloads");
     const batch = join(downloads, WECHAT_INCOMING_DIRECTORY_NAME, "batch");
@@ -212,7 +212,7 @@ describe("WeChat share handoff", () => {
   });
 
   test("reports a recognized incoming path with an invalid archive", async () => {
-    const root = await mkdtemp(join(tmpdir(), "edgeever-wechat-share-"));
+    const root = await mkdtemp(join(tmpdir(), "rtnote-wechat-share-"));
     roots.push(root);
     const downloads = join(root, "Downloads");
     const batch = join(downloads, WECHAT_INCOMING_DIRECTORY_NAME, "batch");
@@ -235,7 +235,7 @@ describe("WeChat share handoff", () => {
   });
 
   test("picks up a completed share without a protocol URL and ignores a duplicate URL", async () => {
-    const root = await mkdtemp(join(tmpdir(), "edgeever-wechat-share-"));
+    const root = await mkdtemp(join(tmpdir(), "rtnote-wechat-share-"));
     roots.push(root);
     const downloads = join(root, "Downloads");
     const batch = join(downloads, WECHAT_INCOMING_DIRECTORY_NAME, "batch");
@@ -269,7 +269,7 @@ describe("WeChat share handoff", () => {
   });
 
   test("skips failed shares across restarts while recovering unfinished shares", async () => {
-    const root = await mkdtemp(join(tmpdir(), "edgeever-wechat-share-"));
+    const root = await mkdtemp(join(tmpdir(), "rtnote-wechat-share-"));
     roots.push(root);
     const downloads = join(root, "Downloads");
     const incoming = join(downloads, WECHAT_INCOMING_DIRECTORY_NAME);
@@ -320,7 +320,7 @@ describe("WeChat share handoff", () => {
   });
 
   test("finishing one zip keeps another zip in the same incoming batch", async () => {
-    const root = await mkdtemp(join(tmpdir(), "edgeever-wechat-share-"));
+    const root = await mkdtemp(join(tmpdir(), "rtnote-wechat-share-"));
     roots.push(root);
     const downloads = join(root, "Downloads");
     const batch = join(downloads, WECHAT_INCOMING_DIRECTORY_NAME, "batch");
@@ -347,7 +347,7 @@ describe("WeChat share handoff", () => {
   });
 
   test("saves a shared spreadsheet as a file instead of a WeChat chat", async () => {
-    const root = await mkdtemp(join(tmpdir(), "edgeever-wechat-share-"));
+    const root = await mkdtemp(join(tmpdir(), "rtnote-wechat-share-"));
     roots.push(root);
     const downloads = join(root, "Downloads");
     const batch = join(downloads, WECHAT_INCOMING_DIRECTORY_NAME, "batch");
@@ -376,7 +376,7 @@ describe("WeChat share handoff", () => {
   });
 
   test("still unpacks a WeChat chat when it arrives through the file share URL", async () => {
-    const root = await mkdtemp(join(tmpdir(), "edgeever-wechat-share-"));
+    const root = await mkdtemp(join(tmpdir(), "rtnote-wechat-share-"));
     roots.push(root);
     const downloads = join(root, "Downloads");
     const batch = join(downloads, WECHAT_INCOMING_DIRECTORY_NAME, "batch");
@@ -397,7 +397,7 @@ describe("WeChat share handoff", () => {
   });
 
   test("reports a Finder file-id placeholder instead of treating it as a chat", async () => {
-    const root = await mkdtemp(join(tmpdir(), "edgeever-wechat-share-"));
+    const root = await mkdtemp(join(tmpdir(), "rtnote-wechat-share-"));
     roots.push(root);
     const downloads = join(root, "Downloads");
     const batch = join(downloads, WECHAT_INCOMING_DIRECTORY_NAME, "batch");
@@ -421,7 +421,7 @@ describe("WeChat share handoff", () => {
   });
 
   test("rejects a shared file larger than the configured limit", async () => {
-    const root = await mkdtemp(join(tmpdir(), "edgeever-wechat-share-"));
+    const root = await mkdtemp(join(tmpdir(), "rtnote-wechat-share-"));
     roots.push(root);
     const downloads = join(root, "Downloads");
     const batch = join(downloads, WECHAT_INCOMING_DIRECTORY_NAME, "batch");
@@ -451,7 +451,7 @@ describe("WeChat share handoff", () => {
   });
 
   test("does not read a shared file outside the incoming folder", async () => {
-    const root = await mkdtemp(join(tmpdir(), "edgeever-wechat-share-"));
+    const root = await mkdtemp(join(tmpdir(), "rtnote-wechat-share-"));
     roots.push(root);
     const outside = join(root, "secret.xlsx");
     await writeFile(outside, Buffer.from("secret"));
@@ -467,7 +467,7 @@ describe("WeChat share handoff", () => {
   });
 
   test("imports a local file from the Windows verb without deleting it", async () => {
-    const root = await mkdtemp(join(tmpdir(), "edgeever-wechat-share-"));
+    const root = await mkdtemp(join(tmpdir(), "rtnote-wechat-share-"));
     roots.push(root);
     const filePath = join(root, "功能梳理表.xlsx");
     await writeFile(filePath, Buffer.from("spreadsheet"));
@@ -493,7 +493,7 @@ describe("WeChat share handoff", () => {
   });
 
   test("keeps a local WeChat zip in place after preparing the chat", async () => {
-    const root = await mkdtemp(join(tmpdir(), "edgeever-wechat-share-"));
+    const root = await mkdtemp(join(tmpdir(), "rtnote-wechat-share-"));
     roots.push(root);
     const zipPath = join(root, "聊天记录.zip");
     await writeFile(zipPath, zipOf("聊天记录.txt", "·鱼\n2026年9月22日 22:15\n你好\n", "附件/readme.txt", "hello"));

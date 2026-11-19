@@ -3,10 +3,10 @@ import {
   DEFAULT_VOICE_MEMO_MAX_DURATION_MINUTES,
   normalizeVoiceMemoMaxDuration,
   type VoiceMemoMaxDurationMinutes,
-} from "@edgeever/shared/voice-memo-names";
+} from "@rtnote/shared/voice-memo-names";
 
-export const VOICE_MEMO_MAX_DURATION_STORAGE_KEY = "edgeever.voiceMemoMaxDurationMinutes";
-const CHANGE_EVENT = "edgeever:voice-memo-preferences-changed";
+export const VOICE_MEMO_MAX_DURATION_STORAGE_KEY = "rtnote.voiceMemoMaxDurationMinutes";
+const CHANGE_EVENT = "rtnote:voice-memo-preferences-changed";
 
 export const readVoiceMemoMaxDuration = (): VoiceMemoMaxDurationMinutes => {
   try {

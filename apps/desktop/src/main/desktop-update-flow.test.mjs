@@ -12,7 +12,7 @@ const notebookPaneSource = readFileSync(new URL("../../../web/src/components/Not
 describe("desktop update flow", () => {
   test("enables automatic updates for packaged Linux AppImages", () => {
     expect(mainSource).not.toContain('process.platform === "linux" || !app.isPackaged');
-    expect(mainSource).toContain('autoUpdateSupported: desktopPackageMetadata.edgeeverUpdatePolicy !== "manual"');
+    expect(mainSource).toContain('autoUpdateSupported: desktopPackageMetadata.rtnoteUpdatePolicy !== "manual"');
     expect(shouldConfigureDesktopUpdates({ packaged: true })).toBe(true);
     expect(shouldConfigureDesktopUpdates({ packaged: true, updatePolicy: "manual" })).toBe(false);
     expect(mainSource).toContain('process.env.GITHUB_ACTIONS === "true"');

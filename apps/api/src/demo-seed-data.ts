@@ -7,8 +7,8 @@ import {
   type InfographicDocument,
   type PosterDocument,
   type TableDocument,
-} from "@edgeever/shared";
-import { DEFAULT_NOTEBOOK_SEEDS } from "@edgeever/shared/default-workspace-seeds";
+} from "@rtnote/shared";
+import { DEFAULT_NOTEBOOK_SEEDS } from "@rtnote/shared/default-workspace-seeds";
 import {
   decodeDemoAttachment,
   DEMO_ATTACHMENT_MARKDOWN_EN,

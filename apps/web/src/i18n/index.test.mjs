@@ -23,7 +23,7 @@ describe("lazy Japanese catalog", () => {
   test("keeps the Japanese chunk out of HTML modulepreload and caches it after first use", () => {
     expect(viteConfig).toContain("globPatterns: []");
     expect(viteConfig).toContain("name: \"i18n-ja\"");
-    expect(viteConfig).toContain("edgeever-optional-locales");
+    expect(viteConfig).toContain("rtnote-optional-locales");
     expect(viteConfig).toContain("i18n-(?:en-US|ja|pl|ru|zh-TW|es|de|fr)-");
   });
 
@@ -72,7 +72,7 @@ describe("optional English catalog", () => {
         import assert from "node:assert/strict";
         globalThis.document = { documentElement: { lang: "" } };
         globalThis.window = { localStorage: {
-          getItem: (key) => key === "edgeever.locale.preference" ? ${JSON.stringify(locale)} : null,
+          getItem: (key) => key === "rtnote.locale.preference" ? ${JSON.stringify(locale)} : null,
           setItem() {}, removeItem() {},
         } };
         const { default: i18n, bootstrapI18n, changeAppLocale } = await import(${JSON.stringify(new URL("./index.ts", import.meta.url).pathname)});

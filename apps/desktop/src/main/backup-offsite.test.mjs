@@ -31,7 +31,7 @@ const fakeServer = () => {
 };
 
 const setup = async ({ secure = true } = {}) => {
-  const root = await mkdtemp(join(tmpdir(), "edgeever-offsite-"));
+  const root = await mkdtemp(join(tmpdir(), "rtnote-offsite-"));
   const userData = join(root, "private"); const backups = join(root, "backups");
   await mkdir(join(userData, "scheduled-backups"), { recursive: true }); await mkdir(join(backups, SET), { recursive: true });
   const server = fakeServer(); const changes = []; let clock = Date.parse("2026-10-29T10:00:00Z");

@@ -1,4 +1,4 @@
-import { UserCreateSchema, UserUpdateSchema, type InstanceUser } from "@edgeever/shared";
+import { UserCreateSchema, UserUpdateSchema, type InstanceUser } from "@rtnote/shared";
 import { zValidator } from "@hono/zod-validator";
 import type { Hono } from "hono";
 import { auditStatement } from "./audit";
@@ -162,8 +162,8 @@ export const registerUserRoutes = (
     if (!current) return notFound(context, "User not found");
     if (
       isProtectedDemoAccount(
-        context.env.EDGE_EVER_DEMO_MODE,
-        context.env.EDGE_EVER_AUTH_USERNAME,
+        context.env.RTNOTE_DEMO_MODE,
+        context.env.RTNOTE_AUTH_USERNAME,
         current.username,
       ) && (input.password !== undefined || input.isDisabled !== undefined)
     ) {

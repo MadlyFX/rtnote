@@ -6,12 +6,12 @@ import {
   WELCOME_MEMO_SEED_TITLE,
   buildWelcomeMemoContent,
   localizeDefaultNotebookName,
-} from "@edgeever/shared/default-workspace-seeds";
+} from "@rtnote/shared/default-workspace-seeds";
 import {
   DEFAULT_MEMO_TEMPLATE_SEEDS,
   defaultMemoTemplateId,
   localizeMemoTemplateSeed,
-} from "@edgeever/shared/memo-template-seeds";
+} from "@rtnote/shared/memo-template-seeds";
 import { createId, isoNow } from "./entity-utils";
 import { markWorkspaceExampleSeedPendingStatement } from "./workspace-example-seed";
 import { sha256 } from "./hash-utils";
@@ -201,7 +201,7 @@ export const createWorkspaceSeedLocalizationStatements = async (
     }),
     db.prepare(
       `INSERT INTO memo_search_documents (memo_id, title, content_text, tags)
-       SELECT ?, ?, ?, 'edgeever welcome'
+       SELECT ?, ?, ?, 'rtnote welcome'
        WHERE ${welcomeIsUntouched.sql}
        ON CONFLICT(memo_id) DO UPDATE SET
          title = excluded.title,

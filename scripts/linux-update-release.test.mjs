@@ -11,7 +11,7 @@ afterEach(async () => {
 });
 
 const fixture = async ({ metadataSha512, checksumSha256 } = {}) => {
-  const directory = await mkdtemp(join(tmpdir(), "edgeever-linux-update-"));
+  const directory = await mkdtemp(join(tmpdir(), "rtnote-linux-update-"));
   directories.push(directory);
   const version = "1.62.0";
   const name = `RTNote-${version}-linux-x64.AppImage`;

@@ -22,7 +22,7 @@ import {
   DEFAULT_NOTE_PROSE_CSS,
   noteProseCssDropsDeclarations,
   sanitizeNoteProseCss,
-} from "@edgeever/shared";
+} from "@rtnote/shared";
 
 const emptyAccount = () => ({
   fontSize: null,

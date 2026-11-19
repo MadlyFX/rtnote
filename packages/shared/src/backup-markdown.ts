@@ -83,7 +83,7 @@ export const buildNoteMarkdown = (markdown: string, memo: MemoDetail, notebookPa
     created: memo.createdAt,
     updated: memo.updatedAt,
     pinned: memo.isPinned,
-    edgeever_id: memo.id,
+    rtnote_id: memo.id,
   });
 
 export const buildMarkdownFrontMatter = (memo: MemoDetail, notebookPath: string) =>

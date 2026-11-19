@@ -16,14 +16,14 @@ const platforms = [
 test("Hacker News clips persist through the extension and local API; archived images survive source blocking", async ({ request, baseURL }) => {
   test.setTimeout(180_000);
   execFileSync("bun", ["run", "build:extension"], { cwd: repositoryRoot, stdio: "pipe" });
-  const directory = mkdtempSync(join(tmpdir(), "edgeever-platform-extension-"));
-  const profile = mkdtempSync(join(tmpdir(), "edgeever-platform-browser-"));
+  const directory = mkdtempSync(join(tmpdir(), "rtnote-platform-extension-"));
+  const profile = mkdtempSync(join(tmpdir(), "rtnote-platform-browser-"));
   cpSync(join(repositoryRoot, "apps/extension/dist"), directory, { recursive: true });
   const manifestPath = join(directory, "manifest.json");
   const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
   // The test cannot grant activeTab by clicking browser chrome. Give only this
   // temporary build the sampled hosts, image host and local instance access.
-  manifest.host_permissions = ["http://127.0.0.1/*", "https://news.ycombinator.com/*", "https://images.edgeever.test/*"];
+  manifest.host_permissions = ["http://127.0.0.1/*", "https://news.ycombinator.com/*", "https://images.rtnote.test/*"];
   writeFileSync(manifestPath, JSON.stringify(manifest));
 
   let context: BrowserContext | undefined;
@@ -47,13 +47,13 @@ test("Hacker News clips persist through the extension and local API; archived im
     await context.route(/^https:\/\//, async (route) => {
       const url = route.request().url(); sourceRequests.push(url);
       if (sourceBlocked) { await route.abort(); return; }
-      if (url.startsWith("https://images.edgeever.test/")) { await route.fulfill({ contentType: "image/png", body: png }); return; }
+      if (url.startsWith("https://images.rtnote.test/")) { await route.fulfill({ contentType: "image/png", body: png }); return; }
       const platform = platforms.find((entry) => url === entry.url);
       if (!platform) { await route.abort(); return; }
       const html = failure ? "<html><body><h1>Sign in</h1><p>Unrelated comments</p></body></html>"
         : readFileSync(join(repositoryRoot, `apps/extension/fixtures/platforms/${platform.name}.html`), "utf8")
-          .replace(/(<div class="toptext"[^>]*>)/, '$1<img src="https://images.edgeever.test/body.png">');
-      if (!failure) expect(html).toContain('src="https://images.edgeever.test/body.png"');
+          .replace(/(<div class="toptext"[^>]*>)/, '$1<img src="https://images.rtnote.test/body.png">');
+      if (!failure) expect(html).toContain('src="https://images.rtnote.test/body.png"');
       await route.fulfill({ contentType: "text/html; charset=utf-8", body: html });
     });
     const senderPromise = context.waitForEvent("page");

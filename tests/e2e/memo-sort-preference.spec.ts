@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { format, templatesRegExp, ui } from "./fixtures/ui-labels";
 
-const storageKey = "edgeever.memoSort";
+const storageKey = "rtnote.memoSort";
 const modes = [
   ["updated-desc", ui.options.memoSort.updatedDesc],
   ["created-desc", ui.options.memoSort.createdDesc],
@@ -44,12 +44,12 @@ for (const stored of [null, "unknown-sort"]) {
     await page.addInitScript(({ key, value }) => {
       if (value === null) localStorage.removeItem(key);
       else localStorage.setItem(key, value);
-      localStorage.setItem("edgeever.notebookSort", "custom");
+      localStorage.setItem("rtnote.notebookSort", "custom");
     }, { key: storageKey, value: stored });
     await page.goto("/");
     await expect(await openSort(page)).toHaveText(format(ui.memoList.sortTitle, { label: ui.options.memoSort.updatedDesc }));
     expect(await page.evaluate(key => localStorage.getItem(key), storageKey)).toBe(stored);
-    expect(await page.evaluate(() => localStorage.getItem("edgeever.notebookSort"))).toBe("custom");
+    expect(await page.evaluate(() => localStorage.getItem("rtnote.notebookSort"))).toBe("custom");
   });
 }
 

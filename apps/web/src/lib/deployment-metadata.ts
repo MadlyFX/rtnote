@@ -2,7 +2,7 @@ import {
   resolveDeploymentMethod,
   resolveDeploymentTrigger,
   type DeploymentMetadata,
-} from "@edgeever/shared/deployment-metadata";
+} from "@rtnote/shared/deployment-metadata";
 
 type DeploymentMetadataInput = {
   trigger?: string | null;

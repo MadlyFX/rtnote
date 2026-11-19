@@ -12,9 +12,9 @@ const environment = { storage: { db: { prepare: (sql) => ({ bind: (workspaceId) 
 const request = (url = target, method = "POST", signal) => new Request("https://notes.example/api/v1/ai/provider-relay", {
   method: "POST",
   headers: {
-    "x-edgeever-ai-target": url,
-    "x-edgeever-ai-method": method,
-    "x-edgeever-ai-headers": JSON.stringify({
+    "x-rtnote-ai-target": url,
+    "x-rtnote-ai-method": method,
+    "x-rtnote-ai-headers": JSON.stringify({
       authorization: "Bearer speech-key",
       "content-type": "multipart/form-data; boundary=test",
       cookie: "session=private",

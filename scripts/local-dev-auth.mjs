@@ -4,7 +4,7 @@ import { hashPassword } from "../apps/api/src/auth-crypto.ts";
 // Development fixtures only: never imported by either production runtime.
 // Reuse the owner of the existing local workspace without changing credentials.
 export const createLocalDevelopmentSession = async (database) => {
-  const passwordHash = await hashPassword("edgeever-local-dev");
+  const passwordHash = await hashPassword("rtnote-local-dev");
   return database.transaction(() => {
     let user = database.query(`
       SELECT u.id, u.username FROM users u

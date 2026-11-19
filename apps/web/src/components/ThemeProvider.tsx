@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { DIAGRAM_CANVAS_LIGHT } from "@edgeever/shared/diagram-canvas";
-import { brandThemeColor } from "@edgeever/shared/branding";
+import { DIAGRAM_CANVAS_LIGHT } from "@rtnote/shared/diagram-canvas";
+import { brandThemeColor } from "@rtnote/shared/branding";
 import { getBranding } from "@/lib/branding";
 import {
   DEFAULT_CUSTOM_DARK_COLORS,
@@ -140,12 +140,12 @@ interface ThemeProviderProps {
   children: ReactNode;
 }
 
-const THEME_STORAGE_KEY = "edgeever.theme";
-const MERMAID_THEME_STORAGE_KEY = "edgeever.mermaid-theme";
-const MARKDOWN_THEME_STORAGE_KEY = "edgeever.markdown-theme";
-const EDITOR_THEME_STORAGE_KEY = "edgeever.editor-theme";
-const CUSTOM_EDITOR_THEME_STORAGE_KEY = "edgeever.custom-editor-theme";
-const CUSTOM_EDITOR_THEMES_STORAGE_KEY = "edgeever.custom-editor-themes";
+const THEME_STORAGE_KEY = "rtnote.theme";
+const MERMAID_THEME_STORAGE_KEY = "rtnote.mermaid-theme";
+const MARKDOWN_THEME_STORAGE_KEY = "rtnote.markdown-theme";
+const EDITOR_THEME_STORAGE_KEY = "rtnote.editor-theme";
+const CUSTOM_EDITOR_THEME_STORAGE_KEY = "rtnote.custom-editor-theme";
+const CUSTOM_EDITOR_THEMES_STORAGE_KEY = "rtnote.custom-editor-themes";
 const LIGHT_THEME_COLOR = "#eef1f4";
 const DARK_THEME_COLOR = "#121315";
 const AppearanceThemeContext = createContext<AppearanceThemeContextValue | null>(null);

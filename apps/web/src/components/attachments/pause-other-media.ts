@@ -1,4 +1,4 @@
-const MEDIA_PLAYER_SELECTOR = "audio[data-edgeever-audio-player], video[data-edgeever-video-player]";
+const MEDIA_PLAYER_SELECTOR = "audio[data-rtnote-audio-player], video[data-rtnote-video-player]";
 
 export const pauseOtherMediaPlayers = (activePlayer: HTMLMediaElement) => {
   activePlayer.ownerDocument

@@ -63,7 +63,7 @@ function Verification() {
     try {
       const expected = FONT_CATALOG[font].family;
       if (![...document.fonts].some(face => face.family === expected && face.status === "loaded" && fontSubsetContains(face.unicodeRange, new Set([0x9f98])))) throw new Error("Source-only character was not loaded");
-      const codeNodes = document.querySelectorAll(".ProseMirror code, .ProseMirror pre, .ProseMirror .edgeever-code-source, .cm-scroller, .cm-content");
+      const codeNodes = document.querySelectorAll(".ProseMirror code, .ProseMirror pre, .ProseMirror .rtnote-code-source, .cm-scroller, .cm-content");
       if (codeNodes.length < 7 || [...codeNodes].some(node => !getComputedStyle(node).fontFamily.includes(expected))) throw new Error("A code surface did not follow Maple");
       const before = markdown;
       const x: number[] = [];
@@ -97,11 +97,11 @@ function Verification() {
       <p>Selection status: {status}</p>
       <FontLabel label={sample} fontId={font} enabled onStatusChange={setStatus} />
     </div>}
-    {["default", "wechat-green"].map(theme => <section key={theme} className="edgeever-editor" data-editor-theme={theme}>
+    {["default", "wechat-green"].map(theme => <section key={theme} className="rtnote-editor" data-editor-theme={theme}>
       <h2>{theme} · Rich text code</h2>
-      <div className="ProseMirror"><p>Body and inline code <code>{sample}</code></p><pre><code>{sample}</code></pre><pre className="edgeever-code-source">graph TD; A --&gt; B</pre></div>
+      <div className="ProseMirror"><p>Body and inline code <code>{sample}</code></p><pre><code>{sample}</code></pre><pre className="rtnote-code-source">graph TD; A --&gt; B</pre></div>
     </section>)}
-    <section className="edgeever-editor" style={{ height: 220 }}>
+    <section className="rtnote-editor" style={{ height: 220 }}>
       <h2>Markdown source</h2>
       <MarkdownSourceEditor ref={source} memoId="maple-font-test" value={markdown} onChange={setMarkdown} themeName="github-light" ariaLabel="Font test source" />
     </section>

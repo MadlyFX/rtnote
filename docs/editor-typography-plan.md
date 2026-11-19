@@ -11,7 +11,7 @@ The "Editor theme" menu in the toolbar is removed entirely. The skins and layout
 
 Decorations that came with the layouts go too, including section numbers (such as "NO. 01"), heading rules, masthead text and special quote styles. The note content itself is unchanged.
 
-If this device stored one of these themes (`edgeever.editor-theme`), its layout decorations are no longer applied. Colours migrate to the matching scheme using the table under "Fonts and colours". A saved custom colour scheme is treated as native.
+If this device stored one of these themes (`rtnote.editor-theme`), its layout decorations are no longer applied. Colours migrate to the matching scheme using the table under "Fonts and colours". A saved custom colour scheme is treated as native.
 
 ## Reading settings
 
@@ -38,7 +38,7 @@ Replaces the current "Note body layout". Both steps are centred. Body width appe
 
 Wide fits about ten more characters per line. Left-aligned full width is no longer offered.
 
-The existing `edgeever.editorContentAlignment` is migrated as follows and then no longer used:
+The existing `rtnote.editorContentAlignment` is migrated as follows and then no longer used:
 
 - Never stored, or stored as centred: Standard
 - Explicitly stored as left-aligned: Wide

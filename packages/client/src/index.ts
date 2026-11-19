@@ -1,5 +1,5 @@
-import type { ImportMemosInput, ImportMemosResponse } from "@edgeever/shared/note-import/types";
-import type { BrandAsset, BrandingOverview, BrandingSettings, NotebookBranding, NotebookUpdateInput, ResolvedBranding } from "@edgeever/shared";
+import type { ImportMemosInput, ImportMemosResponse } from "@rtnote/shared/note-import/types";
+import type { BrandAsset, BrandingOverview, BrandingSettings, NotebookBranding, NotebookUpdateInput, ResolvedBranding } from "@rtnote/shared";
 
 import { createPluginCapabilities } from './plugin-capabilities';
 import type {
@@ -61,16 +61,16 @@ import type {
   DeploymentMetadata,
   PluginPublicFetchRequest,
   PluginPublicFetchResponse,
-} from "@edgeever/shared";
+} from "@rtnote/shared";
 
 export const MAX_SINGLE_REQUEST_UPLOAD_BYTES = 5 * 1024 * 1024;
 
-export type EdgeEverClientRequestContext = {
+export type RTNoteClientRequestContext = {
   path: string;
   token?: string;
 };
 
-export type EdgeEverClientOptions = {
+export type RTNoteClientOptions = {
   baseUrl?: string | (() => string);
   token?: string | null | (() => string | null | undefined);
   fetch?: typeof fetch;
@@ -78,9 +78,9 @@ export type EdgeEverClientOptions = {
   allowSpeechServerFallback?: boolean;
   /** Used only for the speech service request; defaults to `fetch`. */
   providerFetch?: typeof fetch;
-  beforeRequest?: (context: EdgeEverClientRequestContext) => void | Promise<void>;
+  beforeRequest?: (context: RTNoteClientRequestContext) => void | Promise<void>;
   shouldAttachToken?: (path: string) => boolean;
-  onUnauthorized?: (context: EdgeEverClientRequestContext) => void | Promise<void>;
+  onUnauthorized?: (context: RTNoteClientRequestContext) => void | Promise<void>;
 };
 
 export type MultipartResourceUploadSource = {
@@ -336,13 +336,13 @@ export const isMfaRebindRequiredError = (error: unknown) =>
 
 export type ApiResponseDiagnostics = {
   cloudflareMitigated: boolean;
-  isEdgeEverApiError: boolean;
+  isRTNoteApiError: boolean;
   rayId?: string;
 };
 
 export type { SyncBootstrapResponse, SyncChangesResponse };
 
-export const createEdgeEverClient = (options: EdgeEverClientOptions = {}) => {
+export const createRTNoteClient = (options: RTNoteClientOptions = {}) => {
   const getFetch = () => options.fetch ?? globalThis.fetch;
   const providerFetch = (): typeof fetch => async (url, init) => {
     const directFetch = options.providerFetch ?? getFetch();
@@ -353,9 +353,9 @@ export const createEdgeEverClient = (options: EdgeEverClientOptions = {}) => {
         method: "POST",
         headers: {
           "Content-Type": "application/octet-stream",
-          "x-edgeever-ai-target": target.url,
-          "x-edgeever-ai-method": target.method,
-          "x-edgeever-ai-headers": JSON.stringify(Object.fromEntries(target.headers)),
+          "x-rtnote-ai-target": target.url,
+          "x-rtnote-ai-method": target.method,
+          "x-rtnote-ai-headers": JSON.stringify(Object.fromEntries(target.headers)),
         },
         body: target.method === "GET" ? undefined : await target.arrayBuffer(),
         signal: target.signal,
@@ -377,7 +377,7 @@ export const createEdgeEverClient = (options: EdgeEverClientOptions = {}) => {
     requestOptions?: { attachToken?: boolean; setJsonContentType?: boolean },
   ) => {
     const token = getToken();
-    const context: EdgeEverClientRequestContext = { path, ...(token ? { token } : {}) };
+    const context: RTNoteClientRequestContext = { path, ...(token ? { token } : {}) };
     await options.beforeRequest?.(context);
 
     const headers = new Headers(init?.headers);
@@ -408,7 +408,7 @@ export const createEdgeEverClient = (options: EdgeEverClientOptions = {}) => {
   };
 
   const throwRequestError = async (
-    context: EdgeEverClientRequestContext,
+    context: RTNoteClientRequestContext,
     response: Response,
     fallbackMessage = "Request failed",
   ): Promise<never> => {
@@ -420,7 +420,7 @@ export const createEdgeEverClient = (options: EdgeEverClientOptions = {}) => {
         : undefined;
     const responseDiagnostics: ApiResponseDiagnostics = {
       cloudflareMitigated: response.headers.get("cf-mitigated") === "challenge",
-      isEdgeEverApiError: Boolean(error && typeof error === "object"),
+      isRTNoteApiError: Boolean(error && typeof error === "object"),
       ...(rayId ? { rayId } : {}),
     };
 
@@ -453,19 +453,19 @@ export const createEdgeEverClient = (options: EdgeEverClientOptions = {}) => {
       body: JSON.stringify(input),
       signal,
     });
-    const upstreamStatus = response.headers.get("x-edgeever-upstream-status");
+    const upstreamStatus = response.headers.get("x-rtnote-upstream-status");
     if (!response.ok || !upstreamStatus) await throwRequestError(context, response, "Public network request failed");
     const status = Number(upstreamStatus);
     if (!Number.isInteger(status) || status < 100 || status > 599) throw new Error("Invalid public network response status");
     const headers: Record<string, string> = {};
     for (const [key, value] of response.headers) {
-      const prefix = "x-edgeever-upstream-header-";
+      const prefix = "x-rtnote-upstream-header-";
       if (key.startsWith(prefix)) headers[key.slice(prefix.length)] = value;
     }
     return {
       url: input.url,
       status,
-      statusText: decodeURIComponent(response.headers.get("x-edgeever-upstream-status-text") ?? ""),
+      statusText: decodeURIComponent(response.headers.get("x-rtnote-upstream-status-text") ?? ""),
       headers,
       body: await response.arrayBuffer(),
     };
@@ -1426,7 +1426,7 @@ export const createEdgeEverClient = (options: EdgeEverClientOptions = {}) => {
       if (!response.ok) await throwRequestError(context, response, "Community registry request failed");
       return {
         bytes: await response.arrayBuffer(),
-        signatureBase64: response.headers.get("x-edgeever-community-registry-signature") ?? "",
+        signatureBase64: response.headers.get("x-rtnote-community-registry-signature") ?? "",
       };
     },
 
@@ -1469,7 +1469,7 @@ export const createEdgeEverClient = (options: EdgeEverClientOptions = {}) => {
     },
 
     claimPosterRender: () => request<{ job: null | { id: string; memoId: string; expectedRevision: number; templateId: string | null; claimToken: string; expiresAt: string } }>("/api/v1/poster-render/claim", { method: "POST", body: "{}" }),
-    completePosterRender: (id: string, input: { claimToken: string; document?: import("@edgeever/shared").PosterDocument; errorCode?: "render_failed" | "revision_conflict" | "client_timeout" }) => request<{ job: { status: string } }>(`/api/v1/poster-render/${encodeURIComponent(id)}/complete`, { method: "POST", body: JSON.stringify(input) }),
+    completePosterRender: (id: string, input: { claimToken: string; document?: import("@rtnote/shared").PosterDocument; errorCode?: "render_failed" | "revision_conflict" | "client_timeout" }) => request<{ job: { status: string } }>(`/api/v1/poster-render/${encodeURIComponent(id)}/complete`, { method: "POST", body: JSON.stringify(input) }),
     uploadMemoResourceParts,
 
     updateMemo: (

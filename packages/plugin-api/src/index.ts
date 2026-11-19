@@ -155,7 +155,7 @@ export interface MarketplaceEntry {
   description: string;
   locales?: ExtensionLocales;
   author: string;
-  publisher?: "edgeever";
+  publisher?: "rtnote";
   category: string;
   repositoryUrl: string;
   distribution:
@@ -637,12 +637,12 @@ export interface PluginContext {
   };
 }
 
-export interface EdgeEverPlugin {
+export interface RTNotePlugin {
   activate(context: PluginContext): void | (() => void) | Promise<void | (() => void)>;
   deactivate?(): void | Promise<void>;
 }
 
-export const definePlugin = <T extends EdgeEverPlugin>(plugin: T): T => plugin;
+export const definePlugin = <T extends RTNotePlugin>(plugin: T): T => plugin;
 export const defineTheme = <T extends ThemeManifest>(theme: T): T => theme;
 
 const ID_PATTERN = /^[a-z0-9]+(?:[._-][a-z0-9]+)+$/;
@@ -1039,7 +1039,7 @@ const API_VERSION_PATTERN = /^\d+(?:\.\d+){0,3}$/;
 const NETWORK_HOST_PATTERN = /^(?:\*\.)?[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$/i;
 
 export const isReservedMarketplacePluginId = (id: string) =>
-  id === "org.edgeever" || id.startsWith("org.edgeever.");
+  id === "org.rtnote" || id.startsWith("org.rtnote.");
 
 const readOptionalToken = (
   value: unknown,
@@ -1114,7 +1114,7 @@ export const parseMarketplaceRegistry = (value: unknown): MarketplaceRegistry =>
     const description = item.description as string;
     const author = item.author as string;
     const locales = normalizeExtensionLocales(item.locales, `Marketplace entry ${item.id}`);
-    if (item.publisher !== undefined && item.publisher !== "edgeever") {
+    if (item.publisher !== undefined && item.publisher !== "rtnote") {
       throw new Error(`Marketplace entry ${item.id} has an invalid publisher.`);
     }
     const category = item.category as string;
@@ -1158,7 +1158,7 @@ export const parseMarketplaceRegistry = (value: unknown): MarketplaceRegistry =>
       description: description.trim(),
       ...(locales ? { locales } : {}),
       author: author.trim(),
-      ...(item.publisher === "edgeever" ? { publisher: "edgeever" as const } : {}),
+      ...(item.publisher === "rtnote" ? { publisher: "rtnote" as const } : {}),
       category: category.trim(),
       repositoryUrl: repositoryUrl.trim(),
       distribution,
@@ -1181,7 +1181,7 @@ export const parseMarketplaceRegistry = (value: unknown): MarketplaceRegistry =>
 
 /**
  * Overlay a signed community registry onto the bundled official list.
- * Official entries, their repository URLs, and `publisher: "edgeever"` stay
+ * Official entries, their repository URLs, and `publisher: "rtnote"` stay
  * on the bundled list. A signature does not make a remote entry official.
  */
 export const mergeCommunityMarketplace = (

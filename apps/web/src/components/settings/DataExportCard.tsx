@@ -19,13 +19,13 @@ import {
 } from "@/components/ui/dialog";
 import { api, ApiRequestError } from "@/lib/api";
 import {
-  EdgeEverZipImportError,
-  EdgeEverZipMemoryLimitError,
-  parseEdgeEverZip,
-  restoreEdgeEverZipAndRefresh,
-  saveEdgeEverZip,
-  type EdgeEverZipProgress,
-  type ParsedEdgeEverZip,
+  RTNoteZipImportError,
+  RTNoteZipMemoryLimitError,
+  parseRTNoteZip,
+  restoreRTNoteZipAndRefresh,
+  saveRTNoteZip,
+  type RTNoteZipProgress,
+  type ParsedRTNoteZip,
 } from "@/lib/json-backup";
 
 type DataExportCardProps = {
@@ -35,7 +35,7 @@ type DataExportCardProps = {
 type OperationState = "idle" | "working" | "complete" | "error";
 type OperationKind = "export" | "import";
 
-const Progress = ({ progress }: { progress: EdgeEverZipProgress }) => {
+const Progress = ({ progress }: { progress: RTNoteZipProgress }) => {
   const percentage = progress.total > 0 ? Math.round((progress.completed / progress.total) * 100) : 0;
   return (
     <div className="h-1.5 overflow-hidden rounded-full bg-slate-200">
@@ -50,14 +50,14 @@ export const DataExportCard = ({ refreshWorkspaceAfterImport }: DataExportCardPr
   const [state, setState] = useState<OperationState>("idle");
   const [operation, setOperation] = useState<OperationKind>("export");
   const [scanningImport, setScanningImport] = useState(false);
-  const [progress, setProgress] = useState<EdgeEverZipProgress>({ completed: 0, total: 0 });
-  const [pendingImport, setPendingImport] = useState<ParsedEdgeEverZip | null>(null);
+  const [progress, setProgress] = useState<RTNoteZipProgress>({ completed: 0, total: 0 });
+  const [pendingImport, setPendingImport] = useState<ParsedRTNoteZip | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const busy = state === "working";
 
   const describeImportError = (error: unknown) => {
-    if (error instanceof EdgeEverZipImportError) {
+    if (error instanceof RTNoteZipImportError) {
       switch (error.code) {
         case "invalidZip": return t("dataExport.importErrors.invalidZip");
         case "missingManifest": return t("dataExport.importErrors.missingManifest");
@@ -86,9 +86,9 @@ export const DataExportCard = ({ refreshWorkspaceAfterImport }: DataExportCardPr
     setScanningImport(false);
     setErrorMessage(null);
     try {
-      await saveEdgeEverZip(
+      await saveRTNoteZip(
         { listNotebooks: api.listNotebooks, getPage: api.getJsonBackupPage, getResourceResponse: api.getResourceResponse },
-        { edgeeverVersion: __EDGEEVER_APP_VERSION__, buildId: __EDGEEVER_BUILD_ID__ },
+        { rtnoteVersion: __RTNOTE_APP_VERSION__, buildId: __RTNOTE_BUILD_ID__ },
         setProgress
       );
       setState("complete");
@@ -98,7 +98,7 @@ export const DataExportCard = ({ refreshWorkspaceAfterImport }: DataExportCardPr
         return;
       }
       console.error("Failed to export RTNote ZIP", error);
-      setErrorMessage(error instanceof EdgeEverZipMemoryLimitError
+      setErrorMessage(error instanceof RTNoteZipMemoryLimitError
         ? t("dataExport.largeBackupRequiresStreaming")
         : t("dataExport.error"));
       setState("error");
@@ -113,7 +113,7 @@ export const DataExportCard = ({ refreshWorkspaceAfterImport }: DataExportCardPr
     setScanningImport(true);
     setErrorMessage(null);
     try {
-      const parsed = await parseEdgeEverZip(file, (percentage) => {
+      const parsed = await parseRTNoteZip(file, (percentage) => {
         setProgress({ completed: percentage, total: 100 });
       });
       setPendingImport(parsed);
@@ -138,7 +138,7 @@ export const DataExportCard = ({ refreshWorkspaceAfterImport }: DataExportCardPr
     setScanningImport(false);
     setErrorMessage(null);
     try {
-      await restoreEdgeEverZipAndRefresh(
+      await restoreRTNoteZipAndRefresh(
         archive,
         {
           restoreNotebooks: api.restoreJsonNotebooks,

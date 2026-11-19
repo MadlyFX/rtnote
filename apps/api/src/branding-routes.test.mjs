@@ -48,7 +48,7 @@ const fixture = () => {
   db.run("INSERT INTO table_forms (id, memo_id, workspace_id, token, enabled) VALUES ('form_1', 'memo_1', 'ws_member', ?, 1)", [formToken]);
 
   const blobs = new Map();
-  const storage = createSelfHostedStorageAdapter(db, "/tmp/edgeever-branding-unused");
+  const storage = createSelfHostedStorageAdapter(db, "/tmp/rtnote-branding-unused");
   storage.resources = {
     put: async (key, value, options) => { blobs.set(key, { bytes: new Uint8Array(value), options }); },
     get: async (key) => {
@@ -195,9 +195,9 @@ describe("branding on public pages", () => {
     expect(html).toContain("<title>Launch plan · Studio</title>");
     expect(html).toContain("Published with Studio");
     expect(html).toContain('href="https://studio.test"');
-    expect(html).toContain('<style id="edgeever-branding">');
+    expect(html).toContain('<style id="rtnote-branding">');
     expect(html).toContain("--brand-green:#7c3aed");
-    expect(html).toContain('id="edgeever-public-branding"');
+    expect(html).toContain('id="rtnote-public-branding"');
     expect(html).not.toContain('content="#f8f9fa"');
   });
 
@@ -235,7 +235,7 @@ describe("branding on public pages", () => {
     const html = await (await renderPublicMemoSharePage(new Request(`https://notes.test/share/${shareToken}`), f.storage.db, loadShell)).text();
     expect(html).toContain("<title>Launch plan · RTNote</title>");
     expect(html).toContain("Published with RTNote</a>");
-    expect(html).not.toContain('<style id="edgeever-branding">');
+    expect(html).not.toContain('<style id="rtnote-branding">');
     expect(html).toContain('content="#f8f9fa"');
   });
 

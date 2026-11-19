@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { ApiRequestError, createEdgeEverClient } from "./index.ts";
+import { ApiRequestError, createRTNoteClient } from "./index.ts";
 
 const jsonResponse = (body, init = {}) => new Response(JSON.stringify(body), {
   status: 200,
@@ -10,7 +10,7 @@ const jsonResponse = (body, init = {}) => new Response(JSON.stringify(body), {
 describe("RTNote client HTTP contract", () => {
   test("sends optional export cursors without changing legacy offset requests", async () => {
     const calls = [];
-    const client = createEdgeEverClient({ baseUrl: "https://notes.example", fetch: async input => { calls.push(new URL(input)); return jsonResponse({}); } });
+    const client = createRTNoteClient({ baseUrl: "https://notes.example", fetch: async input => { calls.push(new URL(input)); return jsonResponse({}); } });
     const cursor = JSON.stringify({ id: "memo_página", createdAt: "2020-01-01T00:00:00.000Z", offset: 25 });
     await client.getJsonBackupPage(25, 25, cursor);
     await client.getMarkdownExportPage(25, 25, ["memo_1"], cursor);
@@ -21,7 +21,7 @@ describe("RTNote client HTTP contract", () => {
 
   test("requests full metadata initially and opts out only for later sync and export pages", async () => {
     const calls = [];
-    const client = createEdgeEverClient({ baseUrl: "https://notes.example", fetch: async (input) => { calls.push(new URL(input)); return jsonResponse({}); } });
+    const client = createRTNoteClient({ baseUrl: "https://notes.example", fetch: async (input) => { calls.push(new URL(input)); return jsonResponse({}); } });
     await client.syncBootstrap({ limit: 1 });
     await client.syncBootstrap({ afterId: "memo_1", limit: 1 });
     await client.getMobileSyncBootstrapPage(null, 1);
@@ -39,12 +39,12 @@ describe("RTNote client HTTP contract", () => {
 
   test("reads public instance diagnostics through the configured base URL", async () => {
     const calls = [];
-    const client = createEdgeEverClient({
+    const client = createRTNoteClient({
       baseUrl: "https://notes.example/",
       fetch: async (input) => {
         calls.push(String(input));
         return jsonResponse(String(input).endsWith("/api/health")
-          ? { ok: true, name: "edgeever", runtime: "cloudflare-workers" }
+          ? { ok: true, name: "rtnote", runtime: "cloudflare-workers" }
           : { version: "1.47.0", changes: {} });
       },
     });
@@ -64,7 +64,7 @@ describe("RTNote client HTTP contract", () => {
 
   test("normalizes the base URL and sends backup pagination with auth", async () => {
     const calls = [];
-    const client = createEdgeEverClient({
+    const client = createRTNoteClient({
       baseUrl: "https://notes.example///",
       token: "secret",
       fetch: async (input, init) => {
@@ -84,7 +84,7 @@ describe("RTNote client HTTP contract", () => {
     let token = "first-token";
     const calls = [];
     const contexts = [];
-    const client = createEdgeEverClient({
+    const client = createRTNoteClient({
       baseUrl: () => baseUrl,
       token: () => token,
       beforeRequest: (context) => contexts.push(context),
@@ -118,7 +118,7 @@ describe("RTNote client HTTP contract", () => {
 
   test("does not leak API credentials or JSON headers to absolute resource URLs", async () => {
     let call;
-    const client = createEdgeEverClient({
+    const client = createRTNoteClient({
       baseUrl: "https://notes.example",
       token: "secret",
       fetch: async (input, init) => {
@@ -137,7 +137,7 @@ describe("RTNote client HTTP contract", () => {
 
   test("exposes an authenticated resource response without forcing Blob buffering", async () => {
     let authorization;
-    const client = createEdgeEverClient({
+    const client = createRTNoteClient({
       baseUrl: "https://notes.example",
       token: "secret",
       fetch: async (_input, init) => {
@@ -161,7 +161,7 @@ describe("RTNote client HTTP contract", () => {
 
   test("downloads GitHub plugin assets through the release-tag route", async () => {
     let requestUrl;
-    const client = createEdgeEverClient({
+    const client = createRTNoteClient({
       fetch: async (input) => {
         requestUrl = String(input);
         return new Response(new Uint8Array([1, 2, 3]));
@@ -183,7 +183,7 @@ describe("RTNote client HTTP contract", () => {
 
   test("downloads GitHub plugin assets through the release-asset id route", async () => {
     let requestUrl;
-    const client = createEdgeEverClient({
+    const client = createRTNoteClient({
       fetch: async (input) => {
         requestUrl = String(input);
         return new Response(new Uint8Array([4, 5]));
@@ -205,7 +205,7 @@ describe("RTNote client HTTP contract", () => {
 
   test("reads GitHub plugin metadata through the instance proxy", async () => {
     const calls = [];
-    const client = createEdgeEverClient({
+    const client = createRTNoteClient({
       fetch: async (input) => {
         const url = String(input);
         calls.push(url);
@@ -234,7 +234,7 @@ describe("RTNote client HTTP contract", () => {
 
   test("streams restored resources through bounded multipart requests", async () => {
     const calls = [];
-    const client = createEdgeEverClient({
+    const client = createRTNoteClient({
       fetch: async (input, init) => {
         const path = String(input);
         calls.push({ path, headers: new Headers(init.headers), body: init.body });
@@ -290,7 +290,7 @@ describe("RTNote client HTTP contract", () => {
   test("uploads memo resources as ordered resumable parts", async () => {
     const calls = [];
     const file = new File(["abcdefghij", new Uint8Array(5 * 1024 * 1024 - 9)], "archive.bin", { type: "application/octet-stream" });
-    const client = createEdgeEverClient({
+    const client = createRTNoteClient({
       fetch: async (input, init) => {
         const path = String(input);
         calls.push({ path, method: init.method, body: init.body });
@@ -337,7 +337,7 @@ describe("RTNote client HTTP contract", () => {
 
   test("uploads binary parts without converting them to Blob", async () => {
     const parts = [];
-    const client = createEdgeEverClient({
+    const client = createRTNoteClient({
       fetch: async (input, init) => {
         const path = String(input);
         if (path.endsWith("/resource-uploads")) {
@@ -363,7 +363,7 @@ describe("RTNote client HTTP contract", () => {
 
   test("uploads small images in one request and preserves file metadata", async () => {
     const calls = [];
-    const client = createEdgeEverClient({
+    const client = createRTNoteClient({
       fetch: async (input, init) => {
         calls.push({ path: String(input), init });
         return jsonResponse({ resource: { id: "image_1" } }, { status: 201 });
@@ -382,7 +382,7 @@ describe("RTNote client HTTP contract", () => {
 
   test("replaces resource content with a multipart concurrency baseline", async () => {
     let request;
-    const client = createEdgeEverClient({
+    const client = createRTNoteClient({
       fetch: async (input, init) => {
         request = { path: String(input), init };
         return jsonResponse({ resource: { id: "res_1", sha256: "next" } });
@@ -405,7 +405,7 @@ describe("RTNote client HTTP contract", () => {
   test("uploads a file-backed source without requesting more than one part at a time", async () => {
     const ranges = [];
     const bodies = [];
-    const client = createEdgeEverClient({
+    const client = createRTNoteClient({
       fetch: async (input, init) => {
         const path = String(input);
         if (path.endsWith("/resource-uploads")) {
@@ -444,7 +444,7 @@ describe("RTNote client HTTP contract", () => {
 
   test("sends an exact tag constraint when listing memos", async () => {
     let requestUrl;
-    const client = createEdgeEverClient({
+    const client = createRTNoteClient({
       fetch: async (input) => {
         requestUrl = String(input);
         return jsonResponse({ memos: [], totalCount: 0, nextCursor: null });
@@ -458,7 +458,7 @@ describe("RTNote client HTTP contract", () => {
 
   test("preserves API error codes and invokes unauthorized handling", async () => {
     let unauthorized = 0;
-    const client = createEdgeEverClient({
+    const client = createRTNoteClient({
       onUnauthorized: () => { unauthorized += 1; },
       fetch: async () => jsonResponse(
         { error: { code: "session_expired", message: "Sign in again" } },
@@ -477,7 +477,7 @@ describe("RTNote client HTTP contract", () => {
   });
 
   test("preserves Cloudflare diagnostics when an HTML challenge intercepts the API", async () => {
-    const client = createEdgeEverClient({
+    const client = createRTNoteClient({
       fetch: async () => new Response("<html>challenge</html>", {
         status: 403,
         headers: {
@@ -498,7 +498,7 @@ describe("RTNote client HTTP contract", () => {
         message: "Request failed",
         responseDiagnostics: {
           cloudflareMitigated: true,
-          isEdgeEverApiError: false,
+          isRTNoteApiError: false,
           rayId: "abc123-NRT",
         },
       });
@@ -506,7 +506,7 @@ describe("RTNote client HTTP contract", () => {
   });
 
   test("distinguishes RTNote API errors from edge security responses", async () => {
-    const client = createEdgeEverClient({
+    const client = createRTNoteClient({
       fetch: async () => jsonResponse(
         { error: { code: "forbidden", message: "Forbidden", details: { reason: "policy" } } },
         { status: 403, headers: { "CF-Ray": "def456-SJC", "Content-Type": "application/json" } },
@@ -519,7 +519,7 @@ describe("RTNote client HTTP contract", () => {
       details: { reason: "policy" },
       responseDiagnostics: {
         cloudflareMitigated: false,
-        isEdgeEverApiError: true,
+        isRTNoteApiError: true,
         rayId: "def456-SJC",
       },
     });
@@ -528,7 +528,7 @@ describe("RTNote client HTTP contract", () => {
 
 const createRecordingClient = (respond = () => jsonResponse({ ok: true }), clientOptions = {}) => {
   const calls = [];
-  const client = createEdgeEverClient({
+  const client = createRTNoteClient({
     baseUrl: "https://notes.example",
     token: "secret",
     ...clientOptions,
@@ -768,7 +768,7 @@ describe("RTNote client endpoint contract", () => {
       status: 409,
       code: "conflict",
       details: { revision: 4 },
-      responseDiagnostics: { cloudflareMitigated: false, isEdgeEverApiError: true, rayId: "ray-1" },
+      responseDiagnostics: { cloudflareMitigated: false, isRTNoteApiError: true, rayId: "ray-1" },
     });
   });
 
@@ -778,7 +778,7 @@ describe("RTNote client endpoint contract", () => {
       message: "Bad Gateway",
       status: 502,
       code: undefined,
-      responseDiagnostics: { isEdgeEverApiError: false },
+      responseDiagnostics: { isRTNoteApiError: false },
     });
 
     const generic = createRecordingClient(() => new Response("", { status: 500 }));
@@ -868,7 +868,7 @@ describe("RTNote client binary and plugin endpoints", () => {
     let status = 200;
     const { client, calls } = createRecordingClient(() => new Response(
       status === 200 ? new Uint8Array([1, 2, 3]) : "missing",
-      { status, headers: status === 200 ? { "x-edgeever-community-registry-signature": "sig" } : {} },
+      { status, headers: status === 200 ? { "x-rtnote-community-registry-signature": "sig" } : {} },
     ));
 
     const registry = await client.getCommunityPluginRegistry();
@@ -944,9 +944,9 @@ describe("RTNote client binary and plugin endpoints", () => {
     const { client, calls } = createRecordingClient(() => new Response("payload", {
       status: 200,
       headers: {
-        "x-edgeever-upstream-status": "201",
-        "x-edgeever-upstream-status-text": encodeURIComponent("Created ok"),
-        "x-edgeever-upstream-header-content-type": "text/plain",
+        "x-rtnote-upstream-status": "201",
+        "x-rtnote-upstream-status-text": encodeURIComponent("Created ok"),
+        "x-rtnote-upstream-header-content-type": "text/plain",
         "x-unrelated": "ignored",
       },
     }));
@@ -972,12 +972,12 @@ describe("RTNote client binary and plugin endpoints", () => {
       message: "Public network request failed",
     });
 
-    headers = { "x-edgeever-upstream-status": "99" };
+    headers = { "x-rtnote-upstream-status": "99" };
     await expect(client.pluginNetwork.fetchPublic({ url: "https://example.com" })).rejects.toThrow(
       "Invalid public network response status",
     );
 
-    headers = { "x-edgeever-upstream-status": "200" };
+    headers = { "x-rtnote-upstream-status": "200" };
     status = 502;
     await expect(client.pluginNetwork.fetchPublic({ url: "https://example.com" })).rejects.toMatchObject({ status: 502 });
   });

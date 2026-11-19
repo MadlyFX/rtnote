@@ -85,15 +85,15 @@ const installBaseline = async (directory) => {
     for (let attempt = 0; attempt < 3; attempt++) {
       result = spawnSync(installer, ["/S", `/D=${installed}`], {
       stdio: "ignore", windowsHide: true, timeout: 120_000,
-      env: { ...process.env, EDGE_EVER_DISABLE_AUTO_UPDATE: "1" },
+      env: { ...process.env, RTNOTE_DISABLE_AUTO_UPDATE: "1" },
     });
       if (result.status === 0) break;
       stopWindowsUpdateFixtures();
       await wait(2_000);
     }
     if (result.status !== 0) throw new Error(`Baseline NSIS install failed: ${result.status}`);
-    const executable = join(installed, "EdgeEverUpdateVerifier.exe");
-    spawnSync("powershell", ["-NoProfile", "-Command", `Get-CimInstance Win32_Process -Filter "Name='EdgeEverUpdateVerifier.exe'" | Where-Object { $_.ExecutablePath -eq $env:VERIFIER_INSTALLED_EXE } | ForEach-Object { taskkill /PID $_.ProcessId /T /F | Out-Null }`], {
+    const executable = join(installed, "RTNoteUpdateVerifier.exe");
+    spawnSync("powershell", ["-NoProfile", "-Command", `Get-CimInstance Win32_Process -Filter "Name='RTNoteUpdateVerifier.exe'" | Where-Object { $_.ExecutablePath -eq $env:VERIFIER_INSTALLED_EXE } | ForEach-Object { taskkill /PID $_.ProcessId /T /F | Out-Null }`], {
       stdio: "ignore", env: { ...process.env, VERIFIER_INSTALLED_EXE: executable }, timeout: 30_000,
     });
     return executable;
@@ -127,16 +127,16 @@ try {
     const profile = join(directory, "profile");
     mkdirSync(profile, { recursive: true });
     const env = { ...process.env,
-      EDGE_EVER_UPDATE_VERIFIER_PROFILE: profile, EDGE_EVER_UPDATE_VERIFIER_LOG: eventsPath,
-      EDGE_EVER_UPDATE_VERIFIER_COMMAND: commandPath, EDGE_EVER_UPDATE_VERIFIER_FEED: feed,
-      EDGE_EVER_UPDATE_VERIFIER_PUBLIC_KEY: join(root, "public-key.pem"),
+      RTNOTE_UPDATE_VERIFIER_PROFILE: profile, RTNOTE_UPDATE_VERIFIER_LOG: eventsPath,
+      RTNOTE_UPDATE_VERIFIER_COMMAND: commandPath, RTNOTE_UPDATE_VERIFIER_FEED: feed,
+      RTNOTE_UPDATE_VERIFIER_PUBLIC_KEY: join(root, "public-key.pem"),
     };
     // Squirrel/LaunchServices can relaunch without inheriting environment.
     // Every signed fixture embeds only this fixed config path, never secrets.
     writeFileSync(join(root, "runtime.json"), JSON.stringify({
-      EDGE_EVER_UPDATE_VERIFIER_PROFILE: profile, EDGE_EVER_UPDATE_VERIFIER_LOG: eventsPath,
-      EDGE_EVER_UPDATE_VERIFIER_COMMAND: commandPath, EDGE_EVER_UPDATE_VERIFIER_FEED: feed,
-      EDGE_EVER_UPDATE_VERIFIER_PUBLIC_KEY: join(root, "public-key.pem"),
+      RTNOTE_UPDATE_VERIFIER_PROFILE: profile, RTNOTE_UPDATE_VERIFIER_LOG: eventsPath,
+      RTNOTE_UPDATE_VERIFIER_COMMAND: commandPath, RTNOTE_UPDATE_VERIFIER_FEED: feed,
+      RTNOTE_UPDATE_VERIFIER_PUBLIC_KEY: join(root, "public-key.pem"),
     }));
     const executable = await installBaseline(directory);
     let debuggerEndpoint;

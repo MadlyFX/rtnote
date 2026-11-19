@@ -25,7 +25,7 @@ const flush = async () => { for (let i = 0; i < 40; i++) await Promise.resolve()
 // authenticated loopback proxy. The native Squirrel API and installer process
 // are simulated; these tests do not claim OS signing or installation coverage.
 const harness = async (platform) => {
-  const directory = await mkdtemp(join(tmpdir(), "edgeever-desktop-update-"));
+  const directory = await mkdtemp(join(tmpdir(), "rtnote-desktop-update-"));
   cleanup.push(() => rm(directory, { recursive: true, force: true }));
   const releases = new Map();
   for (const version of ["2.17.0", "2.18.0", "2.19.0"]) {

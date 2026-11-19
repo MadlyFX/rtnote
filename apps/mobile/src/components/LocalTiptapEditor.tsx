@@ -1,6 +1,6 @@
 'use dom';
 
-import { prepareNoteImageAssets } from "@edgeever/shared/note-image-fonts";
+import { prepareNoteImageAssets } from "@rtnote/shared/note-image-fonts";
 import { noteImageAssetUrls } from "./note-image-asset-urls";
 import "katex/dist/katex.min.css";
 import { stripMobileAttachmentPrefix } from "../lib/mobile-attachment-prefix";
@@ -10,12 +10,12 @@ import Image from "@tiptap/extension-image";
 import CodeBlock from "@tiptap/extension-code-block";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, Extension, useEditor, useEditorState, type Editor } from "@tiptap/react";
-import { EdgeEverLink } from "@edgeever/shared/editor-link";
+import { RTNoteLink } from "@rtnote/shared/editor-link";
 import * as Clipboard from "expo-clipboard";
 import {
   createNativeUnsupportedContentExtensions,
   MEMO_CONTENT_STYLE,
-  createEdgeEverDocumentExtensions,
+  createRTNoteDocumentExtensions,
   applyImageAlignment,
   DETAILS_EDITOR_CSS,
   wrapDetailsContentHtml,
@@ -33,17 +33,17 @@ import {
   mindMapConnector,
   type TiptapDoc,
   type DiagramDocument,
-} from "@edgeever/shared";
-import { createEdgeEverMathematics } from "@edgeever/shared/mathematics";
-import { createMobileFormatPanel, getMobileCaptionPlaceholder, type MobileFormatPanel } from "@edgeever/shared/mobile-format-panel";
-import { NATIVE_VOICE_MEMO_CSS, createNativeVoiceMemoExtension } from "@edgeever/shared/native-voice-memo";
+} from "@rtnote/shared";
+import { createRTNoteMathematics } from "@rtnote/shared/mathematics";
+import { createMobileFormatPanel, getMobileCaptionPlaceholder, type MobileFormatPanel } from "@rtnote/shared/mobile-format-panel";
+import { NATIVE_VOICE_MEMO_CSS, createNativeVoiceMemoExtension } from "@rtnote/shared/native-voice-memo";
 import {
   NEW_IMAGE_WIDTH_PERCENT,
   IMAGE_WIDTH_PRESETS,
   PHONE_IMAGE_FILL_CSS,
   clampImageWidth,
   parseImageWidth,
-} from "@edgeever/shared/image-display";
+} from "@rtnote/shared/image-display";
 import {
   MOBILE_EDITOR_ACTIVE_FLAGS,
   MOBILE_EDITOR_TOOLBAR_ACTIONS,
@@ -57,7 +57,7 @@ import {
   getMobileEditorToolbarActionLabel,
   getMobileEditorToolbarLabel,
   type MobileEditorToolbarActionId,
-} from "@edgeever/shared/mobile-editor";
+} from "@rtnote/shared/mobile-editor";
 import {
   type NoteImageTheme,
   type NoteImageFontStyle,
@@ -71,10 +71,10 @@ import {
   buildNoteImageCardMarkup,
   generateCardCss,
   prepareNoteImageContent,
-} from "@edgeever/shared/note-image-card";
+} from "@rtnote/shared/note-image-card";
 import { useDOMImperativeHandle, type DOMImperativeFactory, type DOMProps } from "expo/dom";
 import { toCanvas } from "html-to-image";
-import { createImageInsertTransaction, createNativeImageGalleryView, groupUploadedImages, NATIVE_IMAGE_GALLERY_CSS } from "@edgeever/shared/native-image-gallery";
+import { createImageInsertTransaction, createNativeImageGalleryView, groupUploadedImages, NATIVE_IMAGE_GALLERY_CSS } from "@rtnote/shared/native-image-gallery";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode, type Ref } from "react";
 import {
   createMobileImageUploadPlaceholderSource,
@@ -158,7 +158,7 @@ type MermaidRendererProps = {
 };
 
 const CHANGE_IDLE_MS = 500;
-const TRANSIENT_IMAGE_UPLOAD_META = "edgeeverImageUploadPlaceholder";
+const TRANSIENT_IMAGE_UPLOAD_META = "rtnoteImageUploadPlaceholder";
 const ignoreSearchResult = async () => undefined;
 const IMAGE_EXPORT_CHUNK_BYTES = 192 * 1024;
 
@@ -210,7 +210,7 @@ const getMobileImageResourceId = (href: string): string | null => {
   const fromBlob = getResourceIdFromUrl(href);
   if (fromBlob) return fromBlob;
   try {
-    const parsed = new URL(href, "http://edgeever.local");
+    const parsed = new URL(href, "http://rtnote.local");
     const match = parsed.pathname.match(/^\/api\/v1\/resources\/([^/]+)\/?$/);
     return match?.[1] ? decodeURIComponent(match[1]) : null;
   } catch {
@@ -242,7 +242,7 @@ const buildMobileImagePreviewPayload = (figure: HTMLElement): string => {
   const source = figure.dataset.resourceHref ?? "";
   const alt = figure.dataset.resourceFilename || "";
   const allFigures = typeof document !== "undefined"
-    ? Array.from(document.querySelectorAll<HTMLElement>("figure.edgeever-image-node[data-resource-href]"))
+    ? Array.from(document.querySelectorAll<HTMLElement>("figure.rtnote-image-node[data-resource-href]"))
     : [];
   const images = allFigures
     .map((fig) => ({
@@ -270,7 +270,7 @@ const handleMobileResourceEvent = (
   options?: { allowImagePreview?: boolean; onImagePreview?: (payloadJson: string) => Promise<void> }
 ) => {
   const element = event.target instanceof Element ? event.target : null;
-  const link = element?.closest<HTMLAnchorElement>('a.edgeever-attachment-link, a[href*="/api/v1/resources/"]');
+  const link = element?.closest<HTMLAnchorElement>('a.rtnote-attachment-link, a[href*="/api/v1/resources/"]');
   const href = link?.getAttribute("href") ?? "";
   const resourceId = getResourceIdFromUrl(href) ?? getMobileImageResourceId(href);
   if (link && resourceId && onResourcePress) {
@@ -285,11 +285,11 @@ const handleMobileResourceEvent = (
     return true;
   }
 
-  const imageFigure = element?.closest<HTMLElement>("figure.edgeever-image-node");
+  const imageFigure = element?.closest<HTMLElement>("figure.rtnote-image-node");
   const imageHref = imageFigure?.dataset.resourceHref ?? "";
   if (!imageFigure || !imageHref) return false;
 
-  const imageActionRequested = event.type === "contextmenu" || Boolean(element?.closest(".edgeever-image-actions"));
+  const imageActionRequested = event.type === "contextmenu" || Boolean(element?.closest(".rtnote-image-actions"));
   if (imageActionRequested && onResourcePress) {
     const targetJson = buildImageResourceTargetJson(imageFigure);
     if (!targetJson) return false;
@@ -422,8 +422,8 @@ const ReadOnlyX6Diagram = ({
       ? getMobileEditorCopy(locale).diagram.architecture
       : getMobileEditorCopy(locale).diagram.flowchart;
   return (
-    <section className="edgeever-x6-document">
-      <div aria-label={title} className="edgeever-x6-diagram" key={diagram.kind} ref={containerRef} role="img" />
+    <section className="rtnote-x6-document">
+      <div aria-label={title} className="rtnote-x6-diagram" key={diagram.kind} ref={containerRef} role="img" />
     </section>
   );
 };
@@ -495,7 +495,7 @@ const inlineMermaidSvgStyles = (svg: string) => {
 };
 
 const getEditorScrollContainer = (editor: Editor) =>
-  editor.view.dom.closest<HTMLElement>(".edgeever-editor-scroll");
+  editor.view.dom.closest<HTMLElement>(".rtnote-editor-scroll");
 
 const updateEditorKeyboardInset = (editor: Editor) => {
   const scrollContainer = getEditorScrollContainer(editor);
@@ -507,7 +507,7 @@ const updateEditorKeyboardInset = (editor: Editor) => {
     ? visualViewport.offsetTop + visualViewport.height
     : window.innerHeight;
   const keyboardInset = Math.max(0, window.innerHeight - visibleBottom);
-  scrollContainer.style.setProperty("--edgeever-keyboard-inset", `${Math.round(keyboardInset)}px`);
+  scrollContainer.style.setProperty("--rtnote-keyboard-inset", `${Math.round(keyboardInset)}px`);
 };
 
 const scrollEditorPositionIntoView = (
@@ -629,7 +629,7 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
   );
   const searchHighlightExtension = useMemo(
     () => Extension.create({
-      name: "edgeeverMobileNoteSearchHighlight",
+      name: "rtnoteMobileNoteSearchHighlight",
       addProseMirrorPlugins() {
         return [createMobileNoteSearchHighlightPlugin({
           getActiveIndex: () => searchStateRef.current.activeIndex,
@@ -646,8 +646,8 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
     // the Android bridge retry raced each other and could leave the WebView stuck.
     autofocus: false,
     extensions: [
-      ...createEdgeEverDocumentExtensions({
-        mathematics: createEdgeEverMathematics(),
+      ...createRTNoteDocumentExtensions({
+        mathematics: createRTNoteMathematics(),
         starterKit: { codeBlock: false, link: false },
         image: protectedImageExtension,
         gallery: ImageGallery.extend({
@@ -660,7 +660,7 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
         imageCaption: { placeholder: getMobileCaptionPlaceholder(props.locale) },
         voiceMemo: voiceMemoExtension,
       }),
-      EdgeEverLink.configure({ openOnClick: false }),
+      RTNoteLink.configure({ openOnClick: false }),
       NativeAttachmentMetadata,
       mermaidCodeBlockExtension,
       searchHighlightExtension,
@@ -675,7 +675,7 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
     ),
     editorProps: {
       attributes: getMobileEditorInputAttributes(
-        isViewer ? "edgeever-editor-content edgeever-viewer-content" : "edgeever-editor-content"
+        isViewer ? "rtnote-editor-content rtnote-viewer-content" : "rtnote-editor-content"
       ),
       transformPastedHTML: (html) => wrapDetailsContentHtml(html),
       handleDOMEvents: {
@@ -692,7 +692,7 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
         dblclick: (_view, event) => {
           if (!isViewerRef.current || !onDoublePressRef.current) return false;
           const target = event.target as HTMLElement | null;
-          if (!target || target.closest("a, button, img, input, textarea, select, .edgeever-image-node")) {
+          if (!target || target.closest("a, button, img, input, textarea, select, .rtnote-image-node")) {
             return false;
           }
           event.preventDefault();
@@ -1036,7 +1036,7 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
           new Promise<void>((resolve) => window.setTimeout(resolve, 8_000)),
         ]);
         const exportedImages = Array.from(
-          documentRoot.querySelectorAll<HTMLImageElement>(".edgeever-card-body img"),
+          documentRoot.querySelectorAll<HTMLImageElement>(".rtnote-card-body img"),
         );
         const failedImages = exportedImages.filter((image) => !image.complete || image.naturalWidth === 0).length;
         const totalHeight = Math.max(1, Math.ceil(documentRoot.getBoundingClientRect().height));
@@ -1166,7 +1166,7 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
       return;
     }
     editor.setEditable(!isViewer);
-    editor.view.dom.classList.toggle("edgeever-viewer-content", isViewer);
+    editor.view.dom.classList.toggle("rtnote-viewer-content", isViewer);
   }, [editor, isViewer]);
 
   useEffect(() => {
@@ -1287,7 +1287,7 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
 
   useEffect(() => {
     if (!editor || !isViewer) return;
-    const scrollContainer = document.querySelector<HTMLElement>(".edgeever-editor-scroll");
+    const scrollContainer = document.querySelector<HTMLElement>(".rtnote-editor-scroll");
     if (!scrollContainer) return;
 
     return attachMobileReaderScroll(scrollContainer, (collapsed) => {
@@ -1389,11 +1389,11 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
   };
 
   return (
-    <div className={isViewer ? "edgeever-editor-shell edgeever-viewer-shell" : "edgeever-editor-shell"}>
+    <div className={isViewer ? "rtnote-editor-shell rtnote-viewer-shell" : "rtnote-editor-shell"}>
       <style>{getEditorStyles(props.theme, { viewer: isViewer })}</style>
       <style>{NATIVE_VOICE_MEMO_CSS}</style>
       {!isViewer ? (
-        <div aria-label={getMobileEditorToolbarLabel(props.locale)} className="edgeever-editor-toolbar" role="toolbar">
+        <div aria-label={getMobileEditorToolbarLabel(props.locale)} className="rtnote-editor-toolbar" role="toolbar">
           {MOBILE_EDITOR_TOOLBAR_ACTIONS.map((action) => (
               <ToolbarButton
                 key={action.id}
@@ -1413,11 +1413,11 @@ function LocalTiptapEditorImpl(props: LocalTiptapEditorProps) {
         </div>
       ) : null}
       {isViewer && visualDiagram ? (
-        <div className="edgeever-editor-scroll">
+        <div className="rtnote-editor-scroll">
           <ReadOnlyX6Diagram diagram={visualDiagram} locale={props.locale} theme={props.theme} />
         </div>
       ) : (
-        <EditorContent className="edgeever-editor-scroll" editor={editor} />
+        <EditorContent className="rtnote-editor-scroll" editor={editor} />
       )}
     </div>
   );
@@ -1642,7 +1642,7 @@ const renderMobileMermaid = (source: string, theme: "light" | "dark", htmlLabels
       htmlLabels,
       flowchart: { nodeSpacing: 25, rankSpacing: 30, subGraphTitleMargin: { bottom: 12 } },
     });
-    return mermaid.render(`edgeever-mobile-mermaid-${++mermaidRenderSequence}`, source);
+    return mermaid.render(`rtnote-mobile-mermaid-${++mermaidRenderSequence}`, source);
   });
   mermaidRenderQueue = result.catch(() => undefined);
   return result;
@@ -1664,7 +1664,7 @@ const createMobileCodeBlockExtension = (
       const copyButton = document.createElement("button");
       let copyResetTimer: number | null = null;
       preview.contentEditable = "false";
-      preview.className = "edgeever-mermaid-preview";
+      preview.className = "rtnote-mermaid-preview";
       preview.tabIndex = 0;
       preview.setAttribute("role", "button");
       preview.addEventListener("click", () => wrapper.classList.toggle("is-source-visible"));
@@ -1674,12 +1674,12 @@ const createMobileCodeBlockExtension = (
           wrapper.classList.toggle("is-source-visible");
         }
       });
-      message.className = "edgeever-mermaid-message";
-      svgContainer.className = "edgeever-mermaid-svg";
+      message.className = "rtnote-mermaid-message";
+      svgContainer.className = "rtnote-mermaid-svg";
       svgContainer.setAttribute("role", "img");
       svgContainer.setAttribute("aria-label", getMobileEditorCopy(locale).codeBlock.mermaidPreview);
       copyButton.type = "button";
-      copyButton.className = "edgeever-code-copy-button";
+      copyButton.className = "rtnote-code-copy-button";
       copyButton.contentEditable = "false";
       copyButton.setAttribute("aria-label", getMobileEditorCopy(locale).codeBlock.copy);
       copyButton.textContent = getMobileEditorCopy(locale).codeBlock.copy;
@@ -1731,7 +1731,7 @@ const createMobileCodeBlockExtension = (
           ? currentNode.attrs.language.toLowerCase()
           : "plaintext";
         const isMermaid = language === "mermaid";
-        wrapper.className = isMermaid ? "edgeever-mermaid-code-block" : "edgeever-code-block";
+        wrapper.className = isMermaid ? "rtnote-mermaid-code-block" : "rtnote-code-block";
         wrapper.dataset.language = language;
         preview.hidden = !isMermaid;
         code.setAttribute("aria-label", isMermaid
@@ -1744,7 +1744,7 @@ const createMobileCodeBlockExtension = (
 
         const source = currentNode.textContent.trim();
         if (!source) {
-          message.className = "edgeever-mermaid-message";
+          message.className = "rtnote-mermaid-message";
           message.textContent = getMobileEditorCopy(locale).codeBlock.mermaidEmpty;
           preview.replaceChildren(message);
           return;
@@ -1752,7 +1752,7 @@ const createMobileCodeBlockExtension = (
 
         const activeRequest = renderRequest;
         renderTimer = window.setTimeout(() => {
-          message.className = "edgeever-mermaid-message";
+          message.className = "rtnote-mermaid-message";
           message.textContent = getMobileEditorCopy(locale).codeBlock.rendering;
           preview.replaceChildren(message);
           void renderMobileMermaid(source, theme)
@@ -1774,7 +1774,7 @@ const createMobileCodeBlockExtension = (
               if (activeRequest !== renderRequest) {
                 return;
               }
-              message.className = "edgeever-mermaid-error";
+              message.className = "rtnote-mermaid-error";
               message.textContent = getMobileEditorCopy(locale).codeBlock.renderFailed;
               preview.replaceChildren(message);
             });
@@ -1807,7 +1807,7 @@ const createMobileImageSizeControls = (
   updateWidth: (width: number) => void
 ) => {
   const controls = document.createElement("div");
-  controls.className = "edgeever-image-size-controls";
+  controls.className = "rtnote-image-size-controls";
   controls.contentEditable = "false";
   controls.hidden = true;
   controls.setAttribute("role", "group");
@@ -1817,7 +1817,7 @@ const createMobileImageSizeControls = (
     const button = document.createElement("button");
     const label = getMobileEditorImageWidthPresetLabel(preset.id, locale);
     button.type = "button";
-    button.className = "edgeever-image-size-button";
+    button.className = "rtnote-image-size-button";
     button.setAttribute("aria-label", label);
     button.setAttribute("aria-pressed", "false");
 
@@ -1935,13 +1935,13 @@ const createProtectedImageExtension = (
 
       if (isMobileImageUploadPlaceholderSource(node.attrs.src)) {
         const placeholder = document.createElement("div");
-        placeholder.className = "edgeever-image-upload-placeholder";
+        placeholder.className = "rtnote-image-upload-placeholder";
         placeholder.contentEditable = "false";
         placeholder.setAttribute("role", "status");
         placeholder.setAttribute("aria-live", "polite");
 
         const preview = document.createElement("img");
-        preview.className = "edgeever-image-upload-preview";
+        preview.className = "rtnote-image-upload-preview";
         preview.alt = "";
         const previewSource = String(node.attrs.title ?? "");
         if (previewSource) {
@@ -1953,9 +1953,9 @@ const createProtectedImageExtension = (
         }
 
         const overlay = document.createElement("div");
-        overlay.className = "edgeever-image-upload-overlay";
+        overlay.className = "rtnote-image-upload-overlay";
         const spinner = document.createElement("span");
-        spinner.className = "edgeever-image-upload-spinner";
+        spinner.className = "rtnote-image-upload-spinner";
         spinner.setAttribute("aria-hidden", "true");
         overlay.append(spinner, getMobileEditorCopy(locale).image.uploading);
         if (previewSource) {
@@ -1997,7 +1997,7 @@ const createProtectedImageExtension = (
             preview.src = displaySource;
             preview.className = "";
             overlay.remove();
-            placeholder.className = "edgeever-image-upload-result";
+            placeholder.className = "rtnote-image-upload-result";
             completed = true;
             if (selected) {
               placeholder.classList.add("is-selected");
@@ -2083,16 +2083,16 @@ const createProtectedImageExtension = (
       }
 
       const wrapper = document.createElement("figure");
-      wrapper.className = "edgeever-image-node is-loading";
+      wrapper.className = "rtnote-image-node is-loading";
       wrapper.contentEditable = "false";
       wrapper.setAttribute("role", "img");
       wrapper.setAttribute("aria-busy", "true");
 
       const loading = document.createElement("div");
-      loading.className = "edgeever-image-loading";
+      loading.className = "rtnote-image-loading";
       loading.setAttribute("aria-hidden", "true");
       const spinner = document.createElement("span");
-      spinner.className = "edgeever-image-upload-spinner";
+      spinner.className = "rtnote-image-upload-spinner";
       loading.append(spinner);
 
       const image = document.createElement("img");
@@ -2102,7 +2102,7 @@ const createProtectedImageExtension = (
 
       const actionButton = document.createElement("button");
       actionButton.type = "button";
-      actionButton.className = "edgeever-image-actions";
+      actionButton.className = "rtnote-image-actions";
       actionButton.contentEditable = "false";
       actionButton.hidden = true;
       actionButton.setAttribute("aria-label", getMobileEditorCopy(locale).image.actions);
@@ -2113,7 +2113,7 @@ const createProtectedImageExtension = (
           return;
         }
         // Ignore taps that originated on the ⋯ control (event target would be button).
-        if (event.target instanceof Element && event.target.closest(".edgeever-image-actions")) {
+        if (event.target instanceof Element && event.target.closest(".rtnote-image-actions")) {
           return;
         }
         event.preventDefault();
@@ -2140,7 +2140,7 @@ const createProtectedImageExtension = (
         if (phase === "failed") {
           loading.replaceChildren();
           const label = document.createElement("span");
-          label.className = "edgeever-image-loading-label";
+          label.className = "rtnote-image-loading-label";
           label.textContent = getMobileEditorCopy(locale).image.loadFailed;
           loading.append(label);
           loading.hidden = false;
@@ -2398,7 +2398,7 @@ const getEditorStyles = (theme: "light" | "dark", options?: { viewer?: boolean }
   }
   html { font-size: var(--editor-body-font-size); }
   body { overflow: hidden; color: ${theme === "dark" ? "#f8fafc" : "#0f172a"}; font-size: 1rem; }
-  .edgeever-editor-shell {
+  .rtnote-editor-shell {
     position: relative;
     display: flex;
     width: 100%;
@@ -2410,15 +2410,15 @@ const getEditorStyles = (theme: "light" | "dark", options?: { viewer?: boolean }
     background: ${theme === "dark" ? "#0f172a" : "#fff"};
     overflow: hidden;
   }
-  .edgeever-viewer-shell { -webkit-user-select: text; user-select: text; }
-  .edgeever-editor-toolbar { display: flex; flex: 0 0 auto; align-items: center; gap: 4px; min-height: 38px; overflow-x: auto; padding: 6px 12px; border-block: 1px solid ${theme === "dark" ? "#334155" : "#f1f5f9"}; background: ${theme === "dark" ? "#0f172a" : "#fff"}; scrollbar-width: none; }
-  .edgeever-editor-toolbar::-webkit-scrollbar { display: none; }
-  .edgeever-editor-toolbar button { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; width: 36px; min-height: 32px; padding: 0; border: 1px solid transparent; border-radius: 999px; background: transparent; color: ${theme === "dark" ? "#cbd5e1" : "#64748b"}; }
-  .edgeever-editor-toolbar button:active, .edgeever-editor-toolbar button.is-active { border-color: ${theme === "dark" ? "#166534" : "#bbf7d0"}; background: ${theme === "dark" ? "#14532d" : "#ecfdf5"}; color: ${theme === "dark" ? "#86efac" : "#047857"}; }
-  .edgeever-editor-toolbar button:disabled { opacity: 0.38; }
+  .rtnote-viewer-shell { -webkit-user-select: text; user-select: text; }
+  .rtnote-editor-toolbar { display: flex; flex: 0 0 auto; align-items: center; gap: 4px; min-height: 38px; overflow-x: auto; padding: 6px 12px; border-block: 1px solid ${theme === "dark" ? "#334155" : "#f1f5f9"}; background: ${theme === "dark" ? "#0f172a" : "#fff"}; scrollbar-width: none; }
+  .rtnote-editor-toolbar::-webkit-scrollbar { display: none; }
+  .rtnote-editor-toolbar button { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; width: 36px; min-height: 32px; padding: 0; border: 1px solid transparent; border-radius: 999px; background: transparent; color: ${theme === "dark" ? "#cbd5e1" : "#64748b"}; }
+  .rtnote-editor-toolbar button:active, .rtnote-editor-toolbar button.is-active { border-color: ${theme === "dark" ? "#166534" : "#bbf7d0"}; background: ${theme === "dark" ? "#14532d" : "#ecfdf5"}; color: ${theme === "dark" ? "#86efac" : "#047857"}; }
+  .rtnote-editor-toolbar button:disabled { opacity: 0.38; }
   .tiptap { min-height: 100%; max-width: 100%; min-width: 0; outline: none; }
-  .edgeever-editor-scroll {
-    --edgeever-keyboard-inset: 0px;
+  .rtnote-editor-scroll {
+    --rtnote-keyboard-inset: 0px;
     min-height: 0;
     min-width: 0;
     flex: 1;
@@ -2429,12 +2429,12 @@ const getEditorStyles = (theme: "light" | "dark", options?: { viewer?: boolean }
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
   }
-  .edgeever-editor-content {
+  .rtnote-editor-content {
     min-height: 100%;
     max-width: 100%;
     min-width: 0;
-    padding: 18px 12px calc(32px + var(--edgeever-keyboard-inset));
-    scroll-padding-bottom: calc(32px + var(--edgeever-keyboard-inset));
+    padding: 18px 12px calc(32px + var(--rtnote-keyboard-inset));
+    scroll-padding-bottom: calc(32px + var(--rtnote-keyboard-inset));
     font-size: 1rem;
     line-height: var(--editor-body-line-height);
     overflow-wrap: anywhere;
@@ -2442,64 +2442,64 @@ const getEditorStyles = (theme: "light" | "dark", options?: { viewer?: boolean }
     font-feature-settings: "chws" 1;
     caret-color: ${options?.viewer ? "transparent" : "#0f766e"};
   }
-  .edgeever-viewer-content { -webkit-user-select: text; user-select: text; cursor: text; }
-  .edgeever-search-match {
+  .rtnote-viewer-content { -webkit-user-select: text; user-select: text; cursor: text; }
+  .rtnote-search-match {
     border-radius: 0.2rem;
     background-color: rgb(254 240 138 / 0.8);
     box-shadow: 0 0 0 1px rgb(234 179 8 / 0.25);
   }
-  .edgeever-search-match-active {
+  .rtnote-search-match-active {
     background-color: rgb(251 191 36 / 0.9);
     box-shadow: 0 0 0 2px rgb(217 119 6 / 0.45);
   }
-  .edgeever-editor-content > :first-child { margin-top: 0; }
-  .edgeever-editor-content p {
+  .rtnote-editor-content > :first-child { margin-top: 0; }
+  .rtnote-editor-content p {
     margin: 0 0 var(--editor-paragraph-spacing) 0;
     padding: 0;
     max-width: 100%;
     font-size: 1rem;
     line-height: var(--editor-body-line-height);
   }
-  .edgeever-editor-content p.is-editor-empty:first-child::before { float: left; height: 0; color: #94a3b8; content: attr(data-placeholder); pointer-events: none; }
-  .edgeever-editor-content h1,
-  .edgeever-editor-content h2,
-  .edgeever-editor-content h3,
-  .edgeever-editor-content h4,
-  .edgeever-editor-content h5,
-  .edgeever-editor-content h6 {
+  .rtnote-editor-content p.is-editor-empty:first-child::before { float: left; height: 0; color: #94a3b8; content: attr(data-placeholder); pointer-events: none; }
+  .rtnote-editor-content h1,
+  .rtnote-editor-content h2,
+  .rtnote-editor-content h3,
+  .rtnote-editor-content h4,
+  .rtnote-editor-content h5,
+  .rtnote-editor-content h6 {
     max-width: 100%;
     overflow-wrap: anywhere;
     line-height: 1.3;
     font-weight: 800;
   }
-  .edgeever-editor-content h1 { margin: 0.7em 0 0.4em; font-size: 1.6rem; }
-  .edgeever-editor-content h2 { margin: 0.85em 0 0.35em; font-size: 1.35rem; }
-  .edgeever-editor-content h3 { margin: 0.75em 0 0.3em; font-size: 1.15rem; }
-  .edgeever-editor-content h4 { margin: 0.7em 0 0.28em; font-size: 1.05rem; font-weight: 700; }
-  .edgeever-editor-content h5 { margin: 0.65em 0 0.25em; font-size: 1rem; font-weight: 700; }
-  .edgeever-editor-content h6 { margin: 0.6em 0 0.22em; font-size: 0.95rem; font-weight: 700; }
-  .edgeever-editor-content ul[data-type="taskList"] { margin: 0 0 var(--editor-paragraph-spacing); padding-left: 0; list-style: none; }
-  .edgeever-editor-content ul[data-type="taskList"] li[data-checked] { display: flex; align-items: flex-start; gap: 9px; margin: 4px 0; }
-  .edgeever-editor-content ul[data-type="taskList"] li[data-checked] > label { display: inline-flex; flex: 0 0 auto; align-items: center; margin-top: 3px; user-select: none; }
-  .edgeever-editor-content ul[data-type="taskList"] li[data-checked] > label input { width: 18px; height: 18px; margin: 0; border-radius: 3px; accent-color: #1a1d21; }
-  .edgeever-editor-content ul[data-type="taskList"] li[data-checked] > div { min-width: 0; flex: 1 1 auto; }
-  .edgeever-editor-content ul[data-type="taskList"] li[data-checked] > div > p { margin-bottom: 0; }
-  .edgeever-editor-content ul[data-type="taskList"] li[data-checked="true"] > div > p { color: #94a3b8; text-decoration: line-through; }
-  .edgeever-editor-content ul[data-type="taskList"] ul[data-type="taskList"] { margin: 4px 0 0; padding-left: 24px; }
-  .edgeever-editor-content blockquote { margin-left: 0; margin-right: 0; max-width: 100%; padding: 6px 12px; border-left: 3px solid ${theme === "dark" ? "#475569" : "#cbd5e1"}; border-radius: 1px 4px 4px 1px; background: ${theme === "dark" ? "rgba(255, 255, 255, 0.05)" : "#f3f5f7"}; color: ${theme === "dark" ? "#f8fafc" : "#3d4450"}; }
-  .edgeever-editor-content figure[data-type="image-figure"] { margin: 1em 0; padding: 0; }
-  .edgeever-editor-content figure[data-type="image-figure"] > figcaption { position: relative; margin: 0.45em 0 0; font-size: 0.875em; line-height: 1.45; color: ${theme === "dark" ? "#9ca3af" : "#6b7280"}; text-align: left; }
-  .edgeever-editor-content figure[data-type="image-figure"][data-image-align="center"] > figcaption { text-align: center; }
-  .edgeever-editor-content figure[data-type="image-figure"][data-image-align="right"] > figcaption { text-align: right; }
-  .edgeever-editor-content figcaption.is-caption-empty::before { content: attr(data-caption-placeholder); position: absolute; inset: 0; color: ${theme === "dark" ? "#64748b" : "#9ca3af"}; pointer-events: none; text-align: inherit; }
-  .edgeever-editor-content[contenteditable="false"] figcaption.is-caption-empty { display: none; }
-  .edgeever-editor-content pre { max-width: 100%; overflow-x: auto; border-radius: 8px; border: 1px solid ${theme === "dark" ? "#334155" : "#e2e8f0"}; padding: 12px 90px 12px 14px; background: ${theme === "dark" ? "#1e293b" : "#f8fafc"}; color: ${theme === "dark" ? "#e2e8f0" : "#0f172a"}; font-size: 0.88rem; box-shadow: 0 1px 2px ${theme === "dark" ? "rgba(0, 0, 0, 0.2)" : "rgba(15, 23, 42, 0.03)"}; }
-  .edgeever-editor-content code { border-radius: 4px; padding: 2px 5px; border: 1px solid ${theme === "dark" ? "rgba(255, 255, 255, 0.12)" : "#e1e5ea"}; background: ${theme === "dark" ? "rgba(255, 255, 255, 0.06)" : "#f3f5f7"}; color: ${theme === "dark" ? "#f8fafc" : "#3d4450"}; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.88em; font-weight: 400; }
-  .edgeever-editor-content pre code { padding: 0; border: 0; background: transparent; font-size: inherit; font-weight: normal; color: inherit; }
-  .edgeever-editor-content .tiptap-mathematics-render[data-type="block-math"] { max-width: 100%; margin: 16px 0; overflow-x: auto; overflow-y: hidden; padding: 4px 0; text-align: center; -webkit-overflow-scrolling: touch; }
-  .edgeever-editor-content .inline-math-error, .edgeever-editor-content .block-math-error { color: ${theme === "dark" ? "#fda4af" : "#be123c"}; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .rtnote-editor-content h1 { margin: 0.7em 0 0.4em; font-size: 1.6rem; }
+  .rtnote-editor-content h2 { margin: 0.85em 0 0.35em; font-size: 1.35rem; }
+  .rtnote-editor-content h3 { margin: 0.75em 0 0.3em; font-size: 1.15rem; }
+  .rtnote-editor-content h4 { margin: 0.7em 0 0.28em; font-size: 1.05rem; font-weight: 700; }
+  .rtnote-editor-content h5 { margin: 0.65em 0 0.25em; font-size: 1rem; font-weight: 700; }
+  .rtnote-editor-content h6 { margin: 0.6em 0 0.22em; font-size: 0.95rem; font-weight: 700; }
+  .rtnote-editor-content ul[data-type="taskList"] { margin: 0 0 var(--editor-paragraph-spacing); padding-left: 0; list-style: none; }
+  .rtnote-editor-content ul[data-type="taskList"] li[data-checked] { display: flex; align-items: flex-start; gap: 9px; margin: 4px 0; }
+  .rtnote-editor-content ul[data-type="taskList"] li[data-checked] > label { display: inline-flex; flex: 0 0 auto; align-items: center; margin-top: 3px; user-select: none; }
+  .rtnote-editor-content ul[data-type="taskList"] li[data-checked] > label input { width: 18px; height: 18px; margin: 0; border-radius: 3px; accent-color: #1a1d21; }
+  .rtnote-editor-content ul[data-type="taskList"] li[data-checked] > div { min-width: 0; flex: 1 1 auto; }
+  .rtnote-editor-content ul[data-type="taskList"] li[data-checked] > div > p { margin-bottom: 0; }
+  .rtnote-editor-content ul[data-type="taskList"] li[data-checked="true"] > div > p { color: #94a3b8; text-decoration: line-through; }
+  .rtnote-editor-content ul[data-type="taskList"] ul[data-type="taskList"] { margin: 4px 0 0; padding-left: 24px; }
+  .rtnote-editor-content blockquote { margin-left: 0; margin-right: 0; max-width: 100%; padding: 6px 12px; border-left: 3px solid ${theme === "dark" ? "#475569" : "#cbd5e1"}; border-radius: 1px 4px 4px 1px; background: ${theme === "dark" ? "rgba(255, 255, 255, 0.05)" : "#f3f5f7"}; color: ${theme === "dark" ? "#f8fafc" : "#3d4450"}; }
+  .rtnote-editor-content figure[data-type="image-figure"] { margin: 1em 0; padding: 0; }
+  .rtnote-editor-content figure[data-type="image-figure"] > figcaption { position: relative; margin: 0.45em 0 0; font-size: 0.875em; line-height: 1.45; color: ${theme === "dark" ? "#9ca3af" : "#6b7280"}; text-align: left; }
+  .rtnote-editor-content figure[data-type="image-figure"][data-image-align="center"] > figcaption { text-align: center; }
+  .rtnote-editor-content figure[data-type="image-figure"][data-image-align="right"] > figcaption { text-align: right; }
+  .rtnote-editor-content figcaption.is-caption-empty::before { content: attr(data-caption-placeholder); position: absolute; inset: 0; color: ${theme === "dark" ? "#64748b" : "#9ca3af"}; pointer-events: none; text-align: inherit; }
+  .rtnote-editor-content[contenteditable="false"] figcaption.is-caption-empty { display: none; }
+  .rtnote-editor-content pre { max-width: 100%; overflow-x: auto; border-radius: 8px; border: 1px solid ${theme === "dark" ? "#334155" : "#e2e8f0"}; padding: 12px 90px 12px 14px; background: ${theme === "dark" ? "#1e293b" : "#f8fafc"}; color: ${theme === "dark" ? "#e2e8f0" : "#0f172a"}; font-size: 0.88rem; box-shadow: 0 1px 2px ${theme === "dark" ? "rgba(0, 0, 0, 0.2)" : "rgba(15, 23, 42, 0.03)"}; }
+  .rtnote-editor-content code { border-radius: 4px; padding: 2px 5px; border: 1px solid ${theme === "dark" ? "rgba(255, 255, 255, 0.12)" : "#e1e5ea"}; background: ${theme === "dark" ? "rgba(255, 255, 255, 0.06)" : "#f3f5f7"}; color: ${theme === "dark" ? "#f8fafc" : "#3d4450"}; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.88em; font-weight: 400; }
+  .rtnote-editor-content pre code { padding: 0; border: 0; background: transparent; font-size: inherit; font-weight: normal; color: inherit; }
+  .rtnote-editor-content .tiptap-mathematics-render[data-type="block-math"] { max-width: 100%; margin: 16px 0; overflow-x: auto; overflow-y: hidden; padding: 4px 0; text-align: center; -webkit-overflow-scrolling: touch; }
+  .rtnote-editor-content .inline-math-error, .rtnote-editor-content .block-math-error { color: ${theme === "dark" ? "#fda4af" : "#be123c"}; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
   /* External hyperlinks (match Web default ProseMirror). Attachment chips override below. */
-  .edgeever-editor-content a {
+  .rtnote-editor-content a {
     color: ${theme === "dark" ? "#cad4ce" : "#404040"};
     font-weight: 500;
     text-decoration: underline;
@@ -2507,12 +2507,12 @@ const getEditorStyles = (theme: "light" | "dark", options?: { viewer?: boolean }
     text-underline-offset: 2px;
     cursor: pointer;
   }
-  .edgeever-editor-content a:active {
+  .rtnote-editor-content a:active {
     color: ${theme === "dark" ? "#eef3f0" : "#0a0a0a"};
     text-decoration-color: ${theme === "dark" ? "#eef3f0" : "#0a0a0a"};
   }
   /* Compact attachment chips: still ≥48px touch height, less vertical bulk than 58px. */
-  .edgeever-editor-content a.edgeever-attachment-link, .edgeever-editor-content a[href*="/api/v1/resources/"] {
+  .rtnote-editor-content a.rtnote-attachment-link, .rtnote-editor-content a[href*="/api/v1/resources/"] {
     display: flex;
     min-width: 0;
     max-width: 100%;
@@ -2531,7 +2531,7 @@ const getEditorStyles = (theme: "light" | "dark", options?: { viewer?: boolean }
     text-decoration: none;
     overflow: hidden;
   }
-  .edgeever-editor-content a.edgeever-attachment-link::before, .edgeever-editor-content a[href*="/api/v1/resources/"]::before {
+  .rtnote-editor-content a.rtnote-attachment-link::before, .rtnote-editor-content a[href*="/api/v1/resources/"]::before {
     display: inline-flex;
     width: 30px;
     height: 30px;
@@ -2546,32 +2546,32 @@ const getEditorStyles = (theme: "light" | "dark", options?: { viewer?: boolean }
     font-weight: 800;
     letter-spacing: -0.2px;
   }
-  .edgeever-editor-content a.edgeever-attachment-kind-image::before { background: ${theme === "dark" ? "#064e3b" : "#ecfdf5"}; color: ${theme === "dark" ? "#6ee7b7" : "#10b981"}; content: "▧"; font-size: 20px; }
-  .edgeever-editor-content a.edgeever-attachment-kind-audio::before { background: ${theme === "dark" ? "#0c4a6e" : "#f0f9ff"}; color: ${theme === "dark" ? "#7dd3fc" : "#0ea5e9"}; content: "♪"; font-size: 21px; }
-  .edgeever-editor-content a.edgeever-attachment-kind-video::before { background: ${theme === "dark" ? "#881337" : "#fff1f2"}; color: ${theme === "dark" ? "#fda4af" : "#f43f5e"}; content: "▶"; font-size: 15px; }
-  .edgeever-editor-content a.edgeever-attachment-kind-pdf::before { background: ${theme === "dark" ? "#881337" : "#fff1f2"}; color: ${theme === "dark" ? "#fda4af" : "#e11d48"}; content: "PDF"; }
-  .edgeever-editor-content a.edgeever-attachment-kind-spreadsheet::before { background: ${theme === "dark" ? "#14532d" : "#f0fdf4"}; color: ${theme === "dark" ? "#86efac" : "#16a34a"}; content: "XLS"; }
-  .edgeever-editor-content a.edgeever-attachment-kind-document::before { background: ${theme === "dark" ? "#1e3a8a" : "#eff6ff"}; color: ${theme === "dark" ? "#93c5fd" : "#2563eb"}; content: "DOC"; }
-  .edgeever-editor-content a.edgeever-attachment-kind-presentation::before { background: ${theme === "dark" ? "#7c2d12" : "#fff7ed"}; color: ${theme === "dark" ? "#fdba74" : "#f97316"}; content: "PPT"; }
-  .edgeever-editor-content a.edgeever-attachment-kind-archive::before { background: ${theme === "dark" ? "#713f12" : "#fffbeb"}; color: ${theme === "dark" ? "#fde68a" : "#d97706"}; content: "ZIP"; }
-  .edgeever-editor-content a.edgeever-attachment-kind-code::before { background: ${theme === "dark" ? "#581c87" : "#faf5ff"}; color: ${theme === "dark" ? "#d8b4fe" : "#8b5cf6"}; content: "</>"; }
-  .edgeever-editor-content a.edgeever-attachment-kind-text::before { background: ${theme === "dark" ? "#334155" : "#f1f5f9"}; color: ${theme === "dark" ? "#cbd5e1" : "#64748b"}; content: "TXT"; }
-  .edgeever-editor-content a.edgeever-attachment-kind-apk::before { background: ${theme === "dark" ? "#064e3b" : "#ecfdf5"}; color: ${theme === "dark" ? "#6ee7b7" : "#059669"}; content: "APK"; }
-  .edgeever-editor-content a.edgeever-attachment-kind-exe::before { background: ${theme === "dark" ? "#0c4a6e" : "#f0f9ff"}; color: ${theme === "dark" ? "#7dd3fc" : "#0284c7"}; content: "EXE"; }
-  .edgeever-editor-content a.edgeever-attachment-kind-dmg::before { background: ${theme === "dark" ? "#4c1d95" : "#f5f3ff"}; color: ${theme === "dark" ? "#c4b5fd" : "#7c3aed"}; content: "DMG"; }
-  .edgeever-editor-content a.edgeever-attachment-kind-linux::before { background: ${theme === "dark" ? "#7c2d12" : "#fff7ed"}; color: ${theme === "dark" ? "#fdba74" : "#ea580c"}; content: "LINUX"; }
-  .edgeever-editor-content a.edgeever-attachment-kind-executable::before { background: ${theme === "dark" ? "#134e4a" : "#ccfbf1"}; color: ${theme === "dark" ? "#5eead4" : "#0d9488"}; content: "BIN"; }
-  .edgeever-editor-content a.edgeever-attachment-kind-book::before { background: ${theme === "dark" ? "#78350f" : "#fef3c7"}; color: ${theme === "dark" ? "#fcd34d" : "#b45309"}; content: "BOOK"; }
-  .edgeever-editor-content a.edgeever-attachment-kind-font::before { background: ${theme === "dark" ? "#312e81" : "#e0e7ff"}; color: ${theme === "dark" ? "#a5b4fc" : "#4f46e5"}; content: "FONT"; }
-  .edgeever-editor-content a.edgeever-attachment-kind-diskimage::before { background: ${theme === "dark" ? "#164e63" : "#cffafe"}; color: ${theme === "dark" ? "#67e8f9" : "#0891b2"}; content: "ISO"; }
-  .edgeever-editor-content a.edgeever-attachment-kind-database::before { background: ${theme === "dark" ? "#701a75" : "#fae8ff"}; color: ${theme === "dark" ? "#f0abfc" : "#c026d3"}; content: "DB"; }
-  .edgeever-editor-content a.edgeever-attachment-kind-design::before { background: ${theme === "dark" ? "#831843" : "#fdf2f8"}; color: ${theme === "dark" ? "#f472b6" : "#db2777"}; content: "DESIGN"; }
-  .edgeever-editor-content a.edgeever-attachment-kind-model3d::before { background: ${theme === "dark" ? "#1e3a8a" : "#eff6ff"}; color: ${theme === "dark" ? "#93c5fd" : "#2563eb"}; content: "3D"; }
-  .edgeever-editor-content a.edgeever-attachment-kind-script::before { background: ${theme === "dark" ? "#064e3b" : "#ecfdf5"}; color: ${theme === "dark" ? "#6ee7b7" : "#059669"}; content: "SHELL"; }
-  .edgeever-editor-content a.edgeever-attachment-kind-log::before { background: ${theme === "dark" ? "#27272a" : "#f4f4f5"}; color: ${theme === "dark" ? "#a1a1aa" : "#71717a"}; content: "LOG"; }
-  .edgeever-editor-content a.edgeever-attachment-kind-certificate::before { background: ${theme === "dark" ? "#713f12" : "#fefce8"}; color: ${theme === "dark" ? "#fde047" : "#ca8a04"}; content: "KEY"; }
-  .edgeever-editor-content a.edgeever-attachment-kind-diagram::before { background: ${theme === "dark" ? "#134e4a" : "#f0fdfa"}; color: ${theme === "dark" ? "#5eead4" : "#0d9488"}; content: "DIAG"; }
-  .edgeever-editor-content .edgeever-unsupported-content {
+  .rtnote-editor-content a.rtnote-attachment-kind-image::before { background: ${theme === "dark" ? "#064e3b" : "#ecfdf5"}; color: ${theme === "dark" ? "#6ee7b7" : "#10b981"}; content: "▧"; font-size: 20px; }
+  .rtnote-editor-content a.rtnote-attachment-kind-audio::before { background: ${theme === "dark" ? "#0c4a6e" : "#f0f9ff"}; color: ${theme === "dark" ? "#7dd3fc" : "#0ea5e9"}; content: "♪"; font-size: 21px; }
+  .rtnote-editor-content a.rtnote-attachment-kind-video::before { background: ${theme === "dark" ? "#881337" : "#fff1f2"}; color: ${theme === "dark" ? "#fda4af" : "#f43f5e"}; content: "▶"; font-size: 15px; }
+  .rtnote-editor-content a.rtnote-attachment-kind-pdf::before { background: ${theme === "dark" ? "#881337" : "#fff1f2"}; color: ${theme === "dark" ? "#fda4af" : "#e11d48"}; content: "PDF"; }
+  .rtnote-editor-content a.rtnote-attachment-kind-spreadsheet::before { background: ${theme === "dark" ? "#14532d" : "#f0fdf4"}; color: ${theme === "dark" ? "#86efac" : "#16a34a"}; content: "XLS"; }
+  .rtnote-editor-content a.rtnote-attachment-kind-document::before { background: ${theme === "dark" ? "#1e3a8a" : "#eff6ff"}; color: ${theme === "dark" ? "#93c5fd" : "#2563eb"}; content: "DOC"; }
+  .rtnote-editor-content a.rtnote-attachment-kind-presentation::before { background: ${theme === "dark" ? "#7c2d12" : "#fff7ed"}; color: ${theme === "dark" ? "#fdba74" : "#f97316"}; content: "PPT"; }
+  .rtnote-editor-content a.rtnote-attachment-kind-archive::before { background: ${theme === "dark" ? "#713f12" : "#fffbeb"}; color: ${theme === "dark" ? "#fde68a" : "#d97706"}; content: "ZIP"; }
+  .rtnote-editor-content a.rtnote-attachment-kind-code::before { background: ${theme === "dark" ? "#581c87" : "#faf5ff"}; color: ${theme === "dark" ? "#d8b4fe" : "#8b5cf6"}; content: "</>"; }
+  .rtnote-editor-content a.rtnote-attachment-kind-text::before { background: ${theme === "dark" ? "#334155" : "#f1f5f9"}; color: ${theme === "dark" ? "#cbd5e1" : "#64748b"}; content: "TXT"; }
+  .rtnote-editor-content a.rtnote-attachment-kind-apk::before { background: ${theme === "dark" ? "#064e3b" : "#ecfdf5"}; color: ${theme === "dark" ? "#6ee7b7" : "#059669"}; content: "APK"; }
+  .rtnote-editor-content a.rtnote-attachment-kind-exe::before { background: ${theme === "dark" ? "#0c4a6e" : "#f0f9ff"}; color: ${theme === "dark" ? "#7dd3fc" : "#0284c7"}; content: "EXE"; }
+  .rtnote-editor-content a.rtnote-attachment-kind-dmg::before { background: ${theme === "dark" ? "#4c1d95" : "#f5f3ff"}; color: ${theme === "dark" ? "#c4b5fd" : "#7c3aed"}; content: "DMG"; }
+  .rtnote-editor-content a.rtnote-attachment-kind-linux::before { background: ${theme === "dark" ? "#7c2d12" : "#fff7ed"}; color: ${theme === "dark" ? "#fdba74" : "#ea580c"}; content: "LINUX"; }
+  .rtnote-editor-content a.rtnote-attachment-kind-executable::before { background: ${theme === "dark" ? "#134e4a" : "#ccfbf1"}; color: ${theme === "dark" ? "#5eead4" : "#0d9488"}; content: "BIN"; }
+  .rtnote-editor-content a.rtnote-attachment-kind-book::before { background: ${theme === "dark" ? "#78350f" : "#fef3c7"}; color: ${theme === "dark" ? "#fcd34d" : "#b45309"}; content: "BOOK"; }
+  .rtnote-editor-content a.rtnote-attachment-kind-font::before { background: ${theme === "dark" ? "#312e81" : "#e0e7ff"}; color: ${theme === "dark" ? "#a5b4fc" : "#4f46e5"}; content: "FONT"; }
+  .rtnote-editor-content a.rtnote-attachment-kind-diskimage::before { background: ${theme === "dark" ? "#164e63" : "#cffafe"}; color: ${theme === "dark" ? "#67e8f9" : "#0891b2"}; content: "ISO"; }
+  .rtnote-editor-content a.rtnote-attachment-kind-database::before { background: ${theme === "dark" ? "#701a75" : "#fae8ff"}; color: ${theme === "dark" ? "#f0abfc" : "#c026d3"}; content: "DB"; }
+  .rtnote-editor-content a.rtnote-attachment-kind-design::before { background: ${theme === "dark" ? "#831843" : "#fdf2f8"}; color: ${theme === "dark" ? "#f472b6" : "#db2777"}; content: "DESIGN"; }
+  .rtnote-editor-content a.rtnote-attachment-kind-model3d::before { background: ${theme === "dark" ? "#1e3a8a" : "#eff6ff"}; color: ${theme === "dark" ? "#93c5fd" : "#2563eb"}; content: "3D"; }
+  .rtnote-editor-content a.rtnote-attachment-kind-script::before { background: ${theme === "dark" ? "#064e3b" : "#ecfdf5"}; color: ${theme === "dark" ? "#6ee7b7" : "#059669"}; content: "SHELL"; }
+  .rtnote-editor-content a.rtnote-attachment-kind-log::before { background: ${theme === "dark" ? "#27272a" : "#f4f4f5"}; color: ${theme === "dark" ? "#a1a1aa" : "#71717a"}; content: "LOG"; }
+  .rtnote-editor-content a.rtnote-attachment-kind-certificate::before { background: ${theme === "dark" ? "#713f12" : "#fefce8"}; color: ${theme === "dark" ? "#fde047" : "#ca8a04"}; content: "KEY"; }
+  .rtnote-editor-content a.rtnote-attachment-kind-diagram::before { background: ${theme === "dark" ? "#134e4a" : "#f0fdfa"}; color: ${theme === "dark" ? "#5eead4" : "#0d9488"}; content: "DIAG"; }
+  .rtnote-editor-content .rtnote-unsupported-content {
     border: 1px dashed ${theme === "dark" ? "#64748b" : "#94a3b8"};
     border-radius: 8px;
     background: ${theme === "dark" ? "#1e293b" : "#f8fafc"};
@@ -2580,10 +2580,10 @@ const getEditorStyles = (theme: "light" | "dark", options?: { viewer?: boolean }
     font-weight: 600;
   }
   ${DETAILS_EDITOR_CSS}
-  .edgeever-editor-content .edgeever-unsupported-content--block { display: block; margin: 8px 0; padding: 12px; }
-  .edgeever-editor-content .edgeever-unsupported-content--inline { display: inline-block; margin: 0 2px; padding: 2px 6px; }
-  .edgeever-editor-content .edgeever-unsupported-mark { border-bottom: 1px dashed ${theme === "dark" ? "#94a3b8" : "#64748b"}; }
-  .edgeever-editor-content a.edgeever-attachment-link::after, .edgeever-editor-content a[href*="/api/v1/resources/"]::after {
+  .rtnote-editor-content .rtnote-unsupported-content--block { display: block; margin: 8px 0; padding: 12px; }
+  .rtnote-editor-content .rtnote-unsupported-content--inline { display: inline-block; margin: 0 2px; padding: 2px 6px; }
+  .rtnote-editor-content .rtnote-unsupported-mark { border-bottom: 1px dashed ${theme === "dark" ? "#94a3b8" : "#64748b"}; }
+  .rtnote-editor-content a.rtnote-attachment-link::after, .rtnote-editor-content a[href*="/api/v1/resources/"]::after {
     margin-left: auto;
     flex: 0 0 auto;
     color: ${theme === "dark" ? "#94a3b8" : "#64748b"};
@@ -2592,30 +2592,30 @@ const getEditorStyles = (theme: "light" | "dark", options?: { viewer?: boolean }
     font-weight: 600;
     white-space: nowrap;
   }
-  .edgeever-code-block, .edgeever-mermaid-code-block { position: relative; margin: 18px 0; overflow: visible; background: transparent; }
-  .edgeever-code-copy-button { position: absolute; top: 8px; right: 8px; z-index: 1; border: 1px solid ${theme === "dark" ? "#475569" : "#cbded1"}; border-radius: 6px; padding: 5px 8px; background: ${theme === "dark" ? "rgba(30, 41, 59, 0.94)" : "rgba(247, 251, 248, 0.94)"}; color: ${theme === "dark" ? "#cbd5e1" : "#475569"}; font: inherit; font-size: 12px; line-height: 1.35; }
-  .edgeever-code-copy-button:active { border-color: #0f766e; color: ${theme === "dark" ? "#86efac" : "#0f766e"}; }
-  .edgeever-editor-scroll:has(.edgeever-x6-document) { display: flex; flex-direction: column; overflow: hidden; }
-  .edgeever-x6-document, .edgeever-diagram-reader-host { display: flex; flex-direction: column; height: 100%; min-height: 100%; padding: 8px 12px 12px; background: ${theme === "dark" ? "#0f172a" : "#fff"}; }
-  .edgeever-diagram-reader-controls { flex: 0 0 auto; }
-  .edgeever-x6-diagram { flex: 1 1 auto; width: 100%; height: auto; min-height: 240px; overflow: hidden; border: 1px solid ${theme === "dark" ? "#26382f" : "#e3ece7"}; border-radius: 14px; background: ${theme === "dark" ? DIAGRAM_CANVAS_DARK : DIAGRAM_CANVAS_LIGHT}; touch-action: none; }
-  .edgeever-x6-diagram .x6-graph-svg { overflow: hidden; }
-  .edgeever-x6-diagram .x6-node { cursor: pointer; }
-  .edgeever-mermaid-code-block > pre { display: none; margin: 8px 0 0; }
-  .edgeever-mermaid-code-block.is-source-visible > pre { display: block; }
-  .edgeever-mermaid-preview { display: flex; min-height: 72px; align-items: center; justify-content: flex-start; overflow-x: auto; padding: 8px 4px; background: transparent; }
-  .edgeever-mermaid-preview[hidden] { display: none; }
-  .edgeever-mermaid-svg { display: flex; width: max-content; min-width: 100%; flex: none; justify-content: center; }
-  .edgeever-mermaid-svg svg { display: block; max-width: none; max-height: none; flex: none; }
-  .edgeever-mermaid-message, .edgeever-mermaid-error { margin: 0; font-size: 14px; line-height: 1.5; text-align: center; }
-  .edgeever-mermaid-message { color: ${theme === "dark" ? "#94a3b8" : "#64748b"}; }
-  .edgeever-mermaid-error { color: ${theme === "dark" ? "#fda4af" : "#be123c"}; }
-  .edgeever-editor-content img { display: block; max-width: 100%; height: auto; margin: 14px auto; border-radius: 10px; }
+  .rtnote-code-block, .rtnote-mermaid-code-block { position: relative; margin: 18px 0; overflow: visible; background: transparent; }
+  .rtnote-code-copy-button { position: absolute; top: 8px; right: 8px; z-index: 1; border: 1px solid ${theme === "dark" ? "#475569" : "#cbded1"}; border-radius: 6px; padding: 5px 8px; background: ${theme === "dark" ? "rgba(30, 41, 59, 0.94)" : "rgba(247, 251, 248, 0.94)"}; color: ${theme === "dark" ? "#cbd5e1" : "#475569"}; font: inherit; font-size: 12px; line-height: 1.35; }
+  .rtnote-code-copy-button:active { border-color: #0f766e; color: ${theme === "dark" ? "#86efac" : "#0f766e"}; }
+  .rtnote-editor-scroll:has(.rtnote-x6-document) { display: flex; flex-direction: column; overflow: hidden; }
+  .rtnote-x6-document, .rtnote-diagram-reader-host { display: flex; flex-direction: column; height: 100%; min-height: 100%; padding: 8px 12px 12px; background: ${theme === "dark" ? "#0f172a" : "#fff"}; }
+  .rtnote-diagram-reader-controls { flex: 0 0 auto; }
+  .rtnote-x6-diagram { flex: 1 1 auto; width: 100%; height: auto; min-height: 240px; overflow: hidden; border: 1px solid ${theme === "dark" ? "#26382f" : "#e3ece7"}; border-radius: 14px; background: ${theme === "dark" ? DIAGRAM_CANVAS_DARK : DIAGRAM_CANVAS_LIGHT}; touch-action: none; }
+  .rtnote-x6-diagram .x6-graph-svg { overflow: hidden; }
+  .rtnote-x6-diagram .x6-node { cursor: pointer; }
+  .rtnote-mermaid-code-block > pre { display: none; margin: 8px 0 0; }
+  .rtnote-mermaid-code-block.is-source-visible > pre { display: block; }
+  .rtnote-mermaid-preview { display: flex; min-height: 72px; align-items: center; justify-content: flex-start; overflow-x: auto; padding: 8px 4px; background: transparent; }
+  .rtnote-mermaid-preview[hidden] { display: none; }
+  .rtnote-mermaid-svg { display: flex; width: max-content; min-width: 100%; flex: none; justify-content: center; }
+  .rtnote-mermaid-svg svg { display: block; max-width: none; max-height: none; flex: none; }
+  .rtnote-mermaid-message, .rtnote-mermaid-error { margin: 0; font-size: 14px; line-height: 1.5; text-align: center; }
+  .rtnote-mermaid-message { color: ${theme === "dark" ? "#94a3b8" : "#64748b"}; }
+  .rtnote-mermaid-error { color: ${theme === "dark" ? "#fda4af" : "#be123c"}; }
+  .rtnote-editor-content img { display: block; max-width: 100%; height: auto; margin: 14px auto; border-radius: 10px; }
   /* Shared by preview + edit (same LocalTiptapEditor styles).
      Prefer shrinking columns to the content box (≈4 equal cols on a phone) with
      text wrap; when n * col-width still exceeds the wrapper, scroll inside
      .tableWrapper only — never widen the page via 100vw / desktop col widths. */
-  .edgeever-editor-content .tableWrapper {
+  .rtnote-editor-content .tableWrapper {
     /* ~24% of wrapper → 4 cols fit; more cols overflow and scroll */
     --mobile-table-column-width: clamp(4.25rem, 24cqi, 10rem);
     container-type: inline-size;
@@ -2638,14 +2638,14 @@ const getEditorStyles = (theme: "light" | "dark", options?: { viewer?: boolean }
     scrollbar-width: thin;
     scrollbar-color: rgba(100, 116, 139, 0.45) transparent;
   }
-  .edgeever-editor-content .tableWrapper::-webkit-scrollbar {
+  .rtnote-editor-content .tableWrapper::-webkit-scrollbar {
     height: 6px;
   }
-  .edgeever-editor-content .tableWrapper::-webkit-scrollbar-thumb {
+  .rtnote-editor-content .tableWrapper::-webkit-scrollbar-thumb {
     border-radius: 999px;
     background: rgba(100, 116, 139, 0.4);
   }
-  .edgeever-editor-content table {
+  .rtnote-editor-content table {
     width: 100%;
     max-width: none;
     min-width: 100%;
@@ -2656,33 +2656,33 @@ const getEditorStyles = (theme: "light" | "dark", options?: { viewer?: boolean }
   /* Let compact tables use the full content width. The fallback on
      .tableWrapper remains the minimum column budget for 5+ columns, so only
      wider tables scroll. TipTap always renders one <col> per logical column. */
-  .edgeever-editor-content table:has(> colgroup > col:first-child:last-child) {
+  .rtnote-editor-content table:has(> colgroup > col:first-child:last-child) {
     --mobile-table-column-width: 100cqi;
   }
-  .edgeever-editor-content table:has(> colgroup > col:first-child:nth-last-child(2)) {
+  .rtnote-editor-content table:has(> colgroup > col:first-child:nth-last-child(2)) {
     --mobile-table-column-width: 50cqi;
   }
-  .edgeever-editor-content table:has(> colgroup > col:first-child:nth-last-child(3)) {
+  .rtnote-editor-content table:has(> colgroup > col:first-child:nth-last-child(3)) {
     --mobile-table-column-width: calc(100cqi / 3);
   }
-  .edgeever-editor-content table:has(> colgroup > col:first-child:nth-last-child(4)) {
+  .rtnote-editor-content table:has(> colgroup > col:first-child:nth-last-child(4)) {
     --mobile-table-column-width: 25cqi;
   }
-  .edgeever-editor-content table:has(> colgroup > col:first-child:nth-last-child(n+5)) {
+  .rtnote-editor-content table:has(> colgroup > col:first-child:nth-last-child(n+5)) {
     width: max-content;
     --mobile-table-column-width: clamp(4.25rem, 24cqi, 10rem);
   }
-  .edgeever-editor-content table:not(:has(colgroup)) {
+  .rtnote-editor-content table:not(:has(colgroup)) {
     table-layout: auto;
     width: 100%;
     min-width: 100%;
   }
   /* Override TipTap/desktop col widths with the mobile equal-ish column budget. */
-  .edgeever-editor-content table col {
+  .rtnote-editor-content table col {
     width: var(--mobile-table-column-width) !important;
     min-width: var(--mobile-table-column-width) !important;
   }
-  .edgeever-editor-content th, .edgeever-editor-content td {
+  .rtnote-editor-content th, .rtnote-editor-content td {
     position: relative;
     width: var(--mobile-table-column-width, auto);
     min-width: var(--mobile-table-column-width, 3.5rem);
@@ -2699,39 +2699,39 @@ const getEditorStyles = (theme: "light" | "dark", options?: { viewer?: boolean }
     line-height: 1.4;
     transition: background-color 120ms ease;
   }
-  .edgeever-editor-content th { background: ${theme === "dark" ? "#1e293b" : "#f8fafc"}; color: ${theme === "dark" ? "#f8fafc" : "#0f172a"}; font-size: 0.93rem; font-weight: 600; }
-  .edgeever-editor-content th:last-child, .edgeever-editor-content td:last-child { border-right: 0; }
-  .edgeever-editor-content tr:last-child td { border-bottom: 0; }
-  .edgeever-editor-content tbody tr:nth-child(even) td { background: ${theme === "dark" ? "rgba(15, 23, 42, 0.6)" : "#fafafa"}; }
-  .edgeever-editor-content tbody tr:hover td { background: ${theme === "dark" ? "#1e293b" : "#f1f5f9"}; }
-  .edgeever-editor-content th p, .edgeever-editor-content td p { margin: 0; }
-  .edgeever-editor-content .selectedCell::after { position: absolute; inset: 0; content: ""; pointer-events: none; background: rgba(16, 185, 129, 0.14); }
-  .edgeever-image-upload-placeholder { position: relative; max-width: 100%; min-height: 112px; margin: 14px auto; overflow: hidden; border-radius: 10px; background: ${theme === "dark" ? "#1e293b" : "#f1f5f9"}; }
-  .edgeever-image-upload-preview { display: block; width: 100%; max-height: 360px; margin: 0 !important; object-fit: contain; border-radius: 10px; }
-  .edgeever-image-upload-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 10px; background: rgba(15, 23, 42, 0.38); color: #fff; font-size: 14px; font-weight: 600; text-shadow: 0 1px 2px rgba(15, 23, 42, 0.45); }
-  .edgeever-image-node, .edgeever-image-upload-result { position: relative; display: block; max-width: 100%; margin: 14px auto; line-height: 0; }
-  .edgeever-image-node.is-loading, .edgeever-image-node.is-failed { min-height: 120px; overflow: hidden; border-radius: 10px; background: ${theme === "dark" ? "#1e293b" : "#f1f5f9"}; }
-  .edgeever-image-loading { display: flex; min-height: 120px; align-items: center; justify-content: center; gap: 10px; padding: 16px; color: ${theme === "dark" ? "#94a3b8" : "#64748b"}; font-size: 13px; font-weight: 600; line-height: 1.3; }
-  .edgeever-image-loading[hidden] { display: none; }
-  .edgeever-image-loading-label { text-align: center; }
-  .edgeever-image-node > img, .edgeever-image-upload-result > img { display: block; width: 100%; margin: 0; border-radius: 10px; }
-  .edgeever-image-node > img[hidden] { display: none; }
-  [data-edgeever-image-gallery] { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; gap: 8px; margin: 14px 0; }
-  [data-edgeever-image-gallery][data-image-gallery-layout="3"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  [data-edgeever-image-gallery][data-image-gallery-layout="1"] { grid-template-columns: minmax(0, 1fr); }
-  [data-edgeever-image-gallery] > .edgeever-image-node, [data-edgeever-image-gallery] > img { width: 100% !important; min-width: 0; height: 100%; min-height: 112px; max-height: 220px; margin: 0 !important; overflow: hidden; border-radius: 10px; background: ${theme === "dark" ? "#1e293b" : "#f1f5f9"}; }
-  [data-edgeever-image-gallery] > .edgeever-image-node > img, [data-edgeever-image-gallery] > img { width: 100%; height: 100%; min-height: 112px; max-height: 220px; object-fit: cover; }
+  .rtnote-editor-content th { background: ${theme === "dark" ? "#1e293b" : "#f8fafc"}; color: ${theme === "dark" ? "#f8fafc" : "#0f172a"}; font-size: 0.93rem; font-weight: 600; }
+  .rtnote-editor-content th:last-child, .rtnote-editor-content td:last-child { border-right: 0; }
+  .rtnote-editor-content tr:last-child td { border-bottom: 0; }
+  .rtnote-editor-content tbody tr:nth-child(even) td { background: ${theme === "dark" ? "rgba(15, 23, 42, 0.6)" : "#fafafa"}; }
+  .rtnote-editor-content tbody tr:hover td { background: ${theme === "dark" ? "#1e293b" : "#f1f5f9"}; }
+  .rtnote-editor-content th p, .rtnote-editor-content td p { margin: 0; }
+  .rtnote-editor-content .selectedCell::after { position: absolute; inset: 0; content: ""; pointer-events: none; background: rgba(16, 185, 129, 0.14); }
+  .rtnote-image-upload-placeholder { position: relative; max-width: 100%; min-height: 112px; margin: 14px auto; overflow: hidden; border-radius: 10px; background: ${theme === "dark" ? "#1e293b" : "#f1f5f9"}; }
+  .rtnote-image-upload-preview { display: block; width: 100%; max-height: 360px; margin: 0 !important; object-fit: contain; border-radius: 10px; }
+  .rtnote-image-upload-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 10px; background: rgba(15, 23, 42, 0.38); color: #fff; font-size: 14px; font-weight: 600; text-shadow: 0 1px 2px rgba(15, 23, 42, 0.45); }
+  .rtnote-image-node, .rtnote-image-upload-result { position: relative; display: block; max-width: 100%; margin: 14px auto; line-height: 0; }
+  .rtnote-image-node.is-loading, .rtnote-image-node.is-failed { min-height: 120px; overflow: hidden; border-radius: 10px; background: ${theme === "dark" ? "#1e293b" : "#f1f5f9"}; }
+  .rtnote-image-loading { display: flex; min-height: 120px; align-items: center; justify-content: center; gap: 10px; padding: 16px; color: ${theme === "dark" ? "#94a3b8" : "#64748b"}; font-size: 13px; font-weight: 600; line-height: 1.3; }
+  .rtnote-image-loading[hidden] { display: none; }
+  .rtnote-image-loading-label { text-align: center; }
+  .rtnote-image-node > img, .rtnote-image-upload-result > img { display: block; width: 100%; margin: 0; border-radius: 10px; }
+  .rtnote-image-node > img[hidden] { display: none; }
+  [data-rtnote-image-gallery] { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; gap: 8px; margin: 14px 0; }
+  [data-rtnote-image-gallery][data-image-gallery-layout="3"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  [data-rtnote-image-gallery][data-image-gallery-layout="1"] { grid-template-columns: minmax(0, 1fr); }
+  [data-rtnote-image-gallery] > .rtnote-image-node, [data-rtnote-image-gallery] > img { width: 100% !important; min-width: 0; height: 100%; min-height: 112px; max-height: 220px; margin: 0 !important; overflow: hidden; border-radius: 10px; background: ${theme === "dark" ? "#1e293b" : "#f1f5f9"}; }
+  [data-rtnote-image-gallery] > .rtnote-image-node > img, [data-rtnote-image-gallery] > img { width: 100%; height: 100%; min-height: 112px; max-height: 220px; object-fit: cover; }
   ${NATIVE_IMAGE_GALLERY_CSS}
-  .edgeever-image-node.is-selected > img, .edgeever-image-upload-result.is-selected > img { outline: 2px solid #0f766e; outline-offset: 3px; }
-  .edgeever-image-actions { position: absolute; right: 8px; bottom: 8px; z-index: 3; display: inline-flex; width: 42px; height: 42px; appearance: none; align-items: center; justify-content: center; border: 1px solid ${theme === "dark" ? "#475569" : "#cbd5e1"}; border-radius: 999px; background: ${theme === "dark" ? "rgba(15, 23, 42, 0.9)" : "rgba(255, 255, 255, 0.92)"}; color: ${theme === "dark" ? "#e2e8f0" : "#334155"}; font-size: 24px; font-weight: 700; line-height: 1; box-shadow: 0 3px 12px rgba(15, 23, 42, 0.2); }
-  .edgeever-image-actions[hidden] { display: none; }
-  .edgeever-image-size-controls { position: absolute; top: 8px; left: 50%; z-index: 2; display: flex; width: max-content; max-width: calc(100vw - 40px); align-items: center; gap: 3px; transform: translateX(-50%); border: 1px solid ${theme === "dark" ? "#475569" : "#bbf7d0"}; border-radius: 9px; padding: 4px; background: ${theme === "dark" ? "rgba(15, 23, 42, 0.96)" : "rgba(255, 255, 255, 0.96)"}; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.2); line-height: 1.15; }
-  .edgeever-image-size-controls[hidden] { display: none; }
-  .edgeever-image-size-button { display: inline-flex; min-width: 52px; min-height: 38px; appearance: none; align-items: center; justify-content: center; border: 0; border-radius: 7px; padding: 4px 7px; background: transparent; color: ${theme === "dark" ? "#cbd5e1" : "#475569"}; font: inherit; font-size: 12px; font-weight: 700; }
-  .edgeever-image-size-button.is-active { background: ${theme === "dark" ? "#134e4a" : "#ccfbf1"}; color: ${theme === "dark" ? "#99f6e4" : "#0f766e"}; }
-  .edgeever-image-upload-spinner { width: 18px; height: 18px; border: 2px solid ${theme === "dark" ? "#475569" : "#cbd5e1"}; border-top-color: #0f766e; border-radius: 999px; animation: edgeever-image-upload-spin 0.8s linear infinite; }
-  @keyframes edgeever-image-upload-spin { to { transform: rotate(360deg); } }
-  .edgeever-editor-content hr { margin: 24px 0; border: 0; border-top: 1px solid #cbd5e1; }
+  .rtnote-image-node.is-selected > img, .rtnote-image-upload-result.is-selected > img { outline: 2px solid #0f766e; outline-offset: 3px; }
+  .rtnote-image-actions { position: absolute; right: 8px; bottom: 8px; z-index: 3; display: inline-flex; width: 42px; height: 42px; appearance: none; align-items: center; justify-content: center; border: 1px solid ${theme === "dark" ? "#475569" : "#cbd5e1"}; border-radius: 999px; background: ${theme === "dark" ? "rgba(15, 23, 42, 0.9)" : "rgba(255, 255, 255, 0.92)"}; color: ${theme === "dark" ? "#e2e8f0" : "#334155"}; font-size: 24px; font-weight: 700; line-height: 1; box-shadow: 0 3px 12px rgba(15, 23, 42, 0.2); }
+  .rtnote-image-actions[hidden] { display: none; }
+  .rtnote-image-size-controls { position: absolute; top: 8px; left: 50%; z-index: 2; display: flex; width: max-content; max-width: calc(100vw - 40px); align-items: center; gap: 3px; transform: translateX(-50%); border: 1px solid ${theme === "dark" ? "#475569" : "#bbf7d0"}; border-radius: 9px; padding: 4px; background: ${theme === "dark" ? "rgba(15, 23, 42, 0.96)" : "rgba(255, 255, 255, 0.96)"}; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.2); line-height: 1.15; }
+  .rtnote-image-size-controls[hidden] { display: none; }
+  .rtnote-image-size-button { display: inline-flex; min-width: 52px; min-height: 38px; appearance: none; align-items: center; justify-content: center; border: 0; border-radius: 7px; padding: 4px 7px; background: transparent; color: ${theme === "dark" ? "#cbd5e1" : "#475569"}; font: inherit; font-size: 12px; font-weight: 700; }
+  .rtnote-image-size-button.is-active { background: ${theme === "dark" ? "#134e4a" : "#ccfbf1"}; color: ${theme === "dark" ? "#99f6e4" : "#0f766e"}; }
+  .rtnote-image-upload-spinner { width: 18px; height: 18px; border: 2px solid ${theme === "dark" ? "#475569" : "#cbd5e1"}; border-top-color: #0f766e; border-radius: 999px; animation: rtnote-image-upload-spin 0.8s linear infinite; }
+  @keyframes rtnote-image-upload-spin { to { transform: rotate(360deg); } }
+  .rtnote-editor-content hr { margin: 24px 0; border: 0; border-top: 1px solid #cbd5e1; }
   ${PHONE_IMAGE_FILL_CSS}
 `;
 };

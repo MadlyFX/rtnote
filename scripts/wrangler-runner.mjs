@@ -6,12 +6,12 @@ import { resolve } from "node:path";
 export const PLACEHOLDER_D1_ID = "00000000-0000-0000-0000-000000000000";
 
 const REPOSITORY_WRANGLER_VALUES = {
-  name: "edgeever",
+  name: "rtnote",
   workers_dev: "true",
-  database_name: "edgeever",
+  database_name: "rtnote",
   database_id: PLACEHOLDER_D1_ID,
-  bucket_name: "edgeever-resources",
-  preview_bucket_name: "edgeever-resources-preview",
+  bucket_name: "rtnote-resources",
+  preview_bucket_name: "rtnote-resources-preview",
 };
 const REPOSITORY_WRANGLER_SHA256 = "d3ba35d5369ef9e9d00383af0dec4f939a732b1b11a2e1f1a958f7499f880f7c";
 
@@ -38,7 +38,7 @@ export const repositoryWranglerConfigError = (config, usesRepositoryConfig) => {
   return [
     `Refusing instance-specific setting ${changedSetting} in the repository wrangler.toml.`,
     "Restore the tracked file from upstream.",
-    "Provide deployment settings through EDGE_EVER_* Workers Builds variables,",
+    "Provide deployment settings through RTNOTE_* Workers Builds variables,",
     "or point WRANGLER_CONFIG at an external configuration file for an advanced deployment.",
   ].join(" ");
 };
@@ -64,7 +64,7 @@ export const buildWranglerEnvironment = (args, env = process.env) => ({
   // The repository installs a Wrangler compatibility shim so Cloudflare's
   // default `npx wrangler deploy` cannot bypass the validated pipeline. Calls
   // originating from our runner must delegate straight to the official CLI.
-  EDGE_EVER_WRANGLER_BYPASS_SHIM: "1",
+  RTNOTE_WRANGLER_BYPASS_SHIM: "1",
   ...(isD1MigrationApplyCommand(args) ? { CI: "true" } : {}),
 });
 
@@ -114,7 +114,7 @@ export const shouldCaptureDeploymentTargets = (env = process.env) =>
   env.WORKERS_CI === "1" || env.CI?.trim().toLowerCase() === "true";
 
 export const LOCAL_DEV_CREDENTIALS_ENCRYPTION_KEY =
-  "edgeever-local-development-credentials-key-v1";
+  "rtnote-local-development-credentials-key-v1";
 
 // Wrangler refuses to start `dev` when the assets directory is missing and has no
 // option to create it. Like Wrangler, resolve `[assets].directory` from the config's directory.
@@ -125,7 +125,7 @@ export const resolveWranglerAssetsDirectory = (config, configDirectory) => {
 
 export const buildLocalDevEnvironmentFile = () => [
   "# Local-only values. Remote instance secrets are intentionally excluded.",
-  `EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY=${LOCAL_DEV_CREDENTIALS_ENCRYPTION_KEY}`,
+  `RTNOTE_CREDENTIALS_ENCRYPTION_KEY=${LOCAL_DEV_CREDENTIALS_ENCRYPTION_KEY}`,
   "",
 ].join("\n");
 
@@ -190,7 +190,7 @@ export const deployedWorkerSettings = (json) => {
     binding?.name === "RESOURCES" && binding?.type === "r2_bucket"
   );
   const usernames = bindings.filter((binding) =>
-    binding?.name === "EDGE_EVER_AUTH_USERNAME" && binding?.type === "plain_text"
+    binding?.name === "RTNOTE_AUTH_USERNAME" && binding?.type === "plain_text"
   );
   return {
     r2BucketName: resources.length === 1 && typeof resources[0].bucket_name === "string"

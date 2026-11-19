@@ -34,8 +34,8 @@ const RECOVERY_CODE_GROUPS = 3;
 const RECOVERY_CODE_GROUP_LENGTH = 4;
 
 type EncryptionEnvironment = Pick<Bindings,
-  "EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY" | "EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY_PREVIOUS" |
-  "EDGE_EVER_AUTH_PASSWORD" | "EDGE_EVER_AUTH_PASSWORD_HASH" | "EDGE_EVER_AUTH_PASSWORD_FALLBACK">;
+  "RTNOTE_CREDENTIALS_ENCRYPTION_KEY" | "RTNOTE_CREDENTIALS_ENCRYPTION_KEY_PREVIOUS" |
+  "RTNOTE_AUTH_PASSWORD" | "RTNOTE_AUTH_PASSWORD_HASH" | "RTNOTE_AUTH_PASSWORD_FALLBACK">;
 
 export type UserTotpRow = {
   user_id: string;
@@ -58,17 +58,17 @@ export type UserTotpRow = {
 // Same deployment keys as share passwords, bound to a separate purpose and
 // to the account so ciphertexts cannot be swapped between users.
 const totpKeys = (env: EncryptionEnvironment, userId: string) => [
-  env.EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY,
-  env.EDGE_EVER_AUTH_PASSWORD,
-  env.EDGE_EVER_AUTH_PASSWORD_HASH,
-  env.EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY_PREVIOUS,
-  env.EDGE_EVER_AUTH_PASSWORD_FALLBACK,
-].flatMap((value) => value?.trim() ? [`edgeever:totp-secret:v1:${userId}:${value.trim()}`] : []);
+  env.RTNOTE_CREDENTIALS_ENCRYPTION_KEY,
+  env.RTNOTE_AUTH_PASSWORD,
+  env.RTNOTE_AUTH_PASSWORD_HASH,
+  env.RTNOTE_CREDENTIALS_ENCRYPTION_KEY_PREVIOUS,
+  env.RTNOTE_AUTH_PASSWORD_FALLBACK,
+].flatMap((value) => value?.trim() ? [`rtnote:totp-secret:v1:${userId}:${value.trim()}`] : []);
 
 const primaryTotpKey = (env: EncryptionEnvironment, userId: string) => totpKeys({
   ...env,
-  EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY_PREVIOUS: undefined,
-  EDGE_EVER_AUTH_PASSWORD_FALLBACK: undefined,
+  RTNOTE_CREDENTIALS_ENCRYPTION_KEY_PREVIOUS: undefined,
+  RTNOTE_AUTH_PASSWORD_FALLBACK: undefined,
 }, userId)[0];
 
 export const isTotpEncryptionAvailable = (env: EncryptionEnvironment) =>
@@ -79,7 +79,7 @@ export const encryptTotpSecret = async (secret: string, userId: string, env: Enc
   if (!key) {
     throw new AppError(
       "totp_encryption_unavailable",
-      "Configure EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY before enabling two-factor authentication.",
+      "Configure RTNOTE_CREDENTIALS_ENCRYPTION_KEY before enabling two-factor authentication.",
       503,
     );
   }

@@ -1,7 +1,7 @@
-import { LEGACY_BODY_FONTS } from "@edgeever/shared/font-resources";
-import type { BodyFontId } from "@edgeever/shared/font-loader";
+import { LEGACY_BODY_FONTS } from "@rtnote/shared/font-resources";
+import type { BodyFontId } from "@rtnote/shared/font-loader";
 import { useFontPreviewStatus } from "@/lib/use-font-preview-status";
-import { FONT_CATALOG, NOTE_BODY_FONT_MENU_GROUPS, isRemoteNoteImageFont, type RemoteNoteImageFont } from "@edgeever/shared/font-catalog";
+import { FONT_CATALOG, NOTE_BODY_FONT_MENU_GROUPS, isRemoteNoteImageFont, type RemoteNoteImageFont } from "@rtnote/shared/font-catalog";
 import { FontLoadFeedback } from "@/components/FontLoadFeedback";
 import { editorFontLoadState, uiFontLoadState, retryEditorCatalogFont, retryUiCatalogFont } from "@/lib/editor-catalog-fonts";
 import { FontLabel } from "@/components/FontLabel";
@@ -15,7 +15,7 @@ import type {
   NoteProsePaletteChoice,
   NoteProseQuoteStyle,
   ResolvedNoteProse,
-} from "@edgeever/shared";
+} from "@rtnote/shared";
 import {
   DEFAULT_NOTE_PROSE_CSS,
   MAX_NOTE_PROSE_CSS_BYTES,
@@ -32,7 +32,7 @@ import {
   NOTE_PROSE_PALETTES,
   NOTE_PROSE_QUOTE_STYLES,
   noteProseCssDropsDeclarations,
-} from "@edgeever/shared";
+} from "@rtnote/shared";
 import {
   useNoteProseStylePreference,
   writeNoteProseStylePreference,

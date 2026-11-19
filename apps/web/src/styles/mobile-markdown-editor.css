@@ -466,12 +466,12 @@ input {
   background: #f1f5f9;
 }
 
-.edgeever-mobile-tiptap-editor {
+.rtnote-mobile-tiptap-editor {
   min-height: calc(100dvh - 14rem);
   margin: 0 -12px;
 }
 
-.edgeever-mobile-tiptap-content {
+.rtnote-mobile-tiptap-content {
   min-height: calc(100dvh - 14rem);
   outline: none;
   padding: 18px 12px 32px;
@@ -489,20 +489,20 @@ input {
 
 /* Keep semantic emphasis visible even though the standalone shell disables
  * synthetic font faces globally. Both values preserve nested bold-italic text. */
-.edgeever-mobile-tiptap-content strong,
-.edgeever-mobile-tiptap-content b {
+.rtnote-mobile-tiptap-content strong,
+.rtnote-mobile-tiptap-content b {
   font-synthesis: weight style;
   font-weight: 800;
 }
 
-.edgeever-mobile-tiptap-content em,
-.edgeever-mobile-tiptap-content i {
+.rtnote-mobile-tiptap-content em,
+.rtnote-mobile-tiptap-content i {
   font-synthesis: weight style;
   font-style: italic;
 }
 
 /* External hyperlinks — match desktop default ProseMirror link styling. */
-.edgeever-mobile-tiptap-content a {
+.rtnote-mobile-tiptap-content a {
   color: #00751f;
   font-weight: 500;
   text-decoration: underline;
@@ -511,71 +511,71 @@ input {
   cursor: pointer;
 }
 
-.edgeever-mobile-tiptap-content a:active,
-.edgeever-mobile-tiptap-content a:hover {
+.rtnote-mobile-tiptap-content a:active,
+.rtnote-mobile-tiptap-content a:hover {
   color: #16a06e;
   text-decoration-color: #16a06e;
 }
 
-.edgeever-mobile-tiptap-content a.edgeever-attachment-link,
-.edgeever-mobile-tiptap-content a[href*="/api/v1/resources/"] {
+.rtnote-mobile-tiptap-content a.rtnote-attachment-link,
+.rtnote-mobile-tiptap-content a[href*="/api/v1/resources/"] {
   text-decoration: none;
 }
 
-:root.dark .edgeever-mobile-tiptap-content a,
-html.dark .edgeever-mobile-tiptap-content a {
+:root.dark .rtnote-mobile-tiptap-content a,
+html.dark .rtnote-mobile-tiptap-content a {
   color: #86efac;
   text-decoration-color: rgb(134 239 172 / 0.45);
 }
 
-:root.dark .edgeever-mobile-tiptap-content a:active,
-:root.dark .edgeever-mobile-tiptap-content a:hover,
-html.dark .edgeever-mobile-tiptap-content a:active,
-html.dark .edgeever-mobile-tiptap-content a:hover {
+:root.dark .rtnote-mobile-tiptap-content a:active,
+:root.dark .rtnote-mobile-tiptap-content a:hover,
+html.dark .rtnote-mobile-tiptap-content a:active,
+html.dark .rtnote-mobile-tiptap-content a:hover {
   color: #4ade80;
   text-decoration-color: #4ade80;
 }
 
-.edgeever-mobile-tiptap-content p {
+.rtnote-mobile-tiptap-content p {
   margin: 0 0 6px;
   padding: 0;
   line-height: 1.6;
 }
 
-.edgeever-mobile-tiptap-content h1,
-.edgeever-mobile-tiptap-content h2,
-.edgeever-mobile-tiptap-content h3 {
+.rtnote-mobile-tiptap-content h1,
+.rtnote-mobile-tiptap-content h2,
+.rtnote-mobile-tiptap-content h3 {
   line-height: 1.25;
   margin: 0.9em 0 0.45em;
 }
 
-.edgeever-mobile-tiptap-content ul,
-.edgeever-mobile-tiptap-content ol {
+.rtnote-mobile-tiptap-content ul,
+.rtnote-mobile-tiptap-content ol {
   margin: 0 0 0.85em;
   padding-left: 1.4em;
 }
 
-.edgeever-mobile-tiptap-content ul {
+.rtnote-mobile-tiptap-content ul {
   list-style-type: disc;
 }
 
-.edgeever-mobile-tiptap-content ol {
+.rtnote-mobile-tiptap-content ol {
   list-style-type: decimal;
 }
 
-.edgeever-mobile-tiptap-content ul[data-type="taskList"] {
+.rtnote-mobile-tiptap-content ul[data-type="taskList"] {
   padding-left: 0;
   list-style: none;
 }
 
-.edgeever-mobile-tiptap-content ul[data-type="taskList"] li[data-checked] {
+.rtnote-mobile-tiptap-content ul[data-type="taskList"] li[data-checked] {
   display: flex;
   align-items: flex-start;
   gap: 9px;
   margin: 4px 0;
 }
 
-.edgeever-mobile-tiptap-content ul[data-type="taskList"] li[data-checked] > label {
+.rtnote-mobile-tiptap-content ul[data-type="taskList"] li[data-checked] > label {
   display: inline-flex;
   flex: 0 0 auto;
   align-items: center;
@@ -583,7 +583,7 @@ html.dark .edgeever-mobile-tiptap-content a:hover {
   user-select: none;
 }
 
-.edgeever-mobile-tiptap-content ul[data-type="taskList"] li[data-checked] > label input {
+.rtnote-mobile-tiptap-content ul[data-type="taskList"] li[data-checked] > label input {
   width: 18px;
   height: 18px;
   margin: 0;
@@ -591,32 +591,32 @@ html.dark .edgeever-mobile-tiptap-content a:hover {
   accent-color: #1a1d21;
 }
 
-.edgeever-mobile-tiptap-content ul[data-type="taskList"] li[data-checked] > div {
+.rtnote-mobile-tiptap-content ul[data-type="taskList"] li[data-checked] > div {
   min-width: 0;
   flex: 1 1 auto;
 }
 
-.edgeever-mobile-tiptap-content ul[data-type="taskList"] li[data-checked] > div > p {
+.rtnote-mobile-tiptap-content ul[data-type="taskList"] li[data-checked] > div > p {
   margin-bottom: 0;
 }
 
-.edgeever-mobile-tiptap-content ul[data-type="taskList"] li[data-checked="true"] > div > p {
+.rtnote-mobile-tiptap-content ul[data-type="taskList"] li[data-checked="true"] > div > p {
   color: #94a3b8;
   text-decoration: line-through;
   transition: color 150ms ease, text-decoration 150ms ease;
 }
 
-.edgeever-mobile-tiptap-content ul[data-type="taskList"] ul[data-type="taskList"] {
+.rtnote-mobile-tiptap-content ul[data-type="taskList"] ul[data-type="taskList"] {
   margin: 4px 0 0;
   padding-left: 24px;
 }
 
-.edgeever-mobile-tiptap-content .ee-inline-field-source {
+.rtnote-mobile-tiptap-content .ee-inline-field-source {
   font-size: 0;
   color: transparent;
 }
 
-.edgeever-mobile-tiptap-content .ee-inline-field {
+.rtnote-mobile-tiptap-content .ee-inline-field {
   display: inline-flex;
   align-items: center;
   margin: 0 0.15rem;
@@ -631,7 +631,7 @@ html.dark .edgeever-mobile-tiptap-content a:hover {
   vertical-align: 0.12em;
 }
 
-.edgeever-mobile-tiptap-content blockquote {
+.rtnote-mobile-tiptap-content blockquote {
   border: 0;
   border-radius: 8px;
   padding: 0.75rem 1rem;
@@ -640,14 +640,14 @@ html.dark .edgeever-mobile-tiptap-content a:hover {
   margin: 0 0 0.85em;
 }
 
-.edgeever-mobile-tiptap-content hr {
+.rtnote-mobile-tiptap-content hr {
   border: 0;
   border-top: 1px solid var(--memo-content-divider-color, #1a1d21);
   margin: 1.2rem 0;
 }
 
-.edgeever-mobile-tiptap-content hr.edgeever-merge-divider,
-.edgeever-mobile-tiptap-content hr[data-edgeever-merge-divider] {
+.rtnote-mobile-tiptap-content hr.rtnote-merge-divider,
+.rtnote-mobile-tiptap-content hr[data-rtnote-merge-divider] {
   border: 0;
   border-top: 2px solid var(--memo-content-divider-color, #1a1d21);
   background: transparent;
@@ -655,7 +655,7 @@ html.dark .edgeever-mobile-tiptap-content a:hover {
   margin: 1.5rem 0;
 }
 
-.edgeever-mobile-tiptap-content code {
+.rtnote-mobile-tiptap-content code {
   border: 1px solid #e1e5ea;
   border-radius: 4px;
   background: #f3f5f7;
@@ -666,7 +666,7 @@ html.dark .edgeever-mobile-tiptap-content a:hover {
   font-family: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
-.edgeever-mobile-tiptap-content pre code {
+.rtnote-mobile-tiptap-content pre code {
   border: 0;
   background: transparent;
   padding: 0;
@@ -674,7 +674,7 @@ html.dark .edgeever-mobile-tiptap-content a:hover {
   font-weight: normal;
 }
 
-.edgeever-mobile-tiptap-content .edgeever-code-source {
+.rtnote-mobile-tiptap-content .rtnote-code-source {
   overflow-x: auto;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
@@ -687,14 +687,14 @@ html.dark .edgeever-mobile-tiptap-content a:hover {
   box-shadow: 0 1px 2px rgb(15 23 42 / 0.03);
 }
 
-.edgeever-mobile-tiptap-content .edgeever-mermaid-code-block {
+.rtnote-mobile-tiptap-content .rtnote-mermaid-code-block {
   position: relative;
   margin: 18px 0;
   overflow: visible;
   background: transparent;
 }
 
-.edgeever-mobile-tiptap-content .edgeever-mermaid-toolbar {
+.rtnote-mobile-tiptap-content .rtnote-mermaid-toolbar {
   display: flex;
   width: fit-content;
   margin: 0 0 0.25rem auto;
@@ -707,7 +707,7 @@ html.dark .edgeever-mobile-tiptap-content a:hover {
   backdrop-filter: blur(6px);
 }
 
-.edgeever-mobile-tiptap-content .edgeever-mermaid-tool-button {
+.rtnote-mobile-tiptap-content .rtnote-mermaid-tool-button {
   display: inline-flex;
   width: 2.75rem;
   height: 2.75rem;
@@ -720,29 +720,29 @@ html.dark .edgeever-mobile-tiptap-content a:hover {
   color: #475569;
 }
 
-.edgeever-mobile-tiptap-content .edgeever-mermaid-tool-button svg {
+.rtnote-mobile-tiptap-content .rtnote-mermaid-tool-button svg {
   width: 1.125rem;
   height: 1.125rem;
   stroke-width: 2;
 }
 
-.edgeever-mobile-tiptap-content .edgeever-mermaid-tool-button:active,
-.edgeever-mobile-tiptap-content .edgeever-mermaid-tool-button:focus-visible,
-.edgeever-mobile-tiptap-content .edgeever-mermaid-tool-button[aria-pressed="true"] {
+.rtnote-mobile-tiptap-content .rtnote-mermaid-tool-button:active,
+.rtnote-mobile-tiptap-content .rtnote-mermaid-tool-button:focus-visible,
+.rtnote-mobile-tiptap-content .rtnote-mermaid-tool-button[aria-pressed="true"] {
   background: #eaf5ee;
   color: #0f766e;
   outline: none;
 }
 
-.edgeever-mobile-tiptap-content .edgeever-mermaid-tool-button[data-state="copied"] {
+.rtnote-mobile-tiptap-content .rtnote-mermaid-tool-button[data-state="copied"] {
   color: #15803d;
 }
 
-.edgeever-mobile-tiptap-content .edgeever-mermaid-tool-button[data-state="error"] {
+.rtnote-mobile-tiptap-content .rtnote-mermaid-tool-button[data-state="error"] {
   color: #be123c;
 }
 
-.edgeever-mobile-tiptap-content .edgeever-mermaid-preview {
+.rtnote-mobile-tiptap-content .rtnote-mermaid-preview {
   display: flex;
   max-height: min(70vh, 36rem);
   min-height: 6rem;
@@ -758,7 +758,7 @@ html.dark .edgeever-mobile-tiptap-content a:hover {
   scrollbar-color: rgb(100 116 139 / 0.35) transparent;
 }
 
-.edgeever-mobile-tiptap-content .edgeever-mermaid-svg {
+.rtnote-mobile-tiptap-content .rtnote-mermaid-svg {
   display: flex;
   width: max-content;
   min-width: 100%;
@@ -767,7 +767,7 @@ html.dark .edgeever-mobile-tiptap-content a:hover {
   justify-content: center;
 }
 
-.edgeever-mobile-tiptap-content .edgeever-mermaid-svg svg {
+.rtnote-mobile-tiptap-content .rtnote-mermaid-svg svg {
   display: block;
   width: var(--mermaid-display-width, auto);
   max-width: none;
@@ -776,42 +776,42 @@ html.dark .edgeever-mobile-tiptap-content a:hover {
   flex: none;
 }
 
-.edgeever-mobile-tiptap-content .edgeever-mermaid-svg text {
-  font-family: var(--editor-body-font-family, var(--edgeever-system-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", ui-sans-serif, system-ui, sans-serif));
+.rtnote-mobile-tiptap-content .rtnote-mermaid-svg text {
+  font-family: var(--editor-body-font-family, var(--rtnote-system-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", ui-sans-serif, system-ui, sans-serif));
   font-synthesis: weight;
 }
 
-.edgeever-mobile-tiptap-content .edgeever-mermaid-svg text[font-weight="500"] {
+.rtnote-mobile-tiptap-content .rtnote-mermaid-svg text[font-weight="500"] {
   font-weight: 550;
 }
 
-.edgeever-mobile-tiptap-content .edgeever-mermaid-source {
+.rtnote-mobile-tiptap-content .rtnote-mermaid-source {
   display: none;
   margin-top: 0.5rem;
 }
 
-.edgeever-mobile-tiptap-content .edgeever-mermaid-code-block.is-source-visible .edgeever-mermaid-source {
+.rtnote-mobile-tiptap-content .rtnote-mermaid-code-block.is-source-visible .rtnote-mermaid-source {
   display: block;
 }
 
-.edgeever-mobile-tiptap-content .edgeever-mermaid-message,
-.edgeever-mobile-tiptap-content .edgeever-mermaid-error {
+.rtnote-mobile-tiptap-content .rtnote-mermaid-message,
+.rtnote-mobile-tiptap-content .rtnote-mermaid-error {
   margin: 0;
   color: #64748b;
   font-size: 0.82rem;
 }
 
-.edgeever-mobile-tiptap-content .edgeever-mermaid-error {
+.rtnote-mobile-tiptap-content .rtnote-mermaid-error {
   color: #be123c;
 }
 
-.edgeever-mobile-tiptap-content img {
+.rtnote-mobile-tiptap-content img {
   height: auto;
   max-width: 100%;
   border-radius: 8px;
 }
 
-.edgeever-mobile-tiptap-content .tableWrapper {
+.rtnote-mobile-tiptap-content .tableWrapper {
   --mobile-table-column-width: clamp(4.5rem, 24cqi, 12rem);
   container-type: inline-size;
   display: block;
@@ -833,7 +833,7 @@ html.dark .edgeever-mobile-tiptap-content a:hover {
   box-shadow: 0 1px 3px rgb(15 23 42 / 0.03);
 }
 
-.edgeever-mobile-tiptap-content table {
+.rtnote-mobile-tiptap-content table {
   width: 100%;
   max-width: none;
   min-width: 100%;
@@ -843,42 +843,42 @@ html.dark .edgeever-mobile-tiptap-content a:hover {
 }
 
 /* Container query responsive column distributions for 1-4 columns */
-.edgeever-mobile-tiptap-content table:has(> colgroup > col:first-child:last-child) {
+.rtnote-mobile-tiptap-content table:has(> colgroup > col:first-child:last-child) {
   --mobile-table-column-width: 100cqi;
 }
 
-.edgeever-mobile-tiptap-content table:has(> colgroup > col:first-child:nth-last-child(2)) {
+.rtnote-mobile-tiptap-content table:has(> colgroup > col:first-child:nth-last-child(2)) {
   --mobile-table-column-width: 50cqi;
 }
 
-.edgeever-mobile-tiptap-content table:has(> colgroup > col:first-child:nth-last-child(3)) {
+.rtnote-mobile-tiptap-content table:has(> colgroup > col:first-child:nth-last-child(3)) {
   --mobile-table-column-width: calc(100cqi / 3);
 }
 
-.edgeever-mobile-tiptap-content table:has(> colgroup > col:first-child:nth-last-child(4)) {
+.rtnote-mobile-tiptap-content table:has(> colgroup > col:first-child:nth-last-child(4)) {
   --mobile-table-column-width: 25cqi;
 }
 
 /* For tables with 5+ columns on narrow viewports, expand width and scroll inside tableWrapper */
-.edgeever-mobile-tiptap-content table:has(> colgroup > col:first-child:nth-last-child(n+5)) {
+.rtnote-mobile-tiptap-content table:has(> colgroup > col:first-child:nth-last-child(n+5)) {
   width: max-content;
   --mobile-table-column-width: clamp(4.5rem, 24cqi, 12rem);
 }
 
 /* For tables without colgroup (plain markdown or pasted html), allow natural distribution */
-.edgeever-mobile-tiptap-content table:not(:has(colgroup)) {
+.rtnote-mobile-tiptap-content table:not(:has(colgroup)) {
   table-layout: auto;
   width: 100%;
   min-width: 100%;
 }
 
-.edgeever-mobile-tiptap-content table col {
+.rtnote-mobile-tiptap-content table col {
   width: var(--mobile-table-column-width) !important;
   min-width: var(--mobile-table-column-width) !important;
 }
 
-.edgeever-mobile-tiptap-content th,
-.edgeever-mobile-tiptap-content td {
+.rtnote-mobile-tiptap-content th,
+.rtnote-mobile-tiptap-content td {
   position: relative;
   width: var(--mobile-table-column-width, auto);
   min-width: var(--mobile-table-column-width, 3.5rem);
@@ -896,38 +896,38 @@ html.dark .edgeever-mobile-tiptap-content a:hover {
   transition: background-color 120ms ease;
 }
 
-.edgeever-mobile-tiptap-content th {
+.rtnote-mobile-tiptap-content th {
   background: #f8fafc;
   color: #0f172a;
   font-size: 0.84rem;
   font-weight: 600;
 }
 
-.edgeever-mobile-tiptap-content th:last-child,
-.edgeever-mobile-tiptap-content td:last-child {
+.rtnote-mobile-tiptap-content th:last-child,
+.rtnote-mobile-tiptap-content td:last-child {
   border-right: 0;
 }
 
-.edgeever-mobile-tiptap-content tr:last-child td {
+.rtnote-mobile-tiptap-content tr:last-child td {
   border-bottom: 0;
 }
 
-.edgeever-mobile-tiptap-content tbody tr:nth-child(even) td {
+.rtnote-mobile-tiptap-content tbody tr:nth-child(even) td {
   background: #fafafa;
 }
 
-.edgeever-mobile-tiptap-content tbody tr:hover td {
+.rtnote-mobile-tiptap-content tbody tr:hover td {
   background: #f1f5f9;
 }
 
-.edgeever-mobile-tiptap-content th p,
-.edgeever-mobile-tiptap-content td p {
+.rtnote-mobile-tiptap-content th p,
+.rtnote-mobile-tiptap-content td p {
   margin: 0;
   letter-spacing: inherit;
   line-height: inherit;
 }
 
-.edgeever-mobile-tiptap-content .selectedCell::after {
+.rtnote-mobile-tiptap-content .selectedCell::after {
   position: absolute;
   inset: 0;
   content: "";
@@ -935,48 +935,48 @@ html.dark .edgeever-mobile-tiptap-content a:hover {
   background: rgb(16 185 129 / 0.14);
 }
 
-:root.dark .edgeever-mobile-tiptap-content blockquote {
+:root.dark .rtnote-mobile-tiptap-content blockquote {
   color: #e7e5e4;
   background: rgb(255 255 255 / 0.05);
 }
 
-:root.dark .edgeever-mobile-tiptap-content th {
+:root.dark .rtnote-mobile-tiptap-content th {
   background: #1e293b;
   color: #f8fafc;
 }
 
-:root.dark .edgeever-mobile-tiptap-content code {
+:root.dark .rtnote-mobile-tiptap-content code {
   border-color: rgb(255 255 255 / 0.12);
   background: rgb(255 255 255 / 0.06);
   color: #e7e5e4;
 }
 
-:root.dark .edgeever-mobile-tiptap-content .edgeever-code-source {
+:root.dark .rtnote-mobile-tiptap-content .rtnote-code-source {
   border-color: #334155;
   background: #1e293b;
   color: #e2e8f0;
 }
 
-:root.dark .edgeever-mobile-tiptap-content .tableWrapper {
+:root.dark .rtnote-mobile-tiptap-content .tableWrapper {
   border-color: #334155;
   background: #0f172a;
   box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
 }
 
-:root.dark .edgeever-mobile-tiptap-content th,
-:root.dark .edgeever-mobile-tiptap-content td {
+:root.dark .rtnote-mobile-tiptap-content th,
+:root.dark .rtnote-mobile-tiptap-content td {
   border-color: #334155;
 }
 
-:root.dark .edgeever-mobile-tiptap-content tbody tr:nth-child(even) td {
+:root.dark .rtnote-mobile-tiptap-content tbody tr:nth-child(even) td {
   background: #182235;
 }
 
-:root.dark .edgeever-mobile-tiptap-content tbody tr:hover td {
+:root.dark .rtnote-mobile-tiptap-content tbody tr:hover td {
   background: #1e293b;
 }
 
-.edgeever-mobile-tiptap-content p.is-editor-empty:first-child::before {
+.rtnote-mobile-tiptap-content p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;
   height: 0;

@@ -1,7 +1,7 @@
 import { WELCOME_MEMO_TRANSLATION_JA } from "./default-workspace-seeds.ja";
 import { WELCOME_MEMO_TRANSLATION_ZH_CN } from "./default-workspace-seeds.zh-CN";
 import { WELCOME_MEMO_TRANSLATION_ZH_TW } from "./default-workspace-seeds.zh-TW";
-import { LEGACY_WELCOME_MEMO_SEED_TITLE } from "./edgeever-legacy-values";
+import { LEGACY_WELCOME_MEMO_SEED_TITLE } from "./rtnote-legacy-values";
 import { resolveSupportedLocale, type SupportedLocale } from "./i18n/locales";
 
 export type DefaultNotebookSeed = {
@@ -12,7 +12,7 @@ export type DefaultNotebookSeed = {
   names: Record<SupportedLocale, string>;
 };
 
-// The installation migrations (inherited from EdgeEver and immutable) seed the
+// The installation migrations (inherited from RTNote and immutable) seed the
 // zh-CN names. Keep zh-CN first so the localization guard can recognise names
 // that nobody has changed yet and replace them with the reader's language.
 // color stays null so the sidebar uses the shared slate icon. A hue is stored
@@ -120,7 +120,7 @@ export const WELCOME_MEMO_ID = "memo_welcome";
  * they identify a welcome note nobody has touched.
  *
  * The migrations predate the RTNote name and are immutable, so the seeded
- * title still says EdgeEver. First sign-in replaces it with the localized
+ * title still says RTNote. First sign-in replaces it with the localized
  * RTNote welcome note.
  */
 export const WELCOME_MEMO_SEED_TITLE = LEGACY_WELCOME_MEMO_SEED_TITLE;
@@ -182,11 +182,11 @@ export const WELCOME_MEMO_TRANSLATIONS: Record<SupportedLocale, WelcomeMemoTrans
 };
 
 /**
- * Welcome titles written before the RTNote name, so untouched welcome notes
- * from older seeds are still recognized.
+ * Welcome titles from older seeds, so untouched welcome notes
+ * are still recognized.
  */
 export const LEGACY_WELCOME_MEMO_TITLES: readonly string[] = Object.values(WELCOME_MEMO_TRANSLATIONS)
-  .map(({ title }) => title.replace("RTNote", "EdgeEver"));
+  .map(({ title }) => title);
 
 export type WelcomeMemoContent = {
   title: string;

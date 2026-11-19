@@ -71,7 +71,7 @@ const createSyncIntegrationFixture = () => {
       ('ws_1', 'memo', 'memo_trashed', 'upsert'),
       ('ws_1', 'notebook', 'nb_child', 'upsert');
   `);
-  const storage = createSelfHostedStorageAdapter(sqlite, "/tmp/edgeever-sync-route-test-unused");
+  const storage = createSelfHostedStorageAdapter(sqlite, "/tmp/rtnote-sync-route-test-unused");
   const app = new Hono();
   app.use("/api/v1/*", async (context, next) => {
     context.set("auth", agentAuth);
@@ -175,7 +175,7 @@ describe("sync route contracts", () => {
       );
       INSERT INTO memo_contents VALUES ('memo_trashed', 1, '{"type":"doc"}', '', '', 'hash', 1);
     `);
-    const storage = createSelfHostedStorageAdapter(sqlite, "/tmp/edgeever-sync-renamed-inbox-unused");
+    const storage = createSelfHostedStorageAdapter(sqlite, "/tmp/rtnote-sync-renamed-inbox-unused");
     const app = new Hono();
     app.use("/api/v1/*", async (context, next) => {
       context.set("auth", agentAuth);

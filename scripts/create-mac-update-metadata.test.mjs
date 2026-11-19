@@ -6,7 +6,7 @@ import { buildMacUpdateMetadata } from "./create-mac-update-metadata.mjs";
 
 describe("macOS update metadata", () => {
   test("lists architecture-specific ZIPs so the updater can select the matching Mac", () => {
-    const outputDirectory = mkdtempSync(join(tmpdir(), "edgeever-update-metadata-"));
+    const outputDirectory = mkdtempSync(join(tmpdir(), "rtnote-update-metadata-"));
     writeFileSync(join(outputDirectory, "RTNote-1.7.0-mac-arm64.zip"), "arm");
     writeFileSync(join(outputDirectory, "RTNote-1.7.0-mac-x64.zip"), "intel");
 

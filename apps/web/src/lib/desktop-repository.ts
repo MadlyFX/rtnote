@@ -6,10 +6,10 @@ import type {
   DesktopRpcMethod,
   DesktopRpcParams,
   DesktopRpcResponses,
-} from "@edgeever/shared";
-import { docToMarkdown, docToText, markdownToDoc, mergeMemoDocs, resolveMemoContentDoc, resolveMemoContentWrite, type MemoDetail, type TiptapDoc } from "@edgeever/shared";
-import { localizeDefaultMemoTemplate } from "@edgeever/shared/memo-template-seeds";
-import type { EdgeEverRepository } from "@/lib/repository";
+} from "@rtnote/shared";
+import { docToMarkdown, docToText, markdownToDoc, mergeMemoDocs, resolveMemoContentDoc, resolveMemoContentWrite, type MemoDetail, type TiptapDoc } from "@rtnote/shared";
+import { localizeDefaultMemoTemplate } from "@rtnote/shared/memo-template-seeds";
+import type { RTNoteRepository } from "@/lib/repository";
 import { api, getConfiguredDesktopApiBaseUrl } from "@/lib/api";
 import { createStagedResourceListItem, mapMarkdownResourceUrls, mapTiptapResourceUrls, toApiResourceUrl, toDesktopResourceUrl } from "@/lib/desktop-resources";
 import {
@@ -19,7 +19,7 @@ import {
   repairMemoStagedResourceUrls,
   stagedResourceIdFromUrl,
 } from "@/lib/staged-resource-repair";
-import type { ResourceListItem, ResourceStorageSummary } from "@edgeever/shared";
+import type { ResourceListItem, ResourceStorageSummary } from "@rtnote/shared";
 import { notifySyncQueueDeferred } from "@/lib/sync-events";
 
 const resolveResourceUrls = <T extends { resources: Array<{ url: string }> }>(result: T): T => {
@@ -52,10 +52,10 @@ const resourcesForMemo = async (memoId: string) => {
 };
 
 const rewriteUploadedAliases = async <T extends { contentJson?: unknown; contentMarkdown?: string | null }>(memoId: string, memo: T): Promise<T> => {
-  const aliases = await window.edgeeverDesktop?.listStagedResourceAliases?.(memoId) ?? [];
+  const aliases = await window.rtnoteDesktop?.listStagedResourceAliases?.(memoId) ?? [];
   if (aliases.length === 0) return memo;
   const rewrites = aliases.map((item) => ({
-    placeholder: `edgeever-staged://${item.id}`,
+    placeholder: `rtnote-staged://${item.id}`,
     url: `/api/v1/resources/${encodeURIComponent(item.resourceId)}/blob`,
   }));
   return {
@@ -82,7 +82,7 @@ const repairDisplayedMemo = async (memo: MemoDetail): Promise<MemoDetail> => {
 };
 
 const listStagedResources = async (): Promise<ResourceListItem[]> => {
-  const bridge = window.edgeeverDesktop;
+  const bridge = window.rtnoteDesktop;
   if (!bridge?.isAvailable) return [];
   const staged = await bridge.listStagedResources();
   const now = new Date().toISOString();
@@ -111,37 +111,37 @@ const mergeStagedResources = async <T extends { resources: ResourceListItem[]; s
 };
 
 const request = async <M extends DesktopRpcMethod>(method: M, params: DesktopRpcParams[M]) => {
-  const bridge = window.edgeeverDesktop;
+  const bridge = window.rtnoteDesktop;
   if (!bridge?.isAvailable) throw new Error("RTNote desktop bridge is unavailable");
   return bridge.sidecarRequest<DesktopRpcResponses[M]>(method, params);
 };
 
 export const cancelPendingDesktopImportMemo = async (memoId: string) => {
   const result = await request("memo.delete", { memoId, permanent: true, cancelPendingCreate: true });
-  window.dispatchEvent(new CustomEvent("edgeever:sync-queue-changed"));
+  window.dispatchEvent(new CustomEvent("rtnote:sync-queue-changed"));
   return result;
 };
 
-export const createDesktopRepository = (): EdgeEverRepository => ({
+export const createDesktopRepository = (): RTNoteRepository => ({
   listNotebooks: () => request("notebook.list", {}),
 
   createNotebook: (input) => request("notebook.create", input).then((result) => {
-    window.dispatchEvent(new CustomEvent("edgeever:sync-queue-changed"));
+    window.dispatchEvent(new CustomEvent("rtnote:sync-queue-changed"));
     return result;
   }),
 
   updateNotebook: (notebookId, input) => request("notebook.update", { notebookId, ...input }).then((result) => {
-    window.dispatchEvent(new CustomEvent("edgeever:sync-queue-changed"));
+    window.dispatchEvent(new CustomEvent("rtnote:sync-queue-changed"));
     return result;
   }),
 
   deleteNotebook: (notebookId) => request("notebook.delete", { notebookId }).then((result) => {
-    window.dispatchEvent(new CustomEvent("edgeever:sync-queue-changed"));
+    window.dispatchEvent(new CustomEvent("rtnote:sync-queue-changed"));
     return result;
   }),
 
   restoreNotebook: (notebookId) => request("notebook.restore", { notebookId }).then((result) => {
-    window.dispatchEvent(new CustomEvent("edgeever:sync-queue-changed"));
+    window.dispatchEvent(new CustomEvent("rtnote:sync-queue-changed"));
     return result;
   }),
 
@@ -177,7 +177,7 @@ export const createDesktopRepository = (): EdgeEverRepository => ({
       ...input,
       ...(content ? { contentJson: content.contentJson, contentMarkdown: content.contentMarkdown } : {}),
     }).then((result) => {
-      window.dispatchEvent(new CustomEvent("edgeever:sync-queue-changed"));
+      window.dispatchEvent(new CustomEvent("rtnote:sync-queue-changed"));
       return result;
     });
   },
@@ -192,11 +192,11 @@ export const createDesktopRepository = (): EdgeEverRepository => ({
       content = { contentJson: resolved.contentJson, contentMarkdown: resolved.contentMarkdown };
     }
     const result = await request("template.update", { templateId, ...input, ...content });
-    window.dispatchEvent(new CustomEvent("edgeever:sync-queue-changed"));
+    window.dispatchEvent(new CustomEvent("rtnote:sync-queue-changed"));
     return result;
   },
   deleteTemplate: (templateId) => request("template.delete", { templateId }).then((result) => {
-    window.dispatchEvent(new CustomEvent("edgeever:sync-queue-changed"));
+    window.dispatchEvent(new CustomEvent("rtnote:sync-queue-changed"));
     return result;
   }),
   useTemplate: async (templateId, notebookId, locale) => {
@@ -267,27 +267,27 @@ export const createDesktopRepository = (): EdgeEverRepository => ({
   },
   listTags: () => request("tag.list", {}),
   renameTag: (tag, name) => request("tag.rename", { tag, name }).then((result) => {
-    window.dispatchEvent(new CustomEvent("edgeever:sync-queue-changed"));
+    window.dispatchEvent(new CustomEvent("rtnote:sync-queue-changed"));
     return result;
   }),
   deleteTag: (tag) => request("tag.delete", { tag }).then((result) => {
-    window.dispatchEvent(new CustomEvent("edgeever:sync-queue-changed"));
+    window.dispatchEvent(new CustomEvent("rtnote:sync-queue-changed"));
     return result;
   }),
   moveMemos: (input) => request("memo.moveBatch", input).then((result) => {
-    window.dispatchEvent(new CustomEvent("edgeever:sync-queue-changed"));
+    window.dispatchEvent(new CustomEvent("rtnote:sync-queue-changed"));
     return result;
   }),
   deleteMemos: (input) => request("memo.deleteBatch", input).then((result) => {
-    window.dispatchEvent(new CustomEvent("edgeever:sync-queue-changed"));
+    window.dispatchEvent(new CustomEvent("rtnote:sync-queue-changed"));
     return result;
   }),
   emptyTrash: () => request("memo.emptyTrash", {}).then((result) => {
-    window.dispatchEvent(new CustomEvent("edgeever:sync-queue-changed"));
+    window.dispatchEvent(new CustomEvent("rtnote:sync-queue-changed"));
     return result;
   }),
   pinMemos: (input) => request("memo.pinBatch", input).then((result) => {
-    window.dispatchEvent(new CustomEvent("edgeever:sync-queue-changed"));
+    window.dispatchEvent(new CustomEvent("rtnote:sync-queue-changed"));
     return result;
   }),
   mergeMemos: async (input) => {
@@ -307,7 +307,7 @@ export const createDesktopRepository = (): EdgeEverRepository => ({
       contentMarkdown: docToMarkdown(contentJson),
       contentText: docToText(contentJson),
     });
-    window.dispatchEvent(new CustomEvent("edgeever:sync-queue-changed"));
+    window.dispatchEvent(new CustomEvent("rtnote:sync-queue-changed"));
     return { memo: await repairDisplayedMemo(result.memo) };
   },
 
@@ -362,7 +362,7 @@ export const createDesktopRepository = (): EdgeEverRepository => ({
       contentText: docToText(contentJson),
     };
     return request("memo.create", rpcParams).then((result) => {
-      window.dispatchEvent(new CustomEvent("edgeever:sync-queue-changed"));
+      window.dispatchEvent(new CustomEvent("rtnote:sync-queue-changed"));
       return result;
     });
   },
@@ -379,7 +379,7 @@ export const createDesktopRepository = (): EdgeEverRepository => ({
       : aliasedInput;
     if (contentReferencesStagedResourceUrl(repairedInput.contentJson)
       || contentReferencesStagedResourceUrl(repairedInput.contentMarkdown)) {
-      const live = new Set((await window.edgeeverDesktop?.listStagedResources() ?? []).map((item) => item.id));
+      const live = new Set((await window.rtnoteDesktop?.listStagedResources() ?? []).map((item) => item.id));
       const references = collectStagedResourceReferences(repairedInput);
       if (references.length === 0 || references.some((reference) => !live.has(reference.stagedId))) {
         throw new Error("Memo contains a missing staged resource");
@@ -433,13 +433,13 @@ export const createDesktopRepository = (): EdgeEverRepository => ({
   },
 
   deleteMemo: (memoId, permanent = false) => request("memo.delete", { memoId, permanent }).then((result) => {
-    window.dispatchEvent(new CustomEvent("edgeever:sync-queue-changed"));
+    window.dispatchEvent(new CustomEvent("rtnote:sync-queue-changed"));
     return result;
   }),
 
   restoreMemo: async (memoId) => {
     const result = await request("memo.restore", { memoId });
-    window.dispatchEvent(new CustomEvent("edgeever:sync-queue-changed"));
+    window.dispatchEvent(new CustomEvent("rtnote:sync-queue-changed"));
     return { ...result, queued: true as const };
   },
 
@@ -457,7 +457,7 @@ export const createDesktopRepository = (): EdgeEverRepository => ({
   },
   restoreMemoRevision: async (memoId, revisionId) => {
     const result = await request("memo.restoreRevision", { memoId, revisionId });
-    window.dispatchEvent(new CustomEvent("edgeever:sync-queue-changed"));
+    window.dispatchEvent(new CustomEvent("rtnote:sync-queue-changed"));
     return { memo: toDisplayMemo(result.memo) };
   },
 

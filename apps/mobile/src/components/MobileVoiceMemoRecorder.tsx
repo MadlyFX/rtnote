@@ -9,7 +9,7 @@ import {
   type RecordingOptions,
   type RecordingStatus,
 } from "expo-audio";
-import { formatVoiceMemoDuration } from "@edgeever/shared";
+import { formatVoiceMemoDuration } from "@rtnote/shared";
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import { Linking, Modal, Platform, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

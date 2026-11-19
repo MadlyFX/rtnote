@@ -1,5 +1,5 @@
 import { expect, mock, test } from "bun:test";
-import { docToMarkdown, markdownToDoc } from "@edgeever/shared";
+import { docToMarkdown, markdownToDoc } from "@rtnote/shared";
 
 mock.module("@react-native-async-storage/async-storage", () => ({
   default: { getItem: async () => null, removeItem: async () => {}, setItem: async () => {} },

@@ -7,7 +7,7 @@
 	<key>CFBundleDisplayName</key>
 	<string>RTNote</string>
 	<key>CFBundleExecutable</key>
-	<string>EdgeEverShare</string>
+	<string>RTNoteShare</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.madlyfx.rtnote.share</string>
 	<key>CFBundleInfoDictionaryVersion</key>

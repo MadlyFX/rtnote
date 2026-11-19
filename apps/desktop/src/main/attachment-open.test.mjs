@@ -7,9 +7,9 @@ import { attachmentOpenInput, registerAttachmentOpenIpc } from "./attachment-ope
 
 const directories = [];
 afterEach(async () => { await Promise.all(directories.splice(0).map((path) => rm(path, { recursive: true, force: true }))); });
-const input = { url: "edgeever-resource://resource/res_1", filename: "トレーニング.xlsx" };
+const input = { url: "rtnote-resource://resource/res_1", filename: "トレーニング.xlsx" };
 const fixture = async (overrides = {}) => {
-  const directory = await mkdtemp(join(tmpdir(), "edgeever-open-test-"));
+  const directory = await mkdtemp(join(tmpdir(), "rtnote-open-test-"));
   directories.push(directory);
   let handler;
   const opened = [];
@@ -39,7 +39,7 @@ test("accepts document/media/archive types and preserves safe extensions", () =>
 });
 
 test("rejects arbitrary paths, network URLs and malformed internal resource addresses", () => {
-  for (const url of ["file:///etc/passwd", "https://example.org/file.xlsx", "edgeever-resource://evil/res_1", "edgeever-resource://user@resource/res_1", "edgeever-resource://resource/res_1?download=a.xlsx", "edgeever-resource://resource/res_1#x", "edgeever-resource://resource/%2fetc", "edgeever-resource://resource/%2e%2e", "edgeever-staged://pending/evil", "edgeever-staged://pending:123", "edgeever-resource://resource/%zz"]) {
+  for (const url of ["file:///etc/passwd", "https://example.org/file.xlsx", "rtnote-resource://evil/res_1", "rtnote-resource://user@resource/res_1", "rtnote-resource://resource/res_1?download=a.xlsx", "rtnote-resource://resource/res_1#x", "rtnote-resource://resource/%2fetc", "rtnote-resource://resource/%2e%2e", "rtnote-staged://pending/evil", "rtnote-staged://pending:123", "rtnote-resource://resource/%zz"]) {
     expect(attachmentOpenInput({ ...input, url })).toBeNull();
   }
 });
@@ -60,8 +60,8 @@ test("streams complete bytes to a private, named copy before asking the OS to op
 
 test("staged attachments use the same path without requiring an HTTP URL", async () => {
   const context = await fixture();
-  expect(await context.open({ url: "edgeever-staged://stage_1", filename: "offline.docx" })).toEqual({ ok: true });
-  expect(context.reads).toEqual(["edgeever-staged://stage_1"]);
+  expect(await context.open({ url: "rtnote-staged://stage_1", filename: "offline.docx" })).toEqual({ ok: true });
+  expect(context.reads).toEqual(["rtnote-staged://stage_1"]);
   expect(basename(context.opened[0])).toBe("offline.docx");
 });
 
@@ -77,8 +77,8 @@ test("numbers repeated local copies while preserving the original cloud filename
 test("reserves distinct normalized names for concurrently opened different resources", async () => {
   const context = await fixture();
   expect(await Promise.all([
-    context.open({ url: "edgeever-resource://resource/res_1", filename: "Café.xlsx" }),
-    context.open({ url: "edgeever-resource://resource/res_2", filename: "CAFE\u0301.XLSX" }),
+    context.open({ url: "rtnote-resource://resource/res_1", filename: "Café.xlsx" }),
+    context.open({ url: "rtnote-resource://resource/res_2", filename: "CAFE\u0301.XLSX" }),
   ])).toEqual([{ ok: true }, { ok: true }]);
   const names = context.opened.map((path) => basename(path).normalize("NFC").toLowerCase()).sort();
   expect(names).toEqual(["café (2).xlsx", "café.xlsx"]);

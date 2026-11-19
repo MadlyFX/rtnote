@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { LEGACY_DEFAULT_MEMO_TITLES, createDefaultDiagramDocument, serializeDiagramDocument } from "@edgeever/shared";
+import { LEGACY_DEFAULT_MEMO_TITLES, createDefaultDiagramDocument, serializeDiagramDocument } from "@rtnote/shared";
 import { listMemos, mapMemoSummary, toFtsQuery } from "./memo-list-service.ts";
 
 const memoRow = (id, overrides = {}) => ({
@@ -136,7 +136,7 @@ describe("memo list service", () => {
     expect(pageQuery.parameters).toContain("2026-08-01T01:00:00.000Z");
   });
 
-  test("continues after a note with EdgeEver's default title from the untitled position", async () => {
+  test("continues after a note with RTNote's default title from the untitled position", async () => {
     const first = await listMemos(createDatabase({
       rows: [memoRow("memo_1", { title: LEGACY_DEFAULT_MEMO_TITLES[0] }), memoRow("memo_2", { title: "Zulu" })],
       totalCount: 2,

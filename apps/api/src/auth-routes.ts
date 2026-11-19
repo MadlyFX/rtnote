@@ -2,7 +2,7 @@ import {
   ChangePasswordSchema,
   LoginDeviceSessionUpdateSchema,
   LoginSchema,
-} from "@edgeever/shared";
+} from "@rtnote/shared";
 import { zValidator } from "@hono/zod-validator";
 import type { Hono } from "hono";
 import { deleteCookie, getCookie } from "hono/cookie";
@@ -415,10 +415,10 @@ export const registerAuthRoutes = (
   );
 
   app.post("/api/v1/auth/logout", async (context) => {
-    const token = getCookie(context, "edgeever_session") ?? dependencies.getBearerToken(context);
+    const token = getCookie(context, "rtnote_session") ?? dependencies.getBearerToken(context);
     if (token) await dependencies.revokeSession(context.env.storage.db, token);
 
-    deleteCookie(context, "edgeever_session", { path: "/" });
+    deleteCookie(context, "rtnote_session", { path: "/" });
     return context.json({ ok: true });
   });
 };

@@ -1,4 +1,4 @@
-import { ApiRequestError } from "@edgeever/client";
+import { ApiRequestError } from "@rtnote/client";
 import { translateMobileText, getMobileCatalog, formatMobileCopy, type MobileLocale } from "./mobile-locale";
 
 export type MobileLoginLocale = MobileLocale;
@@ -60,17 +60,17 @@ export const formatMobileLoginError = (error: unknown, locale: MobileLoginLocale
     if (error.status === 404) {
       return appendDiagnostics(
         getMobileCatalog(locale).mobile.login.apiNotFound,
-        "edgeever_api_not_found",
+        "rtnote_api_not_found",
         rayId,
       );
     }
     if (error.status === 403) {
-      const isEdgeEverApiError = error.responseDiagnostics?.isEdgeEverApiError;
+      const isRTNoteApiError = error.responseDiagnostics?.isRTNoteApiError;
       return appendDiagnostics(
-        isEdgeEverApiError
+        isRTNoteApiError
           ? getMobileCatalog(locale).mobile.login.loginRejected
           : getMobileCatalog(locale).mobile.login.securityPolicyBlocked,
-        isEdgeEverApiError ? error.code || "http_403" : "security_policy_blocked",
+        isRTNoteApiError ? error.code || "http_403" : "security_policy_blocked",
         rayId,
       );
     }

@@ -3,20 +3,20 @@ import { Database } from "bun:sqlite";
 import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { fetchEdgeEverApp } from "../apps/api/src/index.ts";
+import { fetchRTNoteApp } from "../apps/api/src/index.ts";
 import { createSelfHostedStorageAdapter } from "../apps/api/src/self-hosted-storage-adapter.ts";
 import { registerAttachmentOpenIpc } from "../apps/desktop/src/main/attachment-open.mjs";
 import { createAttachmentWritebackManager, replaceAttachmentResource } from "../apps/desktop/src/main/attachment-writeback.mjs";
 
 // Real SQLite, blob storage and shared API, with only the OS launch stubbed.
 test("opening, external saves, restart recovery and competing-device edits use the real resource API", async () => {
-  const directory = await mkdtemp(join(tmpdir(), "edgeever-writeback-api-"));
+  const directory = await mkdtemp(join(tmpdir(), "rtnote-writeback-api-"));
   const database = new Database(join(directory, "database.sqlite"));
   try {
     for (const name of (await readdir("migrations")).filter(name => name.endsWith(".sql")).sort()) database.exec(await readFile(join("migrations", name), "utf8"));
     database.query("INSERT OR IGNORE INTO workspaces(id,name,is_personal) VALUES ('ws_default','Personal',1)").run();
-    const environment = { storage: createSelfHostedStorageAdapter(database, join(directory, "resources")), EDGE_EVER_ALLOW_UNAUTHENTICATED: "true", EDGE_EVER_RUNTIME: "self-hosted-bun" };
-    const api = (path, init = {}) => fetchEdgeEverApp(new Request(`http://local.test/api/v1${path}`, init), environment, { waitUntil() {}, passThroughOnException() {} });
+    const environment = { storage: createSelfHostedStorageAdapter(database, join(directory, "resources")), RTNOTE_ALLOW_UNAUTHENTICATED: "true", RTNOTE_RUNTIME: "self-hosted-bun" };
+    const api = (path, init = {}) => fetchRTNoteApp(new Request(`http://local.test/api/v1${path}`, init), environment, { waitUntil() {}, passThroughOnException() {} });
     const post = async (path, value) => {
       const response = await api(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(value) });
       expect(response.ok).toBe(true); return response.json();
@@ -50,7 +50,7 @@ test("opening, external saves, restart recovery and competing-device edits use t
       readResource: async () => api(`/resources/${resource.id}/blob`, { cache: "no-store" }),
       openPath: async path => { opened.push(path); return ""; }, writeback: manager,
     });
-    expect(await openAttachment({}, { url: `edgeever-resource://resource/${resource.id}`, filename: "Café budget.txt" })).toEqual({ ok: true });
+    expect(await openAttachment({}, { url: `rtnote-resource://resource/${resource.id}`, filename: "Café budget.txt" })).toEqual({ ok: true });
     const settle = async () => { await manager.tick(); now += 2000; await manager.tick(); };
     await writeFile(opened[0], "first saved edit"); await settle();
     // A different client reads the same resource ID, not a new uploaded attachment.
@@ -80,12 +80,12 @@ test("opening, external saves, restart recovery and competing-device edits use t
 }, 30_000);
 
 test("older servers cannot receive automatic writebacks, including a downgrade after capability detection", async () => {
-  const directory = await mkdtemp(join(tmpdir(), "edgeever-writeback-legacy-"));
+  const directory = await mkdtemp(join(tmpdir(), "rtnote-writeback-legacy-"));
   const database = new Database(join(directory, "database.sqlite"));
   try {
     for (const name of (await readdir("migrations")).filter(name => name.endsWith(".sql")).sort()) database.exec(await readFile(join("migrations", name), "utf8"));
-    const environment = { storage: createSelfHostedStorageAdapter(database, join(directory, "resources")), EDGE_EVER_ALLOW_UNAUTHENTICATED: "true", EDGE_EVER_RUNTIME: "self-hosted-bun" };
-    const api = (path, init = {}) => fetchEdgeEverApp(new Request(`http://local.test/api/v1${path}`, init), environment, { waitUntil() {}, passThroughOnException() {} });
+    const environment = { storage: createSelfHostedStorageAdapter(database, join(directory, "resources")), RTNOTE_ALLOW_UNAUTHENTICATED: "true", RTNOTE_RUNTIME: "self-hosted-bun" };
+    const api = (path, init = {}) => fetchRTNoteApp(new Request(`http://local.test/api/v1${path}`, init), environment, { waitUntil() {}, passThroughOnException() {} });
     const json = async (path, value, method = "POST") => {
       const response = await api(path, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(value) });
       expect(response.ok).toBe(true); return response.json();
@@ -122,13 +122,13 @@ test("older servers cannot receive automatic writebacks, including a downgrade a
 }, 30_000);
 
 test("desktop saves preserve filenames and bounded object keys across renames, retries and failures", async () => {
-  const directory = await mkdtemp(join(tmpdir(), "edgeever-writeback-names-"));
+  const directory = await mkdtemp(join(tmpdir(), "rtnote-writeback-names-"));
   const database = new Database(join(directory, "database.sqlite"));
   try {
     for (const name of (await readdir("migrations")).filter(name => name.endsWith(".sql")).sort()) database.exec(await readFile(join("migrations", name), "utf8"));
     const storage = createSelfHostedStorageAdapter(database, join(directory, "resources"));
-    const environment = { storage, EDGE_EVER_ALLOW_UNAUTHENTICATED: "true", EDGE_EVER_RUNTIME: "self-hosted-bun" };
-    const api = (path, init = {}) => fetchEdgeEverApp(new Request(`http://local.test/api/v1${path}`, init), environment, { waitUntil() {}, passThroughOnException() {} });
+    const environment = { storage, RTNOTE_ALLOW_UNAUTHENTICATED: "true", RTNOTE_RUNTIME: "self-hosted-bun" };
+    const api = (path, init = {}) => fetchRTNoteApp(new Request(`http://local.test/api/v1${path}`, init), environment, { waitUntil() {}, passThroughOnException() {} });
     const json = async (path, value, method = "POST") => {
       const response = await api(path, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(value) });
       expect(response.ok).toBe(true); return response.json();

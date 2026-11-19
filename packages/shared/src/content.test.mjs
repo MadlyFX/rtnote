@@ -21,7 +21,7 @@ import {
   resolveMemoContentMarkdown,
   resolveMergedMemoTitle,
 } from "./content.ts";
-import { LEGACY_ATTACHMENT_PREFIXES } from "./edgeever-legacy-values.ts";
+import { LEGACY_ATTACHMENT_PREFIXES } from "./rtnote-legacy-values.ts";
 
 const [LEGACY_UNTITLED] = LEGACY_DEFAULT_MEMO_TITLES;
 const [LEGACY_ATTACHMENT_PREFIX] = LEGACY_ATTACHMENT_PREFIXES;
@@ -34,7 +34,7 @@ describe("merged memo title", () => {
     expect(resolveMergedMemoTitle(undefined, sources)).toBe("Manual title");
   });
 
-  test("skips EdgeEver's default title like RTNote's", () => {
+  test("skips the legacy default title like RTNote's", () => {
     expect(resolveMergedMemoTitle(undefined, [{ title: LEGACY_UNTITLED }, { title: "Manual title" }])).toBe("Manual title");
   });
 
@@ -91,7 +91,7 @@ describe("PDF attachment Markdown compatibility", () => {
             type: "link",
             attrs: {
               href: "/api/v1/resources/res_pdf/blob",
-              class: "edgeever-attachment-link edgeever-attachment-kind-pdf",
+              class: "rtnote-attachment-link rtnote-attachment-kind-pdf",
               attachmentFilename: "report.pdf",
               attachmentMimeType: "application/pdf",
               attachmentByteSize: 12582912,
@@ -183,7 +183,7 @@ describe("file attachment Markdown compatibility", () => {
   });
 
   test("keeps an ordinary standalone web link as text", () => {
-    const doc = markdownToDoc("[EdgeEver](https://edgeever.org)");
+    const doc = markdownToDoc("[RTNote](https://rtnote.example)");
     expect(doc.content[0]?.content?.[0]?.type).toBe("text");
   });
 
@@ -231,7 +231,7 @@ describe("file attachment Markdown compatibility", () => {
     const markdown = "Before [](https://example.com/path) and [named](https://example.com).";
     const doc = markdownToDoc(markdown);
     expect(doc.content[0]?.content?.[1]).toMatchObject({
-      type: "edgeeverEmptyExternalLink",
+      type: "rtnoteEmptyExternalLink",
       attrs: { href: "https://example.com/path" },
     });
     expect(docToMarkdown(doc)).toBe(markdown);
@@ -270,7 +270,7 @@ describe("file attachment Markdown compatibility", () => {
 
 describe("memo character count", () => {
   test("counts punctuation while excluding whitespace and formatting", () => {
-    const doc = markdownToDoc("Hi, **EdgeEver**!\n\nNew");
+    const doc = markdownToDoc("Hi, **RTNote**!\n\nNew");
 
     expect(countMemoCharacters(doc)).toBe(15);
   });
@@ -527,7 +527,7 @@ describe("Theme block compatibility", () => {
     const doc = {
       type: "doc",
       content: [{
-        type: "edgeeverThemeBlock",
+        type: "rtnoteThemeBlock",
         attrs: { kind: "key-point" },
         content: [{ type: "paragraph", content: [{ type: "text", text: "Important" }] }],
       }],
@@ -540,7 +540,7 @@ describe("Theme block compatibility", () => {
     const doc = {
       type: "doc",
       content: [{
-        type: "edgeeverThemeBlock",
+        type: "rtnoteThemeBlock",
         attrs: { kind: "intro" },
         content: [{ type: "paragraph", content: [{ type: "text", text: "Read this first" }] }],
       }],
@@ -752,7 +752,7 @@ describe("image gallery compatibility", () => {
   const galleryDoc = {
     type: "doc",
     content: [{
-      type: "edgeeverImageGallery",
+      type: "rtnoteImageGallery",
       attrs: { layout: "auto" },
       content: [
         { type: "image", attrs: { src: "/one.png", alt: "one" } },
@@ -828,7 +828,7 @@ describe("plugin embed Markdown compatibility", () => {
   test("round-trips a generic plugin embed without requiring the plugin renderer", () => {
     const attributes = {
       id: "embed_1",
-      pluginId: "org.edgeever.excalidraw",
+      pluginId: "org.rtnote.excalidraw",
       type: "drawing",
       resourceId: "res_scene",
       previewResourceId: "res_preview",

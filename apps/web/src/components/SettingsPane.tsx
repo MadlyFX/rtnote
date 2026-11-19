@@ -24,7 +24,7 @@ import * as m from "motion/react-m";
 import { Button } from "@/components/ui/button";
 
 import type { ShortcutSettings } from "@/lib/app-helpers";
-import type { NoteProsePatch, ResolvedNoteProse } from "@edgeever/shared";
+import type { NoteProsePatch, ResolvedNoteProse } from "@rtnote/shared";
 import { BETA_BADGE_CLASSNAME, WORKSPACE_PAGE_TITLE_CLASSNAME } from "@/lib/workspace-ui";
 import { cn } from "@/lib/utils";
 import { AccountInfoCard } from "./settings/AccountInfoCard";
@@ -46,7 +46,7 @@ import { UserManagementCard } from "./settings/UserManagementCard";
 import { ObjectStorageCard } from "./settings/ObjectStorageCard";
 import { SpeechTranscriptionCard } from "./settings/SpeechTranscriptionCard";
 import { ThemeToggle } from "./ThemeToggle";
-import type { AuthUser } from "@edgeever/shared";
+import type { AuthUser } from "@rtnote/shared";
 import { contentEnterMotion } from "@/lib/motion";
 import { useDeployedUpdateNotice } from "@/hooks/useDeployedUpdateNotice";
 import { ExecutionCenterButton } from "@/components/execution/ExecutionCenterButton";
@@ -119,7 +119,7 @@ export const SettingsPane = ({
   const requestedTab = searchParams.get("tab");
   const selectTab = (tab: TabKey | null) => setSearchParams(tab ? { tab } : {}, { replace: true });
   const { unseen: deployedUpdateUnseen } = useDeployedUpdateNotice();
-  const canClearLocalData = Boolean(window.edgeeverDesktop?.canClearLocalData);
+  const canClearLocalData = Boolean(window.rtnoteDesktop?.canClearLocalData);
   const [devShowWebExport, setDevShowWebExport] = useState(false);
 
   const tabItems: TabItem[] = [
@@ -277,7 +277,7 @@ export const SettingsPane = ({
                 </button>
               </div>
             )}
-            {window.edgeeverDesktop?.backup || (import.meta.env.DEV && !devShowWebExport) ? (
+            {window.rtnoteDesktop?.backup || (import.meta.env.DEV && !devShowWebExport) ? (
               <DesktopScheduledBackupCard />
             ) : (
               <DataExportCard refreshWorkspaceAfterImport={refreshWorkspaceAfterImport} />

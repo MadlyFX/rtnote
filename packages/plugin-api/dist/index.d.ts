@@ -116,7 +116,7 @@ export interface MarketplaceEntry {
     description: string;
     locales?: ExtensionLocales;
     author: string;
-    publisher?: "edgeever";
+    publisher?: "rtnote";
     category: string;
     repositoryUrl: string;
     distribution: {
@@ -707,11 +707,11 @@ export interface PluginContext {
         };
     };
 }
-export interface EdgeEverPlugin {
+export interface RTNotePlugin {
     activate(context: PluginContext): void | (() => void) | Promise<void | (() => void)>;
     deactivate?(): void | Promise<void>;
 }
-export declare const definePlugin: <T extends EdgeEverPlugin>(plugin: T) => T;
+export declare const definePlugin: <T extends RTNotePlugin>(plugin: T) => T;
 export declare const defineTheme: <T extends ThemeManifest>(theme: T) => T;
 /** Strips unknown fields and clamps sizes so host chrome rendering stays bounded. */
 export declare const normalizePluginPanelChrome: (value: PluginPanelChrome | null | undefined) => PluginPanelChrome;
@@ -720,7 +720,7 @@ export declare const isReservedMarketplacePluginId: (id: string) => boolean;
 export declare const parseMarketplaceRegistry: (value: unknown) => MarketplaceRegistry;
 /**
  * Overlay a signed community registry onto the bundled official list.
- * Official entries, their repository URLs, and `publisher: "edgeever"` stay
+ * Official entries, their repository URLs, and `publisher: "rtnote"` stay
  * on the bundled list. A signature does not make a remote entry official.
  */
 export declare const mergeCommunityMarketplace: (bundled: MarketplaceRegistry, community: MarketplaceRegistry | null, revokedIds: ReadonlySet<string>) => MarketplaceRegistry;

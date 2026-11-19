@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { ApiRequestError, getMfaChallenge } from "@edgeever/client";
+import { ApiRequestError, getMfaChallenge } from "@rtnote/client";
 import { getMobileCatalog } from "./mobile-locale.tsx";
 import {
   classifyMfaLoginError,

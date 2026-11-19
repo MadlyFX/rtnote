@@ -5,10 +5,10 @@ import { join, resolve } from "node:path";
 import { createPasswordHash } from "./password-hash.mjs";
 
 const usage = `Usage:
-  EDGE_EVER_PASSWORD='<new-password>' bun run auth:reset-password -- --remote --username <username>
-  EDGE_EVER_PASSWORD='<new-password>' bun run auth:reset-password -- --local --username <username>
+  RTNOTE_PASSWORD='<new-password>' bun run auth:reset-password -- --remote --username <username>
+  RTNOTE_PASSWORD='<new-password>' bun run auth:reset-password -- --local --username <username>
 
-For a scoped instance, also set EDGE_EVER_INSTANCE, for example EDGE_EVER_INSTANCE=demo.`;
+For a scoped instance, also set RTNOTE_INSTANCE, for example RTNOTE_INSTANCE=demo.`;
 
 export const parseResetPasswordArgs = (args) => {
   let target;
@@ -116,9 +116,9 @@ const main = () => {
     process.exit(1);
   }
 
-  const password = process.env.EDGE_EVER_PASSWORD;
+  const password = process.env.RTNOTE_PASSWORD;
   if (!password || password.length < 8 || password.length > 512) {
-    console.error("EDGE_EVER_PASSWORD must contain 8-512 characters.");
+    console.error("RTNOTE_PASSWORD must contain 8-512 characters.");
     console.error(usage);
     process.exit(1);
   }
@@ -155,7 +155,7 @@ const main = () => {
     totpEnabled = false;
   }
 
-  const temporaryDirectory = mkdtempSync(join(tmpdir(), "edgeever-password-reset-"));
+  const temporaryDirectory = mkdtempSync(join(tmpdir(), "rtnote-password-reset-"));
   const sqlPath = join(temporaryDirectory, "reset-password.sql");
 
   try {

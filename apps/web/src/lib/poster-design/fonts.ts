@@ -1,7 +1,7 @@
-import { FONT_CATALOG, findCatalogFont } from "@edgeever/shared/font-catalog";
-import { loadCatalogFont, loadOfflineFonts, withFontDeadline } from "@edgeever/shared/font-loader";
+import { FONT_CATALOG, findCatalogFont } from "@rtnote/shared/font-catalog";
+import { loadCatalogFont, loadOfflineFonts, withFontDeadline } from "@rtnote/shared/font-loader";
 import { cache } from "fabric";
-import { POSTER_FONTS } from "@edgeever/shared";
+import { POSTER_FONTS } from "@rtnote/shared";
 export { POSTER_FONTS };
 export async function loadPosterFont(family: string, text = "", { deadline = true }: { deadline?: boolean } = {}) {
   // The deadline must include bundled fallback preparation: a damaged local

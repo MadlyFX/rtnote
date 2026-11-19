@@ -7,12 +7,12 @@ export const resolveCredentialEncryptionKey = (value: string | undefined) => {
 };
 
 export type CredentialEnvironment = {
-  EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY?: string;
-  EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY_PREVIOUS?: string;
-  EDGE_EVER_STORAGE_ENCRYPTION_KEY?: string;
-  EDGE_EVER_AUTH_PASSWORD?: string;
-  EDGE_EVER_AUTH_PASSWORD_HASH?: string;
-  EDGE_EVER_AUTH_PASSWORD_FALLBACK?: string;
+  RTNOTE_CREDENTIALS_ENCRYPTION_KEY?: string;
+  RTNOTE_CREDENTIALS_ENCRYPTION_KEY_PREVIOUS?: string;
+  RTNOTE_STORAGE_ENCRYPTION_KEY?: string;
+  RTNOTE_AUTH_PASSWORD?: string;
+  RTNOTE_AUTH_PASSWORD_HASH?: string;
+  RTNOTE_AUTH_PASSWORD_FALLBACK?: string;
 };
 
 const uniqueKeys = (values: Array<string | undefined>) => Array.from(new Set(values.filter(Boolean) as string[]));
@@ -21,7 +21,7 @@ const uniqueKeys = (values: Array<string | undefined>) => Array.from(new Set(val
 // Speech service keys saved by earlier versions were encrypted under it, so it
 // must not change.
 const deriveCredentialKey = (value: string | undefined) => value
-  ? `edgeever:ai-credentials:v1:${value}`
+  ? `rtnote:ai-credentials:v1:${value}`
   : undefined;
 
 /**
@@ -31,18 +31,18 @@ const deriveCredentialKey = (value: string | undefined) => value
  * key remains in the decryption ring for credentials saved before v1.15.
  */
 export const resolveCredentialEncryptionKeys = (environment: CredentialEnvironment) => uniqueKeys([
-  deriveCredentialKey(resolveCredentialEncryptionKey(environment.EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY)),
-  deriveCredentialKey(resolveCredentialEncryptionKey(environment.EDGE_EVER_AUTH_PASSWORD)),
-  deriveCredentialKey(resolveCredentialEncryptionKey(environment.EDGE_EVER_AUTH_PASSWORD_HASH)),
-  deriveCredentialKey(resolveCredentialEncryptionKey(environment.EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY_PREVIOUS)),
-  deriveCredentialKey(resolveCredentialEncryptionKey(environment.EDGE_EVER_AUTH_PASSWORD_FALLBACK)),
-  resolveCredentialEncryptionKey(environment.EDGE_EVER_STORAGE_ENCRYPTION_KEY),
+  deriveCredentialKey(resolveCredentialEncryptionKey(environment.RTNOTE_CREDENTIALS_ENCRYPTION_KEY)),
+  deriveCredentialKey(resolveCredentialEncryptionKey(environment.RTNOTE_AUTH_PASSWORD)),
+  deriveCredentialKey(resolveCredentialEncryptionKey(environment.RTNOTE_AUTH_PASSWORD_HASH)),
+  deriveCredentialKey(resolveCredentialEncryptionKey(environment.RTNOTE_CREDENTIALS_ENCRYPTION_KEY_PREVIOUS)),
+  deriveCredentialKey(resolveCredentialEncryptionKey(environment.RTNOTE_AUTH_PASSWORD_FALLBACK)),
+  resolveCredentialEncryptionKey(environment.RTNOTE_STORAGE_ENCRYPTION_KEY),
 ]);
 
 export const resolvePrimaryCredentialEncryptionKey = (environment: CredentialEnvironment) => [
-  deriveCredentialKey(resolveCredentialEncryptionKey(environment.EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY)),
-  deriveCredentialKey(resolveCredentialEncryptionKey(environment.EDGE_EVER_AUTH_PASSWORD)),
-  deriveCredentialKey(resolveCredentialEncryptionKey(environment.EDGE_EVER_AUTH_PASSWORD_HASH)),
+  deriveCredentialKey(resolveCredentialEncryptionKey(environment.RTNOTE_CREDENTIALS_ENCRYPTION_KEY)),
+  deriveCredentialKey(resolveCredentialEncryptionKey(environment.RTNOTE_AUTH_PASSWORD)),
+  deriveCredentialKey(resolveCredentialEncryptionKey(environment.RTNOTE_AUTH_PASSWORD_HASH)),
 ].find(Boolean);
 
 export const decryptStoredCredential = async (

@@ -39,8 +39,8 @@ for (const { kind, zoom, direction } of cases) {
       await zoomInput.fill(String(zoom));
       await zoomInput.press("Enter");
       await page.clock.runFor(500);
-      const paper = await page.locator(".edgeever-diagram-canvas").boundingBox();
-      const viewport = await page.locator(".edgeever-diagram-scroller").boundingBox();
+      const paper = await page.locator(".rtnote-diagram-canvas").boundingBox();
+      const viewport = await page.locator(".rtnote-diagram-scroller").boundingBox();
       const start = await renderedNode.boundingBox();
       expect(paper).not.toBeNull();
       expect(viewport).not.toBeNull();

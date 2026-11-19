@@ -26,7 +26,7 @@
   "completePluginConfiguration": {
     "message": "Dokończ konfigurację rozszerzenia"
   },
-  "savedToEdgeEver": {
+  "savedToRTNote": {
     "message": "Zapisano w RTNote."
   },
   "saveFailed": {
@@ -202,7 +202,7 @@
   "emptyPageContent": {
     "message": "(Na tej stronie nie znaleziono treści do odczytania)"
   },
-  "saveSelectionToEdgeEver": {
+  "saveSelectionToRTNote": {
     "message": "Zapisz zaznaczenie w RTNote"
   },
   "selectionSaveHint": {
@@ -220,7 +220,7 @@
   "selectionNoteFallbackTitle": {
     "message": "Zaznaczenie"
   },
-  "saveImageToEdgeEver": {
+  "saveImageToRTNote": {
     "message": "Zapisz obraz w RTNote"
   },
   "imageSaveHint": {
@@ -279,7 +279,7 @@
   "imageSaveExpired": {
     "message": "Ten zapis wygasł. Kliknij obraz prawym przyciskiem i spróbuj ponownie."
   },
-  "saveTweetToEdgeEver": {
+  "saveTweetToRTNote": {
     "message": "Zapisz post w RTNote"
   },
   "tweetSaveHint": {
@@ -321,7 +321,7 @@
   "tweetTimeLabel": {
     "message": "Czas"
   },
-  "saveGithubRepoToEdgeEver": {
+  "saveGithubRepoToRTNote": {
     "message": "Zapisz informacje o repozytorium w RTNote"
   },
   "githubRepoSaveHint": {
@@ -351,7 +351,7 @@
   "githubRepoTopicsLabel": {
     "message": "Tematy"
   },
-  "saveXhsToEdgeEver": {
+  "saveXhsToRTNote": {
     "message": "Zapisz notatkę w RTNote"
   },
   "savingXhs": {
@@ -393,7 +393,7 @@
   "xhsLocationLabel": {
     "message": "Lokalizacja"
   },
-  "saveZhihuToEdgeEver": {
+  "saveZhihuToRTNote": {
     "message": "Zapisz odpowiedź lub artykuł w RTNote"
   },
   "zhihuQuestionLabel": {
@@ -447,7 +447,7 @@
   "zhihuSaveWindowTitle": {
     "message": "Zapisz odpowiedź lub artykuł w RTNote"
   },
-  "saveRedditToEdgeEver": {
+  "saveRedditToRTNote": {
     "message": "Zapisz post z Reddita w RTNote"
   },
   "savingReddit": {
@@ -471,7 +471,7 @@
   "redditLinkLabel": {
     "message": "Strona z linku"
   },
-  "saveVideoNoteToEdgeEver": {
+  "saveVideoNoteToRTNote": {
     "message": "Zapisz notatkę z wideo w RTNote"
   },
   "savingVideoNote": {
@@ -528,13 +528,13 @@
   "videoNoteFallbackTitle": {
     "message": "Notatka z wideo"
   },
-  "saveHackerNewsToEdgeEver": {
+  "saveHackerNewsToRTNote": {
     "message": "Zapisz wpis Hacker News w RTNote"
   },
-  "saveV2exToEdgeEver": {
+  "saveV2exToRTNote": {
     "message": "Zapisz temat V2EX w RTNote"
   },
-  "saveXiaoyuzhouToEdgeEver": {
+  "saveXiaoyuzhouToRTNote": {
     "message": "Zapisz odcinek Xiaoyuzhou w RTNote"
   },
   "savingPlatformClip": {
@@ -582,19 +582,19 @@
   "platformPodcastLabel": {
     "message": "Podcast"
   },
-  "saveFacebookToEdgeEver": {
+  "saveFacebookToRTNote": {
     "message": "Zapisz post Facebooka w RTNote"
   },
-  "saveInstagramToEdgeEver": {
+  "saveInstagramToRTNote": {
     "message": "Zapisz post Instagrama w RTNote"
   },
-  "saveLinkedinToEdgeEver": {
+  "saveLinkedinToRTNote": {
     "message": "Zapisz post LinkedIn w RTNote"
   },
-  "saveThreadsToEdgeEver": {
+  "saveThreadsToRTNote": {
     "message": "Zapisz post Threads w RTNote"
   },
-  "saveBlueskyToEdgeEver": {
+  "saveBlueskyToRTNote": {
     "message": "Zapisz post Bluesky w RTNote"
   },
   "socialSelectPost": {
@@ -621,7 +621,7 @@
   "platformXiaoyuzhou": {
     "message": "Xiaoyuzhou"
   },
-  "saveSubstackNoteToEdgeEver": {
+  "saveSubstackNoteToRTNote": {
     "message": "Zapisz notatkę Substack w RTNote"
   },
   "adaptedPlatformsTitle": {
@@ -678,10 +678,10 @@
   "clipNotifications": {
     "message": "Powiadomienia o zapisywaniu"
   },
-  "saveBossToEdgeEver": {
+  "saveBossToRTNote": {
     "message": "Zapisz ofertę BOSS Zhipin w RTNote"
   },
-  "saveXueqiuToEdgeEver": {
+  "saveXueqiuToRTNote": {
     "message": "Zapisz wpis Xueqiu w RTNote"
   },
   "platformBoss": {
@@ -699,31 +699,31 @@
   "platformWechat": {
     "message": "WeChat"
   },
-  "saveWechatToEdgeEver": {
+  "saveWechatToRTNote": {
     "message": "Zapisz WeChat w RTNote"
   },
   "platformJike": {
     "message": "Jike"
   },
-  "saveJikeToEdgeEver": {
+  "saveJikeToRTNote": {
     "message": "Zapisz Jike w RTNote"
   },
   "platformSspai": {
     "message": "SSPAI"
   },
-  "saveSspaiToEdgeEver": {
+  "saveSspaiToRTNote": {
     "message": "Zapisz SSPAI w RTNote"
   },
   "platformJuejin": {
     "message": "Juejin"
   },
-  "saveJuejinToEdgeEver": {
+  "saveJuejinToRTNote": {
     "message": "Zapisz Juejin w RTNote"
   },
   "platformDouban": {
     "message": "Douban"
   },
-  "saveDoubanToEdgeEver": {
+  "saveDoubanToRTNote": {
     "message": "Zapisz Douban w RTNote"
   },
   "platformOfficialAccountLabel": {

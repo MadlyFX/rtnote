@@ -7,7 +7,7 @@ describe("unmatched locale fallback", () => {
   test("Android and iOS resolve Japanese to ja and other unmatched languages to English", () => {
     const mobileLocale = read("apps/mobile/src/lib/mobile-locale.tsx");
     const mobileUtils = read("apps/mobile/src/screens/workspace-utils.ts");
-    const iosPreferences = read("apps/ios/EdgeEver/Data/Preferences/PreferencesStore.swift");
+    const iosPreferences = read("apps/ios/RTNote/Data/Preferences/PreferencesStore.swift");
     const sharedLocales = read("packages/shared/src/i18n/locales.ts");
 
     expect(sharedLocales).toContain('"ja"');

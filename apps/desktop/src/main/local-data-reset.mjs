@@ -31,7 +31,7 @@ export class LocalDataResetError extends Error {
 }
 
 // Electron derives userData from the package name, so a scoped package such as
-// "@edgeever/desktop" lives at "<appData>/@edgeever/desktop".
+// "@rtnote/desktop" lives at "<appData>/@rtnote/desktop".
 const isManagedRelativePath = (relativeTarget) => {
   const segments = relativeTarget.split(sep);
   if (segments.some((segment) => !segment || segment === "." || segment === "..")) return false;
@@ -84,7 +84,7 @@ export const scheduleMacLocalDataReset = async ({
     [
       "-c",
       LOCAL_DATA_RESET_HELPER,
-      "edgeever-local-data-reset",
+      "rtnote-local-data-reset",
       String(parentPid),
       target,
       applicationPath,

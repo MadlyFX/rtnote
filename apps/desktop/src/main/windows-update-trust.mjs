@@ -3,7 +3,7 @@ import { createReadStream } from "node:fs";
 import { stat } from "node:fs/promises";
 import { basename } from "node:path";
 
-export const WINDOWS_UPDATE_KEY_ID = "edgeever-windows-update-2026-01";
+export const WINDOWS_UPDATE_KEY_ID = "rtnote-windows-update-2026-01";
 export const WINDOWS_UPDATE_MANIFEST_NAME = "latest-windows.json";
 export const WINDOWS_UPDATE_SIGNATURE_NAME = `${WINDOWS_UPDATE_MANIFEST_NAME}.sig`;
 

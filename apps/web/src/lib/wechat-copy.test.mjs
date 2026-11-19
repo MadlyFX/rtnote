@@ -66,7 +66,7 @@ $$
 
 \`\`\`sh
 # Official GHCR image
-curl -fsSL https://edgeever.org/install.sh | bash
+curl -fsSL https://rtnote.example/install.sh | bash
 \`\`\`
 `;
 
@@ -153,7 +153,7 @@ describe("preparePublishArticle", () => {
       "<p>Body <strong>key point</strong> <code>token</code></p>",
       "<h2>Heading</h2>",
       "<hr>",
-      "<hr data-edgeever-merge-divider>",
+      "<hr data-rtnote-merge-divider>",
       "<pre><code class=\"language-sh\"># Official GHCR image\\ncurl</code></pre>",
       "<ul data-type=\"taskList\"><li data-checked=\"true\"><label><input type=\"checkbox\" checked></label><div><p>Done</p></div></li></ul>",
       "<span data-type=\"inline-math\" data-latex=\"E = mc^2\"></span>",

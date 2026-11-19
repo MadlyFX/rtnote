@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { useEditorState, type Editor } from "@tiptap/react";
-import { TEXT_COLORS, normalizeTextColor } from "@edgeever/shared";
+import { TEXT_COLORS, normalizeTextColor } from "@rtnote/shared";
 import { ChevronDown, RemoveFormatting } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {

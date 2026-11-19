@@ -10,7 +10,7 @@ const styles = new Map();
 const eventListeners = new Map();
 
 const stubWindow = {
-  location: { href: "https://edgeever.example/settings" },
+  location: { href: "https://rtnote.example/settings" },
   localStorage: {
     getItem: (key) => values.get(key) ?? null,
     setItem: (key, value) => values.set(key, String(value)),
@@ -32,7 +32,7 @@ const stubDocument = {
       removeProperty: (key) => styles.delete(key),
     },
     removeAttribute: (name) => {
-      if (name === "data-edgeever-extension-theme") delete globalThis.document.documentElement.dataset.edgeeverExtensionTheme;
+      if (name === "data-rtnote-extension-theme") delete globalThis.document.documentElement.dataset.rtnoteExtensionTheme;
     },
   },
 };
@@ -44,7 +44,7 @@ const StubMutationObserver = class {
 };
 globalThis.MutationObserver = StubMutationObserver;
 
-const { EdgeEverPluginHost, applyPluginMarkdownEdits } = await import("./plugin-host.ts");
+const { RTNotePluginHost, applyPluginMarkdownEdits } = await import("./plugin-host.ts");
 const { sha256Hex } = await import("./github-plugin-distribution.ts");
 const { withRepositoryMutationEvents } = await import("../repository-events.ts");
 const { results: capabilityResults } = await import('./plugin-capabilities.fixture.mjs');
@@ -69,10 +69,10 @@ beforeEach(() => {
   globalThis.document.documentElement.dataset = {};
 });
 
-describe("EdgeEverPluginHost", () => {
+describe("RTNotePluginHost", () => {
   test("rejects custom settings panels for API v2 plugins", async () => {
-    const host = new EdgeEverPluginHost({ repository, scope: "settings-policy" });
-    const id = "org.edgeever.settings-policy";
+    const host = new RTNotePluginHost({ repository, scope: "settings-policy" });
+    const id = "org.rtnote.settings-policy";
     host.installManifest({
       type: "plugin",
       id,
@@ -96,7 +96,7 @@ describe("EdgeEverPluginHost", () => {
     const calls = [];
     const directCalls = [];
     globalThis.window.fetch = async (...input) => { directCalls.push(input); return new Response('direct'); };
-    const host = new EdgeEverPluginHost({ repository, scope: 'test',
+    const host = new RTNotePluginHost({ repository, scope: 'test',
       publicNetworkAdapter: { fetchPublic: async (input, options) => { calls.push({ ...input, signal: options?.signal }); return { url: input.url, status: 429, statusText: 'Too Many Requests', headers: {}, body: new TextEncoder().encode('limited').buffer }; } },
     });
     const install = async (id, permissions) => {
@@ -132,10 +132,10 @@ describe("EdgeEverPluginHost", () => {
       list: async () => [],
       remove: async () => undefined,
     };
-    const host = new EdgeEverPluginHost({ repository, scope: "test", scheduleAdapter });
+    const host = new RTNotePluginHost({ repository, scope: "test", scheduleAdapter });
     host.installManifest({
       type: "plugin",
-      id: "org.edgeever.schedule-test",
+      id: "org.rtnote.schedule-test",
       name: "Schedule Test",
       version: "1.0.0",
       apiVersion: "2",
@@ -144,9 +144,9 @@ describe("EdgeEverPluginHost", () => {
       permissions: ["ui:commands", "schedules"],
     }, "https://example.com/schedule-plugin/manifest.json");
 
-    await host.setEnabled("org.edgeever.schedule-test", true);
+    await host.setEnabled("org.rtnote.schedule-test", true);
     expect(calls).toEqual([{
-      pluginId: "org.edgeever.schedule-test",
+      pluginId: "org.rtnote.schedule-test",
       input: {
         key: "hourly-refresh",
         name: "Hourly refresh",
@@ -158,10 +158,10 @@ describe("EdgeEverPluginHost", () => {
   });
 
   test("applies a validated code-free theme", async () => {
-    const host = new EdgeEverPluginHost({ repository, scope: "test" });
+    const host = new RTNotePluginHost({ repository, scope: "test" });
     host.installManifest({
       type: "theme",
-      id: "org.edgeever.test-theme",
+      id: "org.rtnote.test-theme",
       name: "Test theme",
       version: "1.0.0",
       themeApiVersion: "1",
@@ -172,11 +172,11 @@ describe("EdgeEverPluginHost", () => {
       },
     }, "https://example.com/theme/manifest.json");
 
-    await host.setEnabled("org.edgeever.test-theme", true);
+    await host.setEnabled("org.rtnote.test-theme", true);
 
-    expect(styles.get("--edgeever-theme-background")).toBe("#010203");
-    expect(styles.get("--edgeever-theme-accent")).toBe("#16a06e");
-    expect(globalThis.document.documentElement.dataset.edgeeverExtensionTheme).toBe("org.edgeever.test-theme");
+    expect(styles.get("--rtnote-theme-background")).toBe("#010203");
+    expect(styles.get("--rtnote-theme-accent")).toBe("#16a06e");
+    expect(globalThis.document.documentElement.dataset.rtnoteExtensionTheme).toBe("org.rtnote.test-theme");
     await host.dispose();
   });
 
@@ -196,7 +196,7 @@ describe("EdgeEverPluginHost", () => {
       put: async () => undefined,
       remove: async () => undefined,
     };
-    const host = new EdgeEverPluginHost({ repository, scope: "test", onNotice: (message) => notices.push(message), secretStorage, packageStorage });
+    const host = new RTNotePluginHost({ repository, scope: "test", onNotice: (message) => notices.push(message), secretStorage, packageStorage });
     let replacement = null;
     host.setEditorAdapter({
       getSelection: () => ({ noteId: "note-1", from: 1, to: 6, empty: false, text: "hello", contentMarkdown: "hello" }),
@@ -209,7 +209,7 @@ describe("EdgeEverPluginHost", () => {
     const entry = new URL("./plugin-host.fixture.mjs", import.meta.url).href;
     host.installManifest({
       type: "plugin",
-      id: "org.edgeever.test-plugin",
+      id: "org.rtnote.test-plugin",
       name: "Test plugin",
       version: "1.0.0",
       apiVersion: "2",
@@ -225,48 +225,48 @@ describe("EdgeEverPluginHost", () => {
       },
     }, "https://example.com/plugin/manifest.json");
 
-    await host.setEnabled("org.edgeever.test-plugin", true);
-    await host.runCommand("org.edgeever.test-plugin", "hello");
+    await host.setEnabled("org.rtnote.test-plugin", true);
+    await host.runCommand("org.rtnote.test-plugin", "hello");
 
     expect(host.getSnapshot().commands).toHaveLength(7);
-    expect(host.getSnapshot().panels).toEqual([{ pluginId: "org.edgeever.test-plugin", id: "fixture", title: "Fixture panel", purpose: "workflow", presentation: "dialog" }]);
+    expect(host.getSnapshot().panels).toEqual([{ pluginId: "org.rtnote.test-plugin", id: "fixture", title: "Fixture panel", purpose: "workflow", presentation: "dialog" }]);
     expect(notices).toEqual(["hello from plugin"]);
-    await host.runCommand("org.edgeever.test-plugin", "read-without-permission");
-    await host.runCommand("org.edgeever.test-plugin", "subscribe-without-read-permission");
-    await host.runCommand("org.edgeever.test-plugin", "replace-selection");
+    await host.runCommand("org.rtnote.test-plugin", "read-without-permission");
+    await host.runCommand("org.rtnote.test-plugin", "subscribe-without-read-permission");
+    await host.runCommand("org.rtnote.test-plugin", "replace-selection");
     expect(replacement).toBe("HELLO");
-    await host.runCommand("org.edgeever.test-plugin", "write-secret");
-    expect(secrets.get("test:org.edgeever.test-plugin:token")).toBe("secret-value");
-    await host.runCommand("org.edgeever.test-plugin", "write-storage");
-    expect(values.get("edgeever.plugin-data.v1:test:org.edgeever.test-plugin:preference")).toBe('"stored-value"');
-    await expect(host.getSettingValue("org.edgeever.test-plugin", "endpoint")).resolves.toBe("https://default.example");
-    await host.setSettingValue("org.edgeever.test-plugin", "endpoint", "https://custom.example");
-    await host.setSettingValue("org.edgeever.test-plugin", "token", "configured-token");
-    await expect(host.getSettingValue("org.edgeever.test-plugin", "token")).resolves.toBeNull();
-    await expect(host.getSettingValue("org.edgeever.test-plugin", "token", true)).resolves.toBe("configured-token");
-    await expect(host.setSettingValue("org.edgeever.test-plugin", "limit", 11)).rejects.toThrow("at most 10");
+    await host.runCommand("org.rtnote.test-plugin", "write-secret");
+    expect(secrets.get("test:org.rtnote.test-plugin:token")).toBe("secret-value");
+    await host.runCommand("org.rtnote.test-plugin", "write-storage");
+    expect(values.get("rtnote.plugin-data.v1:test:org.rtnote.test-plugin:preference")).toBe('"stored-value"');
+    await expect(host.getSettingValue("org.rtnote.test-plugin", "endpoint")).resolves.toBe("https://default.example");
+    await host.setSettingValue("org.rtnote.test-plugin", "endpoint", "https://custom.example");
+    await host.setSettingValue("org.rtnote.test-plugin", "token", "configured-token");
+    await expect(host.getSettingValue("org.rtnote.test-plugin", "token")).resolves.toBeNull();
+    await expect(host.getSettingValue("org.rtnote.test-plugin", "token", true)).resolves.toBe("configured-token");
+    await expect(host.setSettingValue("org.rtnote.test-plugin", "limit", 11)).rejects.toThrow("at most 10");
     const container = {};
-    const disposePanel = await host.mountPanel("org.edgeever.test-plugin", "fixture", container);
+    const disposePanel = await host.mountPanel("org.rtnote.test-plugin", "fixture", container);
     expect(container.mountedByFixture).toBe(true);
     disposePanel();
     expect(container.mountedByFixture).toBe(false);
     const mountedDuringDisable = {};
-    await host.mountPanel("org.edgeever.test-plugin", "fixture", mountedDuringDisable);
-    await host.setEnabled("org.edgeever.test-plugin", false);
+    await host.mountPanel("org.rtnote.test-plugin", "fixture", mountedDuringDisable);
+    await host.setEnabled("org.rtnote.test-plugin", false);
     expect(mountedDuringDisable.mountedByFixture).toBe(false);
     expect(host.getSnapshot().panels).toHaveLength(0);
-    await host.uninstall("org.edgeever.test-plugin");
-    expect(secrets.has("test:org.edgeever.test-plugin:token")).toBe(false);
-    expect(secrets.has("test:org.edgeever.test-plugin:setting:token")).toBe(false);
-    expect(values.has("edgeever.plugin-data.v1:test:org.edgeever.test-plugin:preference")).toBe(false);
-    expect(values.has("edgeever.plugin-settings.v1:test:org.edgeever.test-plugin:endpoint")).toBe(false);
+    await host.uninstall("org.rtnote.test-plugin");
+    expect(secrets.has("test:org.rtnote.test-plugin:token")).toBe(false);
+    expect(secrets.has("test:org.rtnote.test-plugin:setting:token")).toBe(false);
+    expect(values.has("rtnote.plugin-data.v1:test:org.rtnote.test-plugin:preference")).toBe(false);
+    expect(values.has("rtnote.plugin-settings.v1:test:org.rtnote.test-plugin:endpoint")).toBe(false);
     await host.dispose();
   });
 
   test("installs a checksum-pinned marketplace package and removes its cache on uninstall", async () => {
     const manifest = {
       type: "plugin",
-      id: "org.edgeever.marketplace-test",
+      id: "org.rtnote.marketplace-test",
       name: "Marketplace Test",
       version: "1.0.0",
       apiVersion: "2",
@@ -297,14 +297,14 @@ describe("EdgeEverPluginHost", () => {
       remove: async () => undefined,
       clearNamespace: async () => undefined,
     };
-    const host = new EdgeEverPluginHost({ repository, scope: "test", packageStorage, secretStorage });
+    const host = new RTNotePluginHost({ repository, scope: "test", packageStorage, secretStorage });
     const entry = {
       id: manifest.id,
       name: manifest.name,
       description: "Verified test plugin",
       author: "RTNote",
       category: "Testing",
-      repositoryUrl: "https://github.com/edgeever/marketplace-test",
+      repositoryUrl: "https://github.com/rtnote/marketplace-test",
       distribution: { type: "manifest", manifestUrl: "https://plugins.example/manifest.json" },
       verification: {
         version: manifest.version,
@@ -322,7 +322,7 @@ describe("EdgeEverPluginHost", () => {
   });
 
   test("rolls back an enabled plugin when an update cannot activate", async () => {
-    const pluginId = "org.edgeever.rollback-test";
+    const pluginId = "org.rtnote.rollback-test";
     const entry = new URL("./plugin-host.fixture.mjs", import.meta.url).href;
     const packages = new Map();
     const packageStorage = {
@@ -333,7 +333,7 @@ describe("EdgeEverPluginHost", () => {
         else for (const key of Array.from(packages.keys())) if (key.startsWith(`${id}:`)) packages.delete(key);
       },
     };
-    const host = new EdgeEverPluginHost({ repository, scope: "test", packageStorage });
+    const host = new RTNotePluginHost({ repository, scope: "test", packageStorage });
     host.installManifest({
       type: "plugin",
       id: pluginId,
@@ -374,7 +374,7 @@ describe("EdgeEverPluginHost", () => {
   test("rejects a manifest that changed after update confirmation", async () => {
     const confirmedManifest = {
       type: "theme",
-      id: "org.edgeever.changed-theme",
+      id: "org.rtnote.changed-theme",
       name: "Changed theme",
       version: "2.0.0",
       themeApiVersion: "1",
@@ -385,7 +385,7 @@ describe("EdgeEverPluginHost", () => {
       ...confirmedManifest,
       light: { "color.background": "#000000" },
     });
-    const host = new EdgeEverPluginHost({ repository, scope: "test" });
+    const host = new RTNotePluginHost({ repository, scope: "test" });
 
     await expect(host.installFromManifestUrl(
       "https://plugins.example/manifest.json",
@@ -411,7 +411,7 @@ describe("EdgeEverPluginHost", () => {
       height: null,
       createdAt: "2026-09-01T00:00:00.000Z",
       updatedAt: "2026-09-01T00:00:00.000Z",
-      url: "https://edgeever.example/resource-1",
+      url: "https://rtnote.example/resource-1",
     };
     const note = {
       id: "note-1",
@@ -477,7 +477,7 @@ describe("EdgeEverPluginHost", () => {
       useTemplate: async () => ({ memo: { ...note, id: "templated-note", contentMarkdown: template.contentMarkdown } }),
     };
     const packageStorage = { get: async () => null, put: async () => undefined, remove: async () => undefined };
-    const host = new EdgeEverPluginHost({ repository: repositoryWithCapabilities, scope: "capabilities", packageStorage });
+    const host = new RTNotePluginHost({ repository: repositoryWithCapabilities, scope: "capabilities", packageStorage });
     const opened = [];
     const openedPanels = [];
     const insertedEmbeds = [];
@@ -496,7 +496,7 @@ describe("EdgeEverPluginHost", () => {
     const entry = new URL("./plugin-host-capabilities.fixture.mjs", import.meta.url).href;
     host.installManifest({
       type: "plugin",
-      id: "org.edgeever.capabilities",
+      id: "org.rtnote.capabilities",
       name: "Capabilities",
       version: "1.0.0",
       apiVersion: "2",
@@ -506,10 +506,10 @@ describe("EdgeEverPluginHost", () => {
       settings: { fields: [{ key: "endpoint", type: "text", label: "Endpoint", default: "https://api.example" }] },
     }, "https://plugins.example/capabilities/manifest.json");
 
-    await host.setEnabled("org.edgeever.capabilities", true);
-    await host.runCommand("org.edgeever.capabilities", "exercise-capabilities");
+    await host.setEnabled("org.rtnote.capabilities", true);
+    await host.runCommand("org.rtnote.capabilities", "exercise-capabilities");
 
-    expect(globalThis.edgeeverPluginCapabilityResult).toMatchObject({
+    expect(globalThis.rtnotePluginCapabilityResult).toMatchObject({
       notebook: { id: "notebook-created", name: "Created by plugin" },
       moved: 1,
       pinned: 1,
@@ -528,7 +528,7 @@ describe("EdgeEverPluginHost", () => {
       templatedNote: { id: "templated-note", contentMarkdown: "Template" },
       editorDocument: { noteId: "note-1", contentMarkdown: "First note", hasUnsavedChanges: false },
       editedEditorDocument: { noteId: "note-1", contentMarkdown: "Live note", hasUnsavedChanges: true },
-      insertedEmbed: { pluginId: "org.edgeever.capabilities", type: "drawing", resourceId: "resource-1", data: { mode: "edit" } },
+      insertedEmbed: { pluginId: "org.rtnote.capabilities", type: "drawing", resourceId: "resource-1", data: { mode: "edit" } },
     });
     expect(updateInput).toMatchObject({
       expectedRevision: 3,
@@ -537,14 +537,14 @@ describe("EdgeEverPluginHost", () => {
     });
     expect(opened).toEqual([{ noteId: "note-1", notebookId: "notebook-1", options: { search: "Updated note" } }]);
     expect(openedPanels).toEqual([{
-      pluginId: "org.edgeever.capabilities",
+      pluginId: "org.rtnote.capabilities",
       panelId: "capability-panel",
       options: { state: { resourceId: "resource-1" } },
     }]);
     expect(insertedEmbeds).toHaveLength(1);
-    expect(host.getSnapshot().embeds).toEqual([{ pluginId: "org.edgeever.capabilities", type: "drawing" }]);
+    expect(host.getSnapshot().embeds).toEqual([{ pluginId: "org.rtnote.capabilities", type: "drawing" }]);
     const embedContainer = { dataset: {} };
-    const disposeEmbed = await host.mountEmbed("org.edgeever.capabilities", "drawing", embedContainer, insertedEmbeds[0]);
+    const disposeEmbed = await host.mountEmbed("org.rtnote.capabilities", "drawing", embedContainer, insertedEmbeds[0]);
     expect(embedContainer.dataset.embedId).toBe(insertedEmbeds[0].id);
     disposeEmbed();
     expect(embedContainer.dataset.embedId).toBeUndefined();
@@ -552,7 +552,7 @@ describe("EdgeEverPluginHost", () => {
     const panelContainer = {};
     let requestedPanelClose = false;
     const disposePanel = await host.mountPanel(
-      "org.edgeever.capabilities",
+      "org.rtnote.capabilities",
       "capability-panel",
       panelContainer,
       { state: { resourceId: "resource-1" } },
@@ -564,12 +564,12 @@ describe("EdgeEverPluginHost", () => {
     expect(requestedPanelClose).toBe(true);
     disposePanel();
     expect(panelContainer.panelState).toBeUndefined();
-    await expect(host.getPanelCloseDecision("org.edgeever.capabilities", "capability-panel")).resolves.toEqual({
+    await expect(host.getPanelCloseDecision("org.rtnote.capabilities", "capability-panel")).resolves.toEqual({
       title: "Unsaved drawing",
       message: "Close without saving?",
       confirmLabel: "Close drawing",
     });
-    await expect(host.runCommand("org.edgeever.capabilities", "edit-stale-note"))
+    await expect(host.runCommand("org.rtnote.capabilities", "edit-stale-note"))
       .rejects.toMatchObject({ code: "NOTE_CONFLICT" });
     host.setEditorAdapter({
       getSelection: () => ({ noteId: "note-1", from: 0, to: 0, empty: true, text: "", contentMarkdown: "" }),
@@ -579,9 +579,9 @@ describe("EdgeEverPluginHost", () => {
       replaceSelection: () => undefined,
       insertAtCursor: () => undefined,
     });
-    await expect(host.runCommand("org.edgeever.capabilities", "exercise-capabilities"))
+    await expect(host.runCommand("org.rtnote.capabilities", "exercise-capabilities"))
       .rejects.toMatchObject({ code: "NOTE_CONFLICT" });
-    delete globalThis.edgeeverPluginCapabilityResult;
+    delete globalThis.rtnotePluginCapabilityResult;
     await host.dispose();
   });
 
@@ -653,10 +653,10 @@ describe("EdgeEverPluginHost", () => {
       updateResource: async () => ({ resource: updatedResource }),
     }, "event-workspace");
     const packageStorage = { get: async () => null, put: async () => undefined, remove: async () => undefined };
-    const host = new EdgeEverPluginHost({ repository: repositoryWithEvents, scope: "event-workspace", packageStorage });
+    const host = new RTNotePluginHost({ repository: repositoryWithEvents, scope: "event-workspace", packageStorage });
     host.installManifest({
       type: "plugin",
-      id: "org.edgeever.events",
+      id: "org.rtnote.events",
       name: "Events",
       version: "1.0.0",
       apiVersion: "2",
@@ -668,12 +668,12 @@ describe("EdgeEverPluginHost", () => {
         { value: "weekly", label: "Weekly" },
       ] }] },
     }, "https://plugins.example/events/manifest.json");
-    await host.setEnabled("org.edgeever.events", true);
+    await host.setEnabled("org.rtnote.events", true);
     await host.activateEnabled();
 
     host.installManifest({
       type: "plugin",
-      id: "org.edgeever.events-other",
+      id: "org.rtnote.events-other",
       name: "Other Events",
       version: "1.0.0",
       apiVersion: "2",
@@ -682,39 +682,39 @@ describe("EdgeEverPluginHost", () => {
       permissions: [],
       settings: { fields: [{ key: "mode", type: "text", label: "Mode" }] },
     }, "https://plugins.example/events-other/manifest.json");
-    await host.setEnabled("org.edgeever.events-other", true);
-    await host.setSettingValue("org.edgeever.events", "mode", "weekly");
-    await host.removeSettingValue("org.edgeever.events", "mode");
+    await host.setEnabled("org.rtnote.events-other", true);
+    await host.setSettingValue("org.rtnote.events", "mode", "weekly");
+    await host.removeSettingValue("org.rtnote.events", "mode");
 
     await repositoryWithEvents.updateMemo(updatedMemo, {});
     await repositoryWithEvents.createTemplate({ name: "Event template" });
     await repositoryWithEvents.updateResource("resource-events", new File(["scene"], "drawing.excalidraw"), "old-hash");
 
-    expect(globalThis.edgeeverPluginObservedNote).toMatchObject({
+    expect(globalThis.rtnotePluginObservedNote).toMatchObject({
       id: "note-events",
       contentMarkdown: "Updated",
     });
-    expect(globalThis.edgeeverPluginObservedTemplate).toMatchObject({
+    expect(globalThis.rtnotePluginObservedTemplate).toMatchObject({
       id: "template-events",
       contentMarkdown: "Template",
     });
-    expect(globalThis.edgeeverPluginObservedResource).toMatchObject({
+    expect(globalThis.rtnotePluginObservedResource).toMatchObject({
       id: "resource-events",
       contentHash: "resource-event-hash",
     });
-    expect(globalThis.edgeeverPluginObservedSettings).toEqual([
-      { pluginId: "org.edgeever.events", key: "mode" },
-      { pluginId: "org.edgeever.events", key: "mode" },
+    expect(globalThis.rtnotePluginObservedSettings).toEqual([
+      { pluginId: "org.rtnote.events", key: "mode" },
+      { pluginId: "org.rtnote.events", key: "mode" },
     ]);
-    delete globalThis.edgeeverPluginObservedNote;
-    delete globalThis.edgeeverPluginObservedTemplate;
-    delete globalThis.edgeeverPluginObservedResource;
-    delete globalThis.edgeeverPluginObservedSettings;
+    delete globalThis.rtnotePluginObservedNote;
+    delete globalThis.rtnotePluginObservedTemplate;
+    delete globalThis.rtnotePluginObservedResource;
+    delete globalThis.rtnotePluginObservedSettings;
     await host.dispose();
   });
 });
 
-const structured = await import("@edgeever/shared");
+const structured = await import("@rtnote/shared");
 describe("structured plugin note APIs", () => {
   const setup = (contentMarkdown, contentJson = structured.markdownToDoc(contentMarkdown)) => {
     let memo = { id: "note-1", notebookId: "book", title: "Original", excerpt: "", tags: ["keep"], isPinned: false,
@@ -722,7 +722,7 @@ describe("structured plugin note APIs", () => {
     const saves = [];
     const resources = [];
     let onResourceRead = () => {};
-    const host = new EdgeEverPluginHost({ scope: "structured", repository: {
+    const host = new RTNotePluginHost({ scope: "structured", repository: {
       getMemo: async () => ({ memo: structuredClone(memo) }),
       listResources: async () => { onResourceRead(); return { resources }; },
       updateMemo: async (current, input) => {
@@ -940,7 +940,7 @@ describe("structured plugin note APIs", () => {
 
   test("protects poster and infographic markers, including malformed payloads", async () => {
     for (const kind of ["poster", "infographic", "diagram", "table"]) {
-      const f = setup(`Body\n<!-- edgeever-${kind}-v1:invalid -->`);
+      const f = setup(`Body\n<!-- rtnote-${kind}-v1:invalid -->`);
       await expect(f.context.notes.update("note-1", { contentMarkdown: "oops" })).rejects.toMatchObject({ code: "STRUCTURED_NOTE_REQUIRED" });
       expect(f.saves).toHaveLength(0);
     }

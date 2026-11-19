@@ -12,7 +12,7 @@ import {
   type SyncQueueSummary,
   type SyncRunResult,
   type TiptapDoc,
-} from "@edgeever/shared";
+} from "@rtnote/shared";
 import { liveQuery } from "dexie";
 import { ApiRequestError, api } from "@/lib/api";
 import {
@@ -38,7 +38,7 @@ import { acknowledgeNotebookId, hasTemporaryNotebookDependency, notebookRemapTab
 const isTiptapDocPayload = (value: unknown): value is TiptapDoc =>
   Boolean(value) && typeof value === "object" && Array.isArray((value as { content?: unknown }).content);
 
-export type { SyncQueueSummary, SyncRunResult } from "@edgeever/shared";
+export type { SyncQueueSummary, SyncRunResult } from "@rtnote/shared";
 export type SyncQueueResult = MemoDetail | Notebook | MemoTemplate | Resource | null;
 export type MemoUpdateAcknowledgement = "completed" | "rebased" | "stale";
 
@@ -333,7 +333,7 @@ export const discardWebMemoConflict = async (scope: string, memoId: string) => {
   }
 
   if (typeof window !== "undefined") {
-    window.dispatchEvent(new CustomEvent("edgeever:sync-queue-changed"));
+    window.dispatchEvent(new CustomEvent("rtnote:sync-queue-changed"));
   }
   return remote.memo;
 };

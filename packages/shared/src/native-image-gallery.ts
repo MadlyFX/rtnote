@@ -104,14 +104,14 @@ export const createNativeImageGalleryView = (getLocale: () => string): NodeViewR
   ({ editor, node, getPos }) => {
     let current = node;
     const dom = document.createElement("div");
-    dom.className = "edgeever-native-image-gallery";
-    dom.dataset.edgeeverImageGallery = "true";
+    dom.className = "rtnote-native-image-gallery";
+    dom.dataset.rtnoteImageGallery = "true";
     const toolbar = document.createElement("div");
-    toolbar.className = "edgeever-native-gallery-toolbar";
+    toolbar.className = "rtnote-native-gallery-toolbar";
     toolbar.contentEditable = "false";
     toolbar.setAttribute("role", "toolbar");
     const contentDOM = document.createElement("div");
-    contentDOM.className = "edgeever-native-gallery-content";
+    contentDOM.className = "rtnote-native-gallery-content";
     const controls = [
       ...IMAGE_GALLERY_LAYOUTS.map((value) => ({ attribute: "layout" as const, value })),
       ...IMAGE_GALLERY_FITS.map((value) => ({ attribute: "fit" as const, value })),
@@ -177,20 +177,20 @@ export const createNativeImageGalleryView = (getLocale: () => string): NodeViewR
 );
 
 export const NATIVE_IMAGE_GALLERY_CSS = `
-[data-edgeever-image-gallery].edgeever-native-image-gallery { display: block; }
-.edgeever-native-gallery-toolbar { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; line-height: 1.2; }
-.edgeever-native-gallery-toolbar[hidden] { display: none; }
-.edgeever-native-gallery-toolbar button { min-height: 44px; padding: 8px 12px; border: 1px solid #16a06e55; border-radius: 8px; background: transparent; color: inherit; font: inherit; font-size: 13px; }
-.edgeever-native-gallery-toolbar button[aria-pressed="true"] { color: #16a06e; background: #16a06e22; }
-.edgeever-native-gallery-toolbar button:focus-visible { outline: 2px solid #16a06e; outline-offset: 2px; }
-.edgeever-native-gallery-content { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-[data-image-gallery-layout="1"] > .edgeever-native-gallery-content { grid-template-columns: minmax(0, 1fr); }
-@media (min-width: 600px) { [data-image-gallery-layout="3"] > .edgeever-native-gallery-content { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-.edgeever-native-gallery-content > * { width: 100% !important; min-width: 0; height: 100%; margin: 0 !important; overflow: hidden; border-radius: 10px; background: transparent; }
-.edgeever-native-gallery-content > img, .edgeever-native-gallery-content > * > img { width: 100% !important; height: 100%; min-height: 112px; max-height: 220px; object-fit: cover; }
-[data-edgeever-image-gallery][data-image-gallery-fit="height"] > img,
-[data-edgeever-image-gallery][data-image-gallery-fit="height"] > .edgeever-image-node > img,
-[data-edgeever-image-gallery][data-image-gallery-fit="height"] > .edgeever-native-gallery-content > img,
-[data-edgeever-image-gallery][data-image-gallery-fit="height"] > .edgeever-native-gallery-content > * > img { height: 220px; min-height: 0; object-fit: contain; }
-.edgeever-native-gallery-content .edgeever-image-size-controls { display: none !important; }
+[data-rtnote-image-gallery].rtnote-native-image-gallery { display: block; }
+.rtnote-native-gallery-toolbar { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; line-height: 1.2; }
+.rtnote-native-gallery-toolbar[hidden] { display: none; }
+.rtnote-native-gallery-toolbar button { min-height: 44px; padding: 8px 12px; border: 1px solid #16a06e55; border-radius: 8px; background: transparent; color: inherit; font: inherit; font-size: 13px; }
+.rtnote-native-gallery-toolbar button[aria-pressed="true"] { color: #16a06e; background: #16a06e22; }
+.rtnote-native-gallery-toolbar button:focus-visible { outline: 2px solid #16a06e; outline-offset: 2px; }
+.rtnote-native-gallery-content { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+[data-image-gallery-layout="1"] > .rtnote-native-gallery-content { grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 600px) { [data-image-gallery-layout="3"] > .rtnote-native-gallery-content { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.rtnote-native-gallery-content > * { width: 100% !important; min-width: 0; height: 100%; margin: 0 !important; overflow: hidden; border-radius: 10px; background: transparent; }
+.rtnote-native-gallery-content > img, .rtnote-native-gallery-content > * > img { width: 100% !important; height: 100%; min-height: 112px; max-height: 220px; object-fit: cover; }
+[data-rtnote-image-gallery][data-image-gallery-fit="height"] > img,
+[data-rtnote-image-gallery][data-image-gallery-fit="height"] > .rtnote-image-node > img,
+[data-rtnote-image-gallery][data-image-gallery-fit="height"] > .rtnote-native-gallery-content > img,
+[data-rtnote-image-gallery][data-image-gallery-fit="height"] > .rtnote-native-gallery-content > * > img { height: 220px; min-height: 0; object-fit: contain; }
+.rtnote-native-gallery-content .rtnote-image-size-controls { display: none !important; }
 `;

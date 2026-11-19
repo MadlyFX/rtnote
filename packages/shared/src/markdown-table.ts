@@ -18,7 +18,7 @@ const cellTokens = (tokens: MarkdownToken[]): MarkdownToken[] => tokens.map((tok
 // Markdown has no place for column widths or row heights, so they ride along in
 // an invisible comment right after the table. It is only read back when it
 // directly follows a table; other Markdown tools simply ignore it.
-const SIZE_COMMENT = /^\n{1,3}<!-- edgeever-table (\{[^\n]*?\}) -->/;
+const SIZE_COMMENT = /^\n{1,3}<!-- rtnote-table (\{[^\n]*?\}) -->/;
 
 type TableSizes = { cols: Array<number | null>; rows: Array<number | null> };
 type SizedNode = { attrs?: Record<string, unknown>; content?: SizedNode[] };
@@ -35,7 +35,7 @@ const parseSizes = (json: string): TableSizes | null => {
   }
 };
 
-export const EdgeEverTableKit = TableKit.extend({
+export const RTNoteTableKit = TableKit.extend({
   addExtensions() {
     return (this.parent?.() ?? []).map((extension) => {
       if (extension.name === "tableRow") {
@@ -101,7 +101,7 @@ export const EdgeEverTableKit = TableKit.extend({
             const table = baseTokenizer.tokenize(candidate, tokens, helper) ?? helper.blockTokens(candidate)[0];
             const sizes = parseSizes(match[1]);
             if (!table || table.type !== "table" || !sizes) return undefined;
-            return { ...table, raw: candidate + match[0], edgeeverSizes: sizes };
+            return { ...table, raw: candidate + match[0], rtnoteSizes: sizes };
           },
         },
         parseMarkdown(token: MarkdownToken, helpers: MarkdownParseHelpers) {
@@ -111,7 +111,7 @@ export const EdgeEverTableKit = TableKit.extend({
             header: token.header?.map(cell),
             rows: token.rows?.map((row: Array<{ tokens: MarkdownToken[] }>) => row.map(cell)),
           }, helpers);
-          const sizes = (token as { edgeeverSizes?: TableSizes }).edgeeverSizes;
+          const sizes = (token as { rtnoteSizes?: TableSizes }).rtnoteSizes;
           if (sizes) {
             (node as SizedNode).content?.forEach((row, rowIndex) => {
               if (sizes.rows[rowIndex]) row.attrs = { ...row.attrs, rowheight: sizes.rows[rowIndex] };
@@ -140,7 +140,7 @@ export const EdgeEverTableKit = TableKit.extend({
             cols: Array.from({ length: colCount }, (_, i) => cols[i] ?? null),
             rows: Array.from(rows, (height) => height ?? null),
           };
-          return `${markdown.replace(/\n+$/, "")}\n\n<!-- edgeever-table ${JSON.stringify(sizes)} -->`;
+          return `${markdown.replace(/\n+$/, "")}\n\n<!-- rtnote-table ${JSON.stringify(sizes)} -->`;
         },
       });
     });

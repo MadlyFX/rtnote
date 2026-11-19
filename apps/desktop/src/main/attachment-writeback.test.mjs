@@ -12,7 +12,7 @@ const directories = [];
 afterEach(async () => { await Promise.all(directories.splice(0).map(path => rm(path, { recursive: true, force: true }))); });
 const hash = value => createHash("sha256").update(value).digest("hex");
 const fixture = async (overrides = {}, localFilename = "budget.xlsx") => {
-  const directory = await mkdtemp(join(tmpdir(), "edgeever-writeback-"));
+  const directory = await mkdtemp(join(tmpdir(), "rtnote-writeback-"));
   directories.push(directory);
   const folder = join(directory, "open-fixture");
   await mkdir(folder);
@@ -39,7 +39,7 @@ const fixture = async (overrides = {}, localFilename = "budget.xlsx") => {
     ...overrides,
   };
   let manager = createAttachmentWritebackManager(options);
-  await manager.track({ folder, url: "edgeever-resource://resource/res_1", filename: "budget.xlsx", localFilename, mimeType: "application/test" });
+  await manager.track({ folder, url: "rtnote-resource://resource/res_1", filename: "budget.xlsx", localFilename, mimeType: "application/test" });
   return {
     directory, folder, path, requests, saved, options,
     get manager() { return manager; },
@@ -192,7 +192,7 @@ test("unsupported servers retain pending edits without automatic probes, and man
   }, input) });
   await writeFile(f.path, "pending edit"); await f.settle();
   expect((await f.manager.list())[0]).toMatchObject({ status: "error", errorCode: "writeback_unsupported" });
-  expect(await readFile(join(f.folder, ".edgeever-writeback.pending"), "utf8")).toBe("pending edit");
+  expect(await readFile(join(f.folder, ".rtnote-writeback.pending"), "utf8")).toBe("pending edit");
   await writeFile(f.path, "later edit"); f.advance(60_000); await f.settle();
   expect(probes).toBe(1); expect(writes).toEqual([]);
   supported = true; await f.manager.retry("open-fixture"); await f.manager.tick(); await f.settle();
@@ -212,7 +212,7 @@ test("temporary capability failures remain retryable without sending attachment 
 test("missing resources on a supported server remain deletion errors, not unsupported-server errors", async () => {
   await expect(replaceAttachmentResource(async path => path === "/resources/writeback-capabilities"
     ? Response.json({ preserveFilename: true })
-    : Response.json({ error: { code: "not_found" } }, { status: 404, headers: { "X-EdgeEver-Writeback": "preserve-filename" } }), {
+    : Response.json({ error: { code: "not_found" } }, { status: 404, headers: { "X-RTNote-Writeback": "preserve-filename" } }), {
     resourceId: "res_1", bytes: Buffer.from("edit"), expectedContentHash: hash("original"), filename: "a.txt", mimeType: "text/plain", assertCurrent() {},
   })).rejects.toMatchObject({ code: "not_found", retryable: false });
 });

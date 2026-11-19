@@ -3,7 +3,7 @@ import { dirname, join } from "node:path";
 export const SHARE_EXTENSION_BUNDLE_ID = "com.madlyfx.rtnote.share";
 
 export const macShareExtensionPath = (executablePath) =>
-  join(dirname(executablePath), "..", "PlugIns", "EdgeEverShare.appex");
+  join(dirname(executablePath), "..", "PlugIns", "RTNoteShare.appex");
 
 // macOS leaves a newly installed share extension disabled. The host app has to
 // elect it, or WeChat's share sheet never lists RTNote for that user.

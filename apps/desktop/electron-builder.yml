@@ -42,7 +42,7 @@ extraResources:
   - from: ../../scripts
     to: mcp-bridge
     filter:
-      - edgeever-mcp-stdio.mjs
+      - rtnote-mcp-stdio.mjs
       - mcp-http-headers.mjs
   - from: ../web/dist
     to: web
@@ -66,8 +66,8 @@ extraResources:
   - from: ../../crates/desktop-sidecar/target/release
     to: sidecar
     filter:
-      - edgeever-sidecar
-      - edgeever-sidecar.exe
+      - rtnote-sidecar
+      - rtnote-sidecar.exe
 mac:
   category: public.app-category.productivity
   icon: assets/icon.icns
@@ -75,8 +75,8 @@ mac:
   # PlugIns are skipped by the default signer, and afterSign runs too late to notarize.
   sign: ./scripts/sign-share-extension.cjs
   extraFiles:
-    - from: share-extension/dist/EdgeEverShare.appex
-      to: PlugIns/EdgeEverShare.appex
+    - from: share-extension/dist/RTNoteShare.appex
+      to: PlugIns/RTNoteShare.appex
   extendInfo:
     NSScreenCaptureUsageDescription: "RTNote captures a screenshot and saves it as a note."
   target:

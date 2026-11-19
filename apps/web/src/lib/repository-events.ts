@@ -1,5 +1,5 @@
-import type { MemoDetail, MemoTemplate, Resource } from "@edgeever/shared";
-import type { EdgeEverRepository } from "@/lib/repository";
+import type { MemoDetail, MemoTemplate, Resource } from "@rtnote/shared";
+import type { RTNoteRepository } from "@/lib/repository";
 
 export type RepositoryMutationEvent =
   | { type: "note.created"; note: MemoDetail }
@@ -32,7 +32,7 @@ export const subscribeRepositoryMutations = (scope: string, listener: Repository
   };
 };
 
-export const withRepositoryMutationEvents = (repository: EdgeEverRepository, scope: string): EdgeEverRepository => ({
+export const withRepositoryMutationEvents = (repository: RTNoteRepository, scope: string): RTNoteRepository => ({
   ...repository,
   async createMemo(input) {
     const result = await repository.createMemo(input);

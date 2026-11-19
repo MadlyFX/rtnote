@@ -1,7 +1,7 @@
 import { automaticPosterThumbnails } from "./poster-thumbnails.ts";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
-import { resolveDeploymentBuildMetadata } from "@edgeever/shared/deployment-metadata";
+import { resolveDeploymentBuildMetadata } from "@rtnote/shared/deployment-metadata";
 import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { fileURLToPath, URL } from "node:url";
@@ -16,7 +16,7 @@ const brandConfig = JSON.parse(readFileSync(fileURLToPath(new URL("../../brand.c
 const escapeHtml = (text: string) => text.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]!);
 /** The page title before any server branding loads is the build's name. */
 const brandIdentityHtml: Plugin = {
-  name: "edgeever-brand-identity-html",
+  name: "rtnote-brand-identity-html",
   transformIndexHtml: (html) => html.replace(/<title>RTNote<\/title>/, () => `<title>${escapeHtml(brandConfig.name)}</title>`),
 };
 
@@ -100,11 +100,11 @@ const appVersion = resolveAppVersion(packageVersion, gitDescription);
 const releaseSummary = readReleaseSummary(packageVersion);
 const OPTIONAL_CHUNK_WARNING_LIMIT_KB = 1_700;
 const TARGET_VENDOR_CHUNK_BYTES = 450 * 1024;
-const releaseTimestamp = resolveReleaseTimestamp(process.env.EDGE_EVER_RELEASED_AT) || readLatestReleaseCommitTimestamp();
+const releaseTimestamp = resolveReleaseTimestamp(process.env.RTNOTE_RELEASED_AT) || readLatestReleaseCommitTimestamp();
 const deploymentMetadata = resolveDeploymentBuildMetadata(process.env);
-const isDesktopBuild = process.env.EDGE_EVER_DESKTOP_BUILD === "1";
+const isDesktopBuild = process.env.RTNOTE_DESKTOP_BUILD === "1";
 const developmentServiceWorkerReset: Plugin = {
-  name: "edgeever-development-service-worker-reset",
+  name: "rtnote-development-service-worker-reset",
   apply: "serve",
   configureServer(server) {
     server.middlewares.use((request, response, next) => {
@@ -144,15 +144,15 @@ export default defineConfig({
   // asset URLs resolve to the filesystem root and leave a blank window.
   base: isDesktopBuild ? "./" : "/",
   define: {
-    __EDGEEVER_APP_VERSION__: JSON.stringify(appVersion),
-    __EDGEEVER_BUILD_ID__: JSON.stringify(buildId),
-    __EDGEEVER_BUILD_LABEL__: JSON.stringify(buildId === "local" ? "local" : buildId.slice(0, 7)),
-    __EDGEEVER_RELEASED_AT__: JSON.stringify(releaseTimestamp),
-    __EDGEEVER_RELEASE_SUMMARY__: JSON.stringify(releaseSummary),
-    __EDGEEVER_DEPLOYMENT_TRIGGER__: JSON.stringify(deploymentMetadata.trigger),
-    __EDGEEVER_DEPLOYMENT_METHOD__: JSON.stringify(deploymentMetadata.method),
-    __EDGEEVER_DEVELOPMENT_PROFILE__: JSON.stringify(process.env.EDGE_EVER_DEVELOPMENT_PROFILE ?? ""),
-    __EDGEEVER_DESKTOP_BUILD__: JSON.stringify(isDesktopBuild),
+    __RTNOTE_APP_VERSION__: JSON.stringify(appVersion),
+    __RTNOTE_BUILD_ID__: JSON.stringify(buildId),
+    __RTNOTE_BUILD_LABEL__: JSON.stringify(buildId === "local" ? "local" : buildId.slice(0, 7)),
+    __RTNOTE_RELEASED_AT__: JSON.stringify(releaseTimestamp),
+    __RTNOTE_RELEASE_SUMMARY__: JSON.stringify(releaseSummary),
+    __RTNOTE_DEPLOYMENT_TRIGGER__: JSON.stringify(deploymentMetadata.trigger),
+    __RTNOTE_DEPLOYMENT_METHOD__: JSON.stringify(deploymentMetadata.method),
+    __RTNOTE_DEVELOPMENT_PROFILE__: JSON.stringify(process.env.RTNOTE_DEVELOPMENT_PROFILE ?? ""),
+    __RTNOTE_DESKTOP_BUILD__: JSON.stringify(isDesktopBuild),
   },
   plugins: [
     automaticPosterThumbnails(),
@@ -215,7 +215,7 @@ export default defineConfig({
               !["/mobile-edit.html", "/note-print.html", "/tiptap-ime-test.html"].includes(url.pathname),
             handler: "NetworkFirst",
             options: {
-              cacheName: "edgeever-app-shell",
+              cacheName: "rtnote-app-shell",
               networkTimeoutSeconds: 5,
               cacheableResponse: {
                 statuses: [0, 200],
@@ -226,7 +226,7 @@ export default defineConfig({
             urlPattern: ({ url }) => /^\/api\/v1\/resources\/[^/]+\/blob$/.test(url.pathname),
             handler: "CacheFirst",
             options: {
-              cacheName: "edgeever-resource-blobs",
+              cacheName: "rtnote-resource-blobs",
               cacheableResponse: {
                 statuses: [0, 200],
               },
@@ -240,7 +240,7 @@ export default defineConfig({
             urlPattern: ({ url }) => /\/assets\/i18n-(?:en-US|ja|pl|ru|zh-TW|es|de|fr)-/.test(url.pathname),
             handler: "CacheFirst",
             options: {
-              cacheName: "edgeever-optional-locales",
+              cacheName: "rtnote-optional-locales",
               expiration: {
                 maxEntries: 8,
                 maxAgeSeconds: 60 * 60 * 24 * 30,
@@ -251,7 +251,7 @@ export default defineConfig({
             urlPattern: ({ url }) => /\/assets\/(?:.*beautiful-mermaid|vendor-mermaid|.*mermaid\.core|.*Diagram-|vendor-x6|vendor-codemirror)/.test(url.pathname),
             handler: "CacheFirst",
             options: {
-              cacheName: "edgeever-optional-diagrams",
+              cacheName: "rtnote-optional-diagrams",
               expiration: {
                 maxEntries: 120,
                 maxAgeSeconds: 60 * 60 * 24 * 30,
@@ -262,7 +262,7 @@ export default defineConfig({
             urlPattern: ({ url }) => /\/assets\/(?:vendor~pdf-|pdf\.worker\.min-)/.test(url.pathname),
             handler: "CacheFirst",
             options: {
-              cacheName: "edgeever-optional-pdf",
+              cacheName: "rtnote-optional-pdf",
               expiration: {
                 maxEntries: 4,
                 maxAgeSeconds: 30 * 24 * 60 * 60,

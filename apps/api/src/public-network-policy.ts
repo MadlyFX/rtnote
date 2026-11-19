@@ -6,4 +6,4 @@ export {
   publicRequestHeaders,
   publicResponseHeaders,
   readPublicBody,
-} from "@edgeever/public-network/policy";
+} from "@rtnote/public-network/policy";

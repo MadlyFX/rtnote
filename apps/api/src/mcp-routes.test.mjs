@@ -48,7 +48,7 @@ const modernMcpRequest = (payload, headers = {}) => {
     ...payload.params,
     _meta: {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",
-      "io.modelcontextprotocol/clientInfo": { name: "edgeever-test", version: "1.0.0" },
+      "io.modelcontextprotocol/clientInfo": { name: "rtnote-test", version: "1.0.0" },
       "io.modelcontextprotocol/clientCapabilities": {},
       ...payload.params?._meta,
     },

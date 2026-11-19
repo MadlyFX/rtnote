@@ -1,4 +1,4 @@
-import type { WorkspaceExtension, WorkspaceExtensionUpsertInput } from "@edgeever/shared";
+import type { WorkspaceExtension, WorkspaceExtensionUpsertInput } from "@rtnote/shared";
 import { api } from "@/lib/api";
 import type { ExtensionInstallSource, InstalledExtension } from "@/lib/plugins/plugin-host";
 
@@ -14,7 +14,7 @@ export type LocalCatalogExtension = {
   version: string;
   enabled: boolean;
   catalogUpdatedAt: string;
-  publisher?: "edgeever";
+  publisher?: "rtnote";
 };
 
 export type CatalogReconcileAction =
@@ -49,15 +49,15 @@ export const toLocalCatalogExtension = (extension: InstalledExtension): LocalCat
   version: extension.manifest.version,
   enabled: extension.enabled,
   catalogUpdatedAt: extension.catalogUpdatedAt,
-  ...(extension.source.publisher === "edgeever" ? { publisher: "edgeever" } : {}),
+  ...(extension.source.publisher === "rtnote" ? { publisher: "rtnote" } : {}),
 });
 
 const isOfficialExtension = (
   extensionId: string,
   type: "plugin" | "theme",
-  publisher: "edgeever" | null | undefined,
+  publisher: "rtnote" | null | undefined,
   officialIds: ReadonlySet<string>,
-) => type === "theme" || publisher === "edgeever" || officialIds.has(extensionId);
+) => type === "theme" || publisher === "rtnote" || officialIds.has(extensionId);
 
 const enableAction = (
   entry: Pick<WorkspaceExtension, "extensionId" | "type" | "publisher">,
@@ -123,7 +123,7 @@ export const planCatalogReconcile = ({
     );
     if (remoteEntry.enabled && !localEntry.enabled) {
       actions.push(enableAction(
-        { ...remoteEntry, publisher: official ? "edgeever" : remoteEntry.publisher },
+        { ...remoteEntry, publisher: official ? "rtnote" : remoteEntry.publisher },
         hasTrustAcknowledgement,
         officialIds,
       ));
@@ -146,5 +146,5 @@ export const catalogInstallSource = (entry: WorkspaceExtension): ExtensionInstal
   verified: entry.verified,
   ...(entry.repositoryUrl ? { repositoryUrl: entry.repositoryUrl } : {}),
   ...(entry.releaseTag ? { releaseTag: entry.releaseTag } : {}),
-  ...(entry.publisher === "edgeever" ? { publisher: "edgeever" } : {}),
+  ...(entry.publisher === "rtnote" ? { publisher: "rtnote" } : {}),
 });

@@ -1,5 +1,5 @@
-import type { createEdgeEverClient } from "@edgeever/client";
-import { createVoiceMemoClientId, type TiptapDoc } from "@edgeever/shared";
+import type { createRTNoteClient } from "@rtnote/client";
+import { createVoiceMemoClientId, type TiptapDoc } from "@rtnote/shared";
 import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 import { AppState } from "react-native";
 import { File as ExpoFile } from "expo-file-system";
@@ -28,7 +28,7 @@ import {
 import { readMobileVoiceMemoMaxDuration } from "../lib/preferences";
 import { safeDomCall } from "../lib/safe-dom-call";
 
-type Client = ReturnType<typeof createEdgeEverClient> | null;
+type Client = ReturnType<typeof createRTNoteClient> | null;
 
 const PENDING_RETRY_MS = 30_000;
 /** Time for the editor's debounced change to reach `getDoc` before confirming. */

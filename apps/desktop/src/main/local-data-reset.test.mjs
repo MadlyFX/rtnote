@@ -14,12 +14,12 @@ describe("desktop local data reset", () => {
       "/Users/example/Library/Application Support",
     )).toBe("/Users/example/Library/Application Support/RTNote");
     expect(managedUserDataDirectory(
-      "/Users/example/Library/Application Support/@edgeever/desktop",
+      "/Users/example/Library/Application Support/@rtnote/desktop",
       "/Users/example/Library/Application Support",
-    )).toBe("/Users/example/Library/Application Support/@edgeever/desktop");
+    )).toBe("/Users/example/Library/Application Support/@rtnote/desktop");
 
     expect(() => managedUserDataDirectory(
-      "/Users/example/Library/Application Support/@edgeever/desktop/accounts",
+      "/Users/example/Library/Application Support/@rtnote/desktop/accounts",
       "/Users/example/Library/Application Support",
     )).toThrow();
     // Two levels are allowed only under an @scope; another app's vendor folder is not.
@@ -63,7 +63,7 @@ describe("desktop local data reset", () => {
     expect(macApplicationBundlePath("/Applications/RTNote.app/Contents/MacOS/RTNote"))
       .toBe("/Applications/RTNote.app");
     try {
-      macApplicationBundlePath("/usr/local/bin/edgeever");
+      macApplicationBundlePath("/usr/local/bin/rtnote");
       throw new Error("expected bundle validation to fail");
     } catch (error) {
       expect(error).toBeInstanceOf(LocalDataResetError);

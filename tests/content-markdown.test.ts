@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { docToMarkdown, markdownToDoc } from "@edgeever/shared";
-import { NEW_IMAGE_WIDTH_PERCENT } from "@edgeever/shared/image-display";
+import { docToMarkdown, markdownToDoc } from "@rtnote/shared";
+import { NEW_IMAGE_WIDTH_PERCENT } from "@rtnote/shared/image-display";
 
 describe("shared Markdown conversion", () => {
   test("parses adjacent headings, lists, quotes, and inline formatting into TipTap nodes", () => {
@@ -8,7 +8,7 @@ describe("shared Markdown conversion", () => {
 * **Legal name**：Example Network Technology Co., Ltd.
 * **English name**：Example Co., Ltd.
 ## 2. Domain & Contact
-* **Official website**：[RTNote](https://www.edgeever.org)
+* **Official website**：[RTNote](https://www.rtnote.example)
 > [!WARNING]
 > Do not link other accounts.`);
 
@@ -33,7 +33,7 @@ describe("shared Markdown conversion", () => {
     expect(linkText).toMatchObject({
       type: "text",
       text: "RTNote",
-      marks: [{ type: "link", attrs: { href: "https://www.edgeever.org" } }],
+      marks: [{ type: "link", attrs: { href: "https://www.rtnote.example" } }],
     });
   });
 
@@ -91,7 +91,7 @@ const answer = 42;
   test("groups consecutive images into one gallery and keeps a single image alone", () => {
     const markdown = "Body\n\n![One](/a.png)\n\n![Two](/b.png)\n\n![Three](/c.png)\n\nSource";
     const doc = markdownToDoc(markdown);
-    expect(doc.content.map((node) => node.type)).toEqual(["paragraph", "edgeeverImageGallery", "paragraph"]);
+    expect(doc.content.map((node) => node.type)).toEqual(["paragraph", "rtnoteImageGallery", "paragraph"]);
     expect(doc.content[1]?.attrs).toEqual({ layout: "auto" });
     expect(doc.content[1]?.content?.map((node) => node.attrs?.src)).toEqual(["/a.png", "/b.png", "/c.png"]);
     expect(docToMarkdown(doc)).toBe(markdown);

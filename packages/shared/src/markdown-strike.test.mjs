@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { Editor } from "@tiptap/core";
-import { createEdgeEverDocumentExtensions } from "./document-extensions.ts";
-import { createEdgeEverMarkdownManager, docToMarkdown, docToText, markdownToDoc } from "./content.ts";
-import { createEdgeEverMarkdownMathematics } from "./mathematics-markdown.ts";
+import { createRTNoteDocumentExtensions } from "./document-extensions.ts";
+import { createRTNoteMarkdownManager, docToMarkdown, docToText, markdownToDoc } from "./content.ts";
+import { createRTNoteMarkdownMathematics } from "./mathematics-markdown.ts";
 
 const strikeTexts = (doc) => {
   const texts = [];
@@ -68,11 +68,11 @@ describe("double-tilde strikethrough (#698)", () => {
   });
 
   test("isolates repeated managers and editor Markdown commands", () => {
-    const options = { mathematics: createEdgeEverMarkdownMathematics(), markdown: true };
-    const first = createEdgeEverMarkdownManager(options);
-    const second = createEdgeEverMarkdownManager(options);
+    const options = { mathematics: createRTNoteMarkdownMathematics(), markdown: true };
+    const first = createRTNoteMarkdownManager(options);
+    const second = createRTNoteMarkdownManager(options);
     expect(first.instance).not.toBe(second.instance);
-    const editor = new Editor({ extensions: createEdgeEverDocumentExtensions(options), content: { type: "doc", content: [{ type: "paragraph" }] } });
+    const editor = new Editor({ extensions: createRTNoteDocumentExtensions(options), content: { type: "doc", content: [{ type: "paragraph" }] } });
     try {
       for (const source of ["1~2~3", "~~a~b~~", "~a~~b~~c~"]) {
         editor.commands.setContent(source, { contentType: "markdown" });

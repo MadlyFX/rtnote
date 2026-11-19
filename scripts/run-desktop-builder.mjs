@@ -3,16 +3,16 @@ import { spawnSync } from "node:child_process";
 const publishIndex = process.argv.indexOf("--publish");
 const publishMode = publishIndex >= 0 ? process.argv[publishIndex + 1] ?? "never" : "never";
 const environment = { ...process.env };
-const requestedArch = environment.EDGE_EVER_DESKTOP_ARCH;
-const requestedTarget = environment.EDGE_EVER_DESKTOP_TARGET || (
+const requestedArch = environment.RTNOTE_DESKTOP_ARCH;
+const requestedTarget = environment.RTNOTE_DESKTOP_TARGET || (
   process.platform === "win32" ? "win" : process.platform === "darwin" ? "mac" : "linux"
 );
 
 if (requestedArch && !["arm64", "x64"].includes(requestedArch)) {
-  throw new Error(`EDGE_EVER_DESKTOP_ARCH must be arm64 or x64, received: ${requestedArch}`);
+  throw new Error(`RTNOTE_DESKTOP_ARCH must be arm64 or x64, received: ${requestedArch}`);
 }
 if (!["mac", "win", "linux"].includes(requestedTarget)) {
-  throw new Error(`EDGE_EVER_DESKTOP_TARGET must be mac, win, or linux, received: ${requestedTarget}`);
+  throw new Error(`RTNOTE_DESKTOP_TARGET must be mac, win, or linux, received: ${requestedTarget}`);
 }
 
 // electron-builder treats an explicitly present empty CSC_LINK/WIN_CSC_LINK
@@ -44,7 +44,7 @@ const builderArgs = [
   "run",
   "--cwd",
   "apps/desktop",
-  environment.EDGE_EVER_DESKTOP_FORK_BUILD === "1" ? "dist:fork" : "dist",
+  environment.RTNOTE_DESKTOP_FORK_BUILD === "1" ? "dist:fork" : "dist",
   "--",
   "--publish",
   publishMode,

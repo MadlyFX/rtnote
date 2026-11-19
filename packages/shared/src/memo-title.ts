@@ -3,7 +3,7 @@
 export const DEFAULT_MEMO_TITLE = "Untitled note";
 
 /**
- * Default titles that EdgeEver stored for untitled notes. Notes created there,
+ * Default titles that RTNote stored for untitled notes. Notes created there,
  * restored from its backups or synced from an older client still carry them,
  * so they count as untitled too. Translation data, not UI text.
  */
@@ -15,7 +15,7 @@ export const isDefaultMemoTitle = (title: string | null | undefined) => {
   return !trimmed || trimmed === DEFAULT_MEMO_TITLE || LEGACY_DEFAULT_MEMO_TITLES.includes(trimmed);
 };
 
-/** Maps EdgeEver's stored default title to RTNote's; any other title is returned unchanged. */
+/** Maps the legacy stored default title to RTNote's; any other title is returned unchanged. */
 export const normalizeLegacyMemoTitle = (title: string) =>
   LEGACY_DEFAULT_MEMO_TITLES.includes(title.trim()) ? DEFAULT_MEMO_TITLE : title;
 

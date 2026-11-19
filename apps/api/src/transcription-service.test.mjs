@@ -5,7 +5,7 @@ import { isTranscribableAttachment, prepareNoteResourceTranscription } from "./t
 
 const makeEnvironment = async (resource) => {
   const env = {
-    EDGE_EVER_AUTH_PASSWORD: "test-password-long-enough",
+    RTNOTE_AUTH_PASSWORD: "test-password-long-enough",
     storage: {
       resources: {
         get: async () => { throw new Error("The instance must not read media bytes"); },

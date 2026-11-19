@@ -1,6 +1,6 @@
-import { getMemoDisplayTitle } from "@edgeever/shared/memo-title";
-import { isValidMemoShareSlug } from "@edgeever/shared/share-slug";
-import { PUBLIC_PAGE_HEADERS, PUBLIC_PAGE_ROBOTS } from "@edgeever/shared/public-page-headers";
+import { getMemoDisplayTitle } from "@rtnote/shared/memo-title";
+import { isValidMemoShareSlug } from "@rtnote/shared/share-slug";
+import { PUBLIC_PAGE_HEADERS, PUBLIC_PAGE_ROBOTS } from "@rtnote/shared/public-page-headers";
 import { isMemoShareExpired, recordMemoShareView } from "./memo-share-access";
 import { resolveMemoShareBranding } from "./branding-service";
 import { brandedTitle, brandFooterHtml, brandingHeadMarkup, escapeHtml, stripBrandableHead } from "./public-page-branding";
@@ -185,7 +185,7 @@ export const renderPublicMemoSharePage = async (
   // The page inherits the app shell's language, which says nothing about the note.
   // The note's own title and body are marked as unknown; text generated here is English.
   const article = readable
-    ? `<article id="edgeever-shared-note" style="max-width:44rem;margin:1.5rem auto;padding:0 1rem"><h1 lang="${noteTitle ? "" : "en"}">${escapeHtml(title)}</h1>${updatedTime}<pre lang="" style="white-space:pre-wrap;font:inherit">${escapeHtml(body)}</pre>${footer}</article>`
+    ? `<article id="rtnote-shared-note" style="max-width:44rem;margin:1.5rem auto;padding:0 1rem"><h1 lang="${noteTitle ? "" : "en"}">${escapeHtml(title)}</h1>${updatedTime}<pre lang="" style="white-space:pre-wrap;font:inherit">${escapeHtml(body)}</pre>${footer}</article>`
     : "";
   const pageTitle = readable ? brandedTitle(title, branding) : `${title} · RTNote`;
   const metadata = `<title>${escapeHtml(pageTitle)}</title>

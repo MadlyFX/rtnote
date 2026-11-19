@@ -1,4 +1,4 @@
-import { ATTACHMENT_TEXT_PREFIX } from "./edgeever-legacy-values";
+import { ATTACHMENT_TEXT_PREFIX } from "./rtnote-legacy-values";
 import type { MobileEditorCopy } from "./mobile-editor";
 
 export const MOBILE_EDITOR_COPY_ZH_CN: MobileEditorCopy = {

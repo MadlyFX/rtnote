@@ -1,4 +1,4 @@
-import type { PluginPublicFetchRequest, PluginPublicFetchResponse } from '@edgeever/shared';
+import type { PluginPublicFetchRequest, PluginPublicFetchResponse } from '@rtnote/shared';
 
 type Request = <T>(path: string, init?: RequestInit) => Promise<T>;
 type PublicRequest = (input: PluginPublicFetchRequest, signal?: AbortSignal) => Promise<PluginPublicFetchResponse>;

@@ -49,7 +49,7 @@ describe("single-note HTML export", () => {
     expect(html).toContain("<!DOCTYPE html>");
     expect(html).toContain('lang="zh-CN"');
     expect(html).toContain("<title>Release &lt;notes&gt; &amp; &quot;docs&quot;</title>");
-    expect(html).toContain('<h1 class="edgeever-html-title">Release &lt;notes&gt; &amp; &quot;docs&quot;</h1>');
+    expect(html).toContain('<h1 class="rtnote-html-title">Release &lt;notes&gt; &amp; &quot;docs&quot;</h1>');
     expect(html).toContain("Product · 2026-08-11 12:00 · #ship · #html");
     expect(html).toContain("<p>Hello <strong>world</strong></p>");
     expect(html).toContain("body { color: #111; }");
@@ -62,7 +62,7 @@ describe("single-note HTML export", () => {
       bodyHtml: "<p>body</p>",
     });
 
-    expect(html).not.toContain("edgeever-html-meta");
+    expect(html).not.toContain("rtnote-html-meta");
     expect(html).toContain("<p>body</p>");
   });
 

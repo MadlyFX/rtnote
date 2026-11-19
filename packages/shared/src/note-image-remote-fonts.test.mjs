@@ -70,7 +70,7 @@ const withNetwork = async (respond, run) => {
 
 test('deduplicates downloads and persists manifests and subsets for a fresh offline session', async () => {
   const loader = createRemoteFontResourceLoader();
-  const base = 'https://cdn.jsdelivr.net/npm/@edgeever/font-cache-test@1.0.0/';
+  const base = 'https://cdn.jsdelivr.net/npm/@rtnote/font-cache-test@1.0.0/';
   const urls = [base + 'font.woff2', base + 'result.css'];
   await withNetwork(url => ({ data: url.endsWith('.css') ? new TextEncoder().encode(css).buffer : woff() }), async requests => {
     await Promise.all([loader(urls[0]), loader(urls[0]), loader(urls[1], true)]);
@@ -86,7 +86,7 @@ test('deduplicates downloads and persists manifests and subsets for a fresh offl
 
 test('falls back to the second mirror, rejects non-font responses and permits retry after failure', async () => {
   const loader = createRemoteFontResourceLoader();
-  const url = 'https://cdn.jsdelivr.net/npm/@edgeever/font-cache-test@1.0.0/retry.woff2';
+  const url = 'https://cdn.jsdelivr.net/npm/@rtnote/font-cache-test@1.0.0/retry.woff2';
   await withNetwork(() => ({ data: new TextEncoder().encode('<html>not a font</html>').buffer }), async requests => {
     await expect(loader(url)).rejects.toThrow('NOTE_IMAGE_FONT_UNAVAILABLE');
     expect(requests).toHaveLength(2);
@@ -157,7 +157,7 @@ test('offline first use exports readable defaults, preserves the choice, and kee
 test('invalid tiny and oversized font responses are rejected without DataView errors', async () => {
   for (const data of [new Uint8Array(1).buffer, new Uint8Array(24_000_001).buffer]) {
     await withNetwork(() => ({ data }), async () => {
-      await expect(createRemoteFontResourceLoader()('https://cdn.jsdelivr.net/npm/@edgeever/font-cache-test@1.0.0/invalid.woff2')).rejects.toThrow('NOTE_IMAGE_FONT_UNAVAILABLE');
+      await expect(createRemoteFontResourceLoader()('https://cdn.jsdelivr.net/npm/@rtnote/font-cache-test@1.0.0/invalid.woff2')).rejects.toThrow('NOTE_IMAGE_FONT_UNAVAILABLE');
     });
   }
 });

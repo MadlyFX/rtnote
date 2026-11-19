@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AppState, type AppStateStatus } from "react-native";
 import { useQueryClient } from "@tanstack/react-query";
-import type { createEdgeEverClient } from "@edgeever/client";
-import type { MemoDetail } from "@edgeever/shared";
+import type { createRTNoteClient } from "@rtnote/client";
+import type { MemoDetail } from "@rtnote/shared";
 import {
   getMobileSyncRetryDelay,
   listMobileSyncQueueItems,
@@ -13,7 +13,7 @@ import {
 import { replaceLocalMemoId, upsertLocalMemo } from "../lib/local-mirror";
 import { settleMobileSyncPass } from "./mobile-sync-settle";
 
-type MobileClient = ReturnType<typeof createEdgeEverClient>;
+type MobileClient = ReturnType<typeof createRTNoteClient>;
 
 export const useMobileAutomaticSync = ({
   client,

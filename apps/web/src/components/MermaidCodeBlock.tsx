@@ -102,18 +102,18 @@ export const MermaidCodeBlock = ({ editor, node }: NodeViewProps) => {
   return (
     <NodeViewWrapper
       className={isMermaid
-        ? `edgeever-mermaid-code-block${sourceVisible ? " is-source-visible" : ""}`
-        : "edgeever-code-block"}
+        ? `rtnote-mermaid-code-block${sourceVisible ? " is-source-visible" : ""}`
+        : "rtnote-code-block"}
       data-language={language}
     >
       {isMermaid ? (
         <TooltipProvider delayDuration={0} skipDelayDuration={0}>
-          <div className="edgeever-mermaid-toolbar" contentEditable={false}>
+          <div className="rtnote-mermaid-toolbar" contentEditable={false}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
                   type="button"
-                  className="edgeever-mermaid-tool-button"
+                  className="rtnote-mermaid-tool-button"
                   data-state={copyState}
                   aria-label={t(copyState === "copied" ? "editorToolbar.codeCopied" : copyState === "error" ? "editorToolbar.codeCopyFailed" : "editorToolbar.copyCode")}
                   onClick={(event) => {
@@ -139,7 +139,7 @@ export const MermaidCodeBlock = ({ editor, node }: NodeViewProps) => {
                 <TooltipTrigger asChild>
                   <button
                     type="button"
-                    className="edgeever-mermaid-tool-button"
+                    className="rtnote-mermaid-tool-button"
                     aria-label={t(sourceVisible ? "editorToolbar.mermaidHideSource" : "editorToolbar.mermaidShowSource")}
                     aria-pressed={sourceVisible}
                     onClick={(event) => {
@@ -162,7 +162,7 @@ export const MermaidCodeBlock = ({ editor, node }: NodeViewProps) => {
                 <TooltipTrigger asChild>
                   <button
                     type="button"
-                    className="edgeever-mermaid-tool-button"
+                    className="rtnote-mermaid-tool-button"
                     aria-label={t("editorToolbar.mermaidOpenViewer")}
                     onClick={(event) => {
                       event.preventDefault();
@@ -185,7 +185,7 @@ export const MermaidCodeBlock = ({ editor, node }: NodeViewProps) => {
             <TooltipTrigger asChild>
               <button
                 type="button"
-                className="edgeever-code-copy-button"
+                className="rtnote-code-copy-button"
                 contentEditable={false}
                 aria-label={t(copyState === "copied" ? "editorToolbar.codeCopied" : copyState === "error" ? "editorToolbar.codeCopyFailed" : "editorToolbar.copyCode")}
                 onClick={(event) => {
@@ -211,23 +211,23 @@ export const MermaidCodeBlock = ({ editor, node }: NodeViewProps) => {
       {isMermaid && (
         <div
           ref={previewRef}
-          className="edgeever-mermaid-preview"
+          className="rtnote-mermaid-preview"
           contentEditable={false}
           aria-label={t("editorToolbar.mermaidPreview")}
           style={{ backgroundColor: MERMAID_THEME_PALETTES[mermaidTheme].bg }}
         >
-          {!source && <p className="edgeever-mermaid-message">{t("editorToolbar.mermaidEmpty")}</p>}
+          {!source && <p className="rtnote-mermaid-message">{t("editorToolbar.mermaidEmpty")}</p>}
           {source && renderState === "loading" && !svg && (
-            <p className="edgeever-mermaid-message">{t("editorToolbar.mermaidRendering")}</p>
+            <p className="rtnote-mermaid-message">{t("editorToolbar.mermaidRendering")}</p>
           )}
           {renderState === "error" && (
-            <p className="edgeever-mermaid-error" role="alert">
+            <p className="rtnote-mermaid-error" role="alert">
               {t("editorToolbar.mermaidInvalid")}
             </p>
           )}
           {svg && (
             <div
-              className="edgeever-mermaid-svg"
+              className="rtnote-mermaid-svg"
               role="img"
               aria-label={t("editorToolbar.mermaidPreview")}
               dangerouslySetInnerHTML={{ __html: svg }}
@@ -236,7 +236,7 @@ export const MermaidCodeBlock = ({ editor, node }: NodeViewProps) => {
         </div>
       )}
       <NodeViewContent
-        className={isMermaid ? "edgeever-code-source edgeever-mermaid-source" : "edgeever-code-source"}
+        className={isMermaid ? "rtnote-code-source rtnote-mermaid-source" : "rtnote-code-source"}
         role="textbox"
         autoCapitalize="none"
         autoCorrect="off"

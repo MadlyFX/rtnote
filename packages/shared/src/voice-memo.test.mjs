@@ -5,7 +5,7 @@ import { DOMParser, DOMSerializer } from "@tiptap/pm/model";
 import { parseHTML } from "linkedom";
 import {
   VOICE_MEMO_NODE_TYPE,
-  createEdgeEverDocumentExtensions,
+  createRTNoteDocumentExtensions,
   createVoiceMemoFilename,
   docToMarkdown,
   docToText,
@@ -18,7 +18,7 @@ import {
   resolveMemoContentDoc,
   voiceMemoToMarkdown,
 } from "./index.ts";
-import { createEdgeEverMarkdownMathematics } from "./mathematics-markdown.ts";
+import { createRTNoteMarkdownMathematics } from "./mathematics-markdown.ts";
 
 const text = (value) => ({ type: "text", text: value });
 const paragraph = (value) => ({ type: "paragraph", content: value ? [text(value)] : [] });
@@ -107,7 +107,7 @@ describe("voice memo content", () => {
   });
 
   test("HTML shows the title, player and transcript and parses back", () => {
-    const schema = getSchema(createEdgeEverDocumentExtensions({ mathematics: createEdgeEverMarkdownMathematics() }));
+    const schema = getSchema(createRTNoteDocumentExtensions({ mathematics: createRTNoteMarkdownMathematics() }));
     const { document } = parseHTML("<!doctype html><html><body></body></html>");
     const node = schema.nodeFromJSON(memo());
     const fragment = DOMSerializer.fromSchema(schema).serializeFragment(schema.nodeFromJSON(doc(memo())).content, { document });
@@ -125,7 +125,7 @@ describe("voice memo content", () => {
 
 describe("insertVoiceMemo", () => {
   const createEditor = (content) => new Editor({
-    extensions: createEdgeEverDocumentExtensions({ mathematics: createEdgeEverMarkdownMathematics() }),
+    extensions: createRTNoteDocumentExtensions({ mathematics: createRTNoteMarkdownMathematics() }),
     content,
   });
   const types = (editor) => editor.getJSON().content.map((node) => node.type);

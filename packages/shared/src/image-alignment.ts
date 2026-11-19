@@ -76,7 +76,7 @@ export const readImageHtmlAttribute = (source: string, name: string) => {
 const supportedImageSource = (source: string) => {
   // oxlint-disable-next-line no-control-regex -- do not accept executable or ambiguous URL schemes
   if (!source || /[\u0000-\u0020]/.test(source)) return false;
-  return /^(?:https?:\/\/|edgeever-resource:\/\/|edgeever-staged:\/\/|\/(?!\/))/i.test(source);
+  return /^(?:https?:\/\/|rtnote-resource:\/\/|rtnote-staged:\/\/|\/(?!\/))/i.test(source);
 };
 const LINKED_IMAGE_HTML = /<a\b((?:[^"'>]|"[^"]*"|'[^']*')*)>\s*(<img\b(?:[^"'>]|"[^"]*"|'[^']*')*\/?>)\s*<\/a>[ \t]*(?:\n|$)/i;
 
@@ -137,7 +137,7 @@ export const alignedImageToHtml = (node: JSONContent, options: { keepUnaligned?:
     : image;
 };
 
-export const EdgeEverImage = Image.extend({
+export const RTNoteImage = Image.extend({
   renderMarkdown(node) {
     if (parseImageAlignment(node.attrs?.alignment)) return alignedImageToHtml(node);
     const link = getImageLink(node.attrs?.link);

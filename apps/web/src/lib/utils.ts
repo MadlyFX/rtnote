@@ -1,4 +1,4 @@
-import type { Notebook } from "@edgeever/shared";
+import type { Notebook } from "@rtnote/shared";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 

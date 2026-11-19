@@ -5,7 +5,7 @@ import {
   TotpSetupVerifySchema,
   type LoginMfaInput,
   type TotpReauthInput,
-} from "@edgeever/shared";
+} from "@rtnote/shared";
 import { zValidator } from "@hono/zod-validator";
 import type { Hono } from "hono";
 import type { AppContext, AppEnv, AuthContext } from "./api-context";
@@ -212,7 +212,7 @@ export const registerTotpRoutes = (app: Hono<AppEnv>, dependencies: TotpRouteDep
       return apiError(
         context,
         "totp_encryption_unavailable",
-        "Configure EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY before enabling two-factor authentication.",
+        "Configure RTNOTE_CREDENTIALS_ENCRYPTION_KEY before enabling two-factor authentication.",
         503,
       );
     }

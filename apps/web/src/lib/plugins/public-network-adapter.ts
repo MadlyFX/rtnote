@@ -1,9 +1,9 @@
-import type { PluginPublicFetchRequest, PluginPublicFetchResponse } from "@edgeever/shared";
+import type { PluginPublicFetchRequest, PluginPublicFetchResponse } from "@rtnote/shared";
 
 const MAX_BYTES = 2_000_000;
 const SAFE_RESPONSE_HEADERS = new Set(["content-type", "cache-control", "etag", "last-modified", "location", "retry-after", "content-range", "accept-ranges"]);
 type Relay = { fetchPublic(input: PluginPublicFetchRequest, options?: { signal?: AbortSignal }): Promise<PluginPublicFetchResponse> };
-type DesktopBridge = Pick<EdgeEverDesktopBridge, "publicNetworkFetch" | "cancelPublicNetworkFetch">;
+type DesktopBridge = Pick<RTNoteDesktopBridge, "publicNetworkFetch" | "cancelPublicNetworkFetch">;
 
 async function responseToResult(input: PluginPublicFetchRequest, response: Response, signal?: AbortSignal): Promise<PluginPublicFetchResponse> {
   signal?.throwIfAborted();

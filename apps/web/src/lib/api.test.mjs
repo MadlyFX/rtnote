@@ -15,7 +15,7 @@ const originalFetch = Object.getOwnPropertyDescriptor(globalThis, "fetch");
 // Must be installed before importing modules that read `window` at load time.
 globalThis.window = {
   location: { hostname: "notes.example.com", origin: "https://notes.example.com" },
-  edgeeverDesktop: {
+  rtnoteDesktop: {
     isAvailable: true,
     apiBaseUrl: "",
     openAiProviderStream: (requestId, input) => aiRuntime.open(requestId, input, {
@@ -96,7 +96,7 @@ const {
 } = await import("./api.ts?desktop-ai-routing-test");
 
 describe("browser device identity", () => {
-  const deviceKey = "edgeever.web.device-id";
+  const deviceKey = "rtnote.web.device-id";
 
   test("reuses the persisted browser device id across repeated calls", () => {
     const previous = storage.get(deviceKey);
@@ -234,7 +234,7 @@ describe("desktop instance setup", () => {
 
   test("clears the cached session when the login form changes instances", async () => {
     calls.length = 0;
-    window.edgeeverDesktop.apiBaseUrl = "https://notes.example.com";
+    window.rtnoteDesktop.apiBaseUrl = "https://notes.example.com";
     storage.set(DESKTOP_API_BASE_URL_STORAGE_KEY, "https://notes.example.com");
     await cacheDesktopSession({
       authRequired: true,
@@ -257,14 +257,14 @@ describe("desktop instance setup", () => {
     await expect(saving).resolves.toBe("https://other.example.com");
     expect(storage.get(DESKTOP_API_BASE_URL_STORAGE_KEY)).toBe("https://other.example.com");
     expect(getConfiguredDesktopApiBaseUrl()).toBe("https://other.example.com");
-    window.edgeeverDesktop.apiBaseUrl = "";
+    window.rtnoteDesktop.apiBaseUrl = "";
   });
 
   test("ignores a leftover desktop instance URL in the browser", () => {
     storage.set(DESKTOP_API_BASE_URL_STORAGE_KEY, "https://example.workers.dev");
-    window.edgeeverDesktop.isAvailable = false;
+    window.rtnoteDesktop.isAvailable = false;
     expect(getConfiguredDesktopApiBaseUrl()).toBe("");
-    window.edgeeverDesktop.isAvailable = true;
+    window.rtnoteDesktop.isAvailable = true;
     expect(getConfiguredDesktopApiBaseUrl()).toBe("https://example.workers.dev");
   });
 
@@ -314,7 +314,7 @@ describe("desktop instance setup", () => {
   test("migrates a legacy localStorage token into desktop secure storage", async () => {
     clearCachedDesktopSession();
     await Promise.resolve();
-    storage.set("edgeever.desktop.session", JSON.stringify({
+    storage.set("rtnote.desktop.session", JSON.stringify({
       authRequired: true,
       authenticated: true,
       demoMode: false,
@@ -487,7 +487,7 @@ describe("desktop instance setup", () => {
       url: "https://notes.example.com/api/v1/auth/session",
       authorization: "Bearer desktop-session-token",
     }]);
-    expect(events).toEqual(["edgeever:unauthorized"]);
+    expect(events).toEqual(["rtnote:unauthorized"]);
     expect(getCachedDesktopSession()).toBeNull();
 
     globalThis.fetch = async (url, init) => {
@@ -570,7 +570,7 @@ describe("desktop instance setup", () => {
         status: 403,
         responseDiagnostics: {
           cloudflareMitigated: true,
-          isEdgeEverApiError: false,
+          isRTNoteApiError: false,
           rayId: "abc123-SJC",
         },
       });

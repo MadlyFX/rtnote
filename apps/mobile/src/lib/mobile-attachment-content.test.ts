@@ -12,7 +12,7 @@ describe("resolveMobileAttachmentContent", () => {
         {
           type: "paragraph",
           content: [{
-            type: "edgeeverPdfAttachment",
+            type: "rtnotePdfAttachment",
             attrs: {
               url: "/api/v1/resources/res_pdf/blob",
               label: "Attachment: report.pdf",
@@ -26,7 +26,7 @@ describe("resolveMobileAttachmentContent", () => {
         {
           type: "paragraph",
           content: [{
-            type: "edgeeverFileAttachment",
+            type: "rtnoteFileAttachment",
             attrs: {
               url: "/api/v1/resources/res_doc/blob",
               label: "Attachment: guide.docx",
@@ -50,7 +50,7 @@ describe("resolveMobileAttachmentContent", () => {
               attrs: {
                 href: "/api/v1/resources/res_pdf/blob",
                 target: "_blank",
-                class: "edgeever-attachment-link edgeever-attachment-kind-pdf",
+                class: "rtnote-attachment-link rtnote-attachment-kind-pdf",
                 attachmentFilename: "report.pdf",
                 attachmentMimeType: "application/pdf",
                 attachmentByteSize: 12582912,
@@ -68,7 +68,7 @@ describe("resolveMobileAttachmentContent", () => {
               attrs: {
                 href: "/api/v1/resources/res_doc/blob",
                 target: "_blank",
-                class: "edgeever-attachment-link edgeever-attachment-kind-document",
+                class: "rtnote-attachment-link rtnote-attachment-kind-document",
                 attachmentFilename: "guide.docx",
                 attachmentMimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 attachmentByteSize: 856000,
@@ -92,7 +92,7 @@ describe("resolveMobileAttachmentContent", () => {
             type: "link",
             attrs: {
               href: "/api/v1/resources/res_sheet/blob",
-              class: "custom edgeever-attachment-link edgeever-attachment-kind-file",
+              class: "custom rtnote-attachment-link rtnote-attachment-kind-file",
             },
           }],
         }],
@@ -102,11 +102,11 @@ describe("resolveMobileAttachmentContent", () => {
     expect(result.content[0]?.content?.[0]).toMatchObject({
       marks: [{
         attrs: {
-          class: "custom edgeever-attachment-link edgeever-attachment-kind-spreadsheet",
+          class: "custom rtnote-attachment-link rtnote-attachment-kind-spreadsheet",
         },
       }],
     });
-    expect(getMobileAttachmentLinkClass("slides.pptx")).toContain("edgeever-attachment-kind-presentation");
+    expect(getMobileAttachmentLinkClass("slides.pptx")).toContain("rtnote-attachment-kind-presentation");
   });
 
   test("preserves surrounding rich content and falls back for incomplete nodes", () => {
@@ -121,7 +121,7 @@ describe("resolveMobileAttachmentContent", () => {
         {
           type: "paragraph",
           content: [{
-            type: "edgeeverFileAttachment",
+            type: "rtnoteFileAttachment",
             attrs: { filename: "fallback.zip" },
           }],
         },

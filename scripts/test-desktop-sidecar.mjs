@@ -9,9 +9,9 @@ import { createDefaultDiagramDocument, getDiagramSummary, serializeDiagramDocume
 import { createDefaultInfographicDocument, getInfographicSummary, serializeInfographicDocument } from "../packages/shared/src/infographic.ts";
 import { createDefaultTableDocument, getTableSummary, serializeTableDocument } from "../packages/shared/src/table.ts";
 
-const sidecarPath = process.env.EDGE_EVER_SIDECAR_PATH ?? join(process.cwd(), "crates/desktop-sidecar/target/debug/edgeever-sidecar");
-const migrationsPath = process.env.EDGE_EVER_MIGRATIONS_PATH ?? join(process.cwd(), "migrations");
-const dataDir = mkdtempSync(join(tmpdir(), "edgeever-sidecar-test-"));
+const sidecarPath = process.env.RTNOTE_SIDECAR_PATH ?? join(process.cwd(), "crates/desktop-sidecar/target/debug/rtnote-sidecar");
+const migrationsPath = process.env.RTNOTE_MIGRATIONS_PATH ?? join(process.cwd(), "migrations");
+const dataDir = mkdtempSync(join(tmpdir(), "rtnote-sidecar-test-"));
 const child = spawn(sidecarPath, ["--data-dir", dataDir, "--migrations-dir", migrationsPath], { stdio: ["pipe", "pipe", "inherit"] });
 const lines = createInterface({ input: child.stdout });
 const messages = [];
@@ -47,7 +47,7 @@ assert.equal((await request("memo.list", { limit: 20 })).totalCount, 0, "bootstr
 assert.equal((await request("notebook.list")).notebooks.length, 0, "bootstrap preparation should remove pristine seed notebooks");
 if (process.platform !== "win32") {
   assert.equal(statSync(dataDir).mode & 0o777, 0o700, "sidecar data directory should be private");
-  assert.equal(statSync(join(dataDir, "edgeever.sqlite")).mode & 0o777, 0o600, "sidecar database should be private");
+  assert.equal(statSync(join(dataDir, "rtnote.sqlite")).mode & 0o777, 0o600, "sidecar database should be private");
 }
 
 let inbox;
@@ -237,7 +237,7 @@ await assertListMetadata("Mind map list icon", serializeDiagramDocument(createDe
 await assertListMetadata("Flowchart list icon", serializeDiagramDocument(createDefaultDiagramDocument("flowchart")));
 await assertListMetadata("Architecture list icon", serializeDiagramDocument(createDefaultDiagramDocument("architecture")));
 await assertListMetadata("Table list icon", serializeTableDocument(createDefaultTableDocument()));
-await assertListMetadata("Broken infographic list icon", "<!-- edgeever-infographic-v1:broken -->");
+await assertListMetadata("Broken infographic list icon", "<!-- rtnote-infographic-v1:broken -->");
 await request("memo.create", { notebookId: inbox.id, title: "Local daily", contentMarkdown: "prefix overlap", tags: ["local-daily"] });
 const tagged = await request("memo.list", { tag: "local", limit: 20 });
 assert.deepEqual(tagged.memos.map((memo) => memo.id), [first.memo.id], "tag filter should match an exact tag, not a prefix");
@@ -572,8 +572,8 @@ const durableNotebook = { ...pendingNotebook, id: "nb_regression_durable" };
 await request("sync.apply", { changes: [{ entityType: "notebook", operation: "upsert", entityId: durableNotebook.id, notebook: durableNotebook }] });
 // Force the final acknowledgement to fail after all remapping statements.
 // Every relationship and queue payload must roll back together.
-const inspectionDb = new Database(join(dataDir, "edgeever.sqlite"));
-inspectionDb.exec(`CREATE TRIGGER fail_notebook_ack BEFORE DELETE ON _edgeever_sidecar_outbox
+const inspectionDb = new Database(join(dataDir, "rtnote.sqlite"));
+inspectionDb.exec(`CREATE TRIGGER fail_notebook_ack BEFORE DELETE ON _rtnote_sidecar_outbox
   WHEN OLD.id = ${parentCreate.id}
   BEGIN SELECT RAISE(ABORT, 'injected notebook ack failure'); END`);
 await assert.rejects(request("sync.outbox.ack", { id: parentCreate.id, version: parentCreate.version, remoteNotebook: durableNotebook }), /injected notebook ack failure/);

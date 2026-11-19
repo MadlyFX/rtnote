@@ -1,4 +1,4 @@
-import { EDGEEVER_ZIP_FORMAT, EDGEEVER_ZIP_FORMAT_VERSION, JsonBackupManifestSchema, JsonBackupMemoSchema, JsonBackupNotebookSchema, type JsonBackupManifest, type JsonBackupMemo, type JsonBackupNotebook, type JsonBackupResource, type JsonBackupRevision } from "./backup";
+import { RTNOTE_ZIP_FORMAT, RTNOTE_ZIP_FORMAT_VERSION, JsonBackupManifestSchema, JsonBackupMemoSchema, JsonBackupNotebookSchema, type JsonBackupManifest, type JsonBackupMemo, type JsonBackupNotebook, type JsonBackupResource, type JsonBackupRevision } from "./backup";
 import type { MemoDetail, Notebook, Resource } from "./types";
 import { DEFAULT_MEMO_TITLE, normalizeLegacyMemoTitle } from "./memo-title";
 import { Reader, ZipReader, ZipWriter, Uint8ArrayReader, type CreateReadableOptions } from "@zip.js/zip.js/index-native.js";
@@ -8,12 +8,12 @@ const strFromU8 = (value: Uint8Array) => new TextDecoder().decode(value);
 const ZIP_MIME_TYPE = "application/zip";
 const ZIP_ENTRY_CHUNK_BYTES = 1024 * 1024;
 
-export type EdgeEverZipProgress = {
+export type RTNoteZipProgress = {
   completed: number;
   total: number;
 };
 
-export type EdgeEverZipImportErrorCode =
+export type RTNoteZipImportErrorCode =
   | "invalidZip"
   | "missingManifest"
   | "unsupportedFormat"
@@ -24,12 +24,12 @@ export type EdgeEverZipImportErrorCode =
   | "incompleteData"
   | "incompleteResources";
 
-export class EdgeEverZipImportError extends Error {
-  code: EdgeEverZipImportErrorCode;
+export class RTNoteZipImportError extends Error {
+  code: RTNoteZipImportErrorCode;
 
-  constructor(code: EdgeEverZipImportErrorCode, cause?: unknown) {
+  constructor(code: RTNoteZipImportErrorCode, cause?: unknown) {
     super(code, { cause });
-    this.name = "EdgeEverZipImportError";
+    this.name = "RTNoteZipImportError";
     this.code = code;
   }
 }
@@ -68,7 +68,7 @@ type JsonRestoreTarget = {
   ) => Promise<JsonResourceRestoreSink>;
 };
 
-export type ParsedEdgeEverZip = {
+export type ParsedRTNoteZip = {
   manifest: JsonBackupManifest;
   notebooks: JsonBackupNotebook[];
   memos: JsonBackupMemo[];
@@ -92,10 +92,10 @@ const toBackupNotebook = (notebook: Notebook): JsonBackupNotebook => ({
   createdAt: notebook.createdAt, updatedAt: notebook.updatedAt,
 });
 
-export const createEdgeEverZipStream = async (
+export const createRTNoteZipStream = async (
   source: JsonBackupSource,
-  version: { edgeeverVersion: string; buildId: string },
-  onProgress?: (progress: EdgeEverZipProgress) => void,
+  version: { rtnoteVersion: string; buildId: string },
+  onProgress?: (progress: RTNoteZipProgress) => void,
 ) => {
   const { notebooks } = await source.listNotebooks();
   const output = new TransformStream<Uint8Array, Uint8Array>();
@@ -175,7 +175,7 @@ export const createEdgeEverZipStream = async (
         cursor = page.nextCursor ?? undefined;
       }
       const manifest: JsonBackupManifest = {
-        format: EDGEEVER_ZIP_FORMAT, formatVersion: EDGEEVER_ZIP_FORMAT_VERSION, schemaVersion: 1,
+        format: RTNOTE_ZIP_FORMAT, formatVersion: RTNOTE_ZIP_FORMAT_VERSION, schemaVersion: 1,
         ...version, exportedAt: new Date().toISOString(), includesTrash: false,
         counts: { notebooks: backupNotebooks.length, memos: source.onManifest ? completed : total, revisions: revisionCount, resources: resourceCount, prompts: 0 },
       };
@@ -191,15 +191,15 @@ export const createEdgeEverZipStream = async (
   return readable;
 };
 
-export const createEdgeEverZip = async (
+export const createRTNoteZip = async (
   source: JsonBackupSource,
-  version: { edgeeverVersion: string; buildId: string },
-  onProgress?: (progress: EdgeEverZipProgress) => void,
-) => new Response(await createEdgeEverZipStream(source, version, onProgress), { headers: { "Content-Type": ZIP_MIME_TYPE } }).blob();
+  version: { rtnoteVersion: string; buildId: string },
+  onProgress?: (progress: RTNoteZipProgress) => void,
+) => new Response(await createRTNoteZipStream(source, version, onProgress), { headers: { "Content-Type": ZIP_MIME_TYPE } }).blob();
 
 const rejectInvalidZip = (error?: unknown): never => {
-  if (error instanceof EdgeEverZipImportError) throw error;
-  throw new EdgeEverZipImportError("invalidZip", error);
+  if (error instanceof RTNoteZipImportError) throw error;
+  throw new RTNoteZipImportError("invalidZip", error);
 };
 
 class ArchiveRangeReader extends Reader<Blob> {
@@ -279,13 +279,13 @@ const concatZipChunks = (chunks: Uint8Array[], total: number) => {
 
 export type ArchiveDigestFactory = () => { update: (chunk: Uint8Array) => void; digest: () => string };
 
-const scanEdgeEverZip = async (blob: Blob, onProgress?: (percentage: number) => void, createDigest?: ArchiveDigestFactory) => {
+const scanRTNoteZip = async (blob: Blob, onProgress?: (percentage: number) => void, createDigest?: ArchiveDigestFactory) => {
   const signature = new Uint8Array(await blob.slice(0, 4).arrayBuffer());
   const signatureValue = signature.length === 4
     ? signature[0] | (signature[1] << 8) | (signature[2] << 16) | (signature[3] << 24)
     : 0;
   if (signatureValue !== 0x04034b50 && signatureValue !== 0x06054b50) {
-    throw new EdgeEverZipImportError("invalidZip");
+    throw new RTNoteZipImportError("invalidZip");
   }
   const entrySizes = new Map<string, number>();
   const structuredEntries = new Map<string, Uint8Array>();
@@ -294,7 +294,7 @@ const scanEdgeEverZip = async (blob: Blob, onProgress?: (percentage: number) => 
 
   await streamZipEntries(blob, (file) => {
     if (entrySizes.has(file.name)) {
-      throw new EdgeEverZipImportError("invalidZip", new Error(`Duplicate ZIP entry: ${file.name}`));
+      throw new RTNoteZipImportError("invalidZip", new Error(`Duplicate ZIP entry: ${file.name}`));
     }
     entrySizes.set(file.name, -1);
     const structured = isStructuredZipEntry(file.name);
@@ -306,7 +306,7 @@ const scanEdgeEverZip = async (blob: Blob, onProgress?: (percentage: number) => 
         byteSize += chunk.byteLength;
         const limit = structured ? MAX_ZIP_METADATA_ENTRY_BYTES : MAX_ZIP_ENTRY_BYTES;
         if (byteSize > limit) {
-          throw new EdgeEverZipImportError(structured ? "invalidData" : "incompleteResources");
+          throw new RTNoteZipImportError(structured ? "invalidData" : "incompleteResources");
         }
         digest?.update(chunk);
         if (structured) {
@@ -335,14 +335,14 @@ const scanEdgeEverZip = async (blob: Blob, onProgress?: (percentage: number) => 
 const parseJsonEntry = (
   entries: Map<string, Uint8Array>,
   path: string,
-  missingCode: EdgeEverZipImportErrorCode = "missingData",
+  missingCode: RTNoteZipImportErrorCode = "missingData",
 ) => {
   const data = entries.get(path);
-  if (!data) throw new EdgeEverZipImportError(missingCode);
+  if (!data) throw new RTNoteZipImportError(missingCode);
   try {
     return JSON.parse(strFromU8(data)) as unknown;
   } catch (error) {
-    throw new EdgeEverZipImportError(path === "manifest.json" ? "invalidManifest" : "invalidData", error);
+    throw new RTNoteZipImportError(path === "manifest.json" ? "invalidManifest" : "invalidData", error);
   }
 };
 
@@ -358,44 +358,44 @@ const sortNotebooksForRestore = (notebooks: JsonBackupNotebook[]) => {
   return [...notebooks].sort((left, right) => depth(left) - depth(right));
 };
 
-export const parseEdgeEverZip = async (
+export const parseRTNoteZip = async (
   blob: Blob,
   onProgress?: (percentage: number) => void,
   createDigest?: ArchiveDigestFactory,
-): Promise<ParsedEdgeEverZip> => {
-  const { entrySizes, structuredEntries, digests } = await scanEdgeEverZip(blob, onProgress, createDigest);
+): Promise<ParsedRTNoteZip> => {
+  const { entrySizes, structuredEntries, digests } = await scanRTNoteZip(blob, onProgress, createDigest);
   const manifestValue = parseJsonEntry(structuredEntries, "manifest.json", "missingManifest");
   if (!manifestValue || typeof manifestValue !== "object") {
-    throw new EdgeEverZipImportError("invalidManifest");
+    throw new RTNoteZipImportError("invalidManifest");
   }
   const manifestRecord = manifestValue as Record<string, unknown>;
-  if (manifestRecord.format !== EDGEEVER_ZIP_FORMAT) {
-    throw new EdgeEverZipImportError("unsupportedFormat");
+  if (manifestRecord.format !== RTNOTE_ZIP_FORMAT) {
+    throw new RTNoteZipImportError("unsupportedFormat");
   }
-  if (manifestRecord.formatVersion !== 1 && manifestRecord.formatVersion !== EDGEEVER_ZIP_FORMAT_VERSION) {
-    throw new EdgeEverZipImportError("unsupportedVersion");
+  if (manifestRecord.formatVersion !== 1 && manifestRecord.formatVersion !== RTNOTE_ZIP_FORMAT_VERSION) {
+    throw new RTNoteZipImportError("unsupportedVersion");
   }
   const manifestResult = JsonBackupManifestSchema.safeParse(manifestValue);
   if (!manifestResult.success) {
-    throw new EdgeEverZipImportError("invalidManifest", manifestResult.error);
+    throw new RTNoteZipImportError("invalidManifest", manifestResult.error);
   }
   const manifest = manifestResult.data;
   const notebooksValue = parseJsonEntry(structuredEntries, "notebooks.json");
   if (!Array.isArray(notebooksValue)) {
-    throw new EdgeEverZipImportError("invalidData");
+    throw new RTNoteZipImportError("invalidData");
   }
   const notebooksResult = JsonBackupNotebookSchema.array().safeParse(notebooksValue);
   if (!notebooksResult.success) {
-    throw new EdgeEverZipImportError("invalidData", notebooksResult.error);
+    throw new RTNoteZipImportError("invalidData", notebooksResult.error);
   }
   const notebooks = sortNotebooksForRestore(notebooksResult.data);
-  // AI prompts in older RTNote and EdgeEver backups are ignored: AI writing assist was removed.
+  // AI prompts in older backups are ignored: AI writing assist was removed.
   const memoPaths = [...structuredEntries.keys()].filter((path) => /^memos\/[^/]+\.json$/.test(path)).sort();
   const memos: JsonBackupMemo[] = [];
   for (const path of memoPaths) {
     const memoResult = JsonBackupMemoSchema.safeParse(parseJsonEntry(structuredEntries, path));
     if (!memoResult.success) {
-      throw new EdgeEverZipImportError("invalidData", memoResult.error);
+      throw new RTNoteZipImportError("invalidData", memoResult.error);
     }
     memos.push(memoResult.data as JsonBackupMemo);
   }
@@ -412,12 +412,12 @@ export const parseEdgeEverZip = async (
     || manifest.counts.memos !== memos.length
     || manifest.counts.memos !== markdownCount
   ) {
-    throw new EdgeEverZipImportError("incompleteData");
+    throw new RTNoteZipImportError("incompleteData");
   }
 
   const revisionCount = memos.reduce((count, memo) => count + memo.revisions.length, 0);
   if (manifest.counts.revisions !== revisionCount) {
-    throw new EdgeEverZipImportError("incompleteData");
+    throw new RTNoteZipImportError("incompleteData");
   }
   if (
     manifest.counts.resources !== resources.length
@@ -430,19 +430,19 @@ export const parseEdgeEverZip = async (
       || (createDigest && resource.sha256 !== null && resource.sha256 !== digests.get(resource.archivePath))
     ))
   ) {
-    throw new EdgeEverZipImportError("incompleteResources");
+    throw new RTNoteZipImportError("incompleteResources");
   }
 
   return { manifest, notebooks, memos, archive: blob };
 };
 
 /** The new desktop path validates relationships before any target write. */
-export const validateBackupRelationships = (backup: ParsedEdgeEverZip) => {
+export const validateBackupRelationships = (backup: ParsedRTNoteZip) => {
   const notebooks = new Map(backup.notebooks.map((item) => [item.id, item]));
   const memos = new Set(backup.memos.map((item) => item.memo.id));
   const revisions = new Set<string>();
   const resources = new Set<string>();
-  const invalid = () => { throw new EdgeEverZipImportError("invalidData"); };
+  const invalid = () => { throw new RTNoteZipImportError("invalidData"); };
   if (notebooks.size !== backup.notebooks.length || memos.size !== backup.memos.length) invalid();
   for (const notebook of backup.notebooks) {
     const ancestors = new Set([notebook.id]);
@@ -466,10 +466,10 @@ export const validateBackupRelationships = (backup: ParsedEdgeEverZip) => {
   }
 };
 
-export const restoreEdgeEverZip = async (
-  backup: ParsedEdgeEverZip,
+export const restoreRTNoteZip = async (
+  backup: ParsedRTNoteZip,
   target: JsonRestoreTarget,
-  onProgress?: (progress: EdgeEverZipProgress) => void
+  onProgress?: (progress: RTNoteZipProgress) => void
 ) => {
   const total = backup.notebooks.length
     + backup.memos.length
@@ -510,7 +510,7 @@ export const restoreEdgeEverZip = async (
           if (byteSize > resource.byteSize) {
             const sink = await getSink();
             await sink.abort();
-            throw new EdgeEverZipImportError("incompleteResources");
+            throw new RTNoteZipImportError("incompleteResources");
           }
           const sink = await getSink();
           activeSinks.add(sink);
@@ -522,7 +522,7 @@ export const restoreEdgeEverZip = async (
           if (byteSize !== resource.byteSize) {
             await sink.abort();
             activeSinks.delete(sink);
-            throw new EdgeEverZipImportError("incompleteResources");
+            throw new RTNoteZipImportError("incompleteResources");
           }
           await sink.close();
           activeSinks.delete(sink);
@@ -537,16 +537,16 @@ export const restoreEdgeEverZip = async (
     throw error;
   }
   if (restoredPaths.size !== resourcesByPath.size) {
-    throw new EdgeEverZipImportError("incompleteResources");
+    throw new RTNoteZipImportError("incompleteResources");
   }
 };
 
-export const restoreEdgeEverZipAndRefresh = async (
-  backup: ParsedEdgeEverZip,
+export const restoreRTNoteZipAndRefresh = async (
+  backup: ParsedRTNoteZip,
   target: JsonRestoreTarget,
   refreshWorkspace: () => Promise<void>,
-  onProgress?: (progress: EdgeEverZipProgress) => void
+  onProgress?: (progress: RTNoteZipProgress) => void
 ) => {
-  await restoreEdgeEverZip(backup, target, onProgress);
+  await restoreRTNoteZip(backup, target, onProgress);
   await refreshWorkspace();
 };

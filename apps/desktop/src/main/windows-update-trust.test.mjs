@@ -43,8 +43,8 @@ const signedFixture = () => {
 };
 
 describe("Windows update trust", () => {
-  // The fixture signature was made with EdgeEver's private update key over an
-  // EdgeEver-named installer. RTNote needs its own key (Phase 1) before these
+  // The fixture signature was made with RTNote's private update key over an
+  // RTNote-named installer. RTNote needs its own key (Phase 1) before these
   // can be re-signed and re-enabled; desktop builds ship with updates disabled.
   test.skip("accepts metadata signed by the pinned release key", () => {
     const signed = signedFixture();
@@ -71,8 +71,8 @@ describe("Windows update trust", () => {
     })).toThrow("signature is invalid");
   });
 
-  // The fixture signature was made with EdgeEver's private update key over an
-  // EdgeEver-named installer. RTNote needs its own key (Phase 1) before these
+  // The fixture signature was made with RTNote's private update key over an
+  // RTNote-named installer. RTNote needs its own key (Phase 1) before these
   // can be re-signed and re-enabled; desktop builds ship with updates disabled.
   test.skip("rejects a signed manifest that disagrees with latest.yml", () => {
     const signed = signedFixture();
@@ -86,8 +86,8 @@ describe("Windows update trust", () => {
     })).toThrow("does not match the signed manifest");
   });
 
-  // The fixture signature was made with EdgeEver's private update key over an
-  // EdgeEver-named installer. RTNote needs its own key (Phase 1) before these
+  // The fixture signature was made with RTNote's private update key over an
+  // RTNote-named installer. RTNote needs its own key (Phase 1) before these
   // can be re-signed and re-enabled; desktop builds ship with updates disabled.
   test.skip("rejects update metadata that could select an extra installer", () => {
     const signed = signedFixture();
@@ -105,7 +105,7 @@ describe("Windows update trust", () => {
   });
 
   test("checks the downloaded installer size and both digests", async () => {
-    const directory = await mkdtemp(join(tmpdir(), "edgeever-windows-update-test-"));
+    const directory = await mkdtemp(join(tmpdir(), "rtnote-windows-update-test-"));
     const path = join(directory, manifest.file.name);
     try {
       await writeFile(path, "payload");

@@ -1,5 +1,5 @@
 {
-  "name": "@edgeever/plugin-api",
+  "name": "@rtnote/plugin-api",
   "version": "0.1.0",
   "description": "Public contracts and manifest helpers for RTNote client plugins and themes.",
   "type": "module",
