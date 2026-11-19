@@ -1,4 +1,4 @@
-import type { Notebook } from "@edgeever/shared";
+import type { Notebook } from "@rtnote/shared";
 import {
   createMarkdownExport,
   downloadMarkdownExport,

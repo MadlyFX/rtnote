@@ -1,4 +1,4 @@
-import type { TiptapDoc } from "@edgeever/shared";
+import type { TiptapDoc } from "@rtnote/shared";
 import { AppError } from "./app-error";
 
 export type JsonRpcRequest = {

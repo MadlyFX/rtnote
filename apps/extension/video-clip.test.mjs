@@ -590,7 +590,7 @@ test("omits the cover when the image upload fails and never hotlinks the thumbna
   expect(memos[0].contentMarkdown).toContain("caption");
   expect(memos[0].videoTranscript).toBeUndefined();
   expect(uploaded[0].videoTranscript).toBeUndefined();
-  expect(memos[0].contentMarkdown).not.toContain("edgeever-video-v1");
+  expect(memos[0].contentMarkdown).not.toContain("rtnote-video-v1");
 });
 
 test("saves a video without captions as a source note without queuing transcription", async () => {
@@ -619,7 +619,7 @@ test("saves a video without captions as a source note without queuing transcript
   expect(memos[0].videoTranscript).toBeUndefined();
   expect(memos[0].contentMarkdown).toContain("This video has no captions.");
   expect(memos[0].contentMarkdown).toContain(`https://www.youtube.com/watch?v=${CURRENT_ID}`);
-  expect(memos[0].contentMarkdown).not.toContain("edgeever-video-v1");
+  expect(memos[0].contentMarkdown).not.toContain("rtnote-video-v1");
 });
 
 test("keeps the video menu hosts away from the other page commands", () => {
@@ -662,19 +662,19 @@ test("keeps the video menu hosts away from the other page commands", () => {
 
 test("ships the video-note phrases in the extension locales", () => {
   const en = messages("en");
-  expect(en.saveVideoNoteToEdgeEver.message).toBe("Save video note to RTNote");
+  expect(en.saveVideoNoteToRTNote.message).toBe("Save video note to RTNote");
   expect(en.videoNoteSaved.message).toBe("Saved the video note.");
   expect(en.videoInfoSaved.message).toBe("Saved the video details.");
   expect(en.videoPageUnsupported.message).toBe("This page is not supported yet.");
   expect(en.videoNotRead.message).toBe("Could not read this video.");
   expect(en.videoNoCaptions.message).toBe("This video has no captions.");
   const pl = messages("pl");
-  expect(pl.saveVideoNoteToEdgeEver.message).toBe("Zapisz notatkę z wideo w RTNote");
+  expect(pl.saveVideoNoteToRTNote.message).toBe("Zapisz notatkę z wideo w RTNote");
   expect(pl.videoOutlineHeading.message.length).toBeGreaterThan(0);
   expect(pl.videoTranscriptHeading.message).toBe("Transkrypcja");
   for (const locale of ["en", "zh_CN", "ja", "pl"]) {
     const catalog = messages(locale);
-    for (const key of ["saveVideoNoteToEdgeEver", "videoNoteSaved", "videoPageUnsupported", "videoNotRead"]) {
+    for (const key of ["saveVideoNoteToRTNote", "videoNoteSaved", "videoPageUnsupported", "videoNotRead"]) {
       expect(catalog[key].message.length).toBeGreaterThan(0);
     }
   }

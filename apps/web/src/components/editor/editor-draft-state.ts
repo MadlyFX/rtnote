@@ -4,7 +4,7 @@ import {
   resolveMemoContentDoc,
   type MemoDetail,
   type TiptapDoc,
-} from "@edgeever/shared";
+} from "@rtnote/shared";
 import type {
   LocalDraft,
   MemoUpdateSyncPayload,

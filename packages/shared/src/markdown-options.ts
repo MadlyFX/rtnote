@@ -17,7 +17,7 @@ const preserveImageLabelEscapes = <T extends ReturnType<Tokenizer["reflink"]>>(t
 /** RTNote uses double tildes for strike; single tildes belong to prose. */
 // TipTap types the injected instance as its callable singleton, but uses the
 // Marked class's Lexer/use API. Each consumer owns its tokenizer registrations.
-export const createEdgeEverMarked = () => new Marked({
+export const createRTNoteMarked = () => new Marked({
   gfm: true,
   tokenizer: {
     link(src) {

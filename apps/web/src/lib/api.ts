@@ -1,10 +1,10 @@
 import {
   ApiRequestError,
-  createEdgeEverClient,
-  type EdgeEverClientRequestContext,
-} from "@edgeever/client";
-import type { AuthSession } from "@edgeever/shared";
-import { normalizeInstanceUrl } from "@edgeever/shared/public-demo";
+  createRTNoteClient,
+  type RTNoteClientRequestContext,
+} from "@rtnote/client";
+import type { AuthSession } from "@rtnote/shared";
+import { normalizeInstanceUrl } from "@rtnote/shared/public-demo";
 import { createClientUuid } from "./client-id";
 
 export { ApiRequestError };
@@ -16,15 +16,15 @@ export type {
   MemoShareResponse,
   SyncBootstrapResponse,
   SyncChangesResponse,
-} from "@edgeever/client";
+} from "@rtnote/client";
 
-const WEB_DEVICE_ID_STORAGE_KEY = "edgeever.web.device-id";
-export const DESKTOP_API_BASE_URL_STORAGE_KEY = "edgeever.desktop.api-base-url";
-const DESKTOP_SESSION_STORAGE_KEY = "edgeever.desktop.session";
+const WEB_DEVICE_ID_STORAGE_KEY = "rtnote.web.device-id";
+export const DESKTOP_API_BASE_URL_STORAGE_KEY = "rtnote.desktop.api-base-url";
+const DESKTOP_SESSION_STORAGE_KEY = "rtnote.desktop.session";
 let desktopSessionToken: string | null | undefined;
 
 export const getCachedDesktopSession = (): AuthSession | null => {
-  if (typeof window === "undefined" || !window.edgeeverDesktop?.isAvailable) return null;
+  if (typeof window === "undefined" || !window.rtnoteDesktop?.isAvailable) return null;
   try {
     const value = window.localStorage.getItem(DESKTOP_SESSION_STORAGE_KEY);
     if (!value) return null;
@@ -36,10 +36,10 @@ export const getCachedDesktopSession = (): AuthSession | null => {
 };
 
 const getDesktopSessionToken = () => {
-  if (typeof window === "undefined" || !window.edgeeverDesktop?.isAvailable) return undefined;
+  if (typeof window === "undefined" || !window.rtnoteDesktop?.isAvailable) return undefined;
   if (desktopSessionToken) return desktopSessionToken;
 
-  const storedToken = window.edgeeverDesktop.getSessionToken().trim();
+  const storedToken = window.rtnoteDesktop.getSessionToken().trim();
   const legacyToken = getCachedDesktopSession()?.sessionToken?.trim() ?? "";
   // A legacy token remains only when secure persistence has not completed,
   // so it must win over a possibly stale encrypted file from an earlier login.
@@ -50,7 +50,7 @@ const getDesktopSessionToken = () => {
 const setDesktopSessionToken = async (value: string) => {
   desktopSessionToken = value;
   try {
-    await window.edgeeverDesktop?.setSessionToken(value);
+    await window.rtnoteDesktop?.setSessionToken(value);
     return true;
   } catch {
     return false;
@@ -59,11 +59,11 @@ const setDesktopSessionToken = async (value: string) => {
 
 const clearDesktopSessionToken = () => {
   desktopSessionToken = null;
-  void window.edgeeverDesktop?.clearSessionToken().catch(() => {});
+  void window.rtnoteDesktop?.clearSessionToken().catch(() => {});
 };
 
 export const cacheDesktopSession = async (session: AuthSession) => {
-  if (typeof window === "undefined" || !window.edgeeverDesktop?.isAvailable) return;
+  if (typeof window === "undefined" || !window.rtnoteDesktop?.isAvailable) return;
   try {
     const cached = getCachedDesktopSession();
     const candidateToken = session.authenticated
@@ -90,7 +90,7 @@ export const cacheDesktopSession = async (session: AuthSession) => {
 };
 
 export const clearCachedDesktopSession = () => {
-  if (typeof window === "undefined" || !window.edgeeverDesktop?.isAvailable) return;
+  if (typeof window === "undefined" || !window.rtnoteDesktop?.isAvailable) return;
   try {
     window.localStorage.removeItem(DESKTOP_SESSION_STORAGE_KEY);
   } catch {
@@ -100,14 +100,14 @@ export const clearCachedDesktopSession = () => {
 };
 
 export const getConfiguredDesktopApiBaseUrl = () => {
-  if (typeof window === "undefined" || !window.edgeeverDesktop?.isAvailable) return "";
+  if (typeof window === "undefined" || !window.rtnoteDesktop?.isAvailable) return "";
 
   try {
     const savedUrl = (window.localStorage.getItem(DESKTOP_API_BASE_URL_STORAGE_KEY) ?? "").trim();
     if (savedUrl) return savedUrl.replace(/\/$/, "");
   } catch {}
 
-  const bridgeUrl = (window.edgeeverDesktop.apiBaseUrl ?? "").trim();
+  const bridgeUrl = (window.rtnoteDesktop.apiBaseUrl ?? "").trim();
   return bridgeUrl.replace(/\/$/, "");
 };
 
@@ -133,7 +133,7 @@ export const saveDesktopApiBaseUrl = async (value: string) => {
   if (getConfiguredDesktopApiBaseUrl() !== normalized) {
     clearCachedDesktopSession();
   }
-  await window.edgeeverDesktop?.setApiBaseUrl(normalized);
+  await window.rtnoteDesktop?.setApiBaseUrl(normalized);
   window.localStorage.setItem(DESKTOP_API_BASE_URL_STORAGE_KEY, normalized);
   return normalized;
 };
@@ -183,7 +183,7 @@ const confirmSessionLost = async (): Promise<boolean> => {
   const promise = (async () => {
     try {
       const headers = new Headers();
-      const isDesktop = Boolean(window.edgeeverDesktop?.isAvailable);
+      const isDesktop = Boolean(window.rtnoteDesktop?.isAvailable);
       const sessionToken = isDesktop ? getDesktopSessionToken() : undefined;
       if (sessionToken) headers.set("Authorization", `Bearer ${sessionToken}`);
       const baseUrl = getConfiguredDesktopApiBaseUrl();
@@ -222,7 +222,7 @@ const notifyUnauthorized = async (isDesktop: boolean, rejectedDesktopSessionToke
       || getDesktopSessionToken() !== rejectedDesktopSessionToken) return;
     clearCachedDesktopSession();
     desktopSessionRejected = true;
-    window.dispatchEvent(new CustomEvent("edgeever:unauthorized"));
+    window.dispatchEvent(new CustomEvent("rtnote:unauthorized"));
     return;
   }
 
@@ -233,22 +233,22 @@ const notifyUnauthorized = async (isDesktop: boolean, rejectedDesktopSessionToke
     clearCachedDesktopSession();
     desktopSessionRejected = true;
   }
-  window.dispatchEvent(new CustomEvent("edgeever:unauthorized"));
+  window.dispatchEvent(new CustomEvent("rtnote:unauthorized"));
 };
 
-const beforeRequest = ({ path }: EdgeEverClientRequestContext) => {
-  const isDesktop = Boolean(typeof window !== "undefined" && window.edgeeverDesktop?.isAvailable);
+const beforeRequest = ({ path }: RTNoteClientRequestContext) => {
+  const isDesktop = Boolean(typeof window !== "undefined" && window.rtnoteDesktop?.isAvailable);
   if (isDesktop && desktopSessionRejected && !isDesktopPublicRequest(path)) {
     throw new ApiRequestError("Authentication required", 401, "unauthorized");
   }
 };
 
-const handleUnauthorized = ({ path, token }: EdgeEverClientRequestContext) => {
+const handleUnauthorized = ({ path, token }: RTNoteClientRequestContext) => {
   if (isLoginRequest(path) || path.startsWith("/api/public/") || typeof window === "undefined") return;
   // getSession handles its own response. A failed probe is not evidence of
   // rejection and must not launch a second probe that can race a new login.
   if (path === "/api/v1/auth/session") return;
-  const isDesktop = Boolean(window.edgeeverDesktop?.isAvailable);
+  const isDesktop = Boolean(window.rtnoteDesktop?.isAvailable);
   void notifyUnauthorized(isDesktop, token);
 };
 
@@ -260,7 +260,7 @@ const toUint8Array = (bytes: ArrayBuffer | Uint8Array | undefined) => {
 /** Desktop sends speech requests through the main process, which is not bound by CORS. */
 const desktopSpeechFetch: typeof fetch = async (input, init) => {
   init?.signal?.throwIfAborted();
-  const bridge = window.edgeeverDesktop;
+  const bridge = window.rtnoteDesktop;
   if (!bridge?.openAiProviderStream || !bridge.onAiProviderStreamChunk) {
     throw new TypeError("Desktop speech transport is unavailable.");
   }
@@ -344,15 +344,15 @@ const desktopSpeechFetch: typeof fetch = async (input, init) => {
 };
 
 const desktopSpeechTransport = Boolean(
-  (typeof __EDGEEVER_DESKTOP_BUILD__ !== "undefined" && __EDGEEVER_DESKTOP_BUILD__)
-  || (typeof window !== "undefined" && window.edgeeverDesktop?.openAiProviderStream),
+  (typeof __RTNOTE_DESKTOP_BUILD__ !== "undefined" && __RTNOTE_DESKTOP_BUILD__)
+  || (typeof window !== "undefined" && window.rtnoteDesktop?.openAiProviderStream),
 );
 
 /** Desktop connects to the speech service directly; Web can relay initial network/CORS failures. */
 export const speechProviderFetch: typeof fetch = (input, init) =>
   client.fetchSpeechProvider(input, init);
 
-const client = createEdgeEverClient({
+const client = createRTNoteClient({
   baseUrl: getConfiguredDesktopApiBaseUrl,
   token: getDesktopSessionToken,
   beforeRequest,
@@ -375,7 +375,7 @@ export const api = {
       if (error instanceof ApiRequestError && error.status === 401
         && getConfiguredDesktopApiBaseUrl() === baseUrl && getDesktopSessionToken() === token) {
         if (typeof window !== "undefined") {
-          if (window.edgeeverDesktop?.isAvailable) {
+          if (window.rtnoteDesktop?.isAvailable) {
             clearCachedDesktopSession();
             desktopSessionRejected = true;
           }
@@ -389,7 +389,7 @@ export const api = {
     }
     if (
       typeof window !== "undefined"
-      && window.edgeeverDesktop?.isAvailable
+      && window.rtnoteDesktop?.isAvailable
       && !session.authenticated
       && getDesktopSessionToken()
     ) {
@@ -426,7 +426,7 @@ export const createNoteImportClient = (signal: AbortSignal, accountId: string | 
   const baseUrl = getConfiguredDesktopApiBaseUrl();
   const token = getDesktopSessionToken();
   let importContext: string | undefined;
-  return createEdgeEverClient({
+  return createRTNoteClient({
     baseUrl,
     token,
     fetch: async (url, init) => {
@@ -434,7 +434,7 @@ export const createNoteImportClient = (signal: AbortSignal, accountId: string | 
         throw new DOMException("importIdentityChanged", "AbortError");
       }
       const headers = new Headers(init?.headers);
-      if (importContext) headers.set("x-edgeever-import-context", importContext);
+      if (importContext) headers.set("x-rtnote-import-context", importContext);
       const response = await fetch(url, { ...init, headers, signal: init?.method === "DELETE" ? undefined : signal });
       if (String(url).split("?")[0].endsWith("/api/v1/imports/capabilities") && response.ok) {
         const capability = await response.clone().json() as { importContext?: string; accountId?: string | null };

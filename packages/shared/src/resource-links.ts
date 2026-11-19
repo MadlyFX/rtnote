@@ -1,5 +1,5 @@
 import { toMarkdown } from "mdast-util-to-markdown";
-import { ATTACHMENT_LABEL_PREFIX_PATTERN } from "./edgeever-legacy-values";
+import { ATTACHMENT_LABEL_PREFIX_PATTERN } from "./rtnote-legacy-values";
 
 const RESOURCE_PATH_PATTERN = /\/api\/v1\/resources\/([^/]+)\/blob(?:$|[?#])/;
 
@@ -15,7 +15,7 @@ export const resourceLinkToMarkdown = (label: string, url: string): string => re
 });
 
 export const getResourceIdFromUrl = (href: string): string | null => {
-  if (href.startsWith("edgeever-resource://")) {
+  if (href.startsWith("rtnote-resource://")) {
     try {
       const parsed = new URL(href);
       const resourceId = decodeURIComponent(parsed.pathname.replace(/^\//, ""));
@@ -26,7 +26,7 @@ export const getResourceIdFromUrl = (href: string): string | null => {
   }
 
   try {
-    const parsed = new URL(href, "http://edgeever.local");
+    const parsed = new URL(href, "http://rtnote.local");
     const match = parsed.pathname.match(RESOURCE_PATH_PATTERN);
     return match?.[1] ? decodeURIComponent(match[1]) : null;
   } catch {

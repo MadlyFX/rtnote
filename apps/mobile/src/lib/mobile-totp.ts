@@ -1,5 +1,5 @@
-import { ApiRequestError } from "@edgeever/client";
-import type { TotpStatus } from "@edgeever/shared";
+import { ApiRequestError } from "@rtnote/client";
+import type { TotpStatus } from "@rtnote/shared";
 import type { MobileCatalog } from "./mobile-locale";
 
 export type TwoFactorCopyKey = {

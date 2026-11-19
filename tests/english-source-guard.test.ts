@@ -35,12 +35,12 @@ const exceptions: Exception[] = [
   // Migrations that already ran are immutable; a fresh English baseline replaces them before 1.0.
   { path: /^migrations\/00(?:[0-8]\d|9[0-4])_[^/]+\.sql$/, reason: "migrations that already ran must not be edited" },
   // Built from apps/ios/EditorSource and the shared catalogs; checked at the source.
-  { path: /^apps\/ios\/(?:EdgeEver\/Resources\/)?EditorBundle\//, reason: "generated iOS editor bundle" },
-  // Chinese values EdgeEver stored in user data, mapped to RTNote's on read.
-  { path: /^packages\/shared\/src\/memo-title\.ts$/, reason: "maps EdgeEver's stored untitled title" },
-  { path: /^packages\/shared\/src\/edgeever-legacy-values\.ts$/, reason: "maps EdgeEver's stored attachment prefix and inbox name" },
-  { path: /^apps\/ios\/EdgeEver\/Data\/Models\/EdgeEverLegacyValues\.swift$/, reason: "iOS copy of EdgeEver's stored values" },
-  { path: /^apps\/ios\/Tests\/EdgeEverTests\/EdgeEverLegacyValuesTests\.swift$/, reason: "tests that EdgeEver's stored values are still recognised" },
+  { path: /^apps\/ios\/(?:RTNote\/Resources\/)?EditorBundle\//, reason: "generated iOS editor bundle" },
+  // Chinese values RTNote stored in user data, mapped to RTNote's on read.
+  { path: /^packages\/shared\/src\/memo-title\.ts$/, reason: "maps RTNote's stored untitled title" },
+  { path: /^packages\/shared\/src\/rtnote-legacy-values\.ts$/, reason: "maps RTNote's stored attachment prefix and inbox name" },
+  { path: /^apps\/ios\/RTNote\/Data\/Models\/RTNoteLegacyValues\.swift$/, reason: "iOS copy of RTNote's stored values" },
+  { path: /^apps\/ios\/Tests\/RTNoteTests\/RTNoteLegacyValuesTests\.swift$/, reason: "tests that RTNote's stored values are still recognised" },
   // Xcode string catalogs hold English source strings with their translations.
   { path: /\.xcstrings$/, reason: "Xcode string catalog (translations)" },
   // Web-clipper code that reads Chinese websites, and its fixtures and tests.
@@ -64,12 +64,10 @@ const exceptions: Exception[] = [
   { path: /^apps\/api\/src\/(?:mcp-management-tools|mcp-poster-tools|notebook-share-routes)\.test\.mjs$/, reason: "tests of CJK search and layout" },
   { path: /^tests\/e2e\/fixtures\/(?:mermaid-viewer\.js|note-image-(?:content\.ts|quality\.tsx))$/, reason: "Chinese text rendering samples" },
   { path: /^tests\/browser\/paper-list(?:-reference)?\.ts$/, reason: "Chinese poster layout compared against a reference" },
-  { path: /^scripts\/public-notebook-site-plan-ablation\.mjs$/, reason: "CJK substring search check" },
   // Real third-party exports used as import fixtures; some file names are Chinese.
   { path: /^tests\/fixtures\/note-import\//, reason: "third-party note export fixtures" },
   { path: /^tests\/note-import\.integration\.test\.mjs$/, reason: "asserts the note-import fixtures" },
-  // Historical records.
-  { path: /^docs\/changes\/evidence\//, reason: "captured output from EdgeEver builds; rewriting it would falsify the record" },
+  // Release notes.
   { path: /^release-summary\.json$/, reason: "release notes keyed by locale" },
   { path: /^tests\/english-source-guard\.test\.ts$/, reason: "this guard" },
 ];

@@ -19,7 +19,7 @@ for (const { platform, modifier } of [
       test(`round-trips with ${modifier}+${key} without editing the note`, async ({ page }) => {
         if (key !== "/") {
           await page.addInitScript((value) => {
-            localStorage.setItem("edgeever.shortcutSettings", JSON.stringify({
+            localStorage.setItem("rtnote.shortcutSettings", JSON.stringify({
               toggleEditorMode: { key: value, ctrlOrMeta: true, shift: false, alt: false },
             }));
           }, key);

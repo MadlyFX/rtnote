@@ -3,7 +3,7 @@ import type { EditorView } from "@tiptap/pm/view";
 
 const HANDLE_PX = 5;
 const MIN_ROW_PX = 24;
-const key = new PluginKey("edgeever-table-row-resize");
+const key = new PluginKey("rtnote-table-row-resize");
 
 // Returns the row whose bottom edge is under the pointer, if any.
 const rowAtBottomEdge = (view: EditorView, event: MouseEvent) => {

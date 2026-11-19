@@ -10,10 +10,10 @@ import {
   parseNoteProseHeadingStyle,
   parseNoteProseQuoteStyle,
   type NoteProseStylePreferences,
-} from "@edgeever/shared";
+} from "@rtnote/shared";
 
-export const NOTE_PROSE_STYLE_STORAGE_KEY = "edgeever.note-prose-style";
-export const NOTE_PROSE_STYLE_CHANGED_EVENT = "edgeever:note-prose-style-changed";
+export const NOTE_PROSE_STYLE_STORAGE_KEY = "rtnote.note-prose-style";
+export const NOTE_PROSE_STYLE_CHANGED_EVENT = "rtnote:note-prose-style-changed";
 
 let unsavedNoteProseStylePreference: NoteProseStylePreferences | null = null;
 

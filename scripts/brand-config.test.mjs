@@ -38,6 +38,6 @@ describe("brand.config.json", () => {
     expect(outputs["apps/ios/project.yml"]).toContain('CFBundleDisplayName: "Acme & Co"');
     expect(outputs["apps/ios/project.yml"]).toContain("CFBundleName: Acme");
     expect(outputs["apps/ios/project.yml"]).toContain("PRODUCT_BUNDLE_IDENTIFIER: com.madlyfx.rtnote");
-    expect(outputs["apps/ios/EdgeEver/Resources/Info.plist"]).toContain("<string>Acme &amp; Co</string>");
+    expect(outputs["apps/ios/RTNote/Resources/Info.plist"]).toContain("<string>Acme &amp; Co</string>");
   });
 });

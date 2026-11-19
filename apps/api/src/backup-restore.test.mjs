@@ -4,7 +4,7 @@ import { globSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:f
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Hono } from "hono";
-import { DEFAULT_MEMO_TITLE, LEGACY_DEFAULT_MEMO_TITLES, emptyDoc } from "@edgeever/shared";
+import { DEFAULT_MEMO_TITLE, LEGACY_DEFAULT_MEMO_TITLES, emptyDoc } from "@rtnote/shared";
 import { AppError } from "./app-error.ts";
 import { registerBackupRoutes } from "./backup-routes.ts";
 import { apiError } from "./http-errors.ts";
@@ -29,7 +29,7 @@ afterEach(() => cleanups.splice(0).forEach((cleanup) => cleanup()));
 const installation = () => {
   const sqlite = new Database(":memory:");
   for (const file of globSync("migrations/*.sql").sort()) sqlite.exec(readFileSync(file, "utf8"));
-  const resourcesDirectory = mkdtempSync(join(tmpdir(), "edgeever-backup-"));
+  const resourcesDirectory = mkdtempSync(join(tmpdir(), "rtnote-backup-"));
   cleanups.push(() => {
     sqlite.close();
     rmSync(resourcesDirectory, { recursive: true, force: true });
@@ -299,7 +299,7 @@ describe("JSON backup and restore", () => {
     expect(untitled.tags).toEqual(["travel", "Work"]);
   });
 
-  test("maps EdgeEver's default title to RTNote's when restoring notes and revisions", async () => {
+  test("maps the legacy default title to RTNote's when restoring notes and revisions", async () => {
     const target = installation();
     const inbox = target.sqlite.query("SELECT id FROM notebooks WHERE workspace_id = ? AND slug = 'inbox'").get(WORKSPACE_ID).id;
     const [legacyTitle] = LEGACY_DEFAULT_MEMO_TITLES;
@@ -321,17 +321,17 @@ describe("JSON backup and restore", () => {
 
     const response = await target.postJson("/api/v1/restores/json/memos", {
       memos: [
-        memo("memo_edgeever_untitled", ` ${legacyTitle} `, [revision("rev_edgeever_untitled", "memo_edgeever_untitled", legacyTitle)]),
+        memo("memo_rtnote_untitled", ` ${legacyTitle} `, [revision("rev_rtnote_untitled", "memo_rtnote_untitled", legacyTitle)]),
         memo("memo_named", "Trip plan", [revision("rev_named", "memo_named", "Trip draft")]),
       ],
     });
     expect(response.status).toBe(200);
 
-    expect((await getMemoDetail(target.storage.db, WORKSPACE_ID, "memo_edgeever_untitled")).title).toBe(DEFAULT_MEMO_TITLE);
+    expect((await getMemoDetail(target.storage.db, WORKSPACE_ID, "memo_rtnote_untitled")).title).toBe(DEFAULT_MEMO_TITLE);
     expect((await getMemoDetail(target.storage.db, WORKSPACE_ID, "memo_named")).title).toBe("Trip plan");
     const revisionTitles = target.sqlite.query("SELECT id, title FROM memo_revisions ORDER BY id").all();
     expect(revisionTitles).toEqual([
-      { id: "rev_edgeever_untitled", title: DEFAULT_MEMO_TITLE },
+      { id: "rev_rtnote_untitled", title: DEFAULT_MEMO_TITLE },
       { id: "rev_named", title: "Trip draft" },
     ]);
   });

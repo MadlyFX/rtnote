@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState, type ComponentRef, type ReactNode } from "react";
 import * as Clipboard from "expo-clipboard";
 import Constants from "expo-constants";
-import type { InstanceHealth } from "@edgeever/client";
-import { buildGitHubFeedbackUrl, formatClientDisplaySize, isClientAheadOfInstance, toDevicePixelScreenSize, type AuthUser } from "@edgeever/shared";
-import { VOICE_MEMO_MAX_DURATION_OPTIONS, type VoiceMemoMaxDurationMinutes } from "@edgeever/shared/voice-memo-names";
+import type { InstanceHealth } from "@rtnote/client";
+import { buildGitHubFeedbackUrl, formatClientDisplaySize, isClientAheadOfInstance, toDevicePixelScreenSize, type AuthUser } from "@rtnote/shared";
+import { VOICE_MEMO_MAX_DURATION_OPTIONS, type VoiceMemoMaxDurationMinutes } from "@rtnote/shared/voice-memo-names";
 import { useQuery } from "@tanstack/react-query";
 import { BackHandler, Dimensions, KeyboardAvoidingView, Linking, Modal, PixelRatio, Platform, ScrollView, Switch, View } from "react-native";
 import { Activity, ActivityIndicator, Check, ChevronDown, ChevronLeft, ChevronRight, Cloud, Copy, ExternalLink, Image as ImageIcon, Info, LogOut, MessageSquare, MonitorSmartphone, Moon, RefreshCw, ShieldCheck, SlidersHorizontal, Sun, UserRound } from "../components/icons";

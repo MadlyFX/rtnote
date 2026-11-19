@@ -7,8 +7,8 @@ import {
   WELCOME_MEMO_SEED_CONTENT_HASH,
   WELCOME_MEMO_SEED_TITLE,
   WELCOME_MEMO_TRANSLATIONS,
-} from "@edgeever/shared/default-workspace-seeds";
-import { DEFAULT_MEMO_TEMPLATE_SEEDS } from "@edgeever/shared/memo-template-seeds";
+} from "@rtnote/shared/default-workspace-seeds";
+import { DEFAULT_MEMO_TEMPLATE_SEEDS } from "@rtnote/shared/memo-template-seeds";
 import { createSelfHostedStorageAdapter } from "./self-hosted-storage-adapter.ts";
 import { updateMemoRecord } from "./memo-service.ts";
 import {
@@ -30,7 +30,7 @@ const migrate = (sqlite, filter = () => true) => {
 const openDatabase = () => {
   const sqlite = new Database(":memory:");
   opened.push(sqlite);
-  return { sqlite, db: createSelfHostedStorageAdapter(sqlite, "/tmp/edgeever-seed-localization-unused").db };
+  return { sqlite, db: createSelfHostedStorageAdapter(sqlite, "/tmp/rtnote-seed-localization-unused").db };
 };
 
 const freshInstallation = () => {

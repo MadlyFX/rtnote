@@ -1,4 +1,4 @@
-import { hasPosterDocumentMarker, parsePosterDocument } from "@edgeever/shared";
+import { hasPosterDocumentMarker, parsePosterDocument } from "@rtnote/shared";
 import {
   createExcerpt,
   DEFAULT_MEMO_TITLE,
@@ -22,7 +22,7 @@ import {
   type MemoSummary,
   type MemoUpdateInput,
   type TiptapDoc,
-} from "@edgeever/shared";
+} from "@rtnote/shared";
 import { auditStatement } from "./audit";
 import type { AppContext, AuditActor, AuthContext, Bindings } from "./api-context";
 import { AppError } from "./app-error";
@@ -251,7 +251,7 @@ export const searchMemoSummaries = async (
   }
 
   if (typeof options.poster === "boolean") {
-    filters.push("(instr(c.content_markdown, '<!-- edgeever-poster-v1:') > 0) = ?");
+    filters.push("(instr(c.content_markdown, '<!-- rtnote-poster-v1:') > 0) = ?");
     binds.push(options.poster ? 1 : 0);
   }
 
@@ -283,7 +283,7 @@ export const searchMemoSummaries = async (
            )
            SELECT m.id, m.notebook_id, m.title, m.excerpt, m.tags_json, m.is_pinned,
                   m.is_archived, m.is_deleted, m.created_at, m.updated_at, m.deleted_at, c.revision,
-                  c.content_text, (instr(c.content_markdown, '<!-- edgeever-poster-v1:') > 0) AS is_poster
+                  c.content_text, (instr(c.content_markdown, '<!-- rtnote-poster-v1:') > 0) AS is_poster
            FROM search_matches s
            INNER JOIN memos m ON m.id = s.memo_id
            INNER JOIN memo_contents c ON c.memo_id = m.id
@@ -306,7 +306,7 @@ export const searchMemoSummaries = async (
     .prepare(
       `SELECT m.id, m.notebook_id, m.title, m.excerpt, m.tags_json, m.is_pinned,
               m.is_archived, m.is_deleted, m.created_at, m.updated_at, m.deleted_at, c.revision,
-              c.content_text, (instr(c.content_markdown, '<!-- edgeever-poster-v1:') > 0) AS is_poster
+              c.content_text, (instr(c.content_markdown, '<!-- rtnote-poster-v1:') > 0) AS is_poster
        FROM memos m
        INNER JOIN memo_contents c ON c.memo_id = m.id
        WHERE ${filters.join(" AND ")}
@@ -328,7 +328,7 @@ export const listMemosForMcp = async (
   const offset = clampNumber(options.offset, 0, 100_000);
   const pageSize = limit + 1;
   const posterFilter = typeof options.poster === "boolean"
-    ? `(instr(c.content_markdown, '<!-- edgeever-poster-v1:') > 0) = ${options.poster ? 1 : 0}`
+    ? `(instr(c.content_markdown, '<!-- rtnote-poster-v1:') > 0) = ${options.poster ? 1 : 0}`
     : "1 = 1";
   const deletedFilter = options.includeDeleted ? "1 = 1" : "m.is_deleted = 0";
 
@@ -363,7 +363,7 @@ export const listMemosForMcp = async (
     .prepare(
       `SELECT m.id, m.notebook_id, m.title, m.excerpt, m.tags_json, m.is_pinned,
               m.is_archived, m.is_deleted, m.created_at, m.updated_at, m.deleted_at, c.revision,
-              c.content_text, (instr(c.content_markdown, '<!-- edgeever-poster-v1:') > 0) AS is_poster
+              c.content_text, (instr(c.content_markdown, '<!-- rtnote-poster-v1:') > 0) AS is_poster
        FROM memos m
        INNER JOIN memo_contents c ON c.memo_id = m.id
        WHERE m.workspace_id = ? AND ${deletedFilter} AND ${posterFilter}
@@ -1506,7 +1506,7 @@ const parseDoc = (json: string): TiptapDoc => {
   }
 };
 
-// EdgeEver's default title is stored as RTNote's, so both read as untitled.
+// The legacy default title is stored as RTNote's, so both read as untitled.
 const normalizeMemoTitle = (value: string | null | undefined) => {
   const title = value?.trim();
   return title ? normalizeLegacyMemoTitle(title) : DEFAULT_MEMO_TITLE;

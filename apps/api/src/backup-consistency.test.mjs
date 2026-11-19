@@ -25,7 +25,7 @@ const installation = async ({ includeExportIndex = true, includeMemoIdIndex = tr
     && !afterRevision.includes(file)
     && (includeExportIndex || !file.endsWith("0085_export_cursor_index.sql"))
     && (includeMemoIdIndex || !file.endsWith("0086_memo_id_paging_index.sql")))) sqlite.exec(readFileSync(file, "utf8"));
-  const directory = mkdtempSync(join(tmpdir(), "edgeever-backup-protocol-"));
+  const directory = mkdtempSync(join(tmpdir(), "rtnote-backup-protocol-"));
   cleanups.push(() => { sqlite.close(); rmSync(directory, { recursive: true, force: true }); });
   const storage = createSelfHostedStorageAdapter(sqlite, directory);
   const inbox = sqlite.query("SELECT id FROM notebooks WHERE workspace_id = 'ws_default' AND slug = 'inbox'").get().id;

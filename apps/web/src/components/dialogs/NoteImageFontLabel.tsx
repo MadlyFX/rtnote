@@ -1,9 +1,9 @@
 import type { FontLoadStatus } from "@/lib/font-load-state";
 import { useCallback } from "react";
-import { prepareNoteImageAssets } from "@edgeever/shared/note-image-fonts";
-import { noteImageAssetUrls } from "@edgeever/shared/note-image-assets";
-import { isRemoteNoteImageFont } from "@edgeever/shared/font-catalog";
-import { resolveNoteImageTypography, type NoteImageFontStyle, type NoteImageTheme } from "@edgeever/shared/note-image-card";
+import { prepareNoteImageAssets } from "@rtnote/shared/note-image-fonts";
+import { noteImageAssetUrls } from "@rtnote/shared/note-image-assets";
+import { isRemoteNoteImageFont } from "@rtnote/shared/font-catalog";
+import { resolveNoteImageTypography, type NoteImageFontStyle, type NoteImageTheme } from "@rtnote/shared/note-image-card";
 import { FontLabel } from "@/components/FontLabel";
 
 export const NoteImageFontLabel = ({ label, fontStyle, theme, enabled, visibleOnly = false, status, onStatusChange, retryKey }: {

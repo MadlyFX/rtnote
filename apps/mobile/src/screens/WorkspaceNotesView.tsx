@@ -1,7 +1,7 @@
 import { memo, useRef, type ReactNode } from "react";
-import type { MemoFilterMode, MemoSortMode } from "@edgeever/client";
-import { DEFAULT_MEMO_TITLE, getMemoListTimestamp, normalizeLegacyMemoTitle, getNotebookDescendantMemoCount, type MemoSummary, type Notebook } from "@edgeever/shared";
-import { toggleMobileMemoFilterMode } from "@edgeever/shared/mobile-ui";
+import type { MemoFilterMode, MemoSortMode } from "@rtnote/client";
+import { DEFAULT_MEMO_TITLE, getMemoListTimestamp, normalizeLegacyMemoTitle, getNotebookDescendantMemoCount, type MemoSummary, type Notebook } from "@rtnote/shared";
+import { toggleMobileMemoFilterMode } from "@rtnote/shared/mobile-ui";
 import { FlatList, Platform, RefreshControl, useWindowDimensions, View } from "react-native";
 import { Gesture, GestureDetector, MouseButton, PointerType } from "react-native-gesture-handler";
 import { ActivityIndicator, Check, ChevronDown, ChevronLeft, LayoutTemplate, MoreHorizontal, Plus, RotateCcw, Search, Sparkles, Tag, X } from "../components/icons";

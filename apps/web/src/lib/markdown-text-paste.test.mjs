@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { Editor } from "@tiptap/core";
 import { TextSelection } from "@tiptap/pm/state";
-import { createEdgeEverDocumentExtensions } from "@edgeever/shared";
-import { createEdgeEverMathematics } from "@edgeever/shared/mathematics";
+import { createRTNoteDocumentExtensions } from "@rtnote/shared";
+import { createRTNoteMathematics } from "@rtnote/shared/mathematics";
 import { ensureTestWindowDom } from "./restore-test-global.mjs";
 import { compactEditorJson } from "./editor-json-test-helpers.mjs";
 import { isBlockMarkdownText, pasteBlockMarkdown } from "./markdown-text-paste.ts";
@@ -10,7 +10,7 @@ import { isBlockMarkdownText, pasteBlockMarkdown } from "./markdown-text-paste.t
 const createEditor = (content = { type: "doc", content: [{ type: "paragraph" }] }) => {
   ensureTestWindowDom();
   return compactEditorJson(new Editor({
-    extensions: createEdgeEverDocumentExtensions({ mathematics: createEdgeEverMathematics() }),
+    extensions: createRTNoteDocumentExtensions({ mathematics: createRTNoteMathematics() }),
     content,
   }));
 };

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useMutation } from "@tanstack/react-query";
-import type { TranscriptionProvider, TranscriptionSettings, TranscriptionStandard } from "@edgeever/shared";
+import type { TranscriptionProvider, TranscriptionSettings, TranscriptionStandard } from "@rtnote/shared";
 import { CheckCircle2, Loader2, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";

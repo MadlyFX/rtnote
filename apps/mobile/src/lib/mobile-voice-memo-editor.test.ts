@@ -1,10 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { getSchema } from "@tiptap/core";
 import { EditorState } from "@tiptap/pm/state";
-import { VOICE_MEMO_NODE_TYPE, createEdgeEverDocumentExtensions } from "@edgeever/shared";
+import { VOICE_MEMO_NODE_TYPE, createRTNoteDocumentExtensions } from "@rtnote/shared";
 import { completePendingVoiceMemo, findVoiceMemoMimeType, parseVoiceMemoAttrsJson } from "./mobile-voice-memo-editor";
 
-const schema = getSchema(createEdgeEverDocumentExtensions({ mathematics: [] }));
+const schema = getSchema(createRTNoteDocumentExtensions({ mathematics: [] }));
 
 const memo = (attrs: Record<string, unknown>) => ({ type: VOICE_MEMO_NODE_TYPE, attrs });
 const stateOf = (...content: unknown[]) =>

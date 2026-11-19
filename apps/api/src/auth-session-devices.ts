@@ -1,4 +1,4 @@
-import type { LoginDeviceSession } from "@edgeever/shared";
+import type { LoginDeviceSession } from "@rtnote/shared";
 
 export type LoginDeviceSessionRow = {
   id: string;

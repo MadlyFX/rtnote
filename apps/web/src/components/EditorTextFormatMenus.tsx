@@ -11,7 +11,7 @@ import {
   normalizeLineHeight,
   normalizeTextAlignment,
   type TextAlignment,
-} from "@edgeever/shared";
+} from "@rtnote/shared";
 import { AlignCenter, AlignJustify, AlignLeft, AlignRight, ChevronDown, RemoveFormatting, Type } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {

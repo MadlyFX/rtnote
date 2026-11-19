@@ -13,19 +13,19 @@ const memoryStorage = (entries) => {
 
 test("removes leftover AI assistant data and keeps everything else", () => {
   const local = memoryStorage({
-    "edgeever.aiSidebar.localThreads": "{\"turns\":[\"note text\"]}",
-    "edgeever.aiSidebar.width": "380",
-    "edgeever.aiAssistant.mode": "sidebar",
-    "edgeever.ai-model-discovery.v1:provider": "[]",
-    "edgeever.editor.aiSelectionMenuEnabled": "true",
-    "edgeever.editor.aiSpaceShortcutEnabled": "false",
-    "edgeever.desktop.session": "keep",
-    "edgeever.editor.fontSize": "keep",
+    "rtnote.aiSidebar.localThreads": "{\"turns\":[\"note text\"]}",
+    "rtnote.aiSidebar.width": "380",
+    "rtnote.aiAssistant.mode": "sidebar",
+    "rtnote.ai-model-discovery.v1:provider": "[]",
+    "rtnote.editor.aiSelectionMenuEnabled": "true",
+    "rtnote.editor.aiSpaceShortcutEnabled": "false",
+    "rtnote.desktop.session": "keep",
+    "rtnote.editor.fontSize": "keep",
   });
-  const session = memoryStorage({ "edgeever.aiSidebar.selectionTurns": "[]", "edgeever.other": "keep" });
+  const session = memoryStorage({ "rtnote.aiSidebar.selectionTurns": "[]", "rtnote.other": "keep" });
   removeLegacyAiStorageKeys(local, session);
-  expect([...local.map.keys()]).toEqual(["edgeever.desktop.session", "edgeever.editor.fontSize"]);
-  expect([...session.map.keys()]).toEqual(["edgeever.other"]);
+  expect([...local.map.keys()]).toEqual(["rtnote.desktop.session", "rtnote.editor.fontSize"]);
+  expect([...session.map.keys()]).toEqual(["rtnote.other"]);
 });
 
 test("tolerates unavailable storage", () => {

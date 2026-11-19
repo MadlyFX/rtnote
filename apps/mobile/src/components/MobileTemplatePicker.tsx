@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { MemoTemplate } from "@edgeever/shared";
-import { listMemoTemplateGallery } from "@edgeever/shared/memo-template-gallery";
-import { localizeDefaultMemoTemplate } from "@edgeever/shared/memo-template-seeds";
-import type { createEdgeEverClient } from "@edgeever/client";
+import type { MemoTemplate } from "@rtnote/shared";
+import { listMemoTemplateGallery } from "@rtnote/shared/memo-template-gallery";
+import { localizeDefaultMemoTemplate } from "@rtnote/shared/memo-template-seeds";
+import type { createRTNoteClient } from "@rtnote/client";
 import { Modal, Pressable, ScrollView, View } from "react-native";
 import { ActivityIndicator, FileText, LayoutTemplate, Mic, X } from "./icons";
 import { Text } from "./LocalizedText";
@@ -17,7 +17,7 @@ import {
 import { getMobileCatalog, useMobileLocale } from "../lib/mobile-locale";
 import { styles } from "../screens/workspace-styles";
 
-type MobileClient = ReturnType<typeof createEdgeEverClient>;
+type MobileClient = ReturnType<typeof createRTNoteClient>;
 
 /**
  * Template picker.

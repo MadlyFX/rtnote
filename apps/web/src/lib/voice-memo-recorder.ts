@@ -1,5 +1,5 @@
-import type { TiptapDoc } from "@edgeever/shared";
-import { VOICE_MEMO_NODE_TYPE, createVoiceMemoClientId, createVoiceMemoFilename } from "@edgeever/shared/voice-memo-names";
+import type { TiptapDoc } from "@rtnote/shared";
+import { VOICE_MEMO_NODE_TYPE, createVoiceMemoClientId, createVoiceMemoFilename } from "@rtnote/shared/voice-memo-names";
 
 /**
  * Voice memo recording in the browser and desktop app.
@@ -363,7 +363,7 @@ class VoiceMemoSession {
         mimeType: resource.mimeType || file.type,
         byteSize: resource.byteSize ?? file.size,
         durationMs: Math.round(this.snapshot.elapsedMs),
-        savedOffline: Boolean(resource.id?.startsWith("local_resource_") || resource.url.startsWith("edgeever-staged:")),
+        savedOffline: Boolean(resource.id?.startsWith("local_resource_") || resource.url.startsWith("rtnote-staged:")),
       };
       this.file = null;
       this.update({ status: "saved", result });

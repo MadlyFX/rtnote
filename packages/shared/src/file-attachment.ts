@@ -4,9 +4,9 @@ import { resolveAttachmentKind } from "./attachment-kind";
 import { getAttachmentFilenameFromLabel, resourceLinkToMarkdown } from "./resource-links";
 import { normalizeAttachmentByteSize } from "./attachment-metadata";
 import { decodeString } from "micromark-util-decode-string";
-import { ATTACHMENT_LABEL_PREFIX_PATTERN } from "./edgeever-legacy-values";
+import { ATTACHMENT_LABEL_PREFIX_PATTERN } from "./rtnote-legacy-values";
 
-export const FILE_ATTACHMENT_NODE_TYPE = "edgeeverFileAttachment" as const;
+export const FILE_ATTACHMENT_NODE_TYPE = "rtnoteFileAttachment" as const;
 export const FILE_DISPLAY_MODES = ["compact", "inline"] as const;
 export type FileDisplayMode = (typeof FILE_DISPLAY_MODES)[number];
 
@@ -16,7 +16,7 @@ export const resolveFileDisplayMode = (value: unknown): FileDisplayMode =>
 
 const MARKDOWN_LINK_PATTERN = /^\[((?:\\.|[^[\]\\])+)\]\(([^\s)]+)(?:\s+"[^"]*")?\)/;
 const ATTACHMENT_LABEL_PATTERN = ATTACHMENT_LABEL_PREFIX_PATTERN;
-const RESOURCE_URL_PATTERN = /(?:\/api\/v1\/resources\/|edgeever-(?:resource|staged):\/\/)/i;
+const RESOURCE_URL_PATTERN = /(?:\/api\/v1\/resources\/|rtnote-(?:resource|staged):\/\/)/i;
 
 export const isFileAttachmentLink = (label: string, url: string) => {
   if (resolveAttachmentKind(null, getAttachmentFilenameFromLabel(label)) === "pdf" || resolveAttachmentKind(null, url) === "pdf") {
@@ -76,15 +76,15 @@ export const FileAttachment = Node.create({
   },
 
   parseHTML() {
-    return [{ tag: 'span[data-type="edgeever-file-attachment"]' }];
+    return [{ tag: 'span[data-type="rtnote-file-attachment"]' }];
   },
 
   renderHTML({ HTMLAttributes }) {
     return [
       "span",
       mergeAttributes(HTMLAttributes, {
-        "data-type": "edgeever-file-attachment",
-        class: "edgeever-file-attachment",
+        "data-type": "rtnote-file-attachment",
+        class: "rtnote-file-attachment",
       }),
     ];
   },

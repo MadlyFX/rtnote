@@ -7,9 +7,9 @@ import {
   type MemoDetail,
   type MemoTemplate,
   type TiptapDoc,
-} from "@edgeever/shared";
-import { listMemoTemplateGallery } from "@edgeever/shared/memo-template-gallery";
-import { localizeDefaultMemoTemplate } from "@edgeever/shared/memo-template-seeds";
+} from "@rtnote/shared";
+import { listMemoTemplateGallery } from "@rtnote/shared/memo-template-gallery";
+import { localizeDefaultMemoTemplate } from "@rtnote/shared/memo-template-seeds";
 import { zValidator } from "@hono/zod-validator";
 import type { Hono } from "hono";
 import { audit } from "./audit";

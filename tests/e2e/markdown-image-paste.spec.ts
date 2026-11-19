@@ -70,7 +70,7 @@ test("converts a pasted Markdown image line in the main Web editor", async ({ pa
     await expect(image).not.toHaveAttribute("title");
     await expect(editor).not.toContainText(markdown);
 
-    const imageNode = editor.locator(".edgeever-image-node");
+    const imageNode = editor.locator(".rtnote-image-node");
     await image.click();
     await expect(imageNode).toHaveClass(/(?:is-selected|ProseMirror-selectednode)/);
     await imageNode.getByRole("button", { name: ui.editor.imageSizeSmall }).click();
@@ -113,7 +113,7 @@ test("converts a pasted Markdown image line in the standalone mobile Web editor"
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`/mobile-edit.html#memoId=${encodeURIComponent(memo.id)}&returnTo=%2F`);
 
-    const editor = page.locator(".edgeever-mobile-tiptap-content[contenteditable='true']");
+    const editor = page.locator(".rtnote-mobile-tiptap-content[contenteditable='true']");
     await expect(editor).toBeEditable();
     await dispatchPlainTextPaste(editor, markdown);
 
@@ -153,7 +153,7 @@ test("shows a stable local preview while a pasted image is uploading", async ({ 
     await expect(editor).toBeEditable();
     await dispatchPngFilePaste(editor);
 
-    const placeholder = editor.locator(".edgeever-image-upload-placeholder");
+    const placeholder = editor.locator(".rtnote-image-upload-placeholder");
     await expect(placeholder).toBeVisible();
     await expect(placeholder).toHaveClass(/is-preview-ready/);
     expect((await placeholder.boundingBox())?.height ?? 0).toBeGreaterThan(150);
@@ -161,7 +161,7 @@ test("shows a stable local preview while a pasted image is uploading", async ({ 
     await expect(placeholder).toBeVisible();
 
     releaseUpload();
-    const finalImage = editor.locator(".edgeever-image-node img");
+    const finalImage = editor.locator(".rtnote-image-node img");
     await expect(finalImage).toBeVisible();
     await expect(placeholder).toHaveCount(0);
     expect((await finalImage.boundingBox())?.height ?? 0).toBeGreaterThan(1);

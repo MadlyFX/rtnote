@@ -18,7 +18,7 @@ const readColors = (attributes: string) => {
   return values;
 };
 
-export const EdgeEverTextStyle = TextStyle.extend({
+export const RTNoteTextStyle = TextStyle.extend({
   renderHTML({ mark, HTMLAttributes }) {
     const color = normalizeTextColor(mark.attrs.color);
     const background = normalizeTextColor(mark.attrs.backgroundColor);
@@ -81,4 +81,4 @@ export const EdgeEverTextStyle = TextStyle.extend({
   },
 });
 
-export const createTextColorExtensions = () => [EdgeEverTextStyle, Color, BackgroundColor, NoteFontFamily, NoteFontSize];
+export const createTextColorExtensions = () => [RTNoteTextStyle, Color, BackgroundColor, NoteFontFamily, NoteFontSize];

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import type { TotpSetupResponse } from "@edgeever/shared";
+import type { TotpSetupResponse } from "@rtnote/shared";
 import { Button } from "@/components/ui/button";
 import {
   RecoveryCodesStep,

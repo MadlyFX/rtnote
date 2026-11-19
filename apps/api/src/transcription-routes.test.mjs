@@ -23,7 +23,7 @@ const environment = {
     },
     resources: {},
   },
-  EDGE_EVER_AUTH_PASSWORD: "x".repeat(32),
+  RTNOTE_AUTH_PASSWORD: "x".repeat(32),
 };
 
 class SqliteD1PreparedStatement {
@@ -77,7 +77,7 @@ const createDatabaseEnvironment = () => {
     sqlite,
     environment: {
       storage: { db: new SqliteD1Database(sqlite), resources: {} },
-      EDGE_EVER_AUTH_PASSWORD: "x".repeat(32),
+      RTNOTE_AUTH_PASSWORD: "x".repeat(32),
     },
   };
 };
@@ -228,7 +228,7 @@ describe("speech transcription settings routes", () => {
 
   test("fails closed when no credential encryption key is configured", async () => {
     const { sqlite, environment: databaseEnvironment } = createDatabaseEnvironment();
-    const { EDGE_EVER_AUTH_PASSWORD: _password, ...withoutKey } = databaseEnvironment;
+    const { RTNOTE_AUTH_PASSWORD: _password, ...withoutKey } = databaseEnvironment;
     const response = await createApp().request(
       "/api/v1/ai/transcription-providers",
       jsonRequest("POST", transcriptionSettings),
@@ -437,7 +437,7 @@ describe("speech settings storage failures", () => {
     const app = createApp();
     const { sqlite, environment: databaseEnvironment } = createDatabaseEnvironment();
     const speech = (await createTranscriptionProvider(app, databaseEnvironment)).providers[0];
-    const { EDGE_EVER_AUTH_PASSWORD: _password, ...withoutKey } = databaseEnvironment;
+    const { RTNOTE_AUTH_PASSWORD: _password, ...withoutKey } = databaseEnvironment;
     const speechUpdate = await app.request(
       `/api/v1/ai/transcription-providers/${speech.id}`,
       jsonRequest("PUT", { ...transcriptionSettings, apiKey: "rotated" }),

@@ -93,14 +93,14 @@ export const buildNoteHtmlContentMarkup = ({
 }: Pick<BuildStandaloneHtmlDocumentOptions, "title" | "notebook" | "tags" | "updatedAt" | "bodyHtml">) => {
   const metadataParts = [notebook, updatedAt, ...tags.map((tag) => `#${tag}`)].filter(Boolean);
   const metaHtml = metadataParts.length > 0
-    ? `<div class="edgeever-html-meta">${escapeHtml(metadataParts.join(" · "))}</div>`
+    ? `<div class="rtnote-html-meta">${escapeHtml(metadataParts.join(" · "))}</div>`
     : "";
 
-  return `<div class="edgeever-html-shell">
-<article class="edgeever-html-document">
-<h1 class="edgeever-html-title">${escapeHtml(title)}</h1>
+  return `<div class="rtnote-html-shell">
+<article class="rtnote-html-document">
+<h1 class="rtnote-html-title">${escapeHtml(title)}</h1>
 ${metaHtml}
-<div class="edgeever-html-content">
+<div class="rtnote-html-content">
 ${bodyHtml}
 </div>
 </article>
@@ -196,7 +196,7 @@ export const renderMermaidBlocksForHtmlExport = async (
         padding: 24,
       });
       const figure = document.createElement("figure");
-      figure.className = "edgeever-html-mermaid";
+      figure.className = "rtnote-html-mermaid";
       figure.innerHTML = svg;
       container.replaceWith(figure);
     } catch {

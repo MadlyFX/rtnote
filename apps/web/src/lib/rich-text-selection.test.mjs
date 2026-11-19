@@ -3,8 +3,8 @@ import { Editor } from "@tiptap/core";
 import { TableKit } from "@tiptap/extension-table";
 import { NodeSelection } from "@tiptap/pm/state";
 import StarterKit from "@tiptap/starter-kit";
-import { markdownToDoc } from "@edgeever/shared";
-import { getRichTextSelectionContext, markdownForRichTextSelection } from "@edgeever/shared";
+import { markdownToDoc } from "@rtnote/shared";
+import { getRichTextSelectionContext, markdownForRichTextSelection } from "@rtnote/shared";
 
 describe("markdownForRichTextSelection", () => {
   test("keeps list-like single-line output inline inside a paragraph", () => {

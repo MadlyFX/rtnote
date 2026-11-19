@@ -1,10 +1,10 @@
-import type { PublicNotebookShare } from "@edgeever/shared";
+import type { PublicNotebookShare } from "@rtnote/shared";
 import { NotebookSiteSearch, NotebookSiteSearchContext } from "./NotebookSiteSearch";
 import { useAppearanceTheme, type ThemePreference } from "./ThemeProvider";
 import { ButtonTooltip } from "./ui/button-tooltip";
 import "./notebook-site.css";
-import { getMemoDisplayTitle } from "@edgeever/shared";
-import { BRAND_FONTS, withBrandName } from "@edgeever/shared/branding";
+import { getMemoDisplayTitle } from "@rtnote/shared";
+import { BRAND_FONTS, withBrandName } from "@rtnote/shared/branding";
 import {
   ArrowLeft,
   ArrowRight,
@@ -301,7 +301,7 @@ export const PublicNotebookSite = ({ share, token, selectedId, children }: {
     </nav><div className="px-8 py-5 text-[11px] text-muted-foreground">{withBrandName(t("sharing.sitePoweredBy"), branding?.name ?? "RTNote")}</div>
   </div>;
   return <NotebookSiteSearchContext.Provider value={(selectedTag) => { setTag(selectedTag ?? ""); setSearchOpen(true); }}><TooltipProvider delayDuration={400}>
-    <div data-site-theme="default" className="edgeever-notebook-site edgeever-public-page min-h-[100dvh] bg-card text-foreground" style={siteFont ? { fontFamily: siteFont } : undefined}>
+    <div data-site-theme="default" className="rtnote-notebook-site rtnote-public-page min-h-[100dvh] bg-card text-foreground" style={siteFont ? { fontFamily: siteFont } : undefined}>
       <a href="#notebook-site-content" className="sr-only z-[60] rounded-md bg-card p-3 focus:not-sr-only focus:fixed focus:left-4 focus:top-4">{t("sharing.siteSkipToContent")}</a>
       <header className="sticky top-0 z-30 flex min-h-16 flex-wrap items-center justify-between gap-3 border-b bg-card/95 px-4 py-3 backdrop-blur sm:px-6">
         <Link to={root} onClick={navigate} className={`${linkClass} flex min-w-0 items-center gap-3 font-semibold`}><SiteLogo key={siteLogo} src={siteLogo} /><span className="max-w-[40vw] truncate">{share.name}</span></Link>

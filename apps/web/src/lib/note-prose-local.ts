@@ -2,10 +2,10 @@ import {
   paletteForLegacyEditorTheme,
   type NoteProseCustomColors,
   type NoteProsePaletteChoice,
-} from "@edgeever/shared";
+} from "@rtnote/shared";
 
-const EDITOR_THEME_STORAGE_KEY = "edgeever.editor-theme";
-const CUSTOM_EDITOR_THEMES_STORAGE_KEY = "edgeever.custom-editor-themes";
+const EDITOR_THEME_STORAGE_KEY = "rtnote.editor-theme";
+const CUSTOM_EDITOR_THEMES_STORAGE_KEY = "rtnote.custom-editor-themes";
 
 export type LocalNoteProseMigration = {
   palette: NoteProsePaletteChoice | null;

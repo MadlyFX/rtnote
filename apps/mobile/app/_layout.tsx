@@ -42,7 +42,7 @@ export default function RootLayout() {
   );
   const [persister] = useState(() =>
     createAsyncStoragePersister({
-      key: "edgeever.mobile.query-cache.v1",
+      key: "rtnote.mobile.query-cache.v1",
       storage: AsyncStorage,
       throttleTime: 1_000,
       serialize: (persistedClient) => {

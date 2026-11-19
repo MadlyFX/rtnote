@@ -1,4 +1,4 @@
-import { createMobileFormatPanel, getMobileCaptionPlaceholder, type MobileFormatPanel } from "@edgeever/shared/mobile-format-panel";
+import { createMobileFormatPanel, getMobileCaptionPlaceholder, type MobileFormatPanel } from "@rtnote/shared/mobile-format-panel";
 import "katex/dist/katex.min.css";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -9,14 +9,14 @@ import { VoiceMemoEditorContext, VoiceMemoExtension, insertVoiceMemoAndRecord, t
 import Image from "@tiptap/extension-image";
 import { mergeAttributes } from "@tiptap/core";
 import Placeholder from "@tiptap/extension-placeholder";
-import { ATTACHMENT_TEXT_PREFIX, ImageGallery, createExcerpt, createEdgeEverDocumentExtensions, docToMarkdown, docToText, emptyDoc, getImageReferrerPolicy, isPdfAttachment, wrapDetailsContentHtml, type MemoDetail, type MemoEditSession, type Notebook, type TagSummary, type TiptapDoc } from "@edgeever/shared";
-import { createEdgeEverMathematics } from "@edgeever/shared/mathematics";
-import { createNativeImageGalleryView, NATIVE_IMAGE_GALLERY_CSS } from "@edgeever/shared/native-image-gallery";
-import { NEW_IMAGE_WIDTH_PERCENT } from "@edgeever/shared/image-display";
+import { ATTACHMENT_TEXT_PREFIX, ImageGallery, createExcerpt, createRTNoteDocumentExtensions, docToMarkdown, docToText, emptyDoc, getImageReferrerPolicy, isPdfAttachment, wrapDetailsContentHtml, type MemoDetail, type MemoEditSession, type Notebook, type TagSummary, type TiptapDoc } from "@rtnote/shared";
+import { createRTNoteMathematics } from "@rtnote/shared/mathematics";
+import { createNativeImageGalleryView, NATIVE_IMAGE_GALLERY_CSS } from "@rtnote/shared/native-image-gallery";
+import { NEW_IMAGE_WIDTH_PERCENT } from "@rtnote/shared/image-display";
 import { insertUploadedResources } from "@/lib/resource-insertion";
 import { getResourceInsertionTarget } from "@/lib/resource-insertion-target";
-import { clearMobileEditorUndoHistory, getMobileEditorInputAttributes, getMobileEditorPlaceholder } from "@edgeever/shared/mobile-editor";
-import { EdgeEverLink } from "@edgeever/shared/editor-link";
+import { clearMobileEditorUndoHistory, getMobileEditorInputAttributes, getMobileEditorPlaceholder } from "@rtnote/shared/mobile-editor";
+import { RTNoteLink } from "@rtnote/shared/editor-link";
 import { activateHeadingAnchorClick } from "@/lib/editor-heading-anchor";
 import { createInlineFieldExtension } from "@/components/editor/InlineField";
 import {
@@ -207,8 +207,8 @@ export const MobileStandaloneTiptapEditor = ({
   const inlineFieldExtension = useMemo(() => createInlineFieldExtension(i18n.getFixedT(locale)), [i18n, locale]);
   const editor = useEditor({
     extensions: [
-      ...createEdgeEverDocumentExtensions({
-        mathematics: createEdgeEverMathematics(),
+      ...createRTNoteDocumentExtensions({
+        mathematics: createRTNoteMathematics(),
         starterKit: { link: false },
         image: ProtectedExternalImage.configure({
           allowBase64: false,
@@ -223,7 +223,7 @@ export const MobileStandaloneTiptapEditor = ({
         table: { table: { renderWrapper: true, resizable: true } },
         imageCaption: { placeholder: () => getMobileCaptionPlaceholder(localeRef.current) },
       }),
-      EdgeEverLink,
+      RTNoteLink,
       inlineFieldExtension,
       ThemeBlock,
       Placeholder.configure({
@@ -232,7 +232,7 @@ export const MobileStandaloneTiptapEditor = ({
     ],
     content: emptyDoc(),
     editorProps: {
-      attributes: getMobileEditorInputAttributes("edgeever-mobile-tiptap-content"),
+      attributes: getMobileEditorInputAttributes("rtnote-mobile-tiptap-content"),
       transformPastedHTML: (html) => wrapDetailsContentHtml(html),
       handleKeyDown: (view, event) => {
         if (event.key !== "Backspace" || !preserveEmptyListIndentOnBackspace(view.state, view.dispatch)) {
@@ -668,7 +668,7 @@ export const MobileStandaloneTiptapEditor = ({
           .insertContent({
             type: "paragraph",
             content: [{
-              type: "edgeeverPdfAttachment",
+              type: "rtnotePdfAttachment",
               attrs: {
                 url: resource.url,
                 label: `${ATTACHMENT_TEXT_PREFIX}${resource.filename || file.name}`,
@@ -688,7 +688,7 @@ export const MobileStandaloneTiptapEditor = ({
           .insertContent({
             type: "paragraph",
             content: [{
-              type: "edgeeverFileAttachment",
+              type: "rtnoteFileAttachment",
               attrs: {
                 url: resource.url,
                 label: `${ATTACHMENT_TEXT_PREFIX}${filename}`,
@@ -1080,7 +1080,7 @@ export const MobileStandaloneTiptapEditor = ({
         )}
 
         <div
-          className="edgeever-mobile-tiptap-editor"
+          className="rtnote-mobile-tiptap-editor"
           onClickCapture={(event) => {
             activateHeadingAnchorClick(event, editor && !editor.isDestroyed ? editor.view : null);
           }}

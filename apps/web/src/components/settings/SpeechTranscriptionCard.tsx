@@ -1,6 +1,6 @@
 import { useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { type TranscriptionSettings, type TranscriptionStandard } from "@edgeever/shared";
+import { type TranscriptionSettings, type TranscriptionStandard } from "@rtnote/shared";
 import { AudioLines, CheckCircle2, Loader2, Plus, TriangleAlert } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { SpeechProviderCard } from "@/components/settings/SpeechProviderCard";

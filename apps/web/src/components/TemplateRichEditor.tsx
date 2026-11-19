@@ -2,9 +2,9 @@ import "katex/dist/katex.min.css";
 import { useRef } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import Placeholder from "@tiptap/extension-placeholder";
-import { createEdgeEverDocumentExtensions, type TiptapDoc } from "@edgeever/shared";
-import { createEdgeEverMathematics } from "@edgeever/shared/mathematics";
-import { EdgeEverLink } from "@edgeever/shared/editor-link";
+import { createRTNoteDocumentExtensions, type TiptapDoc } from "@rtnote/shared";
+import { createRTNoteMathematics } from "@rtnote/shared/mathematics";
+import { RTNoteLink } from "@rtnote/shared/editor-link";
 import { EditorToolbar } from "./EditorToolbar";
 
 /**
@@ -28,12 +28,12 @@ export const TemplateRichEditor = ({
 
   const editor = useEditor({
     extensions: [
-      ...createEdgeEverDocumentExtensions({
-        mathematics: createEdgeEverMathematics(),
+      ...createRTNoteDocumentExtensions({
+        mathematics: createRTNoteMathematics(),
         starterKit: { link: false },
         table: { table: { resizable: true } },
       }),
-      EdgeEverLink,
+      RTNoteLink,
       Placeholder.configure({ placeholder }),
     ],
     content: value,

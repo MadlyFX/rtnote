@@ -11,7 +11,7 @@ import {
   type InfographicDocument,
   type PosterDocument,
   type TableDocument,
-} from "@edgeever/shared";
+} from "@rtnote/shared";
 
 /** Name of the notebook that holds the Chinese feature demos. */
 export const DEMO_FEATURES_NOTEBOOK_NAME_ZH = "功能演示";
@@ -150,7 +150,7 @@ export const DEMO_POSTER_DOCUMENT_ZH: PosterDocument = {
   background: "#f4efe4",
   templateId: "editorial",
   copy: {
-    badge: "EDGEEVER · 知识艺术",
+    badge: "RTNOTE · 知识艺术",
     title: "极客的下一代\n数字第二大脑",
     subtitle: "重拾经典三栏工作流，融入 AI 智能体与无损开放数据资产。",
   },
@@ -173,7 +173,7 @@ export const DEMO_POSTER_DOCUMENT_ZH: PosterDocument = {
       name: "badge",
       type: "text",
       role: "badge",
-      text: "EDGEEVER · 知识艺术",
+      text: "RTNOTE · 知识艺术",
       x: 96,
       y: 150,
       width: 888,
@@ -692,7 +692,7 @@ sequenceDiagram
 2. **Docker 一键自建（VPS / NAS / 家用服务器）**：
    \`\`\`sh
    # 官方 GHCR 镜像
-   curl -fsSL https://edgeever.org/install.sh | bash
+   curl -fsSL https://rtnote.example/install.sh | bash
    \`\`\`
    单命令自动配置 Docker Compose 环境，并内置每日定时自动更新。部分中国大陆网络环境可能需要自行配置可用的网络代理或可信的镜像加速服务，才能正常访问 GHCR。
 

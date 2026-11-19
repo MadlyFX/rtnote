@@ -4,8 +4,8 @@ import {
   brandThemeColor,
   DEFAULT_RESOLVED_BRANDING,
   type ResolvedBranding,
-} from "@edgeever/shared/branding";
-import { PUBLIC_PAGE_HEADERS } from "@edgeever/shared/public-page-headers";
+} from "@rtnote/shared/branding";
+import { PUBLIC_PAGE_HEADERS } from "@rtnote/shared/public-page-headers";
 import { loadInstanceBranding, resolveWorkspaceBranding } from "./branding-service";
 import type { DatabaseAdapter } from "./storage-contract";
 
@@ -18,7 +18,7 @@ export const escapeHtml = (text: string) => text.replace(/[&<>"']/g, (char) => (
 })[char]!);
 
 /** Branding JSON the SPA reads before its first render, so public pages do not flash RTNote. */
-export const PUBLIC_BRANDING_SCRIPT_ID = "edgeever-public-branding";
+export const PUBLIC_BRANDING_SCRIPT_ID = "rtnote-public-branding";
 
 const jsonForScript = (value: unknown) => JSON.stringify(value)
   .replace(/</g, "\\u003c")
@@ -29,8 +29,8 @@ const jsonForScript = (value: unknown) => JSON.stringify(value)
 
 const fontRules = (branding: ResolvedBranding) => {
   const rules: string[] = [];
-  if (branding.fonts.body !== "system") rules.push(`#edgeever-shared-note,.edgeever-public-page{font-family:${BRAND_FONTS[branding.fonts.body]}}`);
-  if (branding.fonts.heading !== "system") rules.push(`#edgeever-shared-note h1,.edgeever-public-page :is(h1,h2,h3){font-family:${BRAND_FONTS[branding.fonts.heading]}}`);
+  if (branding.fonts.body !== "system") rules.push(`#rtnote-shared-note,.rtnote-public-page{font-family:${BRAND_FONTS[branding.fonts.body]}}`);
+  if (branding.fonts.heading !== "system") rules.push(`#rtnote-shared-note h1,.rtnote-public-page :is(h1,h2,h3){font-family:${BRAND_FONTS[branding.fonts.heading]}}`);
   return rules.join("\n");
 };
 
@@ -48,7 +48,7 @@ export const brandingHeadMarkup = (branding: ResolvedBranding | null) => {
     parts.push(`<meta name="theme-color" media="(prefers-color-scheme: dark)" content="${brandThemeColor(applied, "dark")}">`);
   }
   const css = [brandingStylesheet(applied), fontRules(applied)].filter(Boolean).join("\n");
-  if (css) parts.push(`<style id="edgeever-branding">${css.replace(/<\//g, "<\\/")}</style>`);
+  if (css) parts.push(`<style id="rtnote-branding">${css.replace(/<\//g, "<\\/")}</style>`);
   parts.push(`<script type="application/json" id="${PUBLIC_BRANDING_SCRIPT_ID}">${jsonForScript({ branding: branding ?? null })}</script>`);
   return parts.join("\n");
 };

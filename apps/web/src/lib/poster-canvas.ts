@@ -17,7 +17,7 @@ import {
   type PosterDocument,
   type PosterElement,
   type PosterPaintGradient,
-} from "@edgeever/shared";
+} from "@rtnote/shared";
 import { BadgeBox } from "./poster-design/vendor/qiaomu/badge";
 import { loadPosterFont } from "./poster-design/fonts";
 import { grain } from "./poster-design/vendor/qiaomu/kit";

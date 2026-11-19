@@ -5,7 +5,7 @@ const writeRecoveredDraft = (
   page: Page,
   draft: { memoId: string; title: string; marker: string },
 ) => page.evaluate(({ memoId, title, marker }) => new Promise<void>((resolve, reject) => {
-  const openRequest = indexedDB.open("edgeever-local");
+  const openRequest = indexedDB.open("rtnote-local");
   openRequest.onerror = () => reject(openRequest.error);
   openRequest.onsuccess = () => {
     const database = openRequest.result;

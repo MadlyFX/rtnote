@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Pause, Play } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { formatVoiceMemoDuration } from "@edgeever/shared/voice-memo-names";
+import { formatVoiceMemoDuration } from "@rtnote/shared/voice-memo-names";
 import { pauseOtherMediaPlayers } from "@/components/attachments/pause-other-media";
 import { ButtonTooltip } from "@/components/ui/button-tooltip";
 import { cn } from "@/lib/utils";
@@ -91,7 +91,7 @@ export const VoiceMemoPlayer = ({
       </span>
       <audio
         ref={audioRef}
-        data-edgeever-audio-player
+        data-rtnote-audio-player
         preload="metadata"
         src={src}
         className="hidden"

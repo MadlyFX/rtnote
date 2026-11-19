@@ -1,15 +1,15 @@
 import { describe, expect, test } from "bun:test";
 import { Editor } from "@tiptap/core";
-import { createEdgeEverDocumentExtensions, docToMarkdown } from "@edgeever/shared";
-import { createEdgeEverMathematics } from "@edgeever/shared/mathematics";
+import { createRTNoteDocumentExtensions, docToMarkdown } from "@rtnote/shared";
+import { createRTNoteMathematics } from "@rtnote/shared/mathematics";
 import { ensureTestWindowDom } from "../../lib/restore-test-global.mjs";
 import { compactEditorJson } from "../../lib/editor-json-test-helpers.mjs";
 
 const createEditor = (content = { type: "doc", content: [{ type: "paragraph" }] }) => {
   ensureTestWindowDom();
   const editor = new Editor({
-    extensions: createEdgeEverDocumentExtensions({
-      mathematics: createEdgeEverMathematics(),
+    extensions: createRTNoteDocumentExtensions({
+      mathematics: createRTNoteMathematics(),
     }),
     content,
   });

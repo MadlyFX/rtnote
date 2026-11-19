@@ -105,7 +105,7 @@ export const getMemoSyncBaseConflictDetails = (
 
 export type SameDeviceMemoSyncRecovery = "ack" | "rebase" | "conflict";
 
-// Older clients send EdgeEver's default title for untitled notes; it matches RTNote's.
+// Older clients send RTNote's default title for untitled notes; it matches RTNote's.
 const normalizeMemoSyncTitle = (value: unknown) => {
   const title = typeof value === "string" ? value.trim() : "";
   return isDefaultMemoTitle(title) ? DEFAULT_MEMO_TITLE : title;

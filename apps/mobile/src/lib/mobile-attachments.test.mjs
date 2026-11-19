@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { ATTACHMENT_TEXT_PREFIX, LEGACY_ATTACHMENT_PREFIXES } from "@edgeever/shared";
+import { ATTACHMENT_TEXT_PREFIX, LEGACY_ATTACHMENT_PREFIXES } from "@rtnote/shared";
 import {
   buildMobileResourceDownloadRequest,
   deleteMobileAttachmentFromDoc,
@@ -16,7 +16,7 @@ import {
   resolveResourceMimeType,
 } from "./mobile-attachments.ts";
 
-// EdgeEver wrote a Chinese prefix before attachment links; notes still carry it.
+// RTNote wrote a Chinese prefix before attachment links; notes still carry it.
 const legacyPrefix = LEGACY_ATTACHMENT_PREFIXES[0];
 const href = "/api/v1/resources/res_123/blob";
 const attachmentTarget = { filename: "report.pdf", href, kind: "attachment", resourceId: "res_123" };
@@ -27,7 +27,7 @@ const doc = {
     content: [{
       type: "text",
       text: `${ATTACHMENT_TEXT_PREFIX}report.pdf`,
-      marks: [{ type: "link", attrs: { href, class: "edgeever-attachment-link" } }],
+      marks: [{ type: "link", attrs: { href, class: "rtnote-attachment-link" } }],
     }],
   }],
 };
@@ -79,7 +79,7 @@ describe("mobile attachments", () => {
         type: "paragraph",
         content: [
           { type: "text", text: legacyPrefix },
-          { type: "text", text: "report.pdf", marks: [{ type: "link", attrs: { href, class: "edgeever-attachment-link" } }] },
+          { type: "text", text: "report.pdf", marks: [{ type: "link", attrs: { href, class: "rtnote-attachment-link" } }] },
         ],
       }],
     };
@@ -99,9 +99,9 @@ describe("mobile attachments", () => {
         {
           type: "paragraph",
           content: [{
-            type: "edgeeverFileAttachment",
+            type: "rtnoteFileAttachment",
             attrs: {
-              url: "edgeever-resource://resource/res_video",
+              url: "rtnote-resource://resource/res_video",
               label: `${legacyPrefix}clip.mp4`,
               filename: "clip.mp4",
               mimeType: "video/mp4",
@@ -111,7 +111,7 @@ describe("mobile attachments", () => {
         {
           type: "paragraph",
           content: [{
-            type: "edgeeverPdfAttachment",
+            type: "rtnotePdfAttachment",
             attrs: {
               url: href,
               label: `${ATTACHMENT_TEXT_PREFIX}report.pdf`,
@@ -124,19 +124,19 @@ describe("mobile attachments", () => {
 
     const renamed = renameMobileAttachmentInDoc(nodeDoc, videoTarget, "final.mp4", ATTACHMENT_TEXT_PREFIX);
     expect(renamed.content[0].content[0]).toEqual({
-      type: "edgeeverFileAttachment",
+      type: "rtnoteFileAttachment",
       attrs: {
-        url: "edgeever-resource://resource/res_video",
+        url: "rtnote-resource://resource/res_video",
         label: `${ATTACHMENT_TEXT_PREFIX}final.mp4`,
         filename: "final.mp4",
         mimeType: "video/mp4",
       },
     });
-    expect(renamed.content[1].content[0].type).toBe("edgeeverPdfAttachment");
+    expect(renamed.content[1].content[0].type).toBe("rtnotePdfAttachment");
     expect(deleteMobileAttachmentFromDoc(nodeDoc, videoTarget).content).toEqual([{
       type: "paragraph",
       content: [{
-        type: "edgeeverPdfAttachment",
+        type: "rtnotePdfAttachment",
         attrs: {
           url: href,
           label: `${ATTACHMENT_TEXT_PREFIX}report.pdf`,

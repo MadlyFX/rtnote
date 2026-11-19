@@ -52,14 +52,14 @@ import { api, getConfiguredDesktopApiBaseUrl } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useShowDescendantNotesPreference } from "@/lib/descendant-notes-preference";
 import { BETA_BADGE_CLASSNAME } from "@/lib/workspace-ui";
-import type { Notebook, AuthUser, NoteCreateKind } from "@edgeever/shared";
+import type { Notebook, AuthUser, NoteCreateKind } from "@rtnote/shared";
 import type { NotebookDropPosition, NotebookSortMode } from "@/lib/app-helpers";
 import type { SyncQueueSummary } from "@/lib/sync-queue";
 import {
   buildNotebookTree,
   getNotebookSortOptions,
   getNotebookSortComparator,
-  hasEdgeEverDragData,
+  hasRTNoteDragData,
   readNotebookSectionCollapsedPreference,
   readNotebookTreeCollapsedIdsPreference,
   readNotebookSortPreference,
@@ -67,8 +67,8 @@ import {
   writeNotebookTreeCollapsedIdsPreference,
   writeNotebookSortPreference,
 } from "@/lib/app-helpers";
-import type { EdgeEverRepository } from "@/lib/repository";
-import type { EdgeEverPluginHost } from "@/lib/plugins/plugin-host";
+import type { RTNoteRepository } from "@/lib/repository";
+import type { RTNotePluginHost } from "@/lib/plugins/plugin-host";
 import { statusSettleMotion } from "@/lib/motion";
 import { DesktopUpdateNotice } from "./DesktopUpdateNotice";
 import { useDeployedUpdateNotice } from "@/hooks/useDeployedUpdateNotice";
@@ -76,15 +76,15 @@ import { PluginToolbarMenu } from "./plugins/PluginToolbarMenu";
 
 const DesktopSyncIssuesDialog = lazy(() => import("./DesktopSyncIssuesDialog").then((module) => ({ default: module.DesktopSyncIssuesDialog })));
 
-const NOTEBOOK_SIDEBAR_ID = "edgeever-notebook-sidebar";
+const NOTEBOOK_SIDEBAR_ID = "rtnote-notebook-sidebar";
 const NOTEBOOK_DRAG_SCROLL_EDGE_PX = 56;
 const NOTEBOOK_DRAG_SCROLL_MAX_STEP_PX = 18;
 const DESKTOP_DOWNLOAD_URL = "https://github.com/MadlyFX/rtnote/releases/latest";
 const ANDROID_PLAY_URL = "https://play.google.com/store/apps/details?id=com.madlyfx.rtnote";
 const ANDROID_APK_URL = "https://github.com/MadlyFX/rtnote/releases/latest";
-const IOS_DOWNLOAD_URL = "https://apps.apple.com/us/app/edgeever/id6792625631";
-const CHROMIUM_CLIPPER_URL = "https://chromewebstore.google.com/detail/edgeever-web-clipper/gjadpfmanienmlofajibkfkkpfdkclgo";
-const FIREFOX_CLIPPER_URL = "https://addons.mozilla.org/firefox/addon/edgeever-web-clipper/";
+const IOS_DOWNLOAD_URL = "https://apps.apple.com/us/app/rtnote/id6792625631";
+const CHROMIUM_CLIPPER_URL = "https://chromewebstore.google.com/detail/rtnote-web-clipper/gjadpfmanienmlofajibkfkkpfdkclgo";
+const FIREFOX_CLIPPER_URL = "https://addons.mozilla.org/firefox/addon/rtnote-web-clipper/";
 
 const BrandIconContainer = ({ children, className }: { children: ReactNode; className?: string }) => (
   <span
@@ -158,7 +158,7 @@ const SidebarNavButton = ({
       tone === "warning"
         ? "text-amber-700 hover:bg-amber-50/70 hover:text-amber-800"
         : active
-          ? "edgeever-workspace-selection text-slate-950 font-medium"
+          ? "rtnote-workspace-selection text-slate-950 font-medium"
           : "text-slate-700 hover:bg-slate-50 hover:text-slate-950"
     )}
     type="button"
@@ -187,7 +187,7 @@ const SidebarShortcutButton = ({
     <button
       className={cn(
         "flex h-9 min-w-0 w-full items-center justify-center rounded-md px-0 text-xs font-medium transition-colors duration-200",
-        active ? "edgeever-workspace-selection text-slate-950" : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"
+        active ? "rtnote-workspace-selection text-slate-950" : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"
       )}
       type="button"
       aria-current={active ? "page" : undefined}
@@ -367,7 +367,7 @@ const SidebarRailButton = ({
         onClick={onClick}
         className={cn(
           "relative flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/20 disabled:cursor-not-allowed disabled:opacity-50",
-          active && "edgeever-workspace-selection text-slate-950"
+          active && "rtnote-workspace-selection text-slate-950"
         )}
       >
         {icon}
@@ -578,7 +578,7 @@ export const NotebookPane = ({
   onToggleCollapsed,
   collapseShortcutLabel,
 }: {
-  repository: EdgeEverRepository;
+  repository: RTNoteRepository;
   user: AuthUser | null;
   view: string;
   selectedNotebookId: string | null;
@@ -593,7 +593,7 @@ export const NotebookPane = ({
   onOpenTags: () => void;
   onOpenAssets: () => void;
   onOpenTemplates: () => void;
-  pluginHost: EdgeEverPluginHost;
+  pluginHost: RTNotePluginHost;
   onOpenPluginManager: () => void;
   onOpenTrash: () => void;
   onEmptyTrash: () => void;
@@ -652,7 +652,7 @@ export const NotebookPane = ({
   }, []);
 
   const handleNotebookScrollDragOver = (event: React.DragEvent<HTMLDivElement>) => {
-    if (!hasEdgeEverDragData(event.dataTransfer)) {
+    if (!hasRTNoteDragData(event.dataTransfer)) {
       stopNotebookDragAutoScroll();
       return;
     }
@@ -795,7 +795,7 @@ export const NotebookPane = ({
         </nav>
       </TooltipProvider>
 
-      {window.edgeeverDesktop?.isAvailable && (
+      {window.rtnoteDesktop?.isAvailable && (
         <div className="px-3 pt-1.5">
           <SyncStatusBar
             summary={syncSummary}
@@ -809,7 +809,7 @@ export const NotebookPane = ({
       )}
 
       <div className="hidden shrink-0 px-3 pb-2 pt-2 lg:block">
-        <div className="edgeever-create-memo-split flex overflow-hidden rounded-2xl border border-slate-200/90 bg-card shadow-[0_5px_16px_rgba(15,23,42,0.06)] transition-shadow duration-200 hover:shadow-[0_7px_20px_rgba(15,23,42,0.09)]">
+        <div className="rtnote-create-memo-split flex overflow-hidden rounded-2xl border border-slate-200/90 bg-card shadow-[0_5px_16px_rgba(15,23,42,0.06)] transition-shadow duration-200 hover:shadow-[0_7px_20px_rgba(15,23,42,0.09)]">
           <button
             className="group flex h-12 max-w-[calc(100%-2.25rem)] shrink-0 items-center gap-2 px-2.5 text-left transition-colors duration-150 hover:bg-slate-50 focus-visible:bg-slate-50 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             type="button"
@@ -830,7 +830,7 @@ export const NotebookPane = ({
                 aria-label={t("diagram.createType")}
                 disabled={!canCreateMemo || isCreatingMemo}
               >
-                <span className="edgeever-create-memo-split__more-label min-w-0 truncate">{t("diagram.moreTypes")}</span>
+                <span className="rtnote-create-memo-split__more-label min-w-0 truncate">{t("diagram.moreTypes")}</span>
                 <ChevronDown className="h-3.5 w-3.5 shrink-0 transition-transform duration-150 group-data-[state=open]:rotate-180" aria-hidden="true" />
               </button>
             </DropdownMenuTrigger>
@@ -1052,7 +1052,7 @@ export const NotebookPane = ({
           </div>
         </TooltipProvider>
       ) : (
-      <footer className="edgeever-workspace-sidebar-footer border-t border-[var(--workspace-divider)] px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2">
+      <footer className="rtnote-workspace-sidebar-footer border-t border-[var(--workspace-divider)] px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2">
         <div className="space-y-1">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

@@ -1,7 +1,7 @@
-import { FONT_IDS, isRemoteNoteImageFont, shouldLoadFontPreview } from "@edgeever/shared/font-catalog";
-import { resolveNoteImageTypography, type NoteImageFontStyle, type NoteImageTheme } from "@edgeever/shared/note-image-card";
-import { prepareNoteImageAssets } from "@edgeever/shared/note-image-fonts";
-import { noteImageAssetUrls } from "@edgeever/shared/note-image-assets";
+import { FONT_IDS, isRemoteNoteImageFont, shouldLoadFontPreview } from "@rtnote/shared/font-catalog";
+import { resolveNoteImageTypography, type NoteImageFontStyle, type NoteImageTheme } from "@rtnote/shared/note-image-card";
+import { prepareNoteImageAssets } from "@rtnote/shared/note-image-fonts";
+import { noteImageAssetUrls } from "@rtnote/shared/note-image-assets";
 
 type PickerConfiguration = {
   selected: NoteImageFontStyle;
@@ -16,12 +16,12 @@ type PickerConfiguration = {
 };
 
 type PickerWindow = Window & {
-  EdgeEverFontPickerConfiguration?: PickerConfiguration;
+  RTNoteFontPickerConfiguration?: PickerConfiguration;
   webkit?: { messageHandlers?: { fontPicker?: { postMessage: (message: unknown) => void } } };
 };
 
 const host = window as PickerWindow;
-const config = host.EdgeEverFontPickerConfiguration;
+const config = host.RTNoteFontPickerConfiguration;
 const list = document.getElementById("font-list");
 
 if (config && list) {

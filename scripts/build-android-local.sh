@@ -58,7 +58,7 @@ PREBUILD_FINGERPRINT="$({
     patches/expo-sharing@57.0.22.patch \
     bun.lock
 } | shasum | awk '{print $1}')"
-PREBUILD_STAMP="$ANDROID_DIR/.edgeever-prebuild-fingerprint"
+PREBUILD_STAMP="$ANDROID_DIR/.rtnote-prebuild-fingerprint"
 PREVIOUS_FINGERPRINT="$(test -f "$PREBUILD_STAMP" && cat "$PREBUILD_STAMP" || true)"
 
 if [[ ! -x "$ANDROID_DIR/gradlew" || "$PREBUILD_FINGERPRINT" != "$PREVIOUS_FINGERPRINT" ]]; then
@@ -72,19 +72,19 @@ fi
 
 cd "$ANDROID_DIR"
 # CI runners have 7 GB shared by Metro, the Gradle and Kotlin daemons, lint and R8
-# workers, so CI lowers these through the EDGE_EVER_ANDROID_* variables.
-GRADLE_JVMARGS="${EDGE_EVER_ANDROID_GRADLE_JVMARGS:--Xmx6g -XX:MaxMetaspaceSize=1g}"
+# workers, so CI lowers these through the RTNOTE_ANDROID_* variables.
+GRADLE_JVMARGS="${RTNOTE_ANDROID_GRADLE_JVMARGS:--Xmx6g -XX:MaxMetaspaceSize=1g}"
 COMMON_ARGS=(
   --build-cache
   --parallel
   --daemon
   "-Dorg.gradle.jvmargs=$GRADLE_JVMARGS -Dfile.encoding=UTF-8"
 )
-if [[ -n "${EDGE_EVER_ANDROID_GRADLE_MAX_WORKERS:-}" ]]; then
-  COMMON_ARGS+=("--max-workers=$EDGE_EVER_ANDROID_GRADLE_MAX_WORKERS")
+if [[ -n "${RTNOTE_ANDROID_GRADLE_MAX_WORKERS:-}" ]]; then
+  COMMON_ARGS+=("--max-workers=$RTNOTE_ANDROID_GRADLE_MAX_WORKERS")
 fi
-if [[ -n "${EDGE_EVER_ANDROID_KOTLIN_DAEMON_JVMARGS:-}" ]]; then
-  COMMON_ARGS+=("-Pkotlin.daemon.jvmargs=$EDGE_EVER_ANDROID_KOTLIN_DAEMON_JVMARGS")
+if [[ -n "${RTNOTE_ANDROID_KOTLIN_DAEMON_JVMARGS:-}" ]]; then
+  COMMON_ARGS+=("-Pkotlin.daemon.jvmargs=$RTNOTE_ANDROID_KOTLIN_DAEMON_JVMARGS")
 fi
 
 : "${ANDROID_KEYSTORE_FILE:?Set ANDROID_KEYSTORE_FILE (path to the local upload key)}"
@@ -101,8 +101,8 @@ run_timed "Refresh production JavaScript and DOM assets" ./gradlew \
   :app:createBundleReleaseJsAndAssets --rerun --no-build-cache "${COMMON_ARGS[@]:1}"
 
 
-PLAY_ARCHS="${EDGE_EVER_ANDROID_PLAY_ARCHS:-arm64-v8a}"
-APK_ARCHS="${EDGE_EVER_ANDROID_APK_ARCHS:-arm64-v8a}"
+PLAY_ARCHS="${RTNOTE_ANDROID_PLAY_ARCHS:-arm64-v8a}"
+APK_ARCHS="${RTNOTE_ANDROID_APK_ARCHS:-arm64-v8a}"
 KEYSTORE_FILE="$(cd "$(dirname "$ANDROID_KEYSTORE_FILE")" && pwd)/$(basename "$ANDROID_KEYSTORE_FILE")"
 APK_PATH="$ANDROID_DIR/app/build/outputs/apk/release/app-release.apk"
 APKSIGNER_PATH="$ANDROID_SDK_ROOT/build-tools/36.0.0/apksigner"

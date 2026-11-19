@@ -9,7 +9,7 @@ Development prerequisites:
 - Bun dependencies installed with `bun install`
 - Rust toolchain (`cargo`) installed
 - Web dev server available at `http://127.0.0.1:5173`
-- Debug sidecar built at `crates/desktop-sidecar/target/debug/edgeever-sidecar`
+- Debug sidecar built at `crates/desktop-sidecar/target/debug/rtnote-sidecar`
 
 Run the shell with:
 
@@ -18,7 +18,7 @@ bun run dev:desktop
 ```
 
 The sidecar can be overridden for development with
-`EDGE_EVER_SIDECAR_PATH=/absolute/path/to/edgeever-sidecar`.
+`RTNOTE_SIDECAR_PATH=/absolute/path/to/rtnote-sidecar`.
 
 ## App icon (macOS Dock)
 
@@ -67,9 +67,9 @@ not retain duplicate file-association entries. Dragging the app to
 `Applications` remains supported; launching the installed copy also performs
 the installer-image cleanup.
 
-- `EDGEEVER_MAC_CERTIFICATE_BASE64` and `EDGEEVER_MAC_CERTIFICATE_PASSWORD`
-- `EDGEEVER_APPLE_ID`, `EDGEEVER_APPLE_APP_SPECIFIC_PASSWORD`, and `EDGEEVER_APPLE_TEAM_ID`
-- `EDGEEVER_WINDOWS_CERTIFICATE_BASE64` and `EDGEEVER_WINDOWS_CERTIFICATE_PASSWORD`
+- `RTNOTE_MAC_CERTIFICATE_BASE64` and `RTNOTE_MAC_CERTIFICATE_PASSWORD`
+- `RTNOTE_APPLE_ID`, `RTNOTE_APPLE_APP_SPECIFIC_PASSWORD`, and `RTNOTE_APPLE_TEAM_ID`
+- `RTNOTE_WINDOWS_CERTIFICATE_BASE64` and `RTNOTE_WINDOWS_CERTIFICATE_PASSWORD`
 
 When these secrets are absent, CI produces unsigned verification artifacts.
 Private signing material is never committed to the repository.

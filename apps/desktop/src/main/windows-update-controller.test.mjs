@@ -25,7 +25,7 @@ afterEach(async () => {
 });
 
 const harness = async () => {
-  const directory = await mkdtemp(join(tmpdir(), "edgeever-update-target-"));
+  const directory = await mkdtemp(join(tmpdir(), "rtnote-update-target-"));
   directories.push(directory);
   const keys = generateKeyPairSync("ed25519");
   const releases = new Map();

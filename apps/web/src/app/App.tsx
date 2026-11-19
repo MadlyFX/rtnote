@@ -21,8 +21,8 @@ import { syncPublishedNoteBodyFont } from "@/lib/published-note-body-font";
 import { getNoteWindowMemoId } from "@/lib/desktop-note-windows";
 import { useBranding } from "@/lib/branding";
 import { useServerBranding } from "@/hooks/useServerBranding";
-import { ApiRequestError, getMfaChallenge } from "@edgeever/client";
-import type { AuthSession, MfaChallenge } from "@edgeever/shared";
+import { ApiRequestError, getMfaChallenge } from "@rtnote/client";
+import type { AuthSession, MfaChallenge } from "@rtnote/shared";
 import { twoFactorErrorKey } from "@/components/two-factor/TwoFactorSteps";
 
 const EvernoteImportGuidePane = lazy(() =>
@@ -71,7 +71,7 @@ const EvernoteMigrationRoute = () => {
 const AuthenticatedWorkspace = ({ siteManagement = false }: { siteManagement?: boolean }) => {
   const queryClient = useQueryClient();
   const { t, i18n } = useTranslation();
-  const desktopBridge = window.edgeeverDesktop;
+  const desktopBridge = window.rtnoteDesktop;
   const [desktopScopeReady, setDesktopScopeReady] = useState(() => !desktopBridge?.isAvailable);
   const [desktopScopeError, setDesktopScopeError] = useState<Error | null>(null);
   const [desktopScopeAttempt, setDesktopScopeAttempt] = useState(0);
@@ -213,8 +213,8 @@ const AuthenticatedWorkspace = ({ siteManagement = false }: { siteManagement?: b
       });
     };
 
-    window.addEventListener("edgeever:unauthorized", handleUnauthorized);
-    return () => window.removeEventListener("edgeever:unauthorized", handleUnauthorized);
+    window.addEventListener("rtnote:unauthorized", handleUnauthorized);
+    return () => window.removeEventListener("rtnote:unauthorized", handleUnauthorized);
   }, [queryClient]);
 
   if (sessionQuery.isLoading) {
@@ -311,7 +311,7 @@ const AuthenticatedWorkspace = ({ siteManagement = false }: { siteManagement?: b
 export const App = () => {
   const [noteWindowMemoId] = useState(() => getNoteWindowMemoId());
   useEffect(() => {
-    const bridge = window.edgeeverDesktop;
+    const bridge = window.rtnoteDesktop;
     const baseUrl = getConfiguredDesktopApiBaseUrl();
     // The main window owns the instance; a note window only edits its note.
     if (bridge?.isAvailable && baseUrl && !noteWindowMemoId) void bridge.setApiBaseUrl(baseUrl);

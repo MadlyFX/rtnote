@@ -2,14 +2,14 @@ import { z } from "zod";
 import type { TiptapDoc } from "./content";
 import type { MemoDetail, Notebook, Resource } from "./types";
 
-export const EDGEEVER_ZIP_FORMAT = "edgeever-zip";
-export const EDGEEVER_ZIP_FORMAT_VERSION = 2;
+export const RTNOTE_ZIP_FORMAT = "rtnote-zip";
+export const RTNOTE_ZIP_FORMAT_VERSION = 2;
 
 export type JsonBackupManifest = {
-  format: typeof EDGEEVER_ZIP_FORMAT;
-  formatVersion: 1 | typeof EDGEEVER_ZIP_FORMAT_VERSION;
+  format: typeof RTNOTE_ZIP_FORMAT;
+  formatVersion: 1 | typeof RTNOTE_ZIP_FORMAT_VERSION;
   schemaVersion: number;
-  edgeeverVersion: string;
+  rtnoteVersion: string;
   buildId: string;
   exportedAt: string;
   includesTrash: false;
@@ -52,10 +52,10 @@ export type JsonBackupMemo = {
 const DateTimeSchema = z.string().datetime();
 
 export const JsonBackupManifestSchema = z.object({
-  format: z.literal(EDGEEVER_ZIP_FORMAT),
-  formatVersion: z.union([z.literal(1), z.literal(EDGEEVER_ZIP_FORMAT_VERSION)]),
+  format: z.literal(RTNOTE_ZIP_FORMAT),
+  formatVersion: z.union([z.literal(1), z.literal(RTNOTE_ZIP_FORMAT_VERSION)]),
   schemaVersion: z.number().int().positive(),
-  edgeeverVersion: z.string().trim().min(1),
+  rtnoteVersion: z.string().trim().min(1),
   buildId: z.string().trim().min(1),
   exportedAt: DateTimeSchema,
   includesTrash: z.literal(false),
@@ -116,7 +116,7 @@ const MemoDetailSchema = z.object({
   contentMarkdown: z.string(),
   contentText: z.string(),
   contentHash: z.string(),
-  // Absent in EdgeEver backups, which restore as legacy notes.
+  // Absent in RTNote backups, which restore as legacy notes.
   schemaVersion: z.number().int().min(1).max(2).optional(),
   sourceMemoIds: z.array(z.string()),
   mergeSourceCount: z.number().int().min(0),

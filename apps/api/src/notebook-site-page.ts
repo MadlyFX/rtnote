@@ -1,10 +1,10 @@
-import { getMemoDisplayTitle } from "@edgeever/shared/memo-title";
-import { PUBLIC_PAGE_HEADERS, PUBLIC_PAGE_ROBOTS } from "@edgeever/shared/public-page-headers";
+import { getMemoDisplayTitle } from "@rtnote/shared/memo-title";
+import { PUBLIC_PAGE_HEADERS, PUBLIC_PAGE_ROBOTS } from "@rtnote/shared/public-page-headers";
 import type { DatabaseAdapter } from "./storage-contract";
 import { getNotebookSite, publicTreeSql, resolveNotebookSiteToken } from "./notebook-site-service";
 import { resolveNotebookBranding } from "./branding-service";
 import { brandedTitle, brandingHeadMarkup, stripBrandableHead } from "./public-page-branding";
-import type { ResolvedBranding } from "@edgeever/shared";
+import type { ResolvedBranding } from "@rtnote/shared";
 
 export const isNotebookSitePagePath = (path: string) => /^\/(?:share\/notebook|s)\/[^/]+(?:\/[^/]+)?\/?$/.test(path);
 const escapeHtml = (text: string) => text.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]!);

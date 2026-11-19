@@ -4,8 +4,8 @@ test.use({ locale: "en-US" });
 
 test("applies colors to the selection and preserves them through save, mode changes, and reload", async ({ page }) => {
   await page.addInitScript(() => {
-    localStorage.setItem("edgeever.locale.preference", "en-US");
-    localStorage.setItem("edgeever.editorToolbarExpanded", "true");
+    localStorage.setItem("rtnote.locale.preference", "en-US");
+    localStorage.setItem("rtnote.editorToolbarExpanded", "true");
   });
   const notebooks = await (await page.request.get("/api/v1/notebooks")).json() as { notebooks: Array<{ id: string }> };
   const title = `Color regression ${Date.now()}`;

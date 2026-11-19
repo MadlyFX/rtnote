@@ -2,7 +2,7 @@
 
 
 > 💡 **Notice**: All third-party note migration guides have been merged and updated into a unified guide:
-> 👉 **[Migrate from Third-Party Notes to RTNote: The Complete Guide](note-migration-guide.en-US.md)** (covering native GUI one-click import and AI Agent / MCP migration).
+> 👉 **[Migrate from Third-Party Notes to RTNote: The Complete Guide](note-migration-guide.md)** (covering native GUI one-click import and AI Agent / MCP migration).
 
 RTNote provides native, out-of-the-box support for importing third-party notes. In either the Web app or the Electron desktop client, **no extra dependencies, command-line operations, or MCP configurations are required**. You can directly drag or select files exported from Evernote to migrate your notes into RTNote seamlessly.
 

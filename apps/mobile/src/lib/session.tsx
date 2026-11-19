@@ -1,13 +1,13 @@
-import { createEdgeEverClient } from "@edgeever/client";
-import { resolveInstanceUrlInput, type AuthSession, type AuthUser } from "@edgeever/shared";
+import { createRTNoteClient } from "@rtnote/client";
+import { resolveInstanceUrlInput, type AuthSession, type AuthUser } from "@rtnote/shared";
 import { useQueryClient } from "@tanstack/react-query";
 import { fetch as expoFetch } from "expo/fetch";
 import * as SecureStore from "expo-secure-store";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { MISSING_MOBILE_SESSION_MESSAGE } from "./login-error";
 
-const SESSION_KEY = "edgeever.mobile.session";
-const DEVICE_ID_KEY = "edgeever.mobile.device-id";
+const SESSION_KEY = "rtnote.mobile.session";
+const DEVICE_ID_KEY = "rtnote.mobile.device-id";
 
 const getOrCreateDeviceId = async () => {
   const existing = await SecureStore.getItemAsync(DEVICE_ID_KEY);
@@ -38,7 +38,7 @@ export type MfaSignInInput = {
 type SessionContextValue = {
   isLoading: boolean;
   session: MobileSession | null;
-  client: ReturnType<typeof createEdgeEverClient> | null;
+  client: ReturnType<typeof createRTNoteClient> | null;
   /** Throws the login error; `getMfaChallenge(error)` tells when a second step is needed. */
   signIn: (input: { baseUrl: string; username: string; password: string; locale?: string }) => Promise<void>;
   /** Second login step. Uses a client without `onUnauthorized`, so a 401 never drops a session. */
@@ -111,7 +111,7 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
       return null;
     }
 
-    return createEdgeEverClient({
+    return createRTNoteClient({
       baseUrl: session.baseUrl,
       token: session.token,
       fetch: createRebindAwareFetch(markRebindRequired),
@@ -140,7 +140,7 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
   const signIn = useCallback(async (input: { baseUrl: string; username: string; password: string; locale?: string }) => {
     const baseUrl = normalizeInstanceUrl(resolveInstanceUrlInput(input.baseUrl));
     const deviceId = await getOrCreateDeviceId();
-    const loginClient = createEdgeEverClient({ baseUrl, fetch: expoFetch as typeof fetch });
+    const loginClient = createRTNoteClient({ baseUrl, fetch: expoFetch as typeof fetch });
     const authSession = await loginClient.login({
       username: input.username,
       password: input.password,
@@ -155,7 +155,7 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
     const baseUrl = normalizeInstanceUrl(resolveInstanceUrlInput(input.baseUrl));
     // The challenge is bound to the device id sent with the password step.
     const deviceId = await getOrCreateDeviceId();
-    const loginClient = createEdgeEverClient({ baseUrl, fetch: expoFetch as typeof fetch });
+    const loginClient = createRTNoteClient({ baseUrl, fetch: expoFetch as typeof fetch });
     const authSession = await loginClient.completeMfaLogin({
       challengeToken: input.challengeToken,
       ...(input.recoveryCode ? { recoveryCode: input.recoveryCode } : { code: input.code }),
@@ -169,7 +169,7 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
     const current = sessionRef.current;
     if (!current) return;
     const token = sessionToken || current.token;
-    const refreshClient = createEdgeEverClient({ baseUrl: current.baseUrl, token, fetch: expoFetch as typeof fetch });
+    const refreshClient = createRTNoteClient({ baseUrl: current.baseUrl, token, fetch: expoFetch as typeof fetch });
     const authSession = await refreshClient.getSession().catch(() => null);
     queryClient.clear();
     await persistSession({

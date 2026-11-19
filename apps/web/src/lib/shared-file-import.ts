@@ -1,4 +1,4 @@
-import { ATTACHMENT_TEXT_PREFIX, docToMarkdown, markdownToDoc, type TiptapDoc } from "@edgeever/shared";
+import { ATTACHMENT_TEXT_PREFIX, docToMarkdown, markdownToDoc, type TiptapDoc } from "@rtnote/shared";
 import { screenshotNoteContent } from "./screenshot-import";
 
 const IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "gif", "webp"]);

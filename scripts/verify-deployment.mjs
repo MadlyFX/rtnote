@@ -55,9 +55,9 @@ export const parseSecretNames = (output) => {
 };
 
 const instanceEnvironmentValue = (env, name) => {
-  const instanceKey = env.EDGE_EVER_INSTANCE?.trim().replace(/[^a-zA-Z0-9]/g, "_").toUpperCase();
-  return (instanceKey ? env[`EDGE_EVER_${instanceKey}_${name}`]?.trim() : "")
-    || env[`EDGE_EVER_${name}`]?.trim()
+  const instanceKey = env.RTNOTE_INSTANCE?.trim().replace(/[^a-zA-Z0-9]/g, "_").toUpperCase();
+  return (instanceKey ? env[`RTNOTE_${instanceKey}_${name}`]?.trim() : "")
+    || env[`RTNOTE_${name}`]?.trim()
     || "";
 };
 
@@ -133,7 +133,7 @@ const healthFailureContext = ({ body, deploymentVersionId, response }) => {
   if (cfRay) details.push(`CF-Ray: ${cfRay}`);
   if (deploymentVersionId) details.push(`Worker Version ID: ${deploymentVersionId}`);
   details.push(
-    "Inspect Cloudflare Workers & Pages > edgeever > Logs > Live for the uncaught exception and stack trace, then retry the request.",
+    "Inspect Cloudflare Workers & Pages > rtnote > Logs > Live for the uncaught exception and stack trace, then retry the request.",
   );
 
   return details.join("; ");
@@ -240,7 +240,7 @@ const main = async () => {
   console.log(`[ok] remote D1 schema: ${REQUIRED_TABLES.length} required tables`);
 
   const secretNames = parseSecretNames(runWrangler(["secret", "list", "--format", "json"]));
-  if (!secretNames.has("EDGE_EVER_AUTH_PASSWORD") && !secretNames.has("EDGE_EVER_AUTH_PASSWORD_HASH")) {
+  if (!secretNames.has("RTNOTE_AUTH_PASSWORD") && !secretNames.has("RTNOTE_AUTH_PASSWORD_HASH")) {
     throw new Error("The deployed Worker has no RTNote authentication Secret.");
   }
   console.log("[ok] Worker authentication Secret is deployed");
@@ -250,10 +250,10 @@ const main = async () => {
   if (!deploymentUrl) {
     if (process.env.CI?.trim().toLowerCase() === "true" || process.env.WORKERS_CI === "1") {
       throw new Error(
-        "Could not determine the deployed Worker URL for the live health check. Set EDGE_EVER_DEPLOYMENT_URL and retry deployment.",
+        "Could not determine the deployed Worker URL for the live health check. Set RTNOTE_DEPLOYMENT_URL and retry deployment.",
       );
     }
-    console.log("[skip] deployed Worker health: set EDGE_EVER_DEPLOYMENT_URL to enable the live check");
+    console.log("[skip] deployed Worker health: set RTNOTE_DEPLOYMENT_URL to enable the live check");
     return;
   }
 

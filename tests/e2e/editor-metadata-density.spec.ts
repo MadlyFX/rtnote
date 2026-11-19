@@ -29,7 +29,7 @@ test("includes the visible Back button when choosing editor metadata density", a
 
   try {
     await page.setViewportSize({ width: 900, height: 800 });
-    await page.goto(process.env.EDGE_EVER_E2E_WEB_URL ?? "/");
+    await page.goto(process.env.RTNOTE_E2E_WEB_URL ?? "/");
     await page.getByPlaceholder(ui.memoList.searchPlaceholder).fill(title);
     await page.locator(`[data-memo-id="${memoId}"]`).locator("button").first().click();
 

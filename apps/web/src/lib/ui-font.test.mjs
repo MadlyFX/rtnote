@@ -37,7 +37,7 @@ describe("interface font preference", () => {
     writeUiFontPreference({ choice: "wenkai", customFamily: "LXGW WenKai" });
     expect(values.get(UI_FONT_STORAGE_KEY)).toBe("wenkai");
     expect(values.get(UI_FONT_CUSTOM_STORAGE_KEY)).toBe("LXGW WenKai");
-    expect(values.has("edgeever.editorBodyFont")).toBe(false);
+    expect(values.has("rtnote.editorBodyFont")).toBe(false);
     expect(readUiFontPreference()).toEqual({ choice: "wenkai", customFamily: "LXGW WenKai" });
   });
 

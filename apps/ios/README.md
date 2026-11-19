@@ -1,6 +1,6 @@
-# EdgeEver iOS (Swift)
+# RTNote iOS (Swift)
 
-Native SwiftUI client for EdgeEver. This replaces the React Native / Expo iOS target.
+Native SwiftUI client for RTNote. This replaces the React Native / Expo iOS target.
 
 **App Store binaries on macOS beta:** use **Xcode Cloud** — [`docs/ios-xcode-cloud.md`](../../docs/ios-xcode-cloud.md). Formal Releases start Cloud through store-delivery.
 
@@ -31,7 +31,7 @@ Motion stack: **SwiftUI Animation** (short easing transitions) + **[Pow](https:/
 | Short easing transitions | Search, filters, settings, loading states |
 | **Shine / Shake / Haptic** | Pin success, errors, selection |
 
-Curves & wrappers: `EdgeEver/DesignSystem/Motion.swift`.
+Curves & wrappers: `RTNote/DesignSystem/Motion.swift`.
 
 ## Requirements
 
@@ -48,7 +48,7 @@ brew install xcodegen
 ```sh
 cd apps/ios
 xcodegen generate
-open EdgeEver.xcodeproj
+open RTNote.xcodeproj
 ```
 
 ## Tests
@@ -56,12 +56,12 @@ open EdgeEver.xcodeproj
 ```sh
 # Unit + live API tests (live tests skip if local server is down)
 xcodebuild test \
-  -project EdgeEver.xcodeproj \
-  -scheme EdgeEver \
+  -project RTNote.xcodeproj \
+  -scheme RTNote \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
 ```
 
-Live API tests login to `http://127.0.0.1:8787` using `EDGE_EVER_AUTH_PASSWORD` or monorepo `.env.wrangler.generated.local`.
+Live API tests login to `http://127.0.0.1:8787` using `RTNOTE_AUTH_PASSWORD` or monorepo `.env.wrangler.generated.local`.
 
 ## Simulator auto-login (QA)
 
@@ -69,9 +69,9 @@ With local `bun run dev` running:
 
 ```sh
 xcrun simctl launch booted com.madlyfx.rtnote \
-  -EdgeEverAutoLoginURL "http://127.0.0.1:8787" \
-  -EdgeEverAutoLoginUser admin \
-  -EdgeEverAutoLoginPassword "$EDGE_EVER_AUTH_PASSWORD"
+  -RTNoteAutoLoginURL "http://127.0.0.1:8787" \
+  -RTNoteAutoLoginUser admin \
+  -RTNoteAutoLoginPassword "$RTNOTE_AUTH_PASSWORD"
 ```
 
 ## Versioning
@@ -100,7 +100,7 @@ cd apps/ios
 bash Scripts/ensure-xcode-cloud-build-number.sh
 
 # If Cloud produced ARCHIVE_EXPORT but ASC has no build:
-bash Scripts/upload-app-store-ipa.sh /path/to/EdgeEver-*-app-store.zip
+bash Scripts/upload-app-store-ipa.sh /path/to/RTNote-*-app-store.zip
 ```
 
 ### Local archive (release macOS only)
@@ -110,10 +110,10 @@ Use the stable Xcode app (not beta) on a **non-beta** host OS:
 ```sh
 cd apps/ios
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer bash Scripts/archive-app-store.sh
-bash Scripts/upload-app-store-ipa.sh build/export/EdgeEver.ipa
+bash Scripts/upload-app-store-ipa.sh build/export/RTNote.ipa
 ```
 
-On a beta host the script **exits** unless you set `EDGE_EVER_IOS_ALLOW_BETA_HOST=1` (upload will still likely fail ASC).
+On a beta host the script **exits** unless you set `RTNOTE_IOS_ALLOW_BETA_HOST=1` (upload will still likely fail ASC).
 
 Signing in the Xcode project is **Automatic** (Cloud-friendly). Local export still uses `ExportOptions.plist` with App Store profiles. Then submit the exact build with:
 

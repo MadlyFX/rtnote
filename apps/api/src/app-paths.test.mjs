@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
-import { isEdgeEverAppPath, OAUTH_DISCOVERY_PATH_PREFIXES } from "./app-paths.ts";
+import { isRTNoteAppPath, OAUTH_DISCOVERY_PATH_PREFIXES } from "./app-paths.ts";
 
 describe("RTNote app paths", () => {
   test("routes the API, MCP and OAuth discovery to the app", () => {
@@ -14,13 +14,13 @@ describe("RTNote app paths", () => {
       "/.well-known/oauth-authorization-server",
       "/.well-known/openid-configuration",
     ]) {
-      expect([pathname, isEdgeEverAppPath(pathname)]).toEqual([pathname, true]);
+      expect([pathname, isRTNoteAppPath(pathname)]).toEqual([pathname, true]);
     }
   });
 
   test("leaves web app pages and look-alike paths to the asset server", () => {
     for (const pathname of ["/", "/settings", "/mcpx", "/api", "/.well-known/security.txt", "/.well-known/oauth-protected-resourcex"]) {
-      expect([pathname, isEdgeEverAppPath(pathname)]).toEqual([pathname, false]);
+      expect([pathname, isRTNoteAppPath(pathname)]).toEqual([pathname, false]);
     }
   });
 

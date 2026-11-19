@@ -1,14 +1,14 @@
 import { expect, test } from "bun:test";
 import { BlobWriter, TextReader, ZipWriter } from "@zip.js/zip.js";
-import { createEdgeEverZip, parseEdgeEverZip } from "../apps/web/src/lib/json-backup";
+import { createRTNoteZip, parseRTNoteZip } from "../apps/web/src/lib/json-backup";
 
-const manifest = { format: "edgeever-zip", formatVersion: 2, schemaVersion: 1, edgeeverVersion: "2.2.0", buildId: "zip64-fixture", exportedAt: "2026-10-23T00:00:00.000Z", includesTrash: false, counts: { notebooks: 0, memos: 0, revisions: 0, resources: 0, prompts: 0 } };
+const manifest = { format: "rtnote-zip", formatVersion: 2, schemaVersion: 1, rtnoteVersion: "2.2.0", buildId: "zip64-fixture", exportedAt: "2026-10-23T00:00:00.000Z", includesTrash: false, counts: { notebooks: 0, memos: 0, revisions: 0, resources: 0, prompts: 0 } };
 
 test("propagates source failures instead of publishing a partial ZIP", async () => {
-  await expect(createEdgeEverZip({
+  await expect(createRTNoteZip({
     listNotebooks: async () => ({ notebooks: [] }),
     getPage: async () => { throw new Error("source unavailable"); },
-  }, { edgeeverVersion: "2.2.0", buildId: "test" })).rejects.toThrow("source unavailable");
+  }, { rtnoteVersion: "2.2.0", buildId: "test" })).rejects.toThrow("source unavailable");
 });
 
 test("reads ZIP64 containers without changing the RTNote v2 logical format", async () => {
@@ -17,7 +17,7 @@ test("reads ZIP64 containers without changing the RTNote v2 logical format", asy
   await writer.add("notebooks.json", new TextReader("[]"));
   await writer.add("prompts.json", new TextReader("[]"));
   const archive = await writer.close();
-  const parsed = await parseEdgeEverZip(archive);
+  const parsed = await parseRTNoteZip(archive);
   expect(parsed.manifest).toEqual(manifest);
   expect(parsed.archive).toBe(archive);
 });
@@ -32,7 +32,7 @@ test("rejects damaged entry bytes even when their JSON remains valid", async () 
   const index = bytes.findIndex((_, offset) => marker.every((value, i) => bytes[offset + i] === value));
   expect(index).toBeGreaterThan(0);
   bytes[index + 1] = 10;
-  await expect(parseEdgeEverZip(new Blob([bytes]))).rejects.toMatchObject({ code: "invalidZip" });
+  await expect(parseRTNoteZip(new Blob([bytes]))).rejects.toMatchObject({ code: "invalidZip" });
 });
 
 for (const stage of ["entry", "write", "close"] as const) test(`preserves ${stage} consumer errors instead of reporting an invalid ZIP`, async () => {

@@ -7,7 +7,7 @@
       "name": "RTNote Tasks",
       "description": "Collects Markdown tasks across notes and links every task back to its source.",
       "author": "RTNote",
-      "publisher": "edgeever",
+      "publisher": "rtnote",
       "category": "Productivity",
       "repositoryUrl": "https://github.com/tianma-if/edgeever-tasks",
       "distribution": {
@@ -28,7 +28,7 @@
       "name": "RTNote AI RSS",
       "description": "AI-generated daily digests from curated RSS and Atom feeds, saved directly to RTNote notes.",
       "author": "RTNote",
-      "publisher": "edgeever",
+      "publisher": "rtnote",
       "category": "News & AI",
       "repositoryUrl": "https://github.com/tianma-if/edgeever-ai-rss",
       "distribution": {

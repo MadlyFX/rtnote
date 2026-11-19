@@ -1,4 +1,4 @@
-import { FONT_IDS, FONT_CATALOG } from "@edgeever/shared/font-catalog";
+import { FONT_IDS, FONT_CATALOG } from "@rtnote/shared/font-catalog";
 import { afterEach, describe, expect, test } from "bun:test";
 import {
   EDITOR_BODY_FONT_CUSTOM_STORAGE_KEY,

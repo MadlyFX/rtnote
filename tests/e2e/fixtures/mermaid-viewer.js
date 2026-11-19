@@ -167,7 +167,7 @@ try {
   }
   for (const source of containerSources) {
     const editor = document.createElement("div");
-    editor.className = "edgeever-editor";
+    editor.className = "rtnote-editor";
     editor.innerHTML = '<div class="ProseMirror"><p>正文排版</p></div>';
     const prose = editor.firstElementChild;
     prose.insertAdjacentHTML("beforeend", await renderThemedMermaidSvg(source, {

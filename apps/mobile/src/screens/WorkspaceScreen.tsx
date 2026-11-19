@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient, type InfiniteData, type QueryKey } from "@tanstack/react-query";
 import * as Clipboard from "expo-clipboard";
-import type { ListMemosResponse, MemoFilterMode, MemoSortMode } from "@edgeever/client";
+import type { ListMemosResponse, MemoFilterMode, MemoSortMode } from "@rtnote/client";
 import {
   ActivityIndicator,
   Home,
@@ -18,10 +18,10 @@ import {
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Alert, Pressable, Text } from "../components/LocalizedText";
-import { ApiRequestError } from "@edgeever/client";
-import { ATTACHMENT_TEXT_PREFIX, DEFAULT_MEMO_TITLE, getNotebookScopeIds, hasDiagramDocumentMarker, type MemoDetail, type MemoSummary, type Notebook } from "@edgeever/shared";
-import { MOBILE_UI_METRICS } from "@edgeever/shared/mobile-ui";
-import { DEFAULT_VOICE_MEMO_MAX_DURATION_MINUTES, type VoiceMemoMaxDurationMinutes } from "@edgeever/shared/voice-memo-names";
+import { ApiRequestError } from "@rtnote/client";
+import { ATTACHMENT_TEXT_PREFIX, DEFAULT_MEMO_TITLE, getNotebookScopeIds, hasDiagramDocumentMarker, type MemoDetail, type MemoSummary, type Notebook } from "@rtnote/shared";
+import { MOBILE_UI_METRICS } from "@rtnote/shared/mobile-ui";
+import { DEFAULT_VOICE_MEMO_MAX_DURATION_MINUTES, type VoiceMemoMaxDurationMinutes } from "@rtnote/shared/voice-memo-names";
 import { clearMobileMemoDraft, readMobileMemoDraft, type MobileMemoDraft } from "../lib/mobile-drafts";
 import {
   readMobileImageCompressionEnabled,

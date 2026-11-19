@@ -1,5 +1,5 @@
-import { DEFAULT_MEMO_TITLE, type MemoSummary, type Notebook } from "@edgeever/shared";
-import { resolveSupportedLocale } from "@edgeever/shared/i18n/locales";
+import { DEFAULT_MEMO_TITLE, type MemoSummary, type Notebook } from "@rtnote/shared";
+import { resolveSupportedLocale } from "@rtnote/shared/i18n/locales";
 import { getMobileCatalog } from "../lib/mobile-locale";
 import type { MobileLocalePreference } from "../lib/preferences";
 

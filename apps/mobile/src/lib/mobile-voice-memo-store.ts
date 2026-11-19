@@ -14,7 +14,7 @@ import {
  * else happens, so a memo recorded offline (or in a note that has not synced
  * yet) survives restarts. The copy is deleted once the upload succeeds.
  */
-const PENDING_KEY = "edgeever.mobile.pendingVoiceMemos";
+const PENDING_KEY = "rtnote.mobile.pendingVoiceMemos";
 const RECORDINGS_DIRECTORY = "voice-memos";
 const AUDIO_CACHE_DIRECTORY = "voice-memo-audio";
 

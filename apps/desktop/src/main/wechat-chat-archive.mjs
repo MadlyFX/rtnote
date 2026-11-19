@@ -336,12 +336,12 @@ const parseLink = (line) => {
   return { title, url: urlMatch[2] };
 };
 
-// Same text as ATTACHMENT_TEXT_PREFIX in @edgeever/shared, which the desktop main process cannot import.
+// Same text as ATTACHMENT_TEXT_PREFIX in @rtnote/shared, which the desktop main process cannot import.
 const ATTACHMENT_TEXT_PREFIX = "Attachment: ";
 
 const mediaMarkdown = (item) => {
   const label = escapeMarkdownLabel(item.filename);
-  const url = `edgeever-wechat-media://${item.id}`;
+  const url = `rtnote-wechat-media://${item.id}`;
   return isImage(item.filename) ? `![${label}](${url})` : `[${ATTACHMENT_TEXT_PREFIX}${label}](${url})`;
 };
 

@@ -1,4 +1,4 @@
-import type { PosterDocument } from "@edgeever/shared";
+import type { PosterDocument } from "@rtnote/shared";
 import {
   legacyPosterSampleCopy,
   paperListSampleCopy,

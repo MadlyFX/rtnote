@@ -25,9 +25,9 @@ import { WORKSPACE_PAGE_TITLE_CLASSNAME } from "@/lib/workspace-ui";
 import { copyTextToClipboard } from "@/lib/clipboard";
 import { createTemplateCards, createTemplateDraft, emptyTemplateDraft, templateDraftToPayload, type TemplatePayload } from "@/lib/template-center";
 import { TemplateRichEditor } from "@/components/TemplateRichEditor";
-import { listMemoTemplateGallery, type MemoTemplateGalleryEntry } from "@edgeever/shared/memo-template-gallery";
+import { listMemoTemplateGallery, type MemoTemplateGalleryEntry } from "@rtnote/shared/memo-template-gallery";
 import { ClipboardCopyNotice } from "@/components/ClipboardCopyNotice";
-import type { MemoTemplate as SavedMemoTemplate } from "@edgeever/shared";
+import type { MemoTemplate as SavedMemoTemplate } from "@rtnote/shared";
 import { ExecutionCenterButton } from "@/components/execution/ExecutionCenterButton";
 
 const TemplateIconAction = ({

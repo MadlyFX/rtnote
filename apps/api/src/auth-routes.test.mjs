@@ -19,7 +19,7 @@ import {
 import { sha256 } from "./hash-utils.ts";
 import { createSelfHostedStorageAdapter } from "./self-hosted-storage-adapter.ts";
 import { ensureUserWorkspace } from "./workspace-provisioning.ts";
-import { DEFAULT_NOTEBOOK_SEEDS } from "@edgeever/shared/default-workspace-seeds";
+import { DEFAULT_NOTEBOOK_SEEDS } from "@rtnote/shared/default-workspace-seeds";
 
 const seededInboxName = (locale) => DEFAULT_NOTEBOOK_SEEDS.find((seed) => seed.key === "inbox").names[locale];
 
@@ -182,7 +182,7 @@ describe("auth route contracts", () => {
 
       const app = createApp({ authenticateRequest });
       const existingSessionEnvironment = {
-        storage: createSelfHostedStorageAdapter(sqlite, "/tmp/edgeever-auth-route-test-resources"),
+        storage: createSelfHostedStorageAdapter(sqlite, "/tmp/rtnote-auth-route-test-resources"),
       };
       const response = await app.request(
         "/api/v1/auth/change-password",
@@ -228,7 +228,7 @@ describe("first sign-in seed localization", () => {
       method: "POST",
       headers: { "Content-Type": "application/json", ...headers },
       body: JSON.stringify({ username: "admin", password: "secret", ...body }),
-    }, { storage: createSelfHostedStorageAdapter(sqlite, "/tmp/edgeever-auth-routes-unused") });
+    }, { storage: createSelfHostedStorageAdapter(sqlite, "/tmp/rtnote-auth-routes-unused") });
     const inbox = sqlite.query("SELECT name FROM notebooks WHERE workspace_id = 'ws_default' AND slug = 'inbox'").get();
     const pending = sqlite.query("SELECT COUNT(*) AS count FROM workspace_seed_localizations").get();
     sqlite.close();
@@ -286,13 +286,13 @@ describe("login session management with a real database", () => {
       tooManyLoginAttempts,
       verifyLogin,
     });
-    const realEnvironment = { storage: createSelfHostedStorageAdapter(sqlite, "/tmp/edgeever-auth-sessions-unused") };
+    const realEnvironment = { storage: createSelfHostedStorageAdapter(sqlite, "/tmp/rtnote-auth-sessions-unused") };
 
     const request = (path, { token, cookie, method = "GET", body, headers = {} } = {}) => app.request(path, {
       method,
       headers: {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...(cookie ? { Cookie: `edgeever_session=${cookie}` } : {}),
+        ...(cookie ? { Cookie: `rtnote_session=${cookie}` } : {}),
         ...(body === undefined ? {} : { "Content-Type": "application/json" }),
         ...headers,
       },
@@ -391,7 +391,7 @@ describe("login session management with a real database", () => {
     expect(Date.parse(row.expires_at) - Date.now()).toBeLessThanOrEqual(400 * DAY_MS);
 
     const cookie = second.response.headers.get("set-cookie");
-    expect(cookie).toContain(`edgeever_session=${second.token}`);
+    expect(cookie).toContain(`rtnote_session=${second.token}`);
     expect(cookie).toContain("HttpOnly");
     expect(cookie).toContain("SameSite=Lax");
     expect(cookie).toContain(`Max-Age=${400 * 24 * 60 * 60}`);
@@ -418,12 +418,12 @@ describe("login session management with a real database", () => {
     context.get("/touch", async (c) => c.json(await authenticateSession(c, true)));
     const touched = await context.request("/touch", {
       headers: {
-        Cookie: `edgeever_session=${first.token}`,
+        Cookie: `rtnote_session=${first.token}`,
         "User-Agent": edge,
         "CF-Connecting-IP": "2001:db8::7",
         "CF-IPCountry": "CN",
       },
-    }, { storage: createSelfHostedStorageAdapter(instance.sqlite, "/tmp/edgeever-auth-sessions-unused") });
+    }, { storage: createSelfHostedStorageAdapter(instance.sqlite, "/tmp/rtnote-auth-sessions-unused") });
     expect(touched.status).toBe(200);
     expect(await touched.json()).toMatchObject({ sessionId: first.id });
     expect(instance.sqlite.query("SELECT COUNT(*) AS count FROM sessions").get().count).toBe(1);

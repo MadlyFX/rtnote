@@ -5,7 +5,7 @@ import {
   markdownToDoc,
   MIN_CLIENT_VERSION,
   normalizeTags,
-} from "@edgeever/shared";
+} from "@rtnote/shared";
 import { Hono } from "hono";
 import { registerImportContextGuard, registerImportRoutes } from "./import-routes";
 import { cors } from "hono/cors";
@@ -48,7 +48,7 @@ import {
   restoreJsonNotebooks as restoreJsonNotebooksService,
 } from "./backup-service";
 import { sha256, sha256Bytes } from "./hash-utils";
-import { PUBLIC_PAGE_HEADERS } from "@edgeever/shared/public-page-headers";
+import { PUBLIC_PAGE_HEADERS } from "@rtnote/shared/public-page-headers";
 import { INSTANCE_BUILD_ID } from "./instance-build";
 import { resolveDeploymentVersionCreatedAt, resolveImageBuildMetadata, resolveInstanceDeploymentMetadata } from "./instance-deployment";
 import type {
@@ -151,22 +151,22 @@ type D1PreparedStatement = PreparedStatementAdapter;
 
 const DEMO_RESET_LEASE_MS = 5 * 60 * 1000;
 const DEMO_RESET_COOLDOWN_MS = 60 * 1000;
-const DEFAULT_R2_BUCKET_NAME = "edgeever-resources";
+const DEFAULT_R2_BUCKET_NAME = "rtnote-resources";
 const app = new Hono<AppEnv>();
 
-// Packaged desktop uses edgeever-app://app; the previous file:// renderer sent Origin "null".
+// Packaged desktop uses rtnote-app://app; the previous file:// renderer sent Origin "null".
 const API_CORS_ORIGINS = [
   "http://127.0.0.1:5173",
   "http://localhost:5173",
   "null",
-  "edgeever-app://app",
+  "rtnote-app://app",
 ];
 
 app.use(
   "/api/*",
   cors({
     origin: API_CORS_ORIGINS,
-    allowHeaders: ["Content-Type", "Authorization", "x-edgeever-import-context"],
+    allowHeaders: ["Content-Type", "Authorization", "x-rtnote-import-context"],
     allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true,
   })
@@ -235,15 +235,15 @@ app.get("/api/health", async (c) => {
     );
   }
 
-  const runtime = c.env.EDGE_EVER_RUNTIME ?? "cloudflare-workers";
+  const runtime = c.env.RTNOTE_RUNTIME ?? "cloudflare-workers";
 
   return c.json({
     ok: true,
-    name: "edgeever",
+    name: "rtnote",
     runtime,
     ...(runtime === "self-hosted-bun"
       ? {
-          containerImageSource: resolveContainerImageSource(c.env.EDGE_EVER_CONTAINER_IMAGE),
+          containerImageSource: resolveContainerImageSource(c.env.RTNOTE_CONTAINER_IMAGE),
           ...resolveImageBuildMetadata(c.env),
         }
       : {}),
@@ -460,7 +460,7 @@ app.post("/api/v1/demo/reset", async (c) => {
  * adapter. Runtime entrypoints must remain thin and call this function rather
  * than introducing platform-specific route or service implementations.
  */
-export const fetchEdgeEverApp = async (
+export const fetchRTNoteApp = async (
   request: Request,
   runtimeEnv: Bindings,
   ctx: ExecutionContext,
@@ -497,7 +497,7 @@ const worker = {
       }
       return env.ASSETS.fetch(request);
     }
-    return fetchEdgeEverApp(request, {
+    return fetchRTNoteApp(request, {
       ...env,
       storage: createCloudflareStorageAdapter(env),
       deploymentVersionCreatedAt: env.CF_VERSION_METADATA?.timestamp,
@@ -563,9 +563,9 @@ export const callMcpTool = (
   args: Record<string, unknown>,
 ) => executeWorkspaceTool(context, auth, name, args);
 
-const isDemoMode = (env: Bindings) => isDemoModeEnabled(env.EDGE_EVER_DEMO_MODE);
+const isDemoMode = (env: Bindings) => isDemoModeEnabled(env.RTNOTE_DEMO_MODE);
 const isLocalDemoSeedEnabled = (env: Bindings) =>
-  env.EDGE_EVER_LOCAL_DEMO_SEED?.trim().toLowerCase() === "true";
+  env.RTNOTE_LOCAL_DEMO_SEED?.trim().toLowerCase() === "true";
 
 const rotateWorkspaceSyncIdentity = (db: Bindings["storage"]["db"], at: string) =>
   db.prepare(`UPDATE workspaces SET created_at = ?`).bind(at).run();
@@ -589,7 +589,7 @@ const ensureLocalDemoSeed = (env: Bindings) => {
     // already caught up never sees those deletes. A new sync identity forces
     // that browser to rebuild from this snapshot instead of keeping the old notes.
     await rotateWorkspaceSyncIdentity(env.storage.db, isoNow());
-    await audit(env.storage.db, "system", null, "demo.local_seed", "demo", "edgeever-local", {
+    await audit(env.storage.db, "system", null, "demo.local_seed", "demo", "rtnote-local", {
       seedMemoCount: DEMO_SEED_MEMOS.length,
       mode: "sync-seed",
     });
@@ -608,7 +608,7 @@ const ensureDemoSeed = async (
   const db = env.storage.db;
   const now = isoNow();
   const statements: D1PreparedStatement[] = [];
-  const bucketName = env.EDGE_EVER_R2_BUCKET_NAME?.trim() || DEFAULT_R2_BUCKET_NAME;
+  const bucketName = env.RTNOTE_R2_BUCKET_NAME?.trim() || DEFAULT_R2_BUCKET_NAME;
   const overwriteExisting = options.overwriteExisting === true;
   const existingNotebookIds = overwriteExisting
     ? new Set<string>()
@@ -957,10 +957,10 @@ const resetDemoData = async (
 
   const now = isoNow();
   try {
-    const demoUsername = env.EDGE_EVER_AUTH_USERNAME?.trim() || "admin";
+    const demoUsername = env.RTNOTE_AUTH_USERNAME?.trim() || "admin";
     const demoPasswordHash = await resolveDemoPasswordHash(
-      env.EDGE_EVER_AUTH_PASSWORD,
-      env.EDGE_EVER_AUTH_PASSWORD_HASH,
+      env.RTNOTE_AUTH_PASSWORD,
+      env.RTNOTE_AUTH_PASSWORD_HASH,
       hashPassword,
     );
     const resourceRows = await db.prepare(`SELECT object_key, storage_config_id FROM resources`).all<{ object_key: string; storage_config_id: string }>();
@@ -995,7 +995,7 @@ const resetDemoData = async (
 
     await ensureDemoSeed(env, { overwriteExisting: true, refreshResources: true });
     await rotateWorkspaceSyncIdentity(db, isoNow());
-    await audit(db, "system", null, "demo.reset", "demo", "edgeever-demo", {
+    await audit(db, "system", null, "demo.reset", "demo", "rtnote-demo", {
       scheduledTime: new Date(scheduledTime).toISOString(),
       seedMemoCount: DEMO_SEED_MEMOS.length,
     });

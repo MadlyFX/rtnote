@@ -10,7 +10,7 @@ import {
   getPosterSummary,
   getTableSummary,
   type MemoSummary,
-} from "@edgeever/shared";
+} from "@rtnote/shared";
 import { clampNumber, parseJsonArray } from "./entity-utils";
 import type { DatabaseAdapter } from "./storage-contract";
 
@@ -91,7 +91,7 @@ export const mapMemoSummary = (row: MemoSummaryRow): MemoSummary => ({
   deletedAt: row.deleted_at,
 });
 
-// EdgeEver's default title is stored as RTNote's, so both read as untitled.
+// The legacy default title is stored as RTNote's, so both read as untitled.
 const normalizeMemoTitle = (value: string | null | undefined) => {
   const title = value?.trim();
   return title ? normalizeLegacyMemoTitle(title) : DEFAULT_MEMO_TITLE;
@@ -99,7 +99,7 @@ const normalizeMemoTitle = (value: string | null | undefined) => {
 
 const sqlString = (value: string) => `'${value.replace(/'/g, "''")}'`;
 
-// Sorts untitled notes, including those with EdgeEver's default title, as
+// Sorts untitled notes, including those with RTNote's default title, as
 // "Untitled note". The cursor title from normalizeMemoTitle must match it.
 const TITLE_SORT_EXPRESSION = `LOWER(CASE WHEN m.title IS NULL OR m.title IN (${
   ["", ...LEGACY_DEFAULT_MEMO_TITLES].map(sqlString).join(", ")

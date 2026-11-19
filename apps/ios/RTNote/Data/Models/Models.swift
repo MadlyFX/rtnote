@@ -1,0 +1,498 @@
+import Foundation
+
+/// Default note titles. Mirrors `packages/shared/src/memo-title.ts`.
+enum MemoTitle {
+    /// Title stored for notes the user did not name.
+    static let defaultTitle = "Untitled note"
+
+    /// True when a stored title is empty, RTNote's default title or the legacy one.
+    static func isDefault(_ title: String?) -> Bool {
+        let trimmed = title?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return trimmed.isEmpty
+            || trimmed == defaultTitle
+            || RTNoteLegacyValues.defaultMemoTitles.contains(trimmed)
+    }
+
+    /// Title to show for a note: default titles are replaced by the reader's localized label.
+    static func displayTitle(_ title: String?, untitledLabel: String) -> String {
+        isDefault(title) ? untitledLabel : (title ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+}
+
+// MARK: - Auth
+
+struct AuthUser: Codable, Equatable, Sendable, Identifiable {
+    var id: String
+    var username: String
+    var displayName: String?
+    var role: String
+}
+
+struct AuthSession: Codable, Equatable, Sendable {
+    var authRequired: Bool
+    var authenticated: Bool
+    var demoMode: Bool
+    var user: AuthUser?
+    var sessionToken: String?
+    /// `true` only for a restricted session created with a TOTP recovery code:
+    /// the client must force an authenticator rebind before any business API.
+    var mfaRebindRequired: Bool?
+}
+
+struct LoginInput: Encodable, Sendable {
+    var username: String
+    var password: String
+    var deviceId: String
+}
+
+struct MobileSession: Codable, Equatable, Sendable {
+    var baseUrl: String
+    var token: String
+    var user: AuthUser?
+    /// Persisted so a cold start of a restricted (recovery-code) session still lands
+    /// on the forced rebind screen. Optional for backward-compatible decoding.
+    var mfaRebindRequired: Bool?
+}
+
+struct InstanceStorageDiagnostics: Codable, Equatable, Sendable {
+    var database: String?
+    var resources: String?
+}
+
+struct InstanceHealth: Codable, Equatable, Sendable {
+    var ok: Bool
+    var name: String
+    var runtime: String?
+    var containerImageSource: String?
+    var authMode: String?
+    var build: String?
+    var deploymentVersionCreatedAt: String?
+    var migration: String?
+    var storage: InstanceStorageDiagnostics?
+    var objectStorageProvider: String?
+}
+
+struct InstanceRelease: Codable, Equatable, Sendable {
+    var version: String
+}
+
+struct LoginDeviceSession: Codable, Equatable, Sendable, Identifiable {
+    var id: String
+    var userAgent: String?
+    var label: String?
+    var ipAddress: String?
+    var ipCountry: String?
+    var ipRegion: String?
+    var isCurrent: Bool
+    var createdAt: String
+    var lastSeenAt: String
+    var expiresAt: String
+}
+
+// MARK: - Notebook / Memo
+
+struct Notebook: Codable, Equatable, Sendable, Identifiable {
+    var id: String
+    var parentId: String?
+    var name: String
+    var slug: String?
+    var icon: String?
+    var color: String?
+    var sortOrder: Int
+    var memoCount: Int
+    var lastMemoUpdatedAt: String?
+    var createdAt: String
+    var updatedAt: String
+}
+
+struct MemoSummary: Codable, Equatable, Sendable, Identifiable {
+    var id: String
+    var notebookId: String
+    var title: String?
+    var excerpt: String
+    var tags: [String]
+    var isPinned: Bool
+    var isArchived: Bool
+    var isDeleted: Bool
+    var revision: Int
+    var createdAt: String
+    var updatedAt: String
+    var deletedAt: String?
+}
+
+struct MemoDetail: Codable, Equatable, Sendable, Identifiable {
+    var id: String
+    var notebookId: String
+    var title: String?
+    var excerpt: String
+    var tags: [String]
+    var isPinned: Bool
+    var isArchived: Bool
+    var isDeleted: Bool
+    var revision: Int
+    var createdAt: String
+    var updatedAt: String
+    var deletedAt: String?
+    var contentJson: JSONValue
+    var contentMarkdown: String
+    var contentText: String
+    var contentHash: String
+    var sourceMemoIds: [String]
+    var mergeSourceCount: Int
+    var mergedIntoMemoId: String?
+    /// memo_contents.schema_version. 2 means contentJson is the only source and
+    /// contentMarkdown is generated from it. Missing from older servers and caches.
+    var schemaVersion: Int? = nil
+
+    var displayTitle: String {
+        MemoTitle.displayTitle(title, untitledLabel: MemoTitle.defaultTitle)
+    }
+
+    func asSummary() -> MemoSummary {
+        MemoSummary(
+            id: id,
+            notebookId: notebookId,
+            title: title,
+            excerpt: excerpt,
+            tags: tags,
+            isPinned: isPinned,
+            isArchived: isArchived,
+            isDeleted: isDeleted,
+            revision: revision,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt
+        )
+    }
+}
+
+struct MemoEditSession: Codable, Equatable, Sendable {
+    var id: String
+    var memoId: String
+    var baseRevision: Int
+    var baseContentHash: String
+    var expiresAt: String
+}
+
+struct Resource: Codable, Equatable, Sendable, Identifiable {
+    var id: String
+    var memoId: String
+    var originalMemoId: String?
+    var kind: String
+    var mimeType: String?
+    var filename: String?
+    var byteSize: Int
+    var sha256: String?
+    var width: Int?
+    var height: Int?
+    var createdAt: String
+    var updatedAt: String
+    var url: String
+}
+
+struct ApiToken: Codable, Equatable, Sendable, Identifiable {
+    var id: String
+    var name: String
+    var token: String?
+    var scopes: [String]
+    var lastUsedAt: String?
+    var expiresAt: String?
+    var isRevoked: Bool
+    var createdAt: String
+}
+
+struct CreatedApiToken: Codable, Equatable, Sendable {
+    var token: String
+    var apiToken: ApiToken
+}
+
+struct TagSummary: Codable, Equatable, Sendable {
+    var name: String
+    var memoCount: Int
+    var updatedAt: String?
+}
+
+struct MemoRevision: Codable, Equatable, Sendable, Identifiable {
+    var id: String
+    var memoId: String
+    var revision: Int
+    var title: String?
+    var tags: [String]
+    var contentMarkdown: String
+    var contentText: String
+    var contentHash: String
+    var createdBy: String
+    var createdAt: String
+}
+
+struct MemoShare: Codable, Equatable, Sendable {
+    var memoId: String
+    var token: String
+    var createdAt: String
+    var updatedAt: String
+    var passwordProtected: Bool?
+}
+
+struct InstanceUser: Codable, Equatable, Sendable, Identifiable {
+    var id: String
+    var username: String
+    var displayName: String?
+    var role: String
+    var isDisabled: Bool
+    var lastLoginAt: String?
+    var createdAt: String
+}
+
+// MARK: - Sync wire types
+
+struct MobileSyncBootstrapPage: Codable, Sendable {
+    var notebooks: [Notebook]
+    var memos: [MemoDetail]
+    var snapshotCursor: Int
+    var syncIdentity: String?
+    var totalCount: Int?
+    var nextAfterId: String?
+}
+
+struct MobileSyncChange: Codable, Sendable {
+    var cursor: Int
+    var entityType: String
+    var entityId: String
+    var operation: String
+    var notebook: Notebook?
+    var memo: MemoDetail?
+}
+
+struct MobileSyncChangesPage: Codable, Sendable {
+    var changes: [MobileSyncChange]
+    var cursor: Int
+    var hasMore: Bool
+    var serverCursor: Int?
+    var syncIdentity: String?
+}
+
+// MARK: - Envelope helpers
+
+struct MemoResponse: Codable, Sendable {
+    var memo: MemoDetail
+}
+
+struct NotebookResponse: Codable, Sendable {
+    var notebook: Notebook
+}
+
+struct NotebooksResponse: Codable, Sendable {
+    var notebooks: [Notebook]
+}
+
+struct EditSessionResponse: Codable, Sendable {
+    var editSession: MemoEditSession
+}
+
+struct ResourceResponse: Codable, Sendable {
+    var resource: Resource
+}
+
+struct OkResponse: Codable, Sendable {
+    var ok: Bool
+}
+
+struct SessionsResponse: Codable, Sendable {
+    var sessions: [LoginDeviceSession]
+}
+
+struct ApiTokensResponse: Codable, Sendable {
+    var apiTokens: [ApiToken]
+    var availableScopes: [String]
+}
+
+struct TagsResponse: Codable, Sendable {
+    var tags: [TagSummary]
+}
+
+// MARK: - Outbox / drafts domain
+
+enum MemoSortMode: String, CaseIterable, Sendable {
+    case updatedDesc = "updated-desc"
+    case createdDesc = "created-desc"
+    case titleAsc = "title-asc"
+    case titleDesc = "title-desc"
+}
+
+enum MemoFilterMode: String, CaseIterable, Sendable {
+    case all
+    case tagged
+    case untagged
+    case pinned
+}
+
+struct MemoCreatePayload: Codable, Equatable, Sendable {
+    var memoId: String
+    var title: String
+    var contentMarkdown: String
+    /// TipTap JSON when available (preserves image width attrs markdown drops).
+    var contentJson: String? = nil
+    var notebookId: String
+    var tags: [String]
+    var createdAt: String
+}
+
+struct MemoUpdatePayload: Codable, Equatable, Sendable {
+    var memoId: String
+    var expectedRevision: Int
+    var expectedContentHash: String
+    var title: String
+    var contentMarkdown: String
+    /// TipTap JSON when available (preserves image width attrs markdown drops).
+    var contentJson: String? = nil
+    var notebookId: String
+    var tags: [String]
+}
+
+enum OutboxKind: String, Codable, Sendable {
+    case memoCreate = "memo.create"
+    case memoUpdate = "memo.update"
+}
+
+enum OutboxStatus: String, Codable, Sendable {
+    case pending
+    case syncing
+    case conflict
+    case error
+}
+
+struct OutboxItem: Codable, Equatable, Sendable, Identifiable {
+    var id: String
+    var kind: OutboxKind
+    var memoId: String
+    var status: OutboxStatus
+    var payloadJSON: String
+    var attemptCount: Int
+    var lastError: String?
+    var nextAttemptAt: String?
+    var createdAt: String
+    var updatedAt: String
+    var version: Int
+
+    func createPayload() throws -> MemoCreatePayload {
+        try RTNoteJSON.decoder.decode(MemoCreatePayload.self, from: Data(payloadJSON.utf8))
+    }
+
+    func updatePayload() throws -> MemoUpdatePayload {
+        try RTNoteJSON.decoder.decode(MemoUpdatePayload.self, from: Data(payloadJSON.utf8))
+    }
+}
+
+struct MemoDraft: Codable, Equatable, Sendable {
+    var draftKey: String
+    var title: String
+    var contentMarkdown: String
+    var contentJson: String?
+    var notebookId: String
+    var tagsText: String
+    var expectedRevision: Int?
+    var updatedAt: String
+}
+
+struct SyncRunResult: Equatable, Sendable {
+    var attempted = 0
+    var synced = 0
+    var failed = 0
+    var conflicted = 0
+}
+
+struct BootstrapProgress: Equatable, Sendable {
+    var loadedCount: Int
+    var totalCount: Int
+}
+
+// MARK: - Flexible JSON for TipTap docs
+
+enum JSONValue: Codable, Equatable, Sendable {
+    case string(String)
+    case number(Double)
+    case bool(Bool)
+    case object([String: JSONValue])
+    case array([JSONValue])
+    case null
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if container.decodeNil() {
+            self = .null
+        } else if let value = try? container.decode(Bool.self) {
+            self = .bool(value)
+        } else if let value = try? container.decode(Double.self) {
+            self = .number(value)
+        } else if let value = try? container.decode(String.self) {
+            self = .string(value)
+        } else if let value = try? container.decode([String: JSONValue].self) {
+            self = .object(value)
+        } else if let value = try? container.decode([JSONValue].self) {
+            self = .array(value)
+        } else {
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Unsupported JSON")
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        switch self {
+        case .string(let value): try container.encode(value)
+        case .number(let value): try container.encode(value)
+        case .bool(let value): try container.encode(value)
+        case .object(let value): try container.encode(value)
+        case .array(let value): try container.encode(value)
+        case .null: try container.encodeNil()
+        }
+    }
+
+    static var emptyDoc: JSONValue {
+        .object([
+            "type": .string("doc"),
+            "content": .array([.object(["type": .string("paragraph")])]),
+        ])
+    }
+
+    func jsonString() throws -> String {
+        let data = try RTNoteJSON.encoder.encode(self)
+        return String(data: data, encoding: .utf8) ?? "{}"
+    }
+
+    static func parse(_ string: String) throws -> JSONValue {
+        try RTNoteJSON.decoder.decode(JSONValue.self, from: Data(string.utf8))
+    }
+}
+
+extension MemoDetail {
+    static func localPlaceholder(
+        id: String,
+        notebookId: String,
+        title: String,
+        contentMarkdown: String,
+        tags: [String],
+        createdAt: String
+    ) -> MemoDetail {
+        MemoDetail(
+            id: id,
+            notebookId: notebookId,
+            title: title,
+            excerpt: String(contentMarkdown.prefix(160)),
+            tags: tags,
+            isPinned: false,
+            isArchived: false,
+            isDeleted: false,
+            revision: 0,
+            createdAt: createdAt,
+            updatedAt: createdAt,
+            deletedAt: nil,
+            contentJson: .emptyDoc,
+            contentMarkdown: contentMarkdown,
+            contentText: contentMarkdown,
+            contentHash: "",
+            sourceMemoIds: [],
+            mergeSourceCount: 0,
+            mergedIntoMemoId: nil
+        )
+    }
+}

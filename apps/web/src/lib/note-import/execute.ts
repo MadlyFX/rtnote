@@ -1,13 +1,13 @@
-import type { createEdgeEverClient } from "@edgeever/client";
-import { DEFAULT_MEMO_TITLE, docToMarkdown, type MemoDetail, type TiptapDoc } from "@edgeever/shared";
-import type { ImportIndex, ImportNotebook, ImportNote, ImportNoteResult, ImportReader, ImportRunResult, ImportIssue } from "@edgeever/shared/note-import/types";
+import type { createRTNoteClient } from "@rtnote/client";
+import { DEFAULT_MEMO_TITLE, docToMarkdown, type MemoDetail, type TiptapDoc } from "@rtnote/shared";
+import type { ImportIndex, ImportNotebook, ImportNote, ImportNoteResult, ImportReader, ImportRunResult, ImportIssue } from "@rtnote/shared/note-import/types";
 import { indexItems } from "../../../../../packages/shared/src/note-import/index-store";
 import { findImportReferences, rewriteImportMarkdown } from "../../../../../packages/shared/src/note-import/references";
 import { resourceLinkToMarkdown } from "../../../../../packages/shared/src/resource-links";
 import { rewriteDocxImageSources } from "../../../../../packages/shared/src/note-import/docx-resources";
 
 export type ImportProgress = { phase: "folders" | "notes" | "resources" | "refresh"; path: string; completed: number; total: number; unit?: "bytes" };
-type ImportClient = Pick<ReturnType<typeof createEdgeEverClient>, "getImportCapabilities" | "listNotebooks" | "createNotebook" | "importMemos" | "uploadMemoResourceParts" | "getMemo" | "createMemoEditSession" | "updateMemo">;
+type ImportClient = Pick<ReturnType<typeof createRTNoteClient>, "getImportCapabilities" | "listNotebooks" | "createNotebook" | "importMemos" | "uploadMemoResourceParts" | "getMemo" | "createMemoEditSession" | "updateMemo">;
 type FolderResult = { id?: string; uncertain?: boolean };
 const statusOf = (error: unknown) => typeof error === "object" && error && "status" in error ? Number(error.status) : undefined;
 const conflict = () => new Error("importConflict");

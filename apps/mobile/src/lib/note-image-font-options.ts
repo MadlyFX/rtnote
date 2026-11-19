@@ -1,6 +1,6 @@
-import type { enUS } from "@edgeever/shared/i18n";
-import { FONT_CATALOG, FONT_IDS } from "@edgeever/shared/font-catalog";
-import { NOTE_IMAGE_TEMPLATE_TYPOGRAPHY, resolveTheme, type NoteImageTheme, type NoteImageFontStyle } from "@edgeever/shared/note-image-card";
+import type { enUS } from "@rtnote/shared/i18n";
+import { FONT_CATALOG, FONT_IDS } from "@rtnote/shared/font-catalog";
+import { NOTE_IMAGE_TEMPLATE_TYPOGRAPHY, resolveTheme, type NoteImageTheme, type NoteImageFontStyle } from "@rtnote/shared/note-image-card";
 
 type ImageShareCopy = typeof enUS.editor.imageShare;
 type FontStyleLabelKey = keyof ImageShareCopy["fontStyles"];

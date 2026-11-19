@@ -12,7 +12,7 @@ const futureDocument = {
   type: "doc",
   content: [
     {
-      type: "edgeeverThemeBlock",
+      type: "rtnoteThemeBlock",
       attrs: { kind: "warning", futureOption: true },
       content: [{
         type: "paragraph",
@@ -46,8 +46,8 @@ describe("native editor unknown-content compatibility", () => {
     expect(prepared.content[0]).toMatchObject({
       type: UNSUPPORTED_BLOCK_NODE_TYPE,
       attrs: {
-        originalType: "edgeeverThemeBlock",
-        displayLabel: { "zh-CN": "暂不支持的内容：edgeeverThemeBlock" }["zh-CN"],
+        originalType: "rtnoteThemeBlock",
+        displayLabel: { "zh-CN": "暂不支持的内容：rtnoteThemeBlock" }["zh-CN"],
       },
     });
     expect(prepared.content[1]?.content?.[0]).toMatchObject({
@@ -72,7 +72,7 @@ describe("native editor unknown-content compatibility", () => {
     const galleryDocument = {
       type: "doc",
       content: [{
-        type: "edgeeverImageGallery",
+        type: "rtnoteImageGallery",
         attrs: { layout: "auto" },
         content: [
           { type: "image", attrs: { src: "/one.png" } },
@@ -91,7 +91,7 @@ describe("native editor unknown-content compatibility", () => {
       type: "doc",
       content: [{
         type: "paragraph",
-        content: [{ type: "edgeeverEmptyExternalLink", attrs: { href: "https://example.com", title: null } }],
+        content: [{ type: "rtnoteEmptyExternalLink", attrs: { href: "https://example.com", title: null } }],
       }],
     };
     expect(prepareNativeEditorContent(document)).toEqual(document);
@@ -100,12 +100,12 @@ describe("native editor unknown-content compatibility", () => {
 
   test("labels placeholders in the requested UI locale and defaults to English", () => {
     const labelFor = (locale) => prepareNativeEditorContent(futureDocument, locale).content[0]?.attrs?.displayLabel;
-    expect(labelFor("en-US")).toBe("Unsupported content: edgeeverThemeBlock");
-    const expected = { ja: "未対応のコンテンツ: edgeeverThemeBlock" };
+    expect(labelFor("en-US")).toBe("Unsupported content: rtnoteThemeBlock");
+    const expected = { ja: "未対応のコンテンツ: rtnoteThemeBlock" };
     expect(labelFor("ja")).toBe(expected.ja);
-    expect(labelFor("pl")).toBe("Nieobsługiwana zawartość: edgeeverThemeBlock");
-    expect(labelFor("ru")).toBe("Неподдерживаемое содержимое: edgeeverThemeBlock");
-    expect(labelFor(undefined)).toBe("Unsupported content: edgeeverThemeBlock");
+    expect(labelFor("pl")).toBe("Nieobsługiwana zawartość: rtnoteThemeBlock");
+    expect(labelFor("ru")).toBe("Неподдерживаемое содержимое: rtnoteThemeBlock");
+    expect(labelFor(undefined)).toBe("Unsupported content: rtnoteThemeBlock");
   });
 
   test("keeps Markdown generation alive by projecting unknown content to text", () => {

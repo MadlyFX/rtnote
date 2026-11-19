@@ -3,10 +3,10 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-DERIVED="${EDGE_EVER_IOS_DERIVED:-$ROOT/build}"
-ARCHIVE_PATH="${EDGE_EVER_IOS_ARCHIVE:-$DERIVED/EdgeEver.xcarchive}"
-EXPORT_PATH="${EDGE_EVER_IOS_EXPORT:-$DERIVED/export}"
-EXPORT_OPTIONS="${EDGE_EVER_IOS_EXPORT_OPTIONS:-$ROOT/ExportOptions.plist}"
+DERIVED="${RTNOTE_IOS_DERIVED:-$ROOT/build}"
+ARCHIVE_PATH="${RTNOTE_IOS_ARCHIVE:-$DERIVED/RTNote.xcarchive}"
+EXPORT_PATH="${RTNOTE_IOS_EXPORT:-$DERIVED/export}"
+EXPORT_OPTIONS="${RTNOTE_IOS_EXPORT_OPTIONS:-$ROOT/ExportOptions.plist}"
 
 # Prefer stable Xcode for App Store (beta SDKs are rejected by App Store Connect).
 if [[ -z "${DEVELOPER_DIR:-}" ]]; then
@@ -26,15 +26,15 @@ if [[ "$HOST_OS_BUILD" =~ [a-z]$ ]]; then
   echo "WARNING: Host macOS ${HOST_OS_VER} (${HOST_OS_BUILD}) looks like a seed/beta build." >&2
   echo "WARNING: App Store Connect may reject this IPA with ITMS-90111 even if Xcode is a release build." >&2
   echo "WARNING: Use Xcode Cloud (manual Archive workflow) for store uploads — see docs/ios-xcode-cloud.md" >&2
-  if [[ "${EDGE_EVER_IOS_ALLOW_BETA_HOST:-0}" != "1" ]]; then
-    echo "Refusing local App Store archive on beta host. Set EDGE_EVER_IOS_ALLOW_BETA_HOST=1 to override." >&2
+  if [[ "${RTNOTE_IOS_ALLOW_BETA_HOST:-0}" != "1" ]]; then
+    echo "Refusing local App Store archive on beta host. Set RTNOTE_IOS_ALLOW_BETA_HOST=1 to override." >&2
     exit 1
   fi
 fi
 
 cd "$ROOT"
 
-if [[ "${EDGE_EVER_IOS_SKIP_EDITOR_BUILD:-0}" != "1" ]]; then
+if [[ "${RTNOTE_IOS_SKIP_EDITOR_BUILD:-0}" != "1" ]]; then
   bash "$ROOT/Scripts/build-editor-bundle.sh"
 fi
 
@@ -45,10 +45,10 @@ fi
 mkdir -p "$DERIVED"
 rm -rf "$ARCHIVE_PATH" "$EXPORT_PATH"
 
-echo "Archiving EdgeEver for App Store..."
+echo "Archiving RTNote for App Store..."
 xcodebuild \
-  -project "$ROOT/EdgeEver.xcodeproj" \
-  -scheme EdgeEver \
+  -project "$ROOT/RTNote.xcodeproj" \
+  -scheme RTNote \
   -configuration Release \
   -destination "generic/platform=iOS" \
   -archivePath "$ARCHIVE_PATH" \

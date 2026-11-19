@@ -1,5 +1,5 @@
-import { docToMarkdown, emptyDoc, resolveMemoContentDoc, type MemoTemplate, type TiptapDoc } from "@edgeever/shared";
-import { localizeDefaultMemoTemplate } from "@edgeever/shared/memo-template-seeds";
+import { docToMarkdown, emptyDoc, resolveMemoContentDoc, type MemoTemplate, type TiptapDoc } from "@rtnote/shared";
+import { localizeDefaultMemoTemplate } from "@rtnote/shared/memo-template-seeds";
 
 export type TemplateCard = {
   /** The template as stored; editing starts from it. */

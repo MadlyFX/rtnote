@@ -112,8 +112,8 @@ export const useWorkspaceSyncLifecycle = ({
       }
       void runQueuedSync();
     };
-    window.addEventListener("edgeever:sync-queue-changed", handleQueueChanged);
-    return () => window.removeEventListener("edgeever:sync-queue-changed", handleQueueChanged);
+    window.addEventListener("rtnote:sync-queue-changed", handleQueueChanged);
+    return () => window.removeEventListener("rtnote:sync-queue-changed", handleQueueChanged);
   }, [runQueuedSync]);
 
   useEffect(() => {
@@ -139,7 +139,7 @@ export const useWorkspaceSyncLifecycle = ({
   }, []);
 
   useEffect(() => {
-    const leaseKey = `edgeever.background-refresh:${backgroundRefreshKey}`;
+    const leaseKey = `rtnote.background-refresh:${backgroundRefreshKey}`;
     const ownerId = backgroundRefreshOwnerRef.current;
     const runRefresh = createRefreshSingleFlight({
       refresh: () => refreshWorkspaceRef.current("background"),

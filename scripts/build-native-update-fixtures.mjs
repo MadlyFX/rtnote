@@ -12,7 +12,7 @@ if (process.env.GITHUB_ACTIONS !== "true" || process.env.GITHUB_REPOSITORY !== "
   throw new Error("Instrumented update builds run only on the official repository's disposable CI runners");
 }
 const root = process.cwd();
-const output = resolve(process.argv[2] || join(process.env.RUNNER_TEMP, "edgeever-update-verification"));
+const output = resolve(process.argv[2] || join(process.env.RUNNER_TEMP, "rtnote-update-verification"));
 mkdirSync(output, { recursive: true });
 const desktop = join(root, "apps/desktop");
 const packagePath = join(desktop, "package.json");
@@ -43,11 +43,11 @@ try {
   mkdirSync(join(desktop, "build"), { recursive: true });
   if (process.platform === "darwin") run("bash", ["scripts/build-macos-share-extension.sh"]);
   for (const version of versions) {
-    const metadata = { ...JSON.parse(originalPackage), name: "edgeever-update-verifier", version };
+    const metadata = { ...JSON.parse(originalPackage), name: "rtnote-update-verifier", version };
     writeFileSync(packagePath, JSON.stringify(metadata, null, 2));
     const directory = join(output, version);
     const config = {
-      extends: "./electron-builder.yml", appId: "org.edgeever.update-verifier",
+      extends: "./electron-builder.yml", appId: "org.rtnote.update-verifier",
       // The product resolves its background Helper from the executable name.
       productName: process.platform === "darwin" ? MAC_UPDATE_FIXTURE_NAME : "RTNote Update Verification",
       executableName: MAC_UPDATE_FIXTURE_NAME,

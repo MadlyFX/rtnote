@@ -7,8 +7,8 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import { getMfaChallenge } from "@edgeever/client";
-import { PUBLIC_DEMO_INSTANCE_URL, type MfaChallenge } from "@edgeever/shared";
+import { getMfaChallenge } from "@rtnote/client";
+import { PUBLIC_DEMO_INSTANCE_URL, type MfaChallenge } from "@rtnote/shared";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BrandLogo } from "../components/BrandLogo";
 import { ActivityIndicator, GitHub, LockKeyhole } from "../components/icons";

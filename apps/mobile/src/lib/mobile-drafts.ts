@@ -1,8 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { markdownToDoc, mergeMarkdownIntoDoc, resolveMemoContentDoc, type MemoDetail, type TiptapDoc } from "@edgeever/shared";
+import { markdownToDoc, mergeMarkdownIntoDoc, resolveMemoContentDoc, type MemoDetail, type TiptapDoc } from "@rtnote/shared";
 
-const MOBILE_DRAFT_PREFIX = "edgeever.mobile.memoDraft:";
-const MOBILE_NEW_DRAFT_PREFIX = "edgeever.mobile.newMemoDraft:";
+const MOBILE_DRAFT_PREFIX = "rtnote.mobile.memoDraft:";
+const MOBILE_NEW_DRAFT_PREFIX = "rtnote.mobile.newMemoDraft:";
 
 export type MobileMemoDraft = {
   memoId: string;

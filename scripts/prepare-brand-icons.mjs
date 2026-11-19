@@ -23,7 +23,7 @@ const pngTargets = [
   ["apps/web/public/maskable-icon-512x512.png", 512, { background: brand.tileColor }],
   ["apps/web/public/apple-touch-icon.png", 180, { background: brand.tileColor }],
   ["apps/mobile/assets/icon.png", 512, { background: brand.tileColor }],
-  ["apps/ios/EdgeEver/Resources/Assets.xcassets/AppIcon.appiconset/icon.png", 1024, { background: brand.tileColor }],
+  ["apps/ios/RTNote/Resources/Assets.xcassets/AppIcon.appiconset/icon.png", 1024, { background: brand.tileColor }],
   ["apps/extension/public/icons/icon-16.png", 16, { preserveAlpha: true }],
   ["apps/extension/public/icons/icon-32.png", 32, { preserveAlpha: true }],
   ["apps/extension/public/icons/icon-48.png", 48, { preserveAlpha: true }],

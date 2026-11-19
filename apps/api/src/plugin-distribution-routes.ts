@@ -360,7 +360,7 @@ const respondWithGithubManifestText = (
 
 export const registerPluginDistributionRoutes = (app: Hono<AppEnv>) => {
   app.get("/api/v1/plugins/community-registry", async (context) => {
-    const configured = context.env.EDGE_EVER_COMMUNITY_REGISTRY_URL;
+    const configured = context.env.RTNOTE_COMMUNITY_REGISTRY_URL;
     if (!configured?.trim()) return notFound(context, "Community registry is not configured.");
     try {
       const transport = context.env.publicNetworkFetch;
@@ -375,7 +375,7 @@ export const registerPluginDistributionRoutes = (app: Hono<AppEnv>) => {
       return context.body(release.registryBytes, 200, {
         "Cache-Control": "private, max-age=60",
         "Content-Type": "application/json; charset=utf-8",
-        "X-EdgeEver-Community-Registry-Signature": release.signatureBase64,
+        "X-RTNote-Community-Registry-Signature": release.signatureBase64,
       });
     } catch (error) {
       return apiError(

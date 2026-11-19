@@ -14,7 +14,7 @@ test("only attribute-free table cell br tokens become hard breaks, preserving th
 });
 
 test("table column widths and row heights round-trip through an invisible comment",()=>{
-  const source='| A | B |\n| --- | --- |\n| 1 | 2 |\n\n<!-- edgeever-table {"cols":[120,null],"rows":[null,60]} -->\n\nAfter.';
+  const source='| A | B |\n| --- | --- |\n| 1 | 2 |\n\n<!-- rtnote-table {"cols":[120,null],"rows":[null,60]} -->\n\nAfter.';
   const doc=markdownToDoc(source);
   const table=doc.content.find(node=>node.type==='table');
   expect(table.content[0].content[0].attrs.colwidth).toEqual([120]);
@@ -22,11 +22,11 @@ test("table column widths and row heights round-trip through an invisible commen
   expect(table.content[1].attrs.rowheight).toBe(60);
   expect(doc.content.some(node=>node.type==='paragraph')).toBe(true);
   const out=docToMarkdown(doc);
-  expect(out).toContain('<!-- edgeever-table {"cols":[120,null],"rows":[null,60]} -->');
+  expect(out).toContain('<!-- rtnote-table {"cols":[120,null],"rows":[null,60]} -->');
   expect(docToMarkdown(markdownToDoc(out))).toBe(out);
 });
 
 test("unsized tables serialize without metadata",()=>{
   const out=docToMarkdown(markdownToDoc('| A |\n| --- |\n| 1 |'));
-  expect(out).not.toContain('edgeever-table');
+  expect(out).not.toContain('rtnote-table');
 });

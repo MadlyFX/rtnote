@@ -8,7 +8,7 @@ import {
   type MemoDetail,
   type MemoRevision,
   type TiptapDoc,
-} from "@edgeever/shared";
+} from "@rtnote/shared";
 import type { AuditActor } from "./api-context";
 import { AppError } from "./app-error";
 import { auditStatement } from "./audit";
@@ -67,7 +67,7 @@ const parseDoc = (json: string): TiptapDoc => {
   }
 };
 
-// EdgeEver's default title is stored as RTNote's, so both read as untitled.
+// The legacy default title is stored as RTNote's, so both read as untitled.
 const normalizeMemoTitle = (value: string | null | undefined) => {
   const title = value?.trim();
   return title ? normalizeLegacyMemoTitle(title) : DEFAULT_MEMO_TITLE;

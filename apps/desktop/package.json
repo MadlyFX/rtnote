@@ -1,5 +1,5 @@
 {
-  "name": "@edgeever/desktop",
+  "name": "@rtnote/desktop",
   "version": "2.23.0",
   "desktopName": "RTNote",
   "private": true,
@@ -19,7 +19,7 @@
     "electron-builder": "^26.0.12"
   },
   "dependencies": {
-    "@edgeever/public-network": "workspace:*",
+    "@rtnote/public-network": "workspace:*",
     "croner": "^10.0.1",
     "electron-updater": "^6.6.2",
     "fflate": "0.8.3",

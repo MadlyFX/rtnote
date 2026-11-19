@@ -22,7 +22,7 @@ The listing names only the sites shown in the extension's settings page. Site-sp
 
 ## Upload files
 
-- Package: `store-assets/edgeever-web-clipper-v<version>.zip` (the file name is set by `scripts/publish-web-clipper.mjs`)
+- Package: `store-assets/rtnote-web-clipper-v<version>.zip` (the file name is set by `scripts/publish-web-clipper.mjs`)
 - Store icon: `public/icons/icon-128.png`
 - Screenshot: `store-assets/screenshot-options-1280x800.jpg`
 - Small promo tile: `store-assets/promo-small-440x280.jpg` (render it from the English `store-assets/promo.html` before submission)

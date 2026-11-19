@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { decodeSessionCredential, writeSessionCredential } from "./session-credential.mjs";
 
 test("logout removes the saved session even when the keyring cannot encrypt", async () => {
-  const directory = await mkdtemp(join(tmpdir(), "edgeever-session-test-"));
+  const directory = await mkdtemp(join(tmpdir(), "rtnote-session-test-"));
   const path = join(directory, "session-token");
   const baseUrl = "https://example.test";
   try {

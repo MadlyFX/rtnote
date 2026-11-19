@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { ApiRequestError } from "@edgeever/client";
+import { ApiRequestError } from "@rtnote/client";
 import { formatMobileLoginError, MISSING_MOBILE_SESSION_MESSAGE } from "./login-error.ts";
 import { mobileJa } from "./i18n/ja.ts";
 import { mobileZhCN } from "./i18n/zh-CN.ts";
@@ -11,7 +11,7 @@ describe("mobile login error messages", () => {
   test("explains a Cloudflare challenge and preserves its Ray ID", () => {
     const error = new ApiRequestError("Request failed", 403, undefined, undefined, {
       cloudflareMitigated: true,
-      isEdgeEverApiError: false,
+      isRTNoteApiError: false,
       rayId: "abc123-NRT",
     });
 
@@ -35,7 +35,7 @@ describe("mobile login error messages", () => {
 
     const blocked = new ApiRequestError("Forbidden", 403, undefined, undefined, {
       cloudflareMitigated: false,
-      isEdgeEverApiError: false,
+      isRTNoteApiError: false,
       rayId: "def456-SJC",
     });
     expect(formatMobileLoginError(blocked, "zh-CN")).toContain(zhLogin.securityPolicyBlocked);
@@ -43,7 +43,7 @@ describe("mobile login error messages", () => {
 
     const forbidden = new ApiRequestError("Forbidden", 403, "forbidden", undefined, {
       cloudflareMitigated: false,
-      isEdgeEverApiError: true,
+      isRTNoteApiError: true,
     });
     expect(formatMobileLoginError(forbidden, "en-US")).toContain("The instance rejected the login request");
   });

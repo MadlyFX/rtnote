@@ -4,7 +4,7 @@ import {
   type TranscriptionProvider,
   type TranscriptionSettings,
   type TranscriptionStandard,
-} from "@edgeever/shared";
+} from "@rtnote/shared";
 import type { Bindings } from "./api-context";
 import { AppError } from "./app-error";
 import { decryptStoredCredential, type CredentialEnvironment } from "./credential-encryption";

@@ -10,11 +10,11 @@ import {
 } from "./plugin-catalog.ts";
 
 const marketplaceEntry = (overrides = {}) => ({
-  id: "org.edgeever.plugins.ai-rss",
+  id: "org.rtnote.plugins.ai-rss",
   name: "RTNote AI RSS",
   description: "Official RSS digest",
   author: "RTNote",
-  publisher: "edgeever",
+  publisher: "rtnote",
   category: "News & AI",
   repositoryUrl: "https://github.com/tianma-if/edgeever-ai-rss",
   distribution: { type: "github", repositoryUrl: "https://github.com/tianma-if/edgeever-ai-rss" },
@@ -28,7 +28,7 @@ const extension = (overrides = {}) => {
     manifestUrl: "https://example.com/manifest.json",
     manifest: {
       type: "plugin",
-      id: "org.edgeever.plugins.ai-rss",
+      id: "org.rtnote.plugins.ai-rss",
       name: "RTNote AI RSS",
       version: "0.5.3",
       description: "Installed RSS digest",
@@ -103,16 +103,16 @@ describe("plugin catalog items", () => {
 
   test("offers replace-with-verified only for sideloaded installs listed in the marketplace", () => {
     const marketplaceInstall = {
-      id: "org.edgeever.plugins.ai-rss",
+      id: "org.rtnote.plugins.ai-rss",
       marketplaceEntry: marketplaceEntry(),
       extension: extension(),
     };
     const sideloadedListed = {
-      id: "org.edgeever.plugins.ai-rss",
+      id: "org.rtnote.plugins.ai-rss",
       marketplaceEntry: marketplaceEntry(),
       extension: extension({ source: { kind: "github", verified: false } }),
     };
-    const uninstalled = { id: "org.edgeever.plugins.ai-rss", marketplaceEntry: marketplaceEntry() };
+    const uninstalled = { id: "org.rtnote.plugins.ai-rss", marketplaceEntry: marketplaceEntry() };
 
     expect(canReplaceWithVerifiedMarketplace(marketplaceInstall)).toBe(false);
     expect(canReplaceWithVerifiedMarketplace(sideloadedListed)).toBe(true);
@@ -121,7 +121,7 @@ describe("plugin catalog items", () => {
 
   test("prefers installed metadata when a marketplace plugin is already present", () => {
     const item = {
-      id: "org.edgeever.plugins.ai-rss",
+      id: "org.rtnote.plugins.ai-rss",
       marketplaceEntry: marketplaceEntry({ name: "Market name", description: "Market copy", verification: { version: "0.5.2" } }),
       extension: extension({
         manifest: { name: "Installed name", description: "Installed copy", version: "0.5.3" },
@@ -137,7 +137,7 @@ describe("plugin catalog items", () => {
 
   test("uses localized metadata from the installed manifest or marketplace with language fallback", () => {
     const item = {
-      id: "org.edgeever.plugins.ai-rss",
+      id: "org.rtnote.plugins.ai-rss",
       marketplaceEntry: marketplaceEntry({
         locales: {
           "zh-CN": { name: "RTNote AI digest (zh-CN)", description: "Marketplace description (zh-CN)" },

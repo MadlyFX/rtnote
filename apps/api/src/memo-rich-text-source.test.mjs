@@ -1,7 +1,7 @@
 import { afterEach, expect, test } from "bun:test";
 import { Database } from "bun:sqlite";
 import { globSync, readFileSync } from "node:fs";
-import { docToMarkdown } from "@edgeever/shared";
+import { docToMarkdown } from "@rtnote/shared";
 import { createMemoRecord, updateMemoRecord } from "./memo-service.ts";
 import { createSelfHostedStorageAdapter } from "./self-hosted-storage-adapter.ts";
 

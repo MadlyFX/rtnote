@@ -33,7 +33,7 @@ What can be customised:
 - The server renders branding into the first response of shared notes, notebook sites and public forms (title, favicon, theme colour, a colour stylesheet and the branding JSON the page reads before it renders), and into `/manifest.webmanifest`. On Cloudflare these paths run the worker first (`wrangler.toml`).
 - Clients read `GET /api/public/branding` before sign-in and `GET /api/v1/branding` afterwards. The web app, desktop app, Android and iOS cache the last branding so it shows at start-up and offline.
 
-Branding saved in a browser before this existed (`edgeever.branding` in local storage) is imported into the workspace the first time its owner opens the app, if the workspace has no branding yet. Logos that were external URLs are not imported.
+Branding saved in a browser before this existed (`rtnote.branding` in local storage) is imported into the workspace the first time its owner opens the app, if the workspace has no branding yet. Logos that were external URLs are not imported.
 
 ### Colour tokens
 

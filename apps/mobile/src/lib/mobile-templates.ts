@@ -1,5 +1,5 @@
-import type { MemoTemplate } from "@edgeever/shared";
-import type { MemoTemplateGalleryEntry } from "@edgeever/shared/memo-template-gallery";
+import type { MemoTemplate } from "@rtnote/shared";
+import type { MemoTemplateGalleryEntry } from "@rtnote/shared/memo-template-gallery";
 
 export type MobileCreateMemoSeed = {
   title: string;

@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createEdgeEverClient } from "@edgeever/client";
-import { coerceResolvedBranding, type ResolvedBranding } from "@edgeever/shared/branding";
+import { createRTNoteClient } from "@rtnote/client";
+import { coerceResolvedBranding, type ResolvedBranding } from "@rtnote/shared/branding";
 import { fetch as expoFetch } from "expo/fetch";
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AppState } from "react-native";
@@ -86,7 +86,7 @@ export const MobileBrandingProvider = ({ children }: { children: ReactNode }) =>
       }
       const baseUrl = session?.baseUrl ?? cacheRef.current?.baseUrl;
       if (!baseUrl) return;
-      const publicClient = createEdgeEverClient({ baseUrl, fetch: expoFetch as typeof fetch });
+      const publicClient = createRTNoteClient({ baseUrl, fetch: expoFetch as typeof fetch });
       const { branding } = await publicClient.getPublicBranding();
       if (generation !== generationRef.current) return;
       updateCache({ baseUrl, instance: coerceResolvedBranding(branding), workspace: null, fetchedAt: Date.now() });

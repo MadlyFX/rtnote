@@ -362,11 +362,11 @@ pub(crate) fn merge_memos(database: &Connection, params: &Value) -> Result<Value
     memo_value(database, &id, true).map(|memo| json!({ "memo": memo }))
 }
 
-/// Default title stored for untitled notes; matches `DEFAULT_MEMO_TITLE` in `@edgeever/shared`.
+/// Default title stored for untitled notes; matches `DEFAULT_MEMO_TITLE` in `@rtnote/shared`.
 pub(crate) const DEFAULT_MEMO_TITLE: &str = "Untitled note";
 
-/// Default title EdgeEver stored for untitled notes (Chinese for "untitled note").
-/// Matches `LEGACY_DEFAULT_MEMO_TITLES` in `@edgeever/shared`. Escaped to keep the
+/// Default title RTNote stored for untitled notes (Chinese for "untitled note").
+/// Matches `LEGACY_DEFAULT_MEMO_TITLES` in `@rtnote/shared`. Escaped to keep the
 /// source English; older notes, backups and clients still carry it.
 pub(crate) const LEGACY_DEFAULT_MEMO_TITLE: &str = "\u{65e0}\u{6807}\u{9898}\u{7b14}\u{8bb0}";
 
@@ -420,7 +420,7 @@ fn sidecar_doc_has_non_text_content(value: &Value) -> bool {
             | "orderedList"
             | "blockquote"
             | "horizontalRule"
-            | "edgeeverThemeBlock"
+            | "rtnoteThemeBlock"
     ) {
         return true;
     }
@@ -663,7 +663,7 @@ pub(crate) fn update_memo(database: &Connection, params: &Value) -> Result<Value
             );
         }
         let conflicts: i64 = tx.query_row(
-            "SELECT COUNT(*) FROM _edgeever_sidecar_outbox WHERE entity_id = ?1 AND status = 'conflict'",
+            "SELECT COUNT(*) FROM _rtnote_sidecar_outbox WHERE entity_id = ?1 AND status = 'conflict'",
             [&memo_id], |row| row.get(0),
         ).map_err(|e| e.to_string())?;
         if conflicts > 0 {
@@ -701,7 +701,7 @@ pub(crate) fn update_memo(database: &Connection, params: &Value) -> Result<Value
     if consumed_remap_base {
         database
             .execute(
-                "DELETE FROM _edgeever_sidecar_meta WHERE key = ?1",
+                "DELETE FROM _rtnote_sidecar_meta WHERE key = ?1",
                 [memo_remap_base_key(&memo_id)],
             )
             .map_err(|e| e.to_string())?;
@@ -719,12 +719,12 @@ pub(crate) fn delete_memo(database: &Connection, params: &Value) -> Result<Value
             .unchecked_transaction()
             .map_err(|e| e.to_string())?;
         let pending_create: i64 = tx.query_row(
-            "SELECT COUNT(*) FROM _edgeever_sidecar_outbox WHERE kind = 'memo.create' AND entity_id = ?1 AND status = 'pending'",
+            "SELECT COUNT(*) FROM _rtnote_sidecar_outbox WHERE kind = 'memo.create' AND entity_id = ?1 AND status = 'pending'",
             [&memo_id],
             |row| row.get(0),
         ).map_err(|e| e.to_string())?;
         let other_changes: i64 = tx.query_row(
-            "SELECT COUNT(*) FROM _edgeever_sidecar_outbox WHERE entity_id = ?1 AND kind <> 'memo.create'",
+            "SELECT COUNT(*) FROM _rtnote_sidecar_outbox WHERE entity_id = ?1 AND kind <> 'memo.create'",
             [&memo_id],
             |row| row.get(0),
         ).map_err(|e| e.to_string())?;
@@ -738,7 +738,7 @@ pub(crate) fn delete_memo(database: &Connection, params: &Value) -> Result<Value
             return Err("Local memo no longer exists".to_owned());
         }
         tx.execute(
-            "DELETE FROM _edgeever_sidecar_outbox WHERE kind = 'memo.create' AND entity_id = ?1 AND status = 'pending'",
+            "DELETE FROM _rtnote_sidecar_outbox WHERE kind = 'memo.create' AND entity_id = ?1 AND status = 'pending'",
             [&memo_id],
         ).map_err(|e| e.to_string())?;
         tx.commit().map_err(|e| e.to_string())?;

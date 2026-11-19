@@ -16,7 +16,7 @@ export const findDesktopReleaseVersion = (assetNames: string[]) => {
     : null;
 };
 
-export { isClientAheadOfInstance, isVersionOutdated } from "@edgeever/shared";
+export { isClientAheadOfInstance, isVersionOutdated } from "@rtnote/shared";
 
 export const getReleaseTagForVersion = (version: string) => {
   const match = version.match(/^v?(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)(?:\+[0-9A-Za-z.-]+)?$/i);

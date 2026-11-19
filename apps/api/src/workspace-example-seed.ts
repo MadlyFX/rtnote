@@ -3,15 +3,15 @@ import {
   docToText,
   markdownToDoc,
   normalizeTags,
-} from "@edgeever/shared";
+} from "@rtnote/shared";
 import {
   LEGACY_WELCOME_MEMO_TITLES,
   WELCOME_MEMO_REPAIRED_CONTENT_HASH,
   WELCOME_MEMO_SEED_CONTENT_HASH,
   WELCOME_MEMO_TRANSLATIONS,
   buildWelcomeMemoContent,
-} from "@edgeever/shared/default-workspace-seeds";
-import { supportedLocales, type SupportedLocale } from "@edgeever/shared/i18n/locales";
+} from "@rtnote/shared/default-workspace-seeds";
+import { supportedLocales, type SupportedLocale } from "@rtnote/shared/i18n/locales";
 import type { Bindings } from "./api-context";
 import {
   decodeDemoAttachment,
@@ -33,7 +33,7 @@ const EXAMPLE_NOTEBOOKS = [
 
 const WELCOME_MEMO_ID = "memo_welcome";
 const DEFAULT_WORKSPACE_ID = "ws_default";
-const DEFAULT_BUCKET_NAME = "edgeever-resources";
+const DEFAULT_BUCKET_NAME = "rtnote-resources";
 
 // The public demo tells visitors to reset the shared workspace. A personal
 // instance has no such action, so that tip is left out of the copied notes.
@@ -135,8 +135,8 @@ export const ensureWorkspaceExampleSeed = async (env: Bindings, workspaceId: str
   ).bind(workspaceId).first<{ workspace_id: string }>();
   if (!pending) return;
 
-  const demoOwnsTheCatalog = isDemoModeEnabled(env.EDGE_EVER_DEMO_MODE)
-    || isDemoModeEnabled(env.EDGE_EVER_LOCAL_DEMO_SEED);
+  const demoOwnsTheCatalog = isDemoModeEnabled(env.RTNOTE_DEMO_MODE)
+    || isDemoModeEnabled(env.RTNOTE_LOCAL_DEMO_SEED);
   if (demoOwnsTheCatalog || !await workspaceStillWantsExamples(db, workspaceId)) {
     await clearPending(db, workspaceId);
     return;
@@ -238,7 +238,7 @@ export const ensureWorkspaceExampleSeed = async (env: Bindings, workspaceId: str
     ));
   }
 
-  const bucketName = env.EDGE_EVER_R2_BUCKET_NAME?.trim() || DEFAULT_BUCKET_NAME;
+  const bucketName = env.RTNOTE_R2_BUCKET_NAME?.trim() || DEFAULT_BUCKET_NAME;
   for (const resource of DEMO_SEED_ATTACHMENT_RESOURCES) {
     const bytes = resourceBytes(resource);
     const extension = "svg" in resource ? "svg" : resource.filename.split(".").pop() || "bin";

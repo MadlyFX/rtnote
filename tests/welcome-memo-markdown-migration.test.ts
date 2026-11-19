@@ -35,8 +35,7 @@ const memo = (db: Database) => db.query("SELECT * FROM memos WHERE id = 'memo_we
 const changes = (db: Database) => db.query("SELECT * FROM mobile_sync_changes ORDER BY id").all();
 const assertRepaired = (db: Database) => {
   const row = content(db);
-  // Migration 0071 predates the RTNote name, so its repaired seed still says EdgeEver.
-  expect(row.content_markdown).toBe(buildWelcomeMemoContent("zh-CN").contentMarkdown.replaceAll("RTNote", "EdgeEver"));
+  expect(row.content_markdown).toBe(buildWelcomeMemoContent("zh-CN").contentMarkdown);
   expect(row.content_markdown).not.toContain("\\n");
   expect(row.content_markdown.split("\n\n")).toHaveLength(3);
   expect(row.content_hash).toBe(createHash("sha256").update(row.content_markdown + row.content_json).digest("hex"));
@@ -53,7 +52,7 @@ describe("welcome Markdown repair", () => {
   });
 
   test("upgrades a persisted old database and announces the change exactly once", () => {
-    const directory = mkdtempSync(join(tmpdir(), "edgeever-welcome-upgrade-"));
+    const directory = mkdtempSync(join(tmpdir(), "rtnote-welcome-upgrade-"));
     directories.push(directory);
     const path = join(directory, "old.sqlite");
     const old = new Database(path);
@@ -103,7 +102,7 @@ describe("welcome Markdown repair", () => {
     const sqlite = legacy();
     if (applyRepair) sqlite.exec(repair);
     sqlite.exec("INSERT INTO users (id, username, password_hash, display_name) VALUES ('owner', 'owner', 'unused', 'Owner')");
-    const db = createSelfHostedStorageAdapter(sqlite, "/tmp/edgeever-welcome-unused").db;
+    const db = createSelfHostedStorageAdapter(sqlite, "/tmp/rtnote-welcome-unused").db;
     await ensureUserWorkspace(db, "owner", "owner", "en-US");
     expect(content(sqlite).content_markdown).toBe(buildWelcomeMemoContent("en-US").contentMarkdown);
     expect(content(sqlite).revision).toBe(applyRepair ? 2 : 1);

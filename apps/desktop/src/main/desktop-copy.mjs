@@ -11,7 +11,7 @@ import { dialogCopy as zhTWDialogCopy } from "./desktop-copy.zh-TW.mjs";
 
 export const desktopLocales = ["en-US", "zh-CN", "zh-TW", "ja", "pl", "ru", "es", "de", "fr"];
 
-/** Same matching as `matchSupportedLocale` in @edgeever/shared; English otherwise. */
+/** Same matching as `matchSupportedLocale` in @rtnote/shared; English otherwise. */
 export const resolveDesktopLocale = (locale) => {
   const normalized = typeof locale === "string" ? locale.trim().replaceAll("_", "-").toLowerCase() : "";
   if (/^zh-(?:tw|hk|mo|hant)/.test(normalized)) return "zh-TW";

@@ -110,7 +110,7 @@ const run = () => {
   try {
     signerSha256 = verifyAndroidSignerOutput(
       output,
-      parseAllowedAndroidSignerDigests(process.env.EDGE_EVER_ANDROID_ALLOWED_SIGNER_SHA256),
+      parseAllowedAndroidSignerDigests(process.env.RTNOTE_ANDROID_ALLOWED_SIGNER_SHA256),
     );
   } catch (error) {
     process.stderr.write(output);

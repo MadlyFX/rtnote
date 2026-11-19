@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronRight, FolderOpen, HardDriveDownload, Loader2, Upload } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import type { DesktopBackupActions, DesktopBackupConfig } from "@edgeever/shared";
+import type { DesktopBackupActions, DesktopBackupConfig } from "@rtnote/shared";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";

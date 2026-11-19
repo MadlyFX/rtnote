@@ -1,5 +1,5 @@
-import { nodePublicFetch } from "@edgeever/public-network/node";
-import { PUBLIC_NETWORK_TIMEOUT_MS, publicRequestHeaders, publicResponseHeaders, readPublicBody, validatePublicUrl } from "@edgeever/public-network/policy";
+import { nodePublicFetch } from "@rtnote/public-network/node";
+import { PUBLIC_NETWORK_TIMEOUT_MS, publicRequestHeaders, publicResponseHeaders, readPublicBody, validatePublicUrl } from "@rtnote/public-network/policy";
 
 export function createPluginPublicNetworkRuntime({ fetchPublic = nodePublicFetch, timeoutMs = PUBLIC_NETWORK_TIMEOUT_MS, maxConcurrent = 4 } = {}) {
   const active = new Map();

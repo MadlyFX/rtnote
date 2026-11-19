@@ -147,7 +147,7 @@ import {
   type MemoDetail,
   type MemoEditSession,
   type Notebook,
-} from "@edgeever/shared";
+} from "@rtnote/shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AppConfirmDialog } from "@/components/dialogs/ConfirmDialogs";
@@ -190,7 +190,7 @@ import { isBrowserOffline } from "@/lib/network-status";
 import { shouldAcceptRemoteMemoDetail } from "@/lib/memo-detail-freshness";
 import { statusSettleMotion } from "@/lib/motion";
 import { MEMO_ID_REMAPPED_EVENT, MEMO_SYNC_ACKNOWLEDGED_EVENT } from "@/lib/sync-events";
-import type { EdgeEverRepository } from "@/lib/repository";
+import type { RTNoteRepository } from "@/lib/repository";
 import { cn, parseTagsText } from "@/lib/utils";
 import { ARCHITECTURE_RESOURCE_ALIASES_ZH_CN } from "./diagram-architecture-aliases.zh-CN";
 
@@ -199,7 +199,7 @@ Graph.registerConnector(MIND_MAP_CONNECTOR_NAME, mindMapConnector, true);
 type DiagramEditorPaneProps = {
   memo: MemoDetail;
   notebooks: Notebook[];
-  repository: EdgeEverRepository;
+  repository: RTNoteRepository;
   readOnly: boolean;
   desktopFocusMode: boolean;
   onBackToList: () => void;
@@ -253,7 +253,7 @@ type ArchitectureLibraryItem = {
   shape: DiagramNodeShape;
 };
 
-const ARCHITECTURE_LIBRARY_DRAG_TYPE = "application/x-edgeever-architecture-resource";
+const ARCHITECTURE_LIBRARY_DRAG_TYPE = "application/x-rtnote-architecture-resource";
 
 const ARCHITECTURE_LIBRARY_CATEGORIES: Array<{
   id: string;
@@ -702,7 +702,7 @@ const DiagramInsertMenu = ({
   );
 };
 
-const FLOW_ACTIVE_NODE_CLASS = "edgeever-flow-node-active";
+const FLOW_ACTIVE_NODE_CLASS = "rtnote-flow-node-active";
 const FLOW_PORT_HIT_RADIUS = 14;
 const FLOW_PORT_DOT_RADIUS = 7;
 const FLOW_QUICK_CREATE_WIDTH = 330;
@@ -746,7 +746,7 @@ const setFlowNodePortsActive = (graph: Graph, node: Node, active: boolean) => {
     view.container.querySelectorAll<SVGElement>(".x6-port-body").forEach((port) => {
       port.style.setProperty("opacity", active ? "1" : "0", "important");
       port.style.setProperty("pointer-events", active ? "auto" : "none", "important");
-      const dot = port.querySelector<SVGElement>(".edgeever-flow-port-dot") ?? port;
+      const dot = port.querySelector<SVGElement>(".rtnote-flow-port-dot") ?? port;
       if (active) {
         dot.style.setProperty("fill", "var(--brand-green)", "important");
         dot.style.setProperty("stroke", "var(--workspace-editor)", "important");
@@ -786,7 +786,7 @@ const applyDiagramSurface = (
 ) => {
   const color = diagramCanvasColor(kind ?? "mind-map", theme, appearance);
   graph.drawBackground({ color });
-  getDiagramScroller(graph)?.container.style.setProperty("--edgeever-diagram-canvas", color);
+  getDiagramScroller(graph)?.container.style.setProperty("--rtnote-diagram-canvas", color);
   if (kind === "architecture" || kind === "flowchart") {
     graph.drawGrid({
       type: "dot",
@@ -857,8 +857,8 @@ const diagramNodeBounds = (graph: Graph) => {
 };
 
 const bindDiagramScrollerFit = (graph: Graph) => {
-  const current = graph.fitToContent as typeof graph.fitToContent & { edgeeverBound?: boolean };
-  if (current.edgeeverBound) return;
+  const current = graph.fitToContent as typeof graph.fitToContent & { rtnoteBound?: boolean };
+  if (current.rtnoteBound) return;
   const original = current.bind(graph);
   const bound = ((
     gridWidth?: unknown,
@@ -876,8 +876,8 @@ const bindDiagramScrollerFit = (graph: Graph) => {
       padding as number | undefined,
       applyDiagramScrollerFitOptions({ ...options }, bounds),
     );
-  }) as typeof graph.fitToContent & { edgeeverBound?: boolean };
-  bound.edgeeverBound = true;
+  }) as typeof graph.fitToContent & { rtnoteBound?: boolean };
+  bound.rtnoteBound = true;
   graph.fitToContent = bound;
 };
 
@@ -1166,8 +1166,8 @@ const flowPortGroup = (
 ) => ({
   position,
   markup: [
-    { tagName: "circle", selector: "hitArea", className: "edgeever-flow-port-hit-area" },
-    { tagName: "circle", selector: "circle", className: "edgeever-flow-port-dot" },
+    { tagName: "circle", selector: "hitArea", className: "rtnote-flow-port-hit-area" },
+    { tagName: "circle", selector: "circle", className: "rtnote-flow-port-dot" },
   ],
   attrs: {
     hitArea: {
@@ -2078,7 +2078,7 @@ export const DiagramEditorPane = ({
       editSessionRef.current = null;
       setEditSessionReady(false);
     }
-    if (readOnly || isLocalMemoId(currentMemo.id) || isBrowserOffline() || window.edgeeverDesktop?.isAvailable) {
+    if (readOnly || isLocalMemoId(currentMemo.id) || isBrowserOffline() || window.rtnoteDesktop?.isAvailable) {
       editSessionRef.current = createLocalEditSession(currentMemo);
       setEditSessionReady(true);
       return;
@@ -2182,7 +2182,7 @@ export const DiagramEditorPane = ({
       autoResize: true,
       padding: 32,
       pannable: { enabled: true, eventTypes: ["leftMouseDown", "rightMouseDown"] },
-      className: "edgeever-diagram-scroller",
+      className: "rtnote-diagram-scroller",
     }));
     bindDiagramScrollerFit(graph);
     graphRef.current = graph;
@@ -3801,7 +3801,7 @@ export const DiagramEditorPane = ({
         >
           <div
             ref={containerRef}
-            className={cn("edgeever-diagram-canvas absolute inset-0 touch-none outline-none", pendingArchitectureItem && "cursor-crosshair")}
+            className={cn("rtnote-diagram-canvas absolute inset-0 touch-none outline-none", pendingArchitectureItem && "cursor-crosshair")}
             data-architecture-placement={pendingArchitectureItem ? "active" : undefined}
             data-diagram-appearance={resolvedTheme}
             data-diagram-kind={document.kind}

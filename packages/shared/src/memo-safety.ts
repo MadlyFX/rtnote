@@ -8,7 +8,7 @@ export const isSuspiciousMemoOverwrite = (
 ) => {
   const currentLength = currentContentText.trim().length;
   const nextLength = nextContentText.trim().length;
-  // An empty title, "Untitled note" and EdgeEver's default title all mean untitled.
+  // An empty title, "Untitled note" and RTNote's default title all mean untitled.
   const comparableTitle = (title: string | null) => (isDefaultMemoTitle(title) ? "" : (title ?? "").trim());
   const titleChanged = comparableTitle(currentTitle) !== comparableTitle(nextTitle);
 

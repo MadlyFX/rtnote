@@ -1,7 +1,7 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { templatesRegExp, ui } from "./fixtures/ui-labels";
 
-const storageKey = "edgeever.memoListDensity";
+const storageKey = "rtnote.memoListDensity";
 
 const createMemo = async (page: Page, title: string, tags = ["density", "layout", "third"]) => {
   const notebooks = await (await page.request.get("/api/v1/notebooks")).json() as { notebooks: Array<{ id: string }> };
@@ -79,7 +79,7 @@ test("compact rows show title, date, summary and tags in two short lines", async
 
 test("compact summary keeps its space next to two long tags in a narrow list", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  await page.addInitScript(() => localStorage.setItem("edgeever.memoListWidth", "300"));
+  await page.addInitScript(() => localStorage.setItem("rtnote.memoListWidth", "300"));
   const title = `Narrow density ${Date.now()}`;
   const tags = ["an-unusually-long-project-tag-name", "another-very-long-tag-for-layout"];
   const memoId = await createMemo(page, title, tags);

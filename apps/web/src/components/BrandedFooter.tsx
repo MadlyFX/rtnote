@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { withBrandName, type ResolvedBranding } from "@edgeever/shared/branding";
+import { withBrandName, type ResolvedBranding } from "@rtnote/shared/branding";
 
 /** Footer for public pages: the owner's footer text and links, else "Published with <name>". */
 export const BrandedFooter = ({ branding }: { branding: ResolvedBranding }) => {

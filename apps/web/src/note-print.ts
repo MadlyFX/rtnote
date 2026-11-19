@@ -55,7 +55,7 @@ const renderMermaidBlocks = async (root: HTMLElement, theme: MermaidThemeName, f
         padding: 24,
       });
       const figure = document.createElement("figure");
-      figure.className = "edgeever-print-mermaid";
+      figure.className = "rtnote-print-mermaid";
       figure.innerHTML = svg;
       container.replaceWith(figure);
     } catch {
@@ -87,7 +87,7 @@ const waitForImages = async (root: HTMLElement) => {
 const waitForPrintFonts = async (text: string, fontId: NotePrintPayload["appearance"]["fontId"]) => {
   installEditorBodyFontFaces();
   if (fontId) {
-    const { loadBodyFont } = await import("@edgeever/shared/font-loader");
+    const { loadBodyFont } = await import("@rtnote/shared/font-loader");
     await loadBodyFont(fontId, text);
   }
   await document.fonts.ready;
@@ -95,17 +95,17 @@ const waitForPrintFonts = async (text: string, fontId: NotePrintPayload["appeara
 
 const buildSource = (payload: NotePrintPayload) => {
   const article = document.createElement("article");
-  article.className = "edgeever-print-document edgeever-editor";
+  article.className = "rtnote-print-document rtnote-editor";
   article.dataset.notePalette = payload.appearance.palette;
   article.lang = payload.language;
 
   const title = document.createElement("h1");
-  title.className = "edgeever-print-title";
+  title.className = "rtnote-print-title";
   title.textContent = payload.title;
   article.appendChild(title);
 
   const metadata = document.createElement("div");
-  metadata.className = "edgeever-print-meta";
+  metadata.className = "rtnote-print-meta";
   const metadataParts = [payload.notebook, payload.updatedAt, ...payload.tags.map((tag) => `#${tag}`)].filter(Boolean);
   metadata.textContent = metadataParts.join(" · ");
   if (metadataParts.length > 0) {
@@ -113,7 +113,7 @@ const buildSource = (payload: NotePrintPayload) => {
   }
 
   const content = document.createElement("div");
-  content.className = "edgeever-print-content ProseMirror";
+  content.className = "rtnote-print-content ProseMirror";
   content.innerHTML = payload.html;
   article.appendChild(content);
   return article;
@@ -126,7 +126,7 @@ const renderPreview = async (payload: NotePrintPayload) => {
   document.documentElement.lang = payload.language;
   document.title = withEnvironmentTitlePrefix(`${payload.title} · ${getBranding().name}`, {
     development: import.meta.env.DEV,
-    profile: __EDGEEVER_DEVELOPMENT_PROFILE__,
+    profile: __RTNOTE_DEVELOPMENT_PROFILE__,
   });
   setText(status, payload.labels.preparing);
   setText(hint, "");

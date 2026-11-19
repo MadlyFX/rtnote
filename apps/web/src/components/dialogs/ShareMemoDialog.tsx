@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { BRANDING_QUERY_KEY, fetchBrandingOverview } from "@/hooks/useServerBranding";
-import { memoSharePathSegment } from "@edgeever/shared";
+import { memoSharePathSegment } from "@rtnote/shared";
 import { ShareExpiryControls } from "./ShareExpiryControls";
 import { SharePasswordControls } from "./SharePasswordControls";
 import { ShareSlugControls } from "./ShareSlugControls";

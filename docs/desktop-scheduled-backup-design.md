@@ -1,7 +1,7 @@
 # Desktop scheduled backups and encrypted recovery
 
 
-Related: [Issue #650](https://github.com/MadlyFX/rtnote/issues/650) and [original request #61](https://github.com/MadlyFX/rtnote/issues/61). Updated: 2026-10-27. Status: implemented; see the [implementation audit](changes/2026-10-23-desktop-scheduled-backup.md#completion-audit) for evidence and outstanding acceptance.
+Originated upstream in EdgeEver issues #650 and #61. Updated: 2026-10-27. Status: implemented.
 
 The desktop app periodically saves the current account's knowledge base as an independent archive, with optional password encryption. Users can choose a folder managed by their existing cloud-drive client to transfer the archive off-site. If the original instance becomes unavailable, they can connect the desktop app to a new instance and restore it.
 
@@ -100,7 +100,7 @@ This choice adds revision-update overhead to data writes. A continuously changin
 
 ## 5. Preserve the logical format and support ZIP64
 
-Ordinary archives retain the existing `edgeever-zip` `formatVersion: 2` layout:
+Ordinary archives retain the existing `rtnote-zip` `formatVersion: 2` layout:
 
 - `manifest.json` records the format, app version, export time, and entity counts, retaining `includesTrash: false`.
 - `notebooks.json` holds the hierarchy. An empty `prompts.json` is still written for older readers.
@@ -121,7 +121,7 @@ New desktop backups, large-archive parsing, and attachment restore process chunk
 
 Use Node's native cryptography for `AES-256-GCM` with `PBKDF2-HMAC-SHA256`, deriving a 32-byte key with 600,000 iterations. PBKDF2 reuses platform implementations and supports future cross-platform interoperability. The work factor follows OWASP's PBKDF2 guidance; measure it on target devices during implementation without silently reducing it for speed. [Parameter reference](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#pbkdf2)
 
-Generate an independent random 16-byte salt and 12-byte IV for each file and use a 16-byte authentication tag. Encode the password as UTF-8 without normalization or trimming. Files use the `.edgeever.enc` extension and the following order, with multibyte integers in big-endian encoding:
+Generate an independent random 16-byte salt and 12-byte IV for each file and use a 16-byte authentication tag. Encode the password as UTF-8 without normalization or trimming. Files use the `.rtnote.enc` extension and the following order, with multibyte integers in big-endian encoding:
 
 | Field | Size and value |
 | --- | --- |
@@ -149,7 +149,7 @@ Changing the password affects future archives only; do not re-encrypt old files 
 
 ## 7. File publication and retention
 
-Users select a destination root, and the app creates a `<backupSetId>` subdirectory for the current local backup set. Settings shows the effective destination, and “Open folder” opens it. Automatic filenames use UTC time and a random backup ID, such as `edgeever-backup-20261023T020000Z-<id>.zip`, with `.edgeever.enc` for encrypted files. Manual names use an automatically generated local timestamp without a random ID; append the saved format’s extension. Name conflicts fail without overwriting existing files.
+Users select a destination root, and the app creates a `<backupSetId>` subdirectory for the current local backup set. Settings shows the effective destination, and “Open folder” opens it. Automatic filenames use UTC time and a random backup ID, such as `rtnote-backup-20261023T020000Z-<id>.zip`, with `.rtnote.enc` for encrypted files. Manual names use an automatically generated local timestamp without a random ID; append the saved format’s extension. Name conflicts fail without overwriting existing files.
 
 A task performs these steps in order:
 
@@ -169,7 +169,7 @@ Report only “Local backup complete.” Upload completion, conflict copies, and
 
 ## 8. Decryption and restore
 
-“Restore from file” starts in the current backup-set directory and allows other locations; row-level Restore selects that archive directly. Both use one unlock/check/confirmation flow, identifying ordinary ZIPs and `.edgeever.enc` files by header rather than extension alone.
+“Restore from file” starts in the current backup-set directory and allows other locations; row-level Restore selects that archive directly. Both use one unlock/check/confirmation flow, identifying ordinary ZIPs and `.rtnote.enc` files by header rather than extension alone.
 
 1. Identify the container version and request a password for encrypted files. Cancellation causes no restore writes.
 2. Decrypt as a stream to an app-private temporary directory. Only after final GCM authentication may parsing and restore begin. Use `0700` directories and `0600` files on Unix, and the current user's private application-data directory with appropriate ACLs on Windows. Plaintext staging stays outside synchronized folders.
@@ -201,7 +201,7 @@ Release the implementation as a feature version. This design does not allocate a
 
 ## 10. Implementation order and acceptance
 
-Before implementation, record confirmed behavior in a bilingual change-scope document under `docs/changes/`. These steps form one delivery; encrypted scheduled backups cannot ship without decryption and recovery:
+These steps form one delivery; encrypted scheduled backups cannot ship without decryption and recovery:
 
 1. Implement the consistency protocol and migration, validating upgrades and old/new client contracts.
 2. Extract the shared archive capabilities and implement ZIP64, container encoding/decoding, and old ZIP compatibility.
@@ -230,7 +230,6 @@ Record platform, cross-version, and large-archive evidence separately. A small-f
 - [Backup routes](../apps/api/src/backup-routes.ts), [restore service](../apps/api/src/backup-service.ts), and [sync-change migration](../migrations/0013_mobile_sync_changes.sql): add complete revision coverage without redefining the synchronization cursor.
 - [Import/export card](../apps/web/src/components/settings/DataExportCard.tsx), [renderer hibernation](../apps/desktop/src/main/renderer-hibernate.mjs), and [account isolation](../apps/desktop/src/main/account-scope.mjs): retain existing entry points while keeping background work independent of the renderer.
 - [Cross-runtime storage contracts](../apps/api/src/storage-contract.ts) and [self-hosting architecture](self-hosting-architecture.md): do not implement consistency logic only in the Cloudflare entry point.
-- [Original backup and disaster-recovery proposal](backup-and-disaster-recovery-plan.md): retain the local-directory approach while specifying Issue #650's delivery boundaries and recovery requirements.
 
 ## 12. Off-site WebDAV copy (P2, Issue #723)
 

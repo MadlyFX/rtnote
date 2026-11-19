@@ -1,7 +1,7 @@
 import { afterAll, afterEach, beforeAll, describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { parseHTML } from "linkedom";
-import { LEGACY_DEFAULT_MEMO_TITLES } from "@edgeever/shared/memo-title";
+import { LEGACY_DEFAULT_MEMO_TITLES } from "@rtnote/shared/memo-title";
 import {
   DEFAULT_MEMO_TITLE,
   EDITOR_HEADING_LEVELS,
@@ -26,7 +26,7 @@ import {
   getNotebookDropSortOrder,
   getNotebookMoveOptions,
   getNotebookSortOptions,
-  hasEdgeEverDragData,
+  hasRTNoteDragData,
   hasMemoDragData,
   hasNotebookDragData,
   headingBlockValue,
@@ -1455,9 +1455,9 @@ describe("drag and drop helpers", () => {
     expect(hasMemoDragData(memoDrag)).toBe(true);
     expect(hasNotebookDragData(memoDrag)).toBe(false);
     expect(hasNotebookDragData(notebookDrag)).toBe(true);
-    expect(hasEdgeEverDragData(memoDrag)).toBe(true);
-    expect(hasEdgeEverDragData(notebookDrag)).toBe(true);
-    expect(hasEdgeEverDragData(fileDrag)).toBe(false);
+    expect(hasRTNoteDragData(memoDrag)).toBe(true);
+    expect(hasRTNoteDragData(notebookDrag)).toBe(true);
+    expect(hasRTNoteDragData(fileDrag)).toBe(false);
   });
 
   test("reads only non-blank string memo ids from the drag payload", () => {

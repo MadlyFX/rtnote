@@ -1,7 +1,7 @@
 # RTNote Web Clipper source
 
 This archive is the reviewable source for one Firefox Add-ons submission.
-The archive root is `edgeever-source` (a fixed packaging identifier kept for
+The archive root is `rtnote-source` (a fixed packaging identifier kept for
 compatibility with earlier submissions). It contains the extension source,
 the root package manifest, the Bun lockfile, workspace package manifests,
 the Web UI component sources imported by the extension,

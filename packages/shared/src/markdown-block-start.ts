@@ -97,7 +97,7 @@ const paragraphChunkBoundaries = (markdown: string): ChunkBoundary[] => {
       continue;
     }
     if (gallery) {
-      if (line.includes("<!-- /edgeever:image-gallery -->")) gallery = false;
+      if (line.includes("<!-- /rtnote:image-gallery -->")) gallery = false;
       continue;
     }
     if (isBlankLine(line)) continue;
@@ -111,7 +111,7 @@ const paragraphChunkBoundaries = (markdown: string): ChunkBoundary[] => {
       math = true;
       continue;
     }
-    if (line.includes("<!-- edgeever:image-gallery ") && !line.includes("<!-- /edgeever:image-gallery -->")) {
+    if (line.includes("<!-- rtnote:image-gallery ") && !line.includes("<!-- /rtnote:image-gallery -->")) {
       gallery = true;
     }
     // HTML containers whose content can hold blank lines: details, and RTNote's

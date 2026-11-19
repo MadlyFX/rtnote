@@ -26,7 +26,7 @@
   "completePluginConfiguration": {
     "message": "请先完成插件配置"
   },
-  "savedToEdgeEver": {
+  "savedToRTNote": {
     "message": "已保存到 RTNote。"
   },
   "saveFailed": {
@@ -202,7 +202,7 @@
   "emptyPageContent": {
     "message": "（网页没有可提取的正文内容）"
   },
-  "saveSelectionToEdgeEver": {
+  "saveSelectionToRTNote": {
     "message": "保存所选内容到 RTNote"
   },
   "selectionSaveHint": {
@@ -220,7 +220,7 @@
   "selectionNoteFallbackTitle": {
     "message": "选中文字"
   },
-  "saveImageToEdgeEver": {
+  "saveImageToRTNote": {
     "message": "保存图片到 RTNote"
   },
   "imageSaveHint": {
@@ -279,7 +279,7 @@
   "imageSaveExpired": {
     "message": "这次保存已经结束。请在图片上重新右键。"
   },
-  "saveTweetToEdgeEver": {
+  "saveTweetToRTNote": {
     "message": "保存推文到 RTNote"
   },
   "tweetSaveHint": {
@@ -321,7 +321,7 @@
   "tweetTimeLabel": {
     "message": "时间"
   },
-  "saveGithubRepoToEdgeEver": {
+  "saveGithubRepoToRTNote": {
     "message": "保存仓库信息到 RTNote"
   },
   "githubRepoSaveHint": {
@@ -351,7 +351,7 @@
   "githubRepoTopicsLabel": {
     "message": "话题"
   },
-  "saveXhsToEdgeEver": {
+  "saveXhsToRTNote": {
     "message": "保存笔记到 RTNote"
   },
   "savingXhs": {
@@ -393,7 +393,7 @@
   "xhsLocationLabel": {
     "message": "地点"
   },
-  "saveZhihuToEdgeEver": {
+  "saveZhihuToRTNote": {
     "message": "保存回答/文章到 RTNote"
   },
   "zhihuQuestionLabel": {
@@ -447,7 +447,7 @@
   "zhihuSaveWindowTitle": {
     "message": "保存回答/文章到 RTNote"
   },
-  "saveRedditToEdgeEver": {
+  "saveRedditToRTNote": {
     "message": "保存 Reddit 帖子到 RTNote"
   },
   "savingReddit": {
@@ -471,7 +471,7 @@
   "redditLinkLabel": {
     "message": "外部链接"
   },
-  "saveVideoNoteToEdgeEver": {
+  "saveVideoNoteToRTNote": {
     "message": "保存视频笔记到 RTNote"
   },
   "savingVideoNote": {
@@ -528,13 +528,13 @@
   "videoNoteFallbackTitle": {
     "message": "视频笔记"
   },
-  "saveHackerNewsToEdgeEver": {
+  "saveHackerNewsToRTNote": {
     "message": "保存 Hacker News 主帖到 RTNote"
   },
-  "saveV2exToEdgeEver": {
+  "saveV2exToRTNote": {
     "message": "保存 V2EX 主题到 RTNote"
   },
-  "saveXiaoyuzhouToEdgeEver": {
+  "saveXiaoyuzhouToRTNote": {
     "message": "保存小宇宙单集到 RTNote"
   },
   "savingPlatformClip": {
@@ -582,19 +582,19 @@
   "platformPodcastLabel": {
     "message": "节目"
   },
-  "saveFacebookToEdgeEver": {
+  "saveFacebookToRTNote": {
     "message": "保存 Facebook 帖子到 RTNote"
   },
-  "saveInstagramToEdgeEver": {
+  "saveInstagramToRTNote": {
     "message": "保存 Instagram 帖子到 RTNote"
   },
-  "saveLinkedinToEdgeEver": {
+  "saveLinkedinToRTNote": {
     "message": "保存 LinkedIn 动态到 RTNote"
   },
-  "saveThreadsToEdgeEver": {
+  "saveThreadsToRTNote": {
     "message": "保存 Threads 帖子到 RTNote"
   },
-  "saveBlueskyToEdgeEver": {
+  "saveBlueskyToRTNote": {
     "message": "保存 Bluesky 帖子到 RTNote"
   },
   "socialSelectPost": {
@@ -621,7 +621,7 @@
   "platformXiaoyuzhou": {
     "message": "小宇宙"
   },
-  "saveSubstackNoteToEdgeEver": {
+  "saveSubstackNoteToRTNote": {
     "message": "保存 Substack 短帖到 RTNote"
   },
   "adaptedPlatformsTitle": {
@@ -678,10 +678,10 @@
   "clipNotifications": {
     "message": "剪藏提示"
   },
-  "saveBossToEdgeEver": {
+  "saveBossToRTNote": {
     "message": "保存 BOSS 直聘岗位到 RTNote"
   },
-  "saveXueqiuToEdgeEver": {
+  "saveXueqiuToRTNote": {
     "message": "保存雪球帖子到 RTNote"
   },
   "platformBoss": {
@@ -699,31 +699,31 @@
   "platformWechat": {
     "message": "微信公众号"
   },
-  "saveWechatToEdgeEver": {
+  "saveWechatToRTNote": {
     "message": "保存微信公众号到 RTNote"
   },
   "platformJike": {
     "message": "即刻"
   },
-  "saveJikeToEdgeEver": {
+  "saveJikeToRTNote": {
     "message": "保存即刻到 RTNote"
   },
   "platformSspai": {
     "message": "少数派"
   },
-  "saveSspaiToEdgeEver": {
+  "saveSspaiToRTNote": {
     "message": "保存少数派到 RTNote"
   },
   "platformJuejin": {
     "message": "掘金"
   },
-  "saveJuejinToEdgeEver": {
+  "saveJuejinToRTNote": {
     "message": "保存掘金到 RTNote"
   },
   "platformDouban": {
     "message": "豆瓣"
   },
-  "saveDoubanToEdgeEver": {
+  "saveDoubanToRTNote": {
     "message": "保存豆瓣到 RTNote"
   },
   "platformOfficialAccountLabel": {

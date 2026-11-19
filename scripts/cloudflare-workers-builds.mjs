@@ -36,11 +36,11 @@ const localValues = existsSync(resolve(".env.local"))
   : new Map();
 
 const value = (name) => process.env[name]?.trim() || localValues.get(name)?.trim() || "";
-const instanceKey = value("EDGE_EVER_INSTANCE").replace(/[^a-zA-Z0-9]/g, "_").toUpperCase();
-const instanceValue = (name) => (instanceKey ? value(`EDGE_EVER_${instanceKey}_${name}`) : "") || value(`EDGE_EVER_${name}`);
+const instanceKey = value("RTNOTE_INSTANCE").replace(/[^a-zA-Z0-9]/g, "_").toUpperCase();
+const instanceValue = (name) => (instanceKey ? value(`RTNOTE_${instanceKey}_${name}`) : "") || value(`RTNOTE_${name}`);
 
 const gitRepository = () => {
-  const configured = value("EDGE_EVER_GITHUB_REPOSITORY");
+  const configured = value("RTNOTE_GITHUB_REPOSITORY");
   if (/^[^/\s]+\/[^/\s]+$/.test(configured)) {
     const [owner, repository] = configured.split("/");
     return { owner, repository };
@@ -55,14 +55,14 @@ const gitRepository = () => {
   const match = remote.match(/github\.com[/:]([^/]+)\/([^/#\s]+?)(?:\.git)?$/i);
   if (!match) {
     throw new Error(
-      "Cannot identify the GitHub repository. Set EDGE_EVER_GITHUB_REPOSITORY=owner/repository or configure origin.",
+      "Cannot identify the GitHub repository. Set RTNOTE_GITHUB_REPOSITORY=owner/repository or configure origin.",
     );
   }
   return { owner: match[1], repository: match[2] };
 };
 
 // Keep the generic token as a silent fallback for existing installations and CI.
-const cfToken = value("EDGE_EVER_BUILDS_API_TOKEN") || value("CLOUDFLARE_API_TOKEN");
+const cfToken = value("RTNOTE_BUILDS_API_TOKEN") || value("CLOUDFLARE_API_TOKEN");
 const accountId = value("CLOUDFLARE_ACCOUNT_ID");
 const workerName = instanceValue("WORKER_NAME");
 
@@ -112,10 +112,10 @@ const buildVariables = () => {
   ];
   const entries = [];
 
-  if (instanceKey) entries.push(["EDGE_EVER_INSTANCE", instanceKey]);
+  if (instanceKey) entries.push(["RTNOTE_INSTANCE", instanceKey]);
   for (const name of deploymentNames) {
-    const scoped = instanceKey ? `EDGE_EVER_${instanceKey}_${name}` : "";
-    const key = scoped && merged.get(scoped)?.trim() ? scoped : `EDGE_EVER_${name}`;
+    const scoped = instanceKey ? `RTNOTE_${instanceKey}_${name}` : "";
+    const key = scoped && merged.get(scoped)?.trim() ? scoped : `RTNOTE_${name}`;
     const current = merged.get(key)?.trim() || "";
     if (current) entries.push([key, current]);
   }
@@ -131,7 +131,7 @@ const triggerPayload = (workerTag, repoConnectionUuid, buildTokenUuid) => ({
   repo_connection_uuid: repoConnectionUuid,
   build_token_uuid: buildTokenUuid,
   trigger_name: "Deploy RTNote production",
-  build_command: "bun install --frozen-lockfile && EDGE_EVER_DEPLOYMENT_TRIGGER=main_push EDGE_EVER_DEPLOYMENT_METHOD=cloudflare_workers_builds bun run build:cloudflare",
+  build_command: "bun install --frozen-lockfile && RTNOTE_DEPLOYMENT_TRIGGER=main_push RTNOTE_DEPLOYMENT_METHOD=cloudflare_workers_builds bun run build:cloudflare",
   deploy_command: "bun run deploy:cloudflare-builds",
   root_directory: "/",
   branch_includes: ["main"],
@@ -154,12 +154,12 @@ const selectBuildToken = async (buildTokens, existingTrigger) => {
 
   // Keep accepting the old environment variable so existing installations do
   // not break, but do not expose Cloudflare's internal UUID in the new setup UX.
-  const legacyBuildTokenUuid = value("EDGE_EVER_BUILDS_BUILD_TOKEN_UUID");
+  const legacyBuildTokenUuid = value("RTNOTE_BUILDS_BUILD_TOKEN_UUID");
   if (legacyBuildTokenUuid) {
     const legacyToken = tokens.find((token) => token.build_token_uuid === legacyBuildTokenUuid);
     if (legacyToken) return legacyToken;
     throw new Error(
-      "The API token configured by the legacy EDGE_EVER_BUILDS_BUILD_TOKEN_UUID setting no longer exists. Remove that setting and rerun the command.",
+      "The API token configured by the legacy RTNOTE_BUILDS_BUILD_TOKEN_UUID setting no longer exists. Remove that setting and rerun the command.",
     );
   }
 
@@ -203,10 +203,10 @@ const selectBuildToken = async (buildTokens, existingTrigger) => {
 
 const setup = async () => {
   if (!accountId) throw new Error("Missing CLOUDFLARE_ACCOUNT_ID.");
-  if (!workerName) throw new Error("Missing EDGE_EVER_WORKER_NAME.");
+  if (!workerName) throw new Error("Missing RTNOTE_WORKER_NAME.");
   if (!cfToken) {
     throw new Error(
-      "Missing EDGE_EVER_BUILDS_API_TOKEN. It must be a User API Token with Workers Builds Configuration: Edit and Workers Scripts: Read.",
+      "Missing RTNOTE_BUILDS_API_TOKEN. It must be a User API Token with Workers Builds Configuration: Edit and Workers Scripts: Read.",
     );
   }
 

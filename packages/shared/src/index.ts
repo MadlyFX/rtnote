@@ -1,5 +1,5 @@
 export * from "./content";
-export * from "./edgeever-legacy-values";
+export * from "./rtnote-legacy-values";
 export * from "./markdown-merge";
 export * from "./memo-schema";
 export * from "./memo-content-write";

@@ -1,7 +1,7 @@
 import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
 import { LockKeyhole } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { normalizeInstanceUrl } from "@edgeever/shared/public-demo";
+import { normalizeInstanceUrl } from "@rtnote/shared/public-demo";
 import { Button } from "@/components/ui/button";
 import { GitHubRepositoryLink } from "@/components/GitHubRepositoryLink";
 import { Input } from "@/components/ui/input";
@@ -25,7 +25,7 @@ interface LoginScreenProps {
 }
 
 const LOGIN_INPUT_CLASSNAME = "h-11 rounded-lg bg-slate-50/50 px-3.5 focus-visible:bg-card focus-visible:ring-2 focus-visible:ring-slate-900/10";
-const LOGIN_SUBMIT_CLASSNAME = "h-11 w-full justify-center rounded-lg bg-[var(--edgeever-brand-accent)] font-semibold text-[var(--edgeever-brand-foreground)] hover:brightness-90 disabled:bg-[#475569] disabled:text-white disabled:opacity-100";
+const LOGIN_SUBMIT_CLASSNAME = "h-11 w-full justify-center rounded-lg bg-[var(--rtnote-brand-accent)] font-semibold text-[var(--rtnote-brand-foreground)] hover:brightness-90 disabled:bg-[#475569] disabled:text-white disabled:opacity-100";
 const LOGIN_LINK_CLASSNAME = "text-xs text-slate-600 underline-offset-2 hover:text-slate-900 hover:underline";
 
 const MfaLoginForm = ({ username, isSubmitting, error, onSubmit, onBack }: MfaLoginStepProps) => {
@@ -119,7 +119,7 @@ const DEMO_LOGIN_CREDENTIALS = {
 
 const getDefaultLoginCredentials = () => {
   const hostname = window.location.hostname;
-  const isDemoHost = hostname === "demo.edgeever.org" || hostname.startsWith("edgeever-demo.");
+  const isDemoHost = hostname === "demo.rtnote.example" || hostname.startsWith("rtnote-demo.");
 
   return isDemoHost ? DEMO_LOGIN_CREDENTIALS : { username: "", password: "" };
 };
@@ -150,7 +150,7 @@ export const LoginScreen = ({ error, instanceUrl: initialInstanceUrl, isSubmitti
   return (
     <main
       className="flex h-[100dvh] items-center justify-center bg-[var(--workspace-canvas)] px-4 py-8 text-slate-950"
-      style={{ "--edgeever-brand-accent": branding.color, "--edgeever-brand-foreground": brandForeground(branding.color) } as CSSProperties}
+      style={{ "--rtnote-brand-accent": branding.color, "--rtnote-brand-foreground": brandForeground(branding.color) } as CSSProperties}
     >
       <GitHubRepositoryLink className="absolute right-4 top-[max(1rem,env(safe-area-inset-top))] z-10 h-10 w-10 justify-center rounded-full border border-slate-200 bg-card/85 text-slate-600 backdrop-blur transition hover:border-slate-300 hover:bg-card hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/20" iconClassName="h-5 w-5" />
 

@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronLeft, Download, FileCode2, FileImage, LayoutTemplate, LoaderCircle, Pencil } from "lucide-react";
 import * as m from "motion/react-m";
 import { useTranslation } from "react-i18next";
-import { markdownToDoc, infographicFallbackMarkdown, parseInfographicDocument, serializeInfographicDocument, type InfographicConversationTurn, type InfographicDocument, type MemoDetail, type MemoEditSession, type Notebook } from "@edgeever/shared";
+import { markdownToDoc, infographicFallbackMarkdown, parseInfographicDocument, serializeInfographicDocument, type InfographicConversationTurn, type InfographicDocument, type MemoDetail, type MemoEditSession, type Notebook } from "@rtnote/shared";
 import type { Infographic as InfographicInstance, SyntaxParseResult } from "@antv/infographic";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -25,13 +25,13 @@ import { buildInfographicSyntax, buildOfficialInfographicSyntax, INFOGRAPHIC_TEM
 import { statusSettleMotion } from "@/lib/motion";
 import { advanceInfographicSyncBase, classifyInfographicUpdate, infographicEditorSnapshot, infographicMemoSnapshot } from "@/lib/infographic-sync";
 import { MEMO_ID_REMAPPED_EVENT, MEMO_SYNC_ACKNOWLEDGED_EVENT } from "@/lib/sync-events";
-import type { EdgeEverRepository } from "@/lib/repository";
+import type { RTNoteRepository } from "@/lib/repository";
 import { cn, parseTagsText } from "@/lib/utils";
 
 type Props = {
   memo: MemoDetail;
   notebooks: Notebook[];
-  repository: EdgeEverRepository;
+  repository: RTNoteRepository;
   readOnly: boolean;
   desktopFocusMode: boolean;
   onBackToList: () => void;
@@ -371,10 +371,10 @@ function InfographicEditorSession({
             ...(visualTextEditable ? { interactions: [new SelectGraphicElement(), new DblClickEditText(), new SelectHighlight()], plugins: [] } : {}),
           });
           if (visualTextEditable) instance.on("selection:change", ({ previous, next }: { previous: Element[]; next: Element[] }) => {
-            for (const element of previous) element.classList.remove("edgeever-infographic-selected-text");
+            for (const element of previous) element.classList.remove("rtnote-infographic-selected-text");
             for (const element of next) {
               if (["title", "desc", "item-label", "item-desc"].includes((element as HTMLElement).dataset.elementType ?? "")) {
-                element.classList.add("edgeever-infographic-selected-text");
+                element.classList.add("rtnote-infographic-selected-text");
               }
             }
           });
@@ -668,7 +668,7 @@ function InfographicEditorSession({
     <section className="min-h-0 flex-1 overflow-auto bg-slate-50 p-4">
       {!syntax.trim() ? (
         <div className="relative min-h-full rounded-xl border border-slate-200 bg-white p-2 sm:p-4 shadow-sm">
-          <div ref={containerRef} className="edgeever-infographic-preview hidden" />
+          <div ref={containerRef} className="rtnote-infographic-preview hidden" />
           <InfographicGallery
             readOnly={readOnly}
             onSelect={handleApplySample}
@@ -676,7 +676,7 @@ function InfographicEditorSession({
         </div>
       ) : (
         <div className={`relative flex min-h-full flex-col rounded-xl border border-slate-200 p-4 shadow-sm ${previewUsesLightSheet ? "bg-white" : "bg-card"}`}>
-          <div ref={containerRef} className="edgeever-infographic-preview min-h-[380px] w-full flex-1" />
+          <div ref={containerRef} className="rtnote-infographic-preview min-h-[380px] w-full flex-1" />
           {renderError ? <p role="alert" className="text-sm text-destructive">{renderError}</p> : null}
         </div>
       )}

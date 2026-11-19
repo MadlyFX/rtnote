@@ -1,7 +1,7 @@
 const COMMUNITY_REGISTRY_MAX_BYTES = 1024 * 1024;
 const COMMUNITY_REGISTRY_SIGNATURE_MAX_BYTES = 2048;
 
-export const COMMUNITY_REGISTRY_SIGNATURE_HEADER = "x-edgeever-community-registry-signature";
+export const COMMUNITY_REGISTRY_SIGNATURE_HEADER = "x-rtnote-community-registry-signature";
 
 export const resolveCommunityRegistryUrl = (value: string | undefined) => {
   const trimmed = value?.trim() ?? "";

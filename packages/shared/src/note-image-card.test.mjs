@@ -20,10 +20,10 @@ describe("note image templates", () => {
     for (const theme of NOTE_IMAGE_THEME_OPTIONS) {
       const markup = buildNoteImageCardMarkup({ theme, title: "Note", bodyHtml: "<p>Text</p>", author: "Ada", showAuthor: true });
       const { document } = parseHTML(markup);
-      const signature = document.querySelector(".edgeever-footer-author");
+      const signature = document.querySelector(".rtnote-footer-author");
       expect(signature?.textContent).toBe("Ada");
       expect(signature?.children.length).toBe(1);
-      expect(document.querySelector(".edgeever-card-avatar")).toBeNull();
+      expect(document.querySelector(".rtnote-card-avatar")).toBeNull();
     }
   });
 
@@ -117,27 +117,27 @@ describe("note image templates", () => {
     const shown = buildNoteImageCardMarkup({ theme: "code", title: "Visible", bodyHtml: "", showTitle: true });
     expect(shown.match(/Visible/g)).toHaveLength(1);
     const mono = buildNoteImageCardMarkup({ theme: "book", title: "Note", bodyHtml: "", fontStyle: "mono" });
-    expect(mono).not.toContain("edgeever-terminal-header");
+    expect(mono).not.toContain("rtnote-terminal-header");
   });
 
   test("an empty author does not create an empty footer when branding is hidden", () => {
     const markup = buildNoteImageCardMarkup({ title: "Note", bodyHtml: "", author: "  ", showAuthor: true, showBranding: false });
-    expect(markup).not.toContain("edgeever-card-footer");
+    expect(markup).not.toContain("rtnote-card-footer");
   });
 
   test("branding never creates an anonymous header avatar", () => {
     for (const theme of NOTE_IMAGE_THEME_OPTIONS) {
       for (const author of ["", "  ", "Hidden author"]) {
         const markup = buildNoteImageCardMarkup({ theme, title: "Note", bodyHtml: "<p>Body</p>", author, showBranding: true });
-        expect(markup).not.toContain('class="edgeever-card-avatar"');
-        expect(markup.match(/class="edgeever-brand-badge"/g)).toHaveLength(1);
+        expect(markup).not.toContain('class="rtnote-card-avatar"');
+        expect(markup.match(/class="rtnote-brand-badge"/g)).toHaveLength(1);
       }
     }
     const signed = buildNoteImageCardMarkup({ theme: "bento", title: "Note", bodyHtml: "", author: "Ada", showAuthor: true, showBranding: false });
-    expect(signed).not.toContain('class="edgeever-card-avatar"');
+    expect(signed).not.toContain('class="rtnote-card-avatar"');
     expect(signed).toContain('<span>Ada</span>');
     expect(signed).toContain('<span>Ada</span>');
-    expect(signed).not.toContain('class="edgeever-brand-badge"');
+    expect(signed).not.toContain('class="rtnote-brand-badge"');
   });
 
   test("every metadata combination keeps date above content and auxiliary details below it", () => {
@@ -148,19 +148,19 @@ describe("note image templates", () => {
         theme, title: "Title", updatedAt: "2026/10/18", notebook: "Notebook", tags: ["tag"], author: "Author",
         bodyHtml: "<p>Content</p>", showTitle, showUpdatedAt, showNotebook, showTags, showReadingTime, showAuthor, showBranding,
       }));
-      const header = document.querySelector(".edgeever-card-header");
-      const footer = document.querySelector(".edgeever-card-footer");
+      const header = document.querySelector(".rtnote-card-header");
+      const footer = document.querySelector(".rtnote-card-footer");
       expect(Boolean(header)).toBe(showTitle || showUpdatedAt);
       expect(Boolean(footer)).toBe(showNotebook || showTags || showReadingTime || showAuthor || showBranding);
-      expect(Boolean(header?.querySelector(".edgeever-meta-date"))).toBe(showUpdatedAt);
-      expect(Boolean(header?.querySelector(".edgeever-card-title"))).toBe(showTitle);
-      expect(Boolean(footer?.querySelector(".edgeever-meta-notebook"))).toBe(showNotebook);
-      expect(Boolean(footer?.querySelector(".edgeever-meta-tag"))).toBe(showTags);
-      expect(Boolean(footer?.querySelector(".edgeever-meta-reading"))).toBe(showReadingTime);
-      expect(Boolean(footer?.querySelector(".edgeever-footer-author"))).toBe(showAuthor);
-      expect(Boolean(footer?.querySelector(".edgeever-brand-badge"))).toBe(showBranding);
-      expect(header?.querySelector(".edgeever-card-avatar")).toBeFalsy();
-      expect(document.querySelector(".edgeever-terminal-header")?.textContent || "").not.toContain("Notebook");
+      expect(Boolean(header?.querySelector(".rtnote-meta-date"))).toBe(showUpdatedAt);
+      expect(Boolean(header?.querySelector(".rtnote-card-title"))).toBe(showTitle);
+      expect(Boolean(footer?.querySelector(".rtnote-meta-notebook"))).toBe(showNotebook);
+      expect(Boolean(footer?.querySelector(".rtnote-meta-tag"))).toBe(showTags);
+      expect(Boolean(footer?.querySelector(".rtnote-meta-reading"))).toBe(showReadingTime);
+      expect(Boolean(footer?.querySelector(".rtnote-footer-author"))).toBe(showAuthor);
+      expect(Boolean(footer?.querySelector(".rtnote-brand-badge"))).toBe(showBranding);
+      expect(header?.querySelector(".rtnote-card-avatar")).toBeFalsy();
+      expect(document.querySelector(".rtnote-terminal-header")?.textContent || "").not.toContain("Notebook");
     }
   });
 
@@ -168,8 +168,8 @@ describe("note image templates", () => {
     for (const theme of NOTE_IMAGE_THEME_OPTIONS) {
       const markup = buildNoteImageCardMarkup({ theme, title: " ", updatedAt: " ", notebook: " ", tags: ["", " "], author: " ", bodyHtml: "<p>Content</p>",
         showTitle: true, showUpdatedAt: true, showNotebook: true, showTags: true, showAuthor: true, showBranding: false });
-      expect(markup).not.toContain('class="edgeever-card-header"');
-      expect(markup).not.toContain('class="edgeever-card-footer"');
+      expect(markup).not.toContain('class="rtnote-card-header"');
+      expect(markup).not.toContain('class="rtnote-card-footer"');
     }
   });
 

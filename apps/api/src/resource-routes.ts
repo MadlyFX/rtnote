@@ -1,4 +1,4 @@
-import { resolveResourceUploadMimeType, ResourceUpdateSchema, type MemoDetail, type Resource } from "@edgeever/shared";
+import { resolveResourceUploadMimeType, ResourceUpdateSchema, type MemoDetail, type Resource } from "@rtnote/shared";
 import { zValidator } from "@hono/zod-validator";
 import type { Context, Hono } from "hono";
 import { auditStatement } from "./audit";
@@ -318,7 +318,7 @@ export const registerResourceRoutes = (
   });
 
   const replaceBlob = (preserveFilename = false) => async (context: Context<AppEnv, "/api/v1/resources/:id/blob" | "/api/v1/resources/:id/blob/writeback">) => {
-    if (preserveFilename) context.header("X-EdgeEver-Writeback", "preserve-filename");
+    if (preserveFilename) context.header("X-RTNote-Writeback", "preserve-filename");
     const denied = requireScopes(context, "write:resources");
     if (denied) return denied;
 

@@ -66,9 +66,9 @@ const createInstance = async (envOverrides = {}) => {
     verifyLogin,
   });
   const environment = {
-    EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY: "test-credentials-key",
+    RTNOTE_CREDENTIALS_ENCRYPTION_KEY: "test-credentials-key",
     ...envOverrides,
-    storage: createSelfHostedStorageAdapter(sqlite, "/tmp/edgeever-totp-unused"),
+    storage: createSelfHostedStorageAdapter(sqlite, "/tmp/rtnote-totp-unused"),
   };
   const request = async (path, { token, method = "GET", body } = {}) => {
     const response = await app.request(path, {
@@ -111,14 +111,14 @@ const createInstance = async (envOverrides = {}) => {
 
 describe("TOTP primitives", () => {
   test("binds ciphertext to the account and decrypts with a rotated key", async () => {
-    const env = { EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY: "current" };
+    const env = { RTNOTE_CREDENTIALS_ENCRYPTION_KEY: "current" };
     const encrypted = await encryptTotpSecret("JBSWY3DPEHPK3PXP", "usr_a", env);
     expect(await decryptTotpSecret(encrypted, "usr_b", env)).toBeNull();
     expect(await decryptTotpSecret(encrypted, "usr_a", {
-      EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY: "next",
-      EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY_PREVIOUS: "current",
+      RTNOTE_CREDENTIALS_ENCRYPTION_KEY: "next",
+      RTNOTE_CREDENTIALS_ENCRYPTION_KEY_PREVIOUS: "current",
     })).toBe("JBSWY3DPEHPK3PXP");
-    expect(await decryptTotpSecret(encrypted, "usr_a", { EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY: "lost" })).toBeNull();
+    expect(await decryptTotpSecret(encrypted, "usr_a", { RTNOTE_CREDENTIALS_ENCRYPTION_KEY: "lost" })).toBeNull();
   });
 
   test("accepts one step of drift and rejects malformed codes", () => {
@@ -169,7 +169,7 @@ describe("TOTP routes", () => {
   });
 
   test("refuses to enable without a deployment encryption key", async () => {
-    const { request, loginToken } = await createInstance({ EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY: undefined });
+    const { request, loginToken } = await createInstance({ RTNOTE_CREDENTIALS_ENCRYPTION_KEY: undefined });
     const token = await loginToken();
     const status = await request("/api/v1/auth/totp", { token });
     expect(status.body).toMatchObject({ enabled: false, available: false, unavailableReason: "encryption_unavailable" });
@@ -470,7 +470,7 @@ const authenticateRequestFor = async (sqlite, token) => {
     return context.json({});
   });
   await app.request("/probe", { headers: { Authorization: `Bearer ${token}` } }, {
-    storage: createSelfHostedStorageAdapter(sqlite, "/tmp/edgeever-totp-unused"),
+    storage: createSelfHostedStorageAdapter(sqlite, "/tmp/rtnote-totp-unused"),
   });
   return result;
 };

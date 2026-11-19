@@ -9,7 +9,7 @@ import {
   type BrandingOverview,
   type BrandingSettings,
   type ResolvedBranding,
-} from "@edgeever/shared/branding";
+} from "@rtnote/shared/branding";
 
 /**
  * Branding comes from the server: the instance default before sign-in, the
@@ -18,11 +18,11 @@ import {
  */
 export type BrandingPreference = ResolvedBranding;
 export const DEFAULT_BRANDING: ResolvedBranding = DEFAULT_RESOLVED_BRANDING;
-export const BRANDING_CACHE_KEY = "edgeever.branding.server";
+export const BRANDING_CACHE_KEY = "rtnote.branding.server";
 /** Per-browser branding from before Phase 6; imported into the workspace once. */
-export const LEGACY_BRANDING_STORAGE_KEY = "edgeever.branding";
-const PUBLIC_BRANDING_SCRIPT_ID = "edgeever-public-branding";
-const STYLE_ELEMENT_ID = "edgeever-branding";
+export const LEGACY_BRANDING_STORAGE_KEY = "rtnote.branding";
+const PUBLIC_BRANDING_SCRIPT_ID = "rtnote-public-branding";
+const STYLE_ELEMENT_ID = "rtnote-branding";
 
 type Listener = () => void;
 const listeners = new Set<Listener>();

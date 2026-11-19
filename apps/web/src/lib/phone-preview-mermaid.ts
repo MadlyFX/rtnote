@@ -48,7 +48,7 @@ export const embedMermaidForPreview = async (
   if (codeBlocks.length === 0) return;
 
   const liveSvgs = editor
-    ? Array.from(editor.view.dom.querySelectorAll<SVGElement>(".edgeever-mermaid-code-block .edgeever-mermaid-svg svg"))
+    ? Array.from(editor.view.dom.querySelectorAll<SVGElement>(".rtnote-mermaid-code-block .rtnote-mermaid-svg svg"))
     : [];
 
   await Promise.all(codeBlocks.map(async (codeBlock, index) => {
@@ -68,7 +68,7 @@ export const embedMermaidForPreview = async (
       }
 
       const figure = document.createElement("figure");
-      figure.className = "edgeever-phone-mermaid";
+      figure.className = "rtnote-phone-mermaid";
       figure.innerHTML = svgHtml;
       pre.replaceWith(figure);
     } catch {

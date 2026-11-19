@@ -2,8 +2,8 @@ import { afterEach, describe, expect, test } from "bun:test";
 import {
   ALL_TOKEN_SCOPES,
   buildMcpRemoteConfig,
-  EDGE_EVER_SERVER_URL_PLACEHOLDER,
-  getEdgeEverBaseUrl,
+  RTNOTE_SERVER_URL_PLACEHOLDER,
+  getRTNoteBaseUrl,
   getMcpRemoteServerUrl,
   createDefaultTokenName,
   DEFAULT_TOKEN_ACCESS_LEVEL,
@@ -60,23 +60,23 @@ describe("MCP server address", () => {
   });
 
   const installWindow = ({ origin, desktop, savedUrl = "" }) => {
-    const storage = new Map(savedUrl ? [["edgeever.desktop.api-base-url", savedUrl]] : []);
+    const storage = new Map(savedUrl ? [["rtnote.desktop.api-base-url", savedUrl]] : []);
     globalThis.window = {
       location: { origin },
       localStorage: { getItem: (key) => storage.get(key) ?? null },
-      edgeeverDesktop: desktop,
+      rtnoteDesktop: desktop,
     };
   };
 
   test("uses the page origin in the browser", () => {
     installWindow({ origin: "https://notes.example" });
-    expect(getEdgeEverBaseUrl()).toBe("https://notes.example");
+    expect(getRTNoteBaseUrl()).toBe("https://notes.example");
     expect(getMcpRemoteServerUrl()).toBe("https://notes.example/mcp");
   });
 
   test("uses the configured instance on desktop instead of the app origin", () => {
     installWindow({
-      origin: "edgeever-app://app",
+      origin: "rtnote-app://app",
       desktop: { isAvailable: true, apiBaseUrl: "https://bridge.example" },
       savedUrl: "https://ever.example//",
     });
@@ -92,18 +92,18 @@ describe("MCP server address", () => {
   });
 
   test("falls back to the desktop bridge URL when nothing is saved", () => {
-    installWindow({ origin: "edgeever-app://app", desktop: { isAvailable: true, apiBaseUrl: "https://bridge.example/" } });
+    installWindow({ origin: "rtnote-app://app", desktop: { isAvailable: true, apiBaseUrl: "https://bridge.example/" } });
     expect(getMcpRemoteServerUrl()).toBe("https://bridge.example/mcp");
   });
 
   test("shows a placeholder on desktop without a configured server", () => {
-    installWindow({ origin: "edgeever-app://app", desktop: { isAvailable: true, apiBaseUrl: "" } });
-    expect(getMcpRemoteServerUrl()).toBe(`${EDGE_EVER_SERVER_URL_PLACEHOLDER}/mcp`);
-    expect(getMcpRemoteServerUrl()).not.toContain("edgeever-app:");
+    installWindow({ origin: "rtnote-app://app", desktop: { isAvailable: true, apiBaseUrl: "" } });
+    expect(getMcpRemoteServerUrl()).toBe(`${RTNOTE_SERVER_URL_PLACEHOLDER}/mcp`);
+    expect(getMcpRemoteServerUrl()).not.toContain("rtnote-app:");
   });
 
   test("shows a placeholder outside a browser", () => {
     delete globalThis.window;
-    expect(getMcpRemoteServerUrl()).toBe(`${EDGE_EVER_SERVER_URL_PLACEHOLDER}/mcp`);
+    expect(getMcpRemoteServerUrl()).toBe(`${RTNOTE_SERVER_URL_PLACEHOLDER}/mcp`);
   });
 });

@@ -1,4 +1,4 @@
-import { summarizeSyncQueue, toDevicePixelScreenSize, type ClientDisplaySizeInput } from "@edgeever/shared";
+import { summarizeSyncQueue, toDevicePixelScreenSize, type ClientDisplaySizeInput } from "@rtnote/shared";
 import { api, getConfiguredDesktopApiBaseUrl } from "./api";
 import { localDb } from "./local-db";
 import { createLocalDataScope } from "./local-mirror";
@@ -86,7 +86,7 @@ const desktopOperatingSystem = (platform: string, version: string) => {
 };
 
 export const getClientRuntimeDiagnostics = async (): Promise<ClientRuntimeDiagnostics> => {
-  const bridge = window.edgeeverDesktop;
+  const bridge = window.rtnoteDesktop;
   if (bridge?.isAvailable) {
     const info = await bridge.systemInfo();
     return {
@@ -134,7 +134,7 @@ export const getClientRuntimeDiagnostics = async (): Promise<ClientRuntimeDiagno
 };
 
 export const getClientSyncDiagnostics = async (): Promise<ClientSyncDiagnostics> => {
-  const bridge = window.edgeeverDesktop;
+  const bridge = window.rtnoteDesktop;
   if (bridge?.isAvailable) {
     const status = await bridge.sidecarRequest<{
       conflict: number;

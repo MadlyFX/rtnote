@@ -31,7 +31,7 @@ describe("isSuspiciousMemoOverwrite", () => {
     ).toBe(false);
   });
 
-  test("treats empty, RTNote and EdgeEver default titles as the same untitled title", () => {
+  test("treats empty, current and legacy default titles as the same untitled title", () => {
     for (const [currentTitle, nextTitle] of [
       [LEGACY_DEFAULT_MEMO_TITLES[0], DEFAULT_MEMO_TITLE],
       ["", DEFAULT_MEMO_TITLE],

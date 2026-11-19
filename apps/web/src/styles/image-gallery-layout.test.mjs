@@ -5,7 +5,7 @@ const globals = readFileSync(new URL("./globals.css", import.meta.url), "utf8");
 
 describe("image gallery layout", () => {
   test("keeps the wrapping toolbar in flow above the images and reveals it on hover or keyboard focus", () => {
-    const toolbar = globals.match(/\.ProseMirror \.edgeever-image-gallery__toolbar \{([^}]+)\}/)?.[1];
+    const toolbar = globals.match(/\.ProseMirror \.rtnote-image-gallery__toolbar \{([^}]+)\}/)?.[1];
     expect(toolbar).toContain("position: relative;");
     expect(toolbar).not.toContain("position: absolute;");
     expect(toolbar).toContain("flex-wrap: wrap;");
@@ -15,19 +15,19 @@ describe("image gallery layout", () => {
     expect(toolbar).toContain("pointer-events: none;");
     expect(toolbar).not.toContain("opacity: 0");
     expect(globals).toMatch(
-      /\.ProseMirror \.edgeever-image-gallery:hover > \.edgeever-image-gallery__toolbar,\s*\.ProseMirror \.edgeever-image-gallery:focus-within > \.edgeever-image-gallery__toolbar \{\s*visibility: visible;\s*pointer-events: auto;/,
+      /\.ProseMirror \.rtnote-image-gallery:hover > \.rtnote-image-gallery__toolbar,\s*\.ProseMirror \.rtnote-image-gallery:focus-within > \.rtnote-image-gallery__toolbar \{\s*visibility: visible;\s*pointer-events: auto;/,
     );
   });
 
   test("fills React image node grid cells without exposing a persistent background", () => {
     expect(globals).toContain(
-      ".edgeever-image-gallery__content > div > div > .edgeever-image-node {",
+      ".rtnote-image-gallery__content > div > div > .rtnote-image-node {",
     );
     expect(globals).toMatch(
-      /\.edgeever-image-gallery__content > div > div > \.edgeever-image-node \{[\s\S]*?width: 100% !important;[\s\S]*?min-width: 0;[\s\S]*?background: transparent;/,
+      /\.rtnote-image-gallery__content > div > div > \.rtnote-image-node \{[\s\S]*?width: 100% !important;[\s\S]*?min-width: 0;[\s\S]*?background: transparent;/,
     );
     expect(globals).toMatch(
-      /\.edgeever-image-gallery__content > div > div > \.edgeever-image-node > img \{[\s\S]*?width: 100% !important;[\s\S]*?object-fit: cover;/,
+      /\.rtnote-image-gallery__content > div > div > \.rtnote-image-node > img \{[\s\S]*?width: 100% !important;[\s\S]*?object-fit: cover;/,
     );
   });
 });

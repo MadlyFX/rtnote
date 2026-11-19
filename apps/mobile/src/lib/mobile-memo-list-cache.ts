@@ -1,4 +1,4 @@
-import type { ListMemosResponse } from "@edgeever/client";
+import type { ListMemosResponse } from "@rtnote/client";
 import type { InfiniteData } from "@tanstack/react-query";
 
 export const removeMobileMemosFromListCache = (

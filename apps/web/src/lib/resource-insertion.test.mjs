@@ -3,7 +3,7 @@ import { Editor } from "@tiptap/core";
 import Image from "@tiptap/extension-image";
 import StarterKit from "@tiptap/starter-kit";
 import { closeHistory, history, undo, redo } from "@tiptap/pm/history";
-import { ATTACHMENT_TEXT_PREFIX, FileAttachment, ImageGallery, IMAGE_GALLERY_NODE_TYPE } from "@edgeever/shared";
+import { ATTACHMENT_TEXT_PREFIX, FileAttachment, ImageGallery, IMAGE_GALLERY_NODE_TYPE } from "@rtnote/shared";
 import { insertUploadedResources } from "./resource-insertion";
 import { getResourceInsertionTarget } from "./resource-insertion-target";
 
@@ -26,9 +26,9 @@ describe("uploaded resources beside an existing gallery", () => {
     const attachment = {
       type: "paragraph",
       content: [{
-        type: "edgeeverFileAttachment",
+        type: "rtnoteFileAttachment",
         attrs: {
-          url: "edgeever-staged://stage_word_1",
+          url: "rtnote-staged://stage_word_1",
           label: `${ATTACHMENT_TEXT_PREFIX}Software outsourcing contract.docx`,
           filename: "Software outsourcing contract.docx",
           mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",

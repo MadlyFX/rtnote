@@ -5,10 +5,10 @@ import Dexie from "dexie";
  * assistant conversations and generated images on this device, some of them
  * holding note text. Remove that leftover data; nothing reads it any more.
  */
-const LEGACY_DATABASES = ["edgeever-ai-drafts", "edgeever-local-agent-images-v1"];
-const LEGACY_LOCAL_PREFIXES = ["edgeever.aiSidebar.", "edgeever.aiAssistant.", "edgeever.ai-model-discovery."];
-const LEGACY_LOCAL_KEYS = ["edgeever.editor.aiSelectionMenuEnabled", "edgeever.editor.aiSpaceShortcutEnabled"];
-const LEGACY_SESSION_KEYS = ["edgeever.aiSidebar.selectionTurns"];
+const LEGACY_DATABASES = ["rtnote-ai-drafts", "rtnote-local-agent-images-v1"];
+const LEGACY_LOCAL_PREFIXES = ["rtnote.aiSidebar.", "rtnote.aiAssistant.", "rtnote.ai-model-discovery."];
+const LEGACY_LOCAL_KEYS = ["rtnote.editor.aiSelectionMenuEnabled", "rtnote.editor.aiSpaceShortcutEnabled"];
+const LEGACY_SESSION_KEYS = ["rtnote.aiSidebar.selectionTurns"];
 
 type KeyStorage = Pick<Storage, "key" | "length" | "removeItem">;
 

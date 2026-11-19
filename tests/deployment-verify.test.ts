@@ -40,28 +40,28 @@ describe("deployment verification", () => {
   });
 
   test("parses current and wrapped Wrangler secret output", () => {
-    expect(parseSecretNames(JSON.stringify([{ name: "EDGE_EVER_AUTH_PASSWORD" }]))).toContain(
-      "EDGE_EVER_AUTH_PASSWORD",
+    expect(parseSecretNames(JSON.stringify([{ name: "RTNOTE_AUTH_PASSWORD" }]))).toContain(
+      "RTNOTE_AUTH_PASSWORD",
     );
-    expect(parseSecretNames(JSON.stringify({ result: [{ name: "EDGE_EVER_AUTH_PASSWORD_HASH" }] }))).toContain(
-      "EDGE_EVER_AUTH_PASSWORD_HASH",
+    expect(parseSecretNames(JSON.stringify({ result: [{ name: "RTNOTE_AUTH_PASSWORD_HASH" }] }))).toContain(
+      "RTNOTE_AUTH_PASSWORD_HASH",
     );
   });
 
   test("captures public Workers and custom-domain URLs from Wrangler deploy output", () => {
     expect(parseWranglerDeploymentUrls([
-      "Uploaded edgeever (2.1 sec)",
-      "Deployed edgeever triggers (0.4 sec)",
-      "  https://edgeever.example.workers.dev",
+      "Uploaded rtnote (2.1 sec)",
+      "Deployed rtnote triggers (0.4 sec)",
+      "  https://rtnote.example.workers.dev",
       "  notes.example.com (custom domain)",
       "Current Version ID: version-1",
     ].join("\n"))).toEqual([
-      "https://edgeever.example.workers.dev",
+      "https://rtnote.example.workers.dev",
       "https://notes.example.com",
     ]);
-    expect(parseWranglerDeploymentUrls("No targets deployed for edgeever")).toEqual([]);
+    expect(parseWranglerDeploymentUrls("No targets deployed for rtnote")).toEqual([]);
     expect(parseWranglerDeploymentVersionId([
-      "Uploaded edgeever (2.1 sec)",
+      "Uploaded rtnote (2.1 sec)",
       "Current Version ID: version-1",
     ].join("\n"))).toBe("version-1");
   });
@@ -75,24 +75,24 @@ describe("deployment verification", () => {
   test("resolves an explicit or captured deployment URL without credentials or paths", () => {
     expect(normalizeDeploymentUrl("notes.example.com/path")).toBe("https://notes.example.com");
     expect(parseCapturedDeploymentUrls(JSON.stringify({
-      urls: ["https://edgeever.example.workers.dev"],
-    }))).toEqual(["https://edgeever.example.workers.dev"]);
+      urls: ["https://rtnote.example.workers.dev"],
+    }))).toEqual(["https://rtnote.example.workers.dev"]);
     expect(parseCapturedDeploymentTargets(JSON.stringify({
-      urls: ["https://edgeever.example.workers.dev"],
+      urls: ["https://rtnote.example.workers.dev"],
       versionId: "version-1",
     }))).toEqual({
-      urls: ["https://edgeever.example.workers.dev"],
+      urls: ["https://rtnote.example.workers.dev"],
       versionId: "version-1",
     });
     expect(resolveDeploymentUrl({
-      env: { EDGE_EVER_DEPLOYMENT_URL: "https://notes.example.com/app" },
-      capturedUrls: ["https://edgeever.example.workers.dev"],
+      env: { RTNOTE_DEPLOYMENT_URL: "https://notes.example.com/app" },
+      capturedUrls: ["https://rtnote.example.workers.dev"],
     })).toBe("https://notes.example.com");
     expect(resolveDeploymentUrl({
-      env: { EDGE_EVER_CUSTOM_DOMAIN: "notes.example.com" },
+      env: { RTNOTE_CUSTOM_DOMAIN: "notes.example.com" },
       capturedUrls: [],
     })).toBe("https://notes.example.com");
-    expect(() => normalizeDeploymentUrl("file:///tmp/edgeever")).toThrow("must use HTTP(S)");
+    expect(() => normalizeDeploymentUrl("file:///tmp/rtnote")).toThrow("must use HTTP(S)");
   });
 
   test("verifies the live Worker health response", async () => {

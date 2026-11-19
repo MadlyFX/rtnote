@@ -23,7 +23,7 @@ const findResources = () => {
 
 const resources = findResources();
 const metadata = JSON.parse(extractFile(join(resources, "app.asar"), "package.json").toString());
-assert.equal(metadata.edgeeverUpdatePolicy, "manual", "RTNote builds must disable automatic updates");
-assert.equal(shouldConfigureDesktopUpdates({ packaged: true, updatePolicy: metadata.edgeeverUpdatePolicy }), false);
+assert.equal(metadata.rtnoteUpdatePolicy, "manual", "RTNote builds must disable automatic updates");
+assert.equal(shouldConfigureDesktopUpdates({ packaged: true, updatePolicy: metadata.rtnoteUpdatePolicy }), false);
 assert.equal(existsSync(join(resources, "app-update.yml")), false, "RTNote builds must not bundle an update feed");
 console.log(`${resources}: manual updates, no update feed.`);

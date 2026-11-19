@@ -39,11 +39,11 @@
     "prepare:desktop:icons": "bun scripts/prepare-desktop-icons.mjs",
     "preview:desktop:icon": "bun scripts/preview-macos-dock-icon.mjs",
     "build:android:fast": "bash scripts/build-android-local.sh fast",
-    "build:android:fast:local": "bun --env-file=${EDGE_EVER_ANDROID_ENV_FILE:-$HOME/.config/edgeever/android/signing.env} run build:android:fast",
+    "build:android:fast:local": "bun --env-file=${RTNOTE_ANDROID_ENV_FILE:-$HOME/.config/rtnote/android/signing.env} run build:android:fast",
     "build:android:apk": "bash scripts/build-android-local.sh apk",
-    "build:android:apk:local": "bun --env-file=${EDGE_EVER_ANDROID_ENV_FILE:-$HOME/.config/edgeever/android/signing.env} run build:android:apk",
+    "build:android:apk:local": "bun --env-file=${RTNOTE_ANDROID_ENV_FILE:-$HOME/.config/rtnote/android/signing.env} run build:android:apk",
     "build:android:play": "bash scripts/build-android-local.sh play",
-    "build:android:play:local": "bun --env-file=${EDGE_EVER_ANDROID_ENV_FILE:-$HOME/.config/edgeever/android/signing.env} run build:android:play",
+    "build:android:play:local": "bun --env-file=${RTNOTE_ANDROID_ENV_FILE:-$HOME/.config/rtnote/android/signing.env} run build:android:play",
     "build": "bun run build:web",
     "build:self-hosted": "bun build scripts/self-hosted-server.mjs --target=bun --format=esm --outdir=dist/self-hosted --sourcemap=none",
     "build:plugin-api": "bun run --cwd packages/plugin-api build",
@@ -59,7 +59,7 @@
     "check:poster:thumbnails": "bun scripts/prepare-poster-thumbnails.mjs --check",
     "build:web": "vite build --config apps/web/vite.config.ts",
     "build:desktop:sidecar": "cargo build --manifest-path crates/desktop-sidecar/Cargo.toml --release",
-    "build:desktop": "EDGE_EVER_DESKTOP_BUILD=1 bun run prepare:desktop:icons && bun run build:web && bun run build:desktop:sidecar && bun run --cwd apps/desktop dist",
+    "build:desktop": "RTNOTE_DESKTOP_BUILD=1 bun run prepare:desktop:icons && bun run build:web && bun run build:desktop:sidecar && bun run --cwd apps/desktop dist",
     "benchmark:desktop:sidecar": "bun scripts/benchmark-desktop-sidecar.mjs",
     "verify:web-performance": "bun scripts/verify-web-performance.mjs",
     "verify:web-startup": "bun scripts/verify-web-startup-browser.mjs",
@@ -91,16 +91,16 @@
     "db:migrate:remote": "bun scripts/run-wrangler.mjs d1 migrations apply DB --remote",
     "auth:hash": "bun scripts/hash-password.mjs",
     "auth:reset-password": "bun scripts/reset-password.mjs",
-    "cli": "bun scripts/edgeever.mjs",
+    "cli": "bun scripts/rtnote.mjs",
     "import:evernote": "bun scripts/import-evernote-enex-via-mcp.mjs",
-    "mcp:stdio": "bun scripts/edgeever-mcp-stdio.mjs",
+    "mcp:stdio": "bun scripts/rtnote-mcp-stdio.mjs",
     "deploy:doctor": "bun scripts/cloudflare-deploy.mjs doctor",
     "deploy:setup": "bun scripts/cloudflare-deploy.mjs setup",
-    "deploy": "bun run build:cloudflare && EDGE_EVER_USE_EXISTING_AUTH_SECRET=true bun run deploy:ci",
-    "deploy:manual": "export EDGE_EVER_DEPLOYMENT_TRIGGER=manual EDGE_EVER_DEPLOYMENT_METHOD=local_cli && bun run deploy:doctor && bun run build:cloudflare && bun run deploy:ci",
+    "deploy": "bun run build:cloudflare && RTNOTE_USE_EXISTING_AUTH_SECRET=true bun run deploy:ci",
+    "deploy:manual": "export RTNOTE_DEPLOYMENT_TRIGGER=manual RTNOTE_DEPLOYMENT_METHOD=local_cli && bun run deploy:doctor && bun run build:cloudflare && bun run deploy:ci",
     "deploy:ci": "bun run db:migrate:remote && bun run deploy:worker && bun run deploy:verify",
     "deploy:worker": "bun scripts/run-wrangler.mjs deploy",
-    "deploy:cloudflare-builds": "EDGE_EVER_USE_EXISTING_AUTH_SECRET=true bun run deploy:ci",
+    "deploy:cloudflare-builds": "RTNOTE_USE_EXISTING_AUTH_SECRET=true bun run deploy:ci",
     "deploy:verify": "bun scripts/verify-deployment.mjs",
     "deploy:builds:setup": "bun scripts/cloudflare-workers-builds.mjs setup"
   },
@@ -112,18 +112,18 @@
       "RESOURCES": {
         "description": "RTNote's R2 object storage bucket. Stores images and attachments in notes, and future import/export files; D1 keeps only resource metadata and memo links."
       },
-      "EDGE_EVER_AUTH_PASSWORD": {
+      "RTNOTE_AUTH_PASSWORD": {
         "description": "Required first sign-in password. Set a strong password used only for this instance; you can change it in personal settings after deployment."
       },
-      "EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY": {
+      "RTNOTE_CREDENTIALS_ENCRYPTION_KEY": {
         "description": "Optional advanced setting. Overrides the credential encryption key derived from the instance authentication secret, for independent key rotation."
       }
     }
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1095.0",
-    "@edgeever/plugin-api": "workspace:*",
-    "@edgeever/shared": "workspace:*",
+    "@rtnote/plugin-api": "workspace:*",
+    "@rtnote/shared": "workspace:*",
     "@hono/zod-validator": "0.8.0",
     "@radix-ui/react-checkbox": "^1.3.11",
     "@radix-ui/react-collapsible": "^1.1.20",

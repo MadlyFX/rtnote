@@ -105,7 +105,7 @@ describe("shared sync queue contract", () => {
       { title: "", tags: [], contentMarkdown: "The contract covers several phases.", contentJson: { type: "doc" } },
       { title: DEFAULT_MEMO_TITLE, tags: [], contentMarkdown: "The contract covers several phases.", contentJson: { type: "doc" } },
     )).toBe(true);
-    // An older client still sends EdgeEver's default title for an untitled note.
+    // An older client still sends RTNote's default title for an untitled note.
     expect(memoUpdatePayloadMatchesRemote(
       { title: LEGACY_DEFAULT_MEMO_TITLES[0], tags: [], contentMarkdown: "Body", contentJson: { type: "doc" } },
       { title: DEFAULT_MEMO_TITLE, tags: [], contentMarkdown: "Body", contentJson: { type: "doc" } },

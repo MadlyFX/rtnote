@@ -93,7 +93,7 @@ export type SlashCommandItem = {
   label: string;
 };
 
-const slashCommandPluginKey = new PluginKey("edgeever-slash-command");
+const slashCommandPluginKey = new PluginKey("rtnote-slash-command");
 
 const padDatePart = (value: number) => String(value).padStart(2, "0");
 
@@ -296,7 +296,7 @@ export const createSlashCommandExtension = ({
   actions: SlashCommandActions;
   getLabels: () => SlashCommandLabels;
 }) => Extension.create({
-  name: "edgeeverSlashCommand",
+  name: "rtnoteSlashCommand",
   addProseMirrorPlugins() {
     const initialItems = createSlashCommandItems(getLabels());
     return [Suggestion<SlashCommandItem, SlashCommandItem>({
@@ -306,7 +306,7 @@ export const createSlashCommandExtension = ({
       allowedPrefixes: [" "],
       placement: "bottom-start",
       offset: { mainAxis: 6 },
-      decorationClass: "edgeever-slash-command-query",
+      decorationClass: "rtnote-slash-command-query",
       initialItems,
       allow: ({ state, range }) => {
         const position = state.doc.resolve(range.from);

@@ -38,10 +38,10 @@ const sidebarPayload = (overrides = {}) => JSON.stringify({
   payload: {
     sidebarAbout: {
       description: "Open-source, AI-native knowledge base.",
-      website: "https://edgeever.org",
+      website: "https://rtnote.example",
       topics: [{ name: "notes" }, { name: "mcp" }, { name: "notes" }],
       ownerLogin: "tianma-if",
-      repoName: "edgeever",
+      repoName: "rtnote",
       stargazerCount: 1915,
       forksCount: 995,
       repo: { license: { spdxId: "AGPL-3.0", name: "GNU Affero General Public License v3.0" } },
@@ -54,7 +54,7 @@ describe("github repository addresses", () => {
   test("accepts a repository home and a code tree, and ignores other GitHub pages", () => {
     expect(githubRepoTarget("https://github.com/tianma-if/edgeever")).toEqual({
       owner: "tianma-if",
-      name: "edgeever",
+      name: "rtnote",
       canonicalUrl: "https://github.com/tianma-if/edgeever",
     });
     expect(githubRepoTarget("https://www.github.com/tianma-if/edgeever/?tab=readme-ov-file#readme")?.canonicalUrl)
@@ -82,7 +82,7 @@ describe("github repository card", () => {
         <script type="application/json">${json}</script>
         <div class="sidebarSection__oqw6Y8">
           <h2>About</h2><p class="description__ej4leF">A portable notes workspace.</p>
-          <div class="websiteRow__c4vvco"><a href="https://edgeever.org">edgeever.org</a></div>
+          <div class="websiteRow__c4vvco"><a href="https://rtnote.example">rtnote.example</a></div>
           <a href="/topics/notes">notes</a>
           <a href="#license"><svg class="octicon-law"></svg>AGPL-3.0 license</a>
         </div>`, "https://github.com/tianma-if/edgeever/tree/main");
@@ -91,14 +91,14 @@ describe("github repository card", () => {
       runInContext(script, createContext({
         document: window.document,
         location: window.location,
-        __edgeeverGithubClipPayload: { requestId: "regression" },
+        __rtnoteGithubClipPayload: { requestId: "regression" },
         chrome: { runtime: { sendMessage: (message) => { result = message.result; } } },
       }));
       expect(result?.ok).toBe(true);
       expect(result.source.embeddedJsonChunks).toEqual([]);
       expect(githubRepoFactsFromSource(result.source)).toMatchObject({
-        owner: "tianma-if", name: "edgeever", intro: "A portable notes workspace.",
-        homepage: "https://edgeever.org/", topics: ["notes"], license: "AGPL-3.0",
+        owner: "tianma-if", name: "rtnote", intro: "A portable notes workspace.",
+        homepage: "https://rtnote.example/", topics: ["notes"], license: "AGPL-3.0",
       });
       expect(githubRepoFactsFromSource({ ...result.source, repositoryNwo: "other/repo" })).toBeNull();
       expect(githubRepoFactsFromSource({ ...result.source, repositoryNwo: undefined })).toBeNull();
@@ -110,17 +110,17 @@ describe("github repository card", () => {
     expect(cleanRepoDescription(
       "Open-source notes. - tianma-if/edgeever",
       "tianma-if",
-      "edgeever",
+      "rtnote",
     )).toBe("Open-source notes.");
     expect(cleanRepoDescription(
-      "Open-source notes &amp; sync. - edgeever/apps at main · tianma-if/edgeever",
+      "Open-source notes &amp; sync. - rtnote/apps at main · tianma-if/edgeever",
       "tianma-if",
-      "edgeever",
+      "rtnote",
     )).toBe("Open-source notes & sync.");
     expect(cleanRepoDescription(
       "Contribute to tianma-if/edgeever development by creating an account on GitHub.",
       "tianma-if",
-      "edgeever",
+      "rtnote",
     )).toBe("");
   });
 
@@ -140,10 +140,10 @@ describe("github repository card", () => {
     }));
     expect(facts).toMatchObject({
       owner: "tianma-if",
-      name: "edgeever",
+      name: "rtnote",
       canonicalUrl: "https://github.com/tianma-if/edgeever",
       intro: "Open-source, AI-native knowledge base.",
-      homepage: "https://edgeever.org/",
+      homepage: "https://rtnote.example/",
       language: "TypeScript",
       license: "AGPL-3.0",
       topics: ["notes", "mcp", "sqlite"],
@@ -151,7 +151,7 @@ describe("github repository card", () => {
     const markdown = githubRepoNoteMarkdown({ ...facts, ...labels });
     expect(githubRepoNoteTitle(facts.owner, facts.name)).toBe("tianma-if/edgeever");
     expect(markdown.startsWith("Open-source, AI-native knowledge base.")).toBe(true);
-    expect(markdown).toContain("Homepage: [edgeever.org](https://edgeever.org/)");
+    expect(markdown).toContain("Homepage: [rtnote.example](https://rtnote.example/)");
     expect(markdown).toContain("Language: TypeScript");
     expect(markdown).toContain("License: AGPL-3.0");
     expect(markdown).toContain("Topics: notes, mcp, sqlite");
@@ -168,7 +168,7 @@ describe("github repository card", () => {
       embeddedJsonChunks: [JSON.stringify({
         payload: {
           codeViewLayoutRoute: {
-            repo: { ownerLogin: "tianma-if", name: "edgeever", defaultBranch: "main" },
+            repo: { ownerLogin: "tianma-if", name: "rtnote", defaultBranch: "main" },
           },
         },
       })],

@@ -4,7 +4,7 @@ import { globSync, readFileSync } from "node:fs";
 import { createSelfHostedStorageAdapter } from "./self-hosted-storage-adapter.ts";
 import { deleteNotebookRecord, isInboxNotebook, updateNotebookRecord } from "./notebook-service.ts";
 import { workspaceInboxId } from "./workspace-provisioning.ts";
-import { LEGACY_INBOX_NOTEBOOK_NAMES } from "@edgeever/shared/edgeever-legacy-values";
+import { LEGACY_INBOX_NOTEBOOK_NAMES } from "@rtnote/shared/rtnote-legacy-values";
 
 const actor = { actorType: "user", actorId: "usr_1" };
 
@@ -29,7 +29,7 @@ const createFixture = () => {
       ('ws_1_inbox', 'ws_1', 'Inbox', 'inbox', 0, '2026-09-10T00:00:00.000Z', '2026-09-10T00:00:00.000Z'),
       ('nb_notes', 'ws_1', 'Notes', 'notes', 0, '2026-09-10T00:00:00.000Z', '2026-09-10T00:00:00.000Z');
   `);
-  return { sqlite, db: createSelfHostedStorageAdapter(sqlite, "/tmp/edgeever-notebook-service-test-unused").db };
+  return { sqlite, db: createSelfHostedStorageAdapter(sqlite, "/tmp/rtnote-notebook-service-test-unused").db };
 };
 
 describe("notebook identity", () => {
@@ -81,7 +81,7 @@ describe("notebook identity", () => {
         is_deleted: 0,
       });
       expect(sqlite.query("SELECT name, slug FROM notebooks WHERE id = 'ws_empty_inbox'").get()).toEqual({
-        // Migration 0046 still names a recreated inbox the way EdgeEver did.
+        // Migration 0046 still names a recreated inbox the way RTNote did.
         name: LEGACY_INBOX_NOTEBOOK_NAMES[0],
         slug: "inbox",
       });

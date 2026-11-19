@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import type { BrandingSettings } from "@edgeever/shared";
+import type { BrandingSettings } from "@rtnote/shared";
 import { api, getConfiguredDesktopApiBaseUrl } from "@/lib/api";
 import { BRANDING_QUERY_KEY, fetchBrandingOverview } from "@/hooks/useServerBranding";
 import { BrandingEditor } from "./settings/BrandingEditor";

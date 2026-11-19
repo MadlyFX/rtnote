@@ -35,7 +35,7 @@ import {
   type TableFilter,
   type TableFilterOperator,
   type TableRecord,
-} from "@edgeever/shared";
+} from "@rtnote/shared";
 import { MemoTitleInput } from "@/components/MemoTitleInput";
 import { TableFormDialog } from "@/components/dialogs/TableFormDialog";
 import { Button } from "@/components/ui/button";
@@ -55,12 +55,12 @@ import { EDITOR_LOCAL_SAVE_DELAY_MS } from "@/lib/app-helpers";
 import { createLocalEditSession } from "@/components/editor/editor-pane-helpers";
 import { isLocalMemoId } from "@/lib/local-mirror";
 import { isBrowserOffline } from "@/lib/network-status";
-import type { EdgeEverRepository } from "@/lib/repository";
-import type { MemoEditSession } from "@edgeever/shared";
+import type { RTNoteRepository } from "@/lib/repository";
+import type { MemoEditSession } from "@rtnote/shared";
 
 type TableEditorPaneProps = {
   memo: MemoDetail;
-  repository: EdgeEverRepository;
+  repository: RTNoteRepository;
   readOnly: boolean;
   onBackToList: () => void;
   onSaved: (memo: MemoDetail) => Promise<void>;
@@ -184,7 +184,7 @@ const AttachmentCell = ({
   record: TableRecord;
   memoId: string;
   readOnly: boolean;
-  repository: EdgeEverRepository;
+  repository: RTNoteRepository;
   onAdd: (attachment: TableAttachment) => boolean;
   onRemove: (resourceId: string) => void;
   onUploaded: (resourceId: string) => void;
@@ -373,7 +373,7 @@ const RecordCell = ({
   readOnly: boolean;
   onEdit: (cell: EditingCell | null) => void;
   memoId: string;
-  repository: EdgeEverRepository;
+  repository: RTNoteRepository;
   onCommit: (value: string) => void;
   onDraft: (value: string) => void;
   onChange: (document: TableDocument) => void;
@@ -528,7 +528,7 @@ export const TableEditorPane = ({
     setSaveError(null);
     setSaveFailed(false);
     if (readOnly || !parsed) return;
-    if (isLocalMemoId(memo.id) || isBrowserOffline() || window.edgeeverDesktop?.isAvailable) {
+    if (isLocalMemoId(memo.id) || isBrowserOffline() || window.rtnoteDesktop?.isAvailable) {
       editSessionRef.current = createLocalEditSession(memo);
       setEditSessionReady(true);
       return;

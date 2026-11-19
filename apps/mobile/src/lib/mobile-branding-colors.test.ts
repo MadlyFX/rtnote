@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { coerceResolvedBranding, DEFAULT_RESOLVED_BRANDING, resolveBrandingSettings } from "@edgeever/shared/branding";
+import { coerceResolvedBranding, DEFAULT_RESOLVED_BRANDING, resolveBrandingSettings } from "@rtnote/shared/branding";
 import { applyMobileBrandingColors, buildMobileBrandColorMaps, mobileBrandColorKey } from "./mobile-branding-colors";
 import {
   getMobileBrandColorKey,

@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 import { LoaderCircle, Square } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { formatVoiceMemoDuration } from "@edgeever/shared/voice-memo-names";
+import { formatVoiceMemoDuration } from "@rtnote/shared/voice-memo-names";
 import { Button } from "@/components/ui/button";
 import { voiceMemoSessions } from "@/lib/voice-memo-recorder";
 

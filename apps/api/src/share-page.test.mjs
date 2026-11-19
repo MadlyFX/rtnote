@@ -1,5 +1,5 @@
-import { DEFAULT_MEMO_TITLE, LEGACY_DEFAULT_MEMO_TITLES } from "@edgeever/shared/memo-title";
-import { PUBLIC_PAGE_ROBOTS } from "@edgeever/shared/public-page-headers";
+import { DEFAULT_MEMO_TITLE, LEGACY_DEFAULT_MEMO_TITLES } from "@rtnote/shared/memo-title";
+import { PUBLIC_PAGE_ROBOTS } from "@rtnote/shared/public-page-headers";
 import { describe, expect, test } from "bun:test";
 import { Database } from "bun:sqlite";
 import { globSync, readFileSync } from "node:fs";
@@ -95,7 +95,7 @@ describe("public memo share pages", () => {
     expect(html).toContain(`rel="alternate" type="text/markdown" href="https://note.example/share/${token}.md"`);
     expect(html).toContain("Hello &lt;script&gt;secret()&lt;/script&gt;");
     expect(html).not.toContain("<script>secret()");
-    expect(html).toContain('<div id="root"><article id="edgeever-shared-note"');
+    expect(html).toContain('<div id="root"><article id="rtnote-shared-note"');
     expect(html).toContain('<script type="module" src="/src/main.tsx"></script>');
     expect(html).not.toContain("old description");
   });
@@ -150,7 +150,7 @@ describe("public memo share pages", () => {
 
     const browser = await render(sqlite, `/share/${token}`, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
     expect(browser.headers.get("content-type")).toContain("text/html");
-    expect(await browser.text()).toContain("edgeever-shared-note");
+    expect(await browser.text()).toContain("rtnote-shared-note");
   });
 
   test("omits the body when the share is missing, deleted, or password protected", async () => {
@@ -158,7 +158,7 @@ describe("public memo share pages", () => {
     const missing = await render(sqlite, `/share/${"m".repeat(43)}`);
     expect(missing.status).toBe(200);
     const missingHtml = await missing.text();
-    expect(missingHtml).not.toContain("edgeever-shared-note");
+    expect(missingHtml).not.toContain("rtnote-shared-note");
     expect(missingHtml).not.toContain("secret()");
     expect(missingHtml).toContain('<script type="module" src="/src/main.tsx"></script>');
 
@@ -262,7 +262,7 @@ describe("expiring and counted share pages", () => {
       const html = await render(sqlite, `/share/${token}`);
       const page = await html.text();
       expect(page).not.toContain("Hello");
-      expect(page).not.toContain("edgeever-shared-note");
+      expect(page).not.toContain("rtnote-shared-note");
       expect(page).toContain("This shared link has expired.");
       expect(html.headers.get("Link")).toBeNull();
       expect(viewCount(sqlite)).toBe(0);
@@ -276,7 +276,7 @@ describe("expiring and counted share pages", () => {
     try {
       sqlite.query("UPDATE memo_shares SET expires_at = '2999-01-01T00:00:00.000Z' WHERE token = ?").run(token);
       expect((await render(sqlite, `/share/${token}.md`)).status).toBe(200);
-      expect(await (await render(sqlite, `/share/${token}`)).text()).toContain("edgeever-shared-note");
+      expect(await (await render(sqlite, `/share/${token}`)).text()).toContain("rtnote-shared-note");
     } finally {
       sqlite.close();
     }

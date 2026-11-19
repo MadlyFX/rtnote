@@ -37,8 +37,8 @@ concurrency:
   cancel-in-progress: ${{ github.event_name != 'workflow_call' }}
 
 env:
-  EDGE_EVER_DESKTOP_BUILD: '1'
-  EDGE_EVER_DESKTOP_FORK_BUILD: '1'
+  RTNOTE_DESKTOP_BUILD: '1'
+  RTNOTE_DESKTOP_FORK_BUILD: '1'
   NODE_OPTIONS: --experimental-strip-types
 
 jobs:
@@ -50,8 +50,8 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 45
     env:
-      EDGE_EVER_DESKTOP_ARCH: x64
-      EDGE_EVER_DESKTOP_TARGET: win
+      RTNOTE_DESKTOP_ARCH: x64
+      RTNOTE_DESKTOP_TARGET: win
     steps:
       - uses: actions/checkout@v5
         with:
@@ -87,7 +87,7 @@ jobs:
         run: bun scripts/verify-fork-desktop.mjs
       - name: Verify package
         env:
-          EDGE_EVER_VERIFY_TARGET: win32
+          RTNOTE_VERIFY_TARGET: win32
         run: bun scripts/verify-desktop-package.mjs
       - name: Verify packaged startup
         run: bun run verify:packaged-desktop-startup -- release/desktop/win-unpacked/RTNote.exe
@@ -119,8 +119,8 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 45
     env:
-      EDGE_EVER_DESKTOP_ARCH: x64
-      EDGE_EVER_DESKTOP_TARGET: linux
+      RTNOTE_DESKTOP_ARCH: x64
+      RTNOTE_DESKTOP_TARGET: linux
     steps:
       - uses: actions/checkout@v5
         with:
@@ -156,7 +156,7 @@ jobs:
         run: bun scripts/verify-fork-desktop.mjs
       - name: Verify package contents, architecture and glibc baseline
         env:
-          EDGE_EVER_VERIFY_TARGET: linux
+          RTNOTE_VERIFY_TARGET: linux
         run: bun scripts/verify-desktop-package.mjs
       - name: Verify packaged startup
         run: |
@@ -198,8 +198,8 @@ jobs:
             runner: macos-15-intel
             unpacked: mac
     env:
-      EDGE_EVER_DESKTOP_ARCH: ${{ matrix.arch }}
-      EDGE_EVER_DESKTOP_TARGET: mac
+      RTNOTE_DESKTOP_ARCH: ${{ matrix.arch }}
+      RTNOTE_DESKTOP_TARGET: mac
     steps:
       - uses: actions/checkout@v5
         with:
@@ -234,7 +234,7 @@ jobs:
       # Runs last: it removes the unpacked app bundle after checking it.
       - name: Verify package contents and architecture
         env:
-          EDGE_EVER_VERIFY_TARGET: darwin
+          RTNOTE_VERIFY_TARGET: darwin
         run: bun scripts/verify-desktop-package.mjs
       - name: Record checksums
         run: |

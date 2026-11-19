@@ -6,7 +6,7 @@ import { DOMParser, DOMSerializer } from "@tiptap/pm/model";
 import { getSchema } from "@tiptap/core";
 import { parseHTML } from "linkedom";
 import {
-  createEdgeEverDocumentExtensions,
+  createRTNoteDocumentExtensions,
   docToMarkdown,
   docToText,
   markdownToDoc,
@@ -19,13 +19,13 @@ import {
   restoreNativeEditorContent,
   tableNeedsHtml,
 } from "./index.ts";
-import { createEdgeEverMarkdownMathematics } from "./mathematics-markdown.ts";
+import { createRTNoteMarkdownMathematics } from "./mathematics-markdown.ts";
 import { splitMarkdownParseChunks } from "./markdown-block-start.ts";
 
 const text = (value, marks) => ({ type: "text", text: value, ...(marks ? { marks } : {}) });
 const paragraph = (value, attrs) => ({ type: "paragraph", ...(attrs ? { attrs } : {}), content: value ? [text(value)] : [] });
 const doc = (...content) => ({ type: "doc", content });
-const image = (attrs = {}) => ({ type: "image", attrs: { src: "edgeever-resource://res_1", alt: "Diagram", width: 50, ...attrs } });
+const image = (attrs = {}) => ({ type: "image", attrs: { src: "rtnote-resource://res_1", alt: "Diagram", width: 50, ...attrs } });
 const figure = (caption, attrs) => ({
   type: "imageFigure",
   content: [image(attrs), { type: "imageCaption", ...(caption ? { content: [text(caption)] } : {}) }],
@@ -76,7 +76,7 @@ const applyWithPlugins = (editor, build) => {
 
 const createEditor = (content) => {
   const editor = new Editor({
-    extensions: createEdgeEverDocumentExtensions({ mathematics: createEdgeEverMarkdownMathematics() }),
+    extensions: createRTNoteDocumentExtensions({ mathematics: createRTNoteMarkdownMathematics() }),
     content,
   });
   // Headless editors report isDestroyed without a mounted view; commands still work.
@@ -258,10 +258,10 @@ describe("image captions", () => {
   test("export as <figure> and parse back", () => {
     const source = doc(figure("A sleepy cat", { alignment: "center" }), figure("Plain"), paragraph("End"));
     const markdown = docToMarkdown(source);
-    expect(markdown).toContain('<figure>\n<img src="edgeever-resource://res_1" alt="Diagram" data-image-align="center"');
+    expect(markdown).toContain('<figure>\n<img src="rtnote-resource://res_1" alt="Diagram" data-image-align="center"');
     expect(markdown).toContain("<figcaption>A sleepy cat</figcaption>\n</figure>");
     // An image without explicit alignment does not gain one.
-    expect(markdown).toContain('<img src="edgeever-resource://res_1" alt="Diagram" width="50%" />\n<figcaption>Plain</figcaption>');
+    expect(markdown).toContain('<img src="rtnote-resource://res_1" alt="Diagram" width="50%" />\n<figcaption>Plain</figcaption>');
     expect(meaningful(markdownToDoc(markdown))).toEqual(meaningful(source));
   });
 
@@ -272,7 +272,7 @@ describe("image captions", () => {
   });
 
   test("an empty caption exports as a plain image", () => {
-    expect(docToMarkdown(doc(figure("")))).toBe("![Diagram](edgeever-resource://res_1)");
+    expect(docToMarkdown(doc(figure("")))).toBe("![Diagram](rtnote-resource://res_1)");
   });
 
   test("captions are part of search text", () => {
@@ -329,7 +329,7 @@ describe("image captions", () => {
 
 describe("HTML (clipboard and print)", () => {
   test("figures, rich tables, fonts and alignment survive serialize and parse", () => {
-    const schema = getSchema(createEdgeEverDocumentExtensions({ mathematics: createEdgeEverMarkdownMathematics() }));
+    const schema = getSchema(createRTNoteDocumentExtensions({ mathematics: createRTNoteMarkdownMathematics() }));
     const source = doc(
       { type: "paragraph", attrs: { textAlign: "right", lineHeight: "2" }, content: [text("Styled", [{ type: "textStyle", attrs: { fontFamily: "'Courier New', monospace", fontSize: "20px" } }])] },
       figure("Caption", { alignment: "center" }),

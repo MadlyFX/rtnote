@@ -5,7 +5,7 @@ import { syncBuiltinESMExports } from "node:module";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-const root = await fsp.mkdtemp(join(tmpdir(), "edgeever-resource-scope-"));
+const root = await fsp.mkdtemp(join(tmpdir(), "rtnote-resource-scope-"));
 const path = join(root, "res_1.bin");
 let scope = "a", stream;
 const stat = fsp.stat, createReadStream = fs.createReadStream;
@@ -27,7 +27,7 @@ try {
     getRequestHeaders: async () => new Headers(),
     fetch: async () => new Response("Unavailable", { status: 503 }),
   });
-  await assert.rejects(handler(new Request("edgeever-resource://resource/res_1", { cache: "reload" }), () => {
+  await assert.rejects(handler(new Request("rtnote-resource://resource/res_1", { cache: "reload" }), () => {
     if (scope !== "a") throw new Error("Account changed");
   }), /Account changed/);
   assert.ok(stream);

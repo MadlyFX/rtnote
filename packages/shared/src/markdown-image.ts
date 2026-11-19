@@ -13,8 +13,8 @@ export type MarkdownImagePasteItem = {
 
 const INTERNAL_IMAGE_SOURCE_PREFIXES = [
   "/api/v1/resources/",
-  "edgeever-resource://",
-  "edgeever-staged://",
+  "rtnote-resource://",
+  "rtnote-staged://",
 ];
 
 export const isSupportedMarkdownImageSource = (source: string): boolean => {

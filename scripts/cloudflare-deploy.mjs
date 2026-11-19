@@ -58,24 +58,24 @@ const readEnv = () => {
 };
 
 const scopedKey = (name, values) => {
-  const instance = (process.env.EDGE_EVER_INSTANCE || values.get("EDGE_EVER_INSTANCE") || "")
+  const instance = (process.env.RTNOTE_INSTANCE || values.get("RTNOTE_INSTANCE") || "")
     .trim()
     .replace(/[^a-zA-Z0-9]/g, "_")
     .toUpperCase();
-  return instance ? `EDGE_EVER_${instance}_${name}` : undefined;
+  return instance ? `RTNOTE_${instance}_${name}` : undefined;
 };
 
 const envValue = (name, values) => {
   const scoped = scopedKey(name, values);
   return (
     (scoped ? values.get(scoped) || process.env[scoped] : undefined) ||
-    values.get(`EDGE_EVER_${name}`) ||
-    process.env[`EDGE_EVER_${name}`] ||
+    values.get(`RTNOTE_${name}`) ||
+    process.env[`RTNOTE_${name}`] ||
     ""
   ).trim();
 };
 
-const targetKey = (name, values) => scopedKey(name, values) || `EDGE_EVER_${name}`;
+const targetKey = (name, values) => scopedKey(name, values) || `RTNOTE_${name}`;
 
 const upsertEnv = (key, value) => {
   const content = existsSync(envPath) ? readFileSync(envPath, "utf8") : "";
@@ -182,7 +182,7 @@ const ensureD1 = (values) => {
     return check("D1 database id", UUID_PATTERN.test(currentId), currentId);
   }
 
-  const databaseName = envValue("D1_DATABASE_NAME", values) || "edgeever";
+  const databaseName = envValue("D1_DATABASE_NAME", values) || "rtnote";
   const existingId = findD1DatabaseId(databaseName);
   if (existingId) {
     upsertEnv(targetKey("D1_DATABASE_ID", values), existingId);
@@ -232,7 +232,7 @@ const ensureAuthPassword = (values) => {
     return check("auth password hash", valid, valid ? "configured" : "invalid");
   }
 
-  const password = process.env.EDGE_EVER_PASSWORD?.trim();
+  const password = process.env.RTNOTE_PASSWORD?.trim();
   if (password) {
     upsertEnv(targetKey("AUTH_PASSWORD", values), password);
     console.log("[ok] configured auth password secret");
@@ -245,7 +245,7 @@ const ensureAuthPassword = (values) => {
     : check(
         "auth password",
         false,
-        "set EDGE_EVER_PASSWORD and rerun setup, or set EDGE_EVER_AUTH_PASSWORD",
+        "set RTNOTE_PASSWORD and rerun setup, or set RTNOTE_AUTH_PASSWORD",
       );
 };
 
@@ -313,7 +313,7 @@ const doctor = () => {
       "production authentication policy",
       allowUnauthenticated !== "true",
       allowUnauthenticated === "true"
-        ? "EDGE_EVER_ALLOW_UNAUTHENTICATED is local-only and must not be enabled for deployment"
+        ? "RTNOTE_ALLOW_UNAUTHENTICATED is local-only and must not be enabled for deployment"
         : "fail-closed",
     ) && passed;
 

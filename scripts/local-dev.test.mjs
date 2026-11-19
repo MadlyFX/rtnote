@@ -60,7 +60,7 @@ describe("local development environment", () => {
   });
 
   test("inspects a stopped WAL-mode D1 database", () => {
-    const statePath = mkdtempSync(join(tmpdir(), "edgeever-local-dev-"));
+    const statePath = mkdtempSync(join(tmpdir(), "rtnote-local-dev-"));
     const directory = join(statePath, "v3/d1/miniflare-D1DatabaseObject");
     mkdirSync(directory, { recursive: true });
     const database = new Database(join(directory, "test.sqlite"), { create: true });

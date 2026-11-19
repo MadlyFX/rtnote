@@ -1,1 +1,1 @@
-export { de } from "@edgeever/shared/i18n/de";
+export { de } from "@rtnote/shared/i18n/de";

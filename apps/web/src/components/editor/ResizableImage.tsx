@@ -4,13 +4,13 @@ import Image from "@tiptap/extension-image";
 import { NodeViewWrapper, ReactNodeViewRenderer, useEditorState, type NodeViewProps } from "@tiptap/react";
 import { AlignLeft, AlignCenter, AlignRight, Maximize2, MoveHorizontal } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { getImageReferrerPolicy, IMAGE_FIGURE_NODE_TYPE, IMAGE_GALLERY_NODE_TYPE, imageAlignmentMargins, parseImageAlignment, type ImageAlignment } from "@edgeever/shared";
+import { getImageReferrerPolicy, IMAGE_FIGURE_NODE_TYPE, IMAGE_GALLERY_NODE_TYPE, imageAlignmentMargins, parseImageAlignment, type ImageAlignment } from "@rtnote/shared";
 import {
   IMAGE_WIDTH_PRESETS,
   NEW_IMAGE_WIDTH_PERCENT,
   clampImageWidth,
   parseImageWidth,
-} from "@edgeever/shared/image-display";
+} from "@rtnote/shared/image-display";
 import { getAttachmentResourceId } from "@/lib/attachment-links";
 import { createMarkdownImagePasteRule } from "@/lib/markdown-image-paste";
 import { cn } from "@/lib/utils";
@@ -34,9 +34,9 @@ export type ImagePreviewRequestDetail = {
   alt: string;
 };
 
-export const IMAGE_MENU_SHOW_EVENT = "edgeever:image-menu-show";
-export const IMAGE_MENU_HIDE_EVENT = "edgeever:image-menu-hide";
-export const IMAGE_PREVIEW_SHOW_EVENT = "edgeever:image-preview-show";
+export const IMAGE_MENU_SHOW_EVENT = "rtnote:image-menu-show";
+export const IMAGE_MENU_HIDE_EVENT = "rtnote:image-menu-hide";
+export const IMAGE_PREVIEW_SHOW_EVENT = "rtnote:image-preview-show";
 
 const ResizableImageNodeView = ({
   editor,
@@ -271,7 +271,7 @@ const ResizableImageNodeView = ({
         <TooltipTrigger asChild>
           <button
             type="button"
-            className="edgeever-image-preview-button"
+            className="rtnote-image-preview-button"
             aria-label={t("editor.previewImage")}
             onMouseDown={(event) => event.preventDefault()}
             onClick={(event) => {
@@ -291,7 +291,7 @@ const ResizableImageNodeView = ({
     <NodeViewWrapper
       ref={wrapperRef}
       as="figure"
-      className={cn("edgeever-image-node", showImageControls && "is-selected")}
+      className={cn("rtnote-image-node", showImageControls && "is-selected")}
       style={{ width: `${width}%`, ...(explicitAlignment ? imageAlignmentMargins(explicitAlignment) : {}) }}
       data-width={width}
       data-image-align={alignment}
@@ -322,16 +322,16 @@ const ResizableImageNodeView = ({
         }}
       />
       {showImageControls && (
-        <div className="edgeever-image-panel" contentEditable={false} onMouseDown={(event) => event.preventDefault()}>
-          <div className="edgeever-image-controls">
+        <div className="rtnote-image-panel" contentEditable={false} onMouseDown={(event) => event.preventDefault()}>
+          <div className="rtnote-image-controls">
             {previewButton}
             {showSizeControls && (<>
-              <div className="edgeever-image-presets" aria-label={t("editor.imageScale")}>
+              <div className="rtnote-image-presets" aria-label={t("editor.imageScale")}>
                 {IMAGE_WIDTH_PRESETS.map((preset) => (
                   <button
                     key={preset.width}
                     type="button"
-                    className={cn("edgeever-image-preset", width === preset.width && "is-active")}
+                    className={cn("rtnote-image-preset", width === preset.width && "is-active")}
                     aria-label={t(preset.labelKey)}
                     aria-pressed={width === preset.width}
                     onMouseDown={(event) => event.preventDefault()}
@@ -342,7 +342,7 @@ const ResizableImageNodeView = ({
                 ))}
               </div>
               <TooltipProvider delayDuration={0} skipDelayDuration={0}>
-                <div className="edgeever-image-alignments" role="group" aria-label={t("editor.imageAlignment")}>
+                <div className="rtnote-image-alignments" role="group" aria-label={t("editor.imageAlignment")}>
                   {([
                     { value: "left", Icon: AlignLeft },
                     { value: "center", Icon: AlignCenter },
@@ -352,7 +352,7 @@ const ResizableImageNodeView = ({
                       <TooltipTrigger asChild>
                         <button
                           type="button"
-                          className={cn("edgeever-image-alignment", alignment === value && "is-active")}
+                          className={cn("rtnote-image-alignment", alignment === value && "is-active")}
                           aria-label={t(`editor.imageAlignments.${value}`)}
                           aria-pressed={alignment === value}
                           onMouseDown={(event) => event.preventDefault()}
@@ -368,7 +368,7 @@ const ResizableImageNodeView = ({
                     <TooltipTrigger asChild>
                       <button
                         type="button"
-                        className="edgeever-image-resize-handle"
+                        className="rtnote-image-resize-handle"
                         aria-label={t("editor.resizeImage")}
                         onPointerDown={startResize}
                       >
@@ -381,7 +381,7 @@ const ResizableImageNodeView = ({
               </TooltipProvider>
               <button
                 type="button"
-                className={cn("edgeever-image-preset", captioned && "is-active")}
+                className={cn("rtnote-image-preset", captioned && "is-active")}
                 aria-pressed={captioned}
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={toggleCaption}
@@ -391,7 +391,7 @@ const ResizableImageNodeView = ({
               {canGroupAdjacentImages ? (
                 <button
                   type="button"
-                  className="edgeever-image-preset"
+                  className="rtnote-image-preset"
                   aria-label={t("editor.imageGallery.group")}
                   onMouseDown={(event) => event.preventDefault()}
                   onClick={groupAdjacentImages}
@@ -401,11 +401,11 @@ const ResizableImageNodeView = ({
               ) : null}
             </>)}
           </div>
-          <div ref={actionsRef} className="edgeever-image-resource-actions" />
+          <div ref={actionsRef} className="rtnote-image-resource-actions" />
         </div>
       )}
       {!showImageControls && (
-        <div className="edgeever-image-preview-control" contentEditable={false}>
+        <div className="rtnote-image-preview-control" contentEditable={false}>
           {previewButton}
         </div>
       )}

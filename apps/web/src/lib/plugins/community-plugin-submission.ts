@@ -1,4 +1,4 @@
-import { isReservedMarketplacePluginId } from "@edgeever/plugin-api";
+import { isReservedMarketplacePluginId } from "@rtnote/plugin-api";
 import { downloadGithubExtension, parseGithubRepositoryUrl } from "@/lib/plugins/github-plugin-distribution";
 
 export const COMMUNITY_PLUGINS_REPOSITORY_URL = "https://github.com/tianma-if/edgeever-plugins";
@@ -20,7 +20,7 @@ export const precheckCommunityPluginSubmission = async (input: string) => {
   }
   const downloaded = await downloadGithubExtension(coordinates.repositoryUrl);
   if (isReservedMarketplacePluginId(downloaded.manifest.id)) {
-    throw new Error("Plugin ids under org.edgeever are reserved for RTNote.");
+    throw new Error("Plugin ids under org.rtnote are reserved for RTNote.");
   }
   if (!downloaded.checksums.manifestJson) throw new Error("The GitHub release is missing manifest.json.");
   if (downloaded.manifest.type === "plugin" && !downloaded.checksums.mainJs) {

@@ -189,7 +189,7 @@ describe("resource route contracts", () => {
       replaceResourceContent: async (_context, input) => { replacement = input; return resourceRow; },
     }).request("/api/v1/resources/res_1/blob/writeback", { method: "PUT", body: form }, createEnvironment());
     expect(response.status).toBe(200); expect(replacement.preserveFilename).toBe(true);
-    expect(response.headers.get("X-EdgeEver-Writeback")).toBe("preserve-filename");
+    expect(response.headers.get("X-RTNote-Writeback")).toBe("preserve-filename");
   });
 
   test("initializes a bounded multipart upload after memo authorization", async () => {

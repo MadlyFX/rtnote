@@ -75,25 +75,25 @@ export const getStoredTokenAccessLevel = (
 
 export const getTokenScopeLabel = (scope: string, t: TFunction) => t(`mcp.scopes.${scope}`, { defaultValue: scope });
 
-export const EDGE_EVER_SERVER_URL_PLACEHOLDER = "https://your-edgeever-server";
+export const RTNOTE_SERVER_URL_PLACEHOLDER = "https://your-rtnote-server";
 
 // MCP clients connect to the RTNote server, not to the page that shows the
 // settings. In the browser that is the page origin; the desktop renderer runs
-// on its own app origin (`edgeever-app://app`), so it uses the configured
+// on its own app origin (`rtnote-app://app`), so it uses the configured
 // instance URL and shows a placeholder until one is set.
-export const getEdgeEverBaseUrl = () => {
+export const getRTNoteBaseUrl = () => {
   if (typeof window === "undefined") {
-    return EDGE_EVER_SERVER_URL_PLACEHOLDER;
+    return RTNOTE_SERVER_URL_PLACEHOLDER;
   }
 
-  if (window.edgeeverDesktop?.isAvailable) {
-    return getConfiguredDesktopApiBaseUrl().replace(/\/+$/, "") || EDGE_EVER_SERVER_URL_PLACEHOLDER;
+  if (window.rtnoteDesktop?.isAvailable) {
+    return getConfiguredDesktopApiBaseUrl().replace(/\/+$/, "") || RTNOTE_SERVER_URL_PLACEHOLDER;
   }
 
   return window.location.origin;
 };
 
-export const getMcpRemoteServerUrl = () => `${getEdgeEverBaseUrl()}/mcp`;
+export const getMcpRemoteServerUrl = () => `${getRTNoteBaseUrl()}/mcp`;
 
 export const buildMcpRemoteConfig = (token: string) =>
   JSON.stringify(

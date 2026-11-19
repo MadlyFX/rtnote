@@ -24,7 +24,7 @@ RTNote does not publish a container image yet. Clone this repository, provide a
 strong instance password, and let Compose build the image:
 
 ```sh
-export EDGE_EVER_AUTH_PASSWORD='replace-with-a-long-random-password'
+export RTNOTE_AUTH_PASSWORD='replace-with-a-long-random-password'
 docker compose up -d --build
 docker compose ps
 ```
@@ -43,8 +43,8 @@ Compose creates one named volume. Everything that must survive a container
 replacement is under `/data`:
 
 ```text
-/data/edgeever.sqlite            SQLite database
-/data/edgeever-secrets.json      credential encryption secret
+/data/rtnote.sqlite            SQLite database
+/data/rtnote-secrets.json      credential encryption secret
 /data/resources/                 local images and attachments
 ```
 
@@ -58,20 +58,20 @@ Common environment variables:
 
 | Variable                               | Default | Purpose                                                     |
 | -------------------------------------- | ------- | ----------------------------------------------------------- |
-| `EDGE_EVER_AUTH_USERNAME`              | `admin` | Initial administrator username                              |
-| `EDGE_EVER_AUTH_PASSWORD`              | none    | Initial password; required for a new database               |
-| `EDGE_EVER_AUTH_PASSWORD_HASH`         | none    | PBKDF2 hash alternative to the plaintext bootstrap password |
-| `EDGE_EVER_SESSION_TTL_DAYS`           | `400`   | Login session lifetime                                      |
-| `EDGE_EVER_IDLE_TIMEOUT_SECONDS`       | `120`   | Bun streaming idle timeout, from 10 to 255 seconds          |
-| `EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY` | persisted on `/data` | Optional independent encryption key for speech service credentials and two-factor secrets. If unset, Docker stores the authentication secret or a generated key in `/data/edgeever-secrets.json`. |
-| `EDGE_EVER_COMMUNITY_REGISTRY_URL` | unset | Optional HTTPS URL of the signed community plugin catalog. Leave it unset to show only the built-in official plugins. |
+| `RTNOTE_AUTH_USERNAME`              | `admin` | Initial administrator username                              |
+| `RTNOTE_AUTH_PASSWORD`              | none    | Initial password; required for a new database               |
+| `RTNOTE_AUTH_PASSWORD_HASH`         | none    | PBKDF2 hash alternative to the plaintext bootstrap password |
+| `RTNOTE_SESSION_TTL_DAYS`           | `400`   | Login session lifetime                                      |
+| `RTNOTE_IDLE_TIMEOUT_SECONDS`       | `120`   | Bun streaming idle timeout, from 10 to 255 seconds          |
+| `RTNOTE_CREDENTIALS_ENCRYPTION_KEY` | persisted on `/data` | Optional independent encryption key for speech service credentials and two-factor secrets. If unset, Docker stores the authentication secret or a generated key in `/data/rtnote-secrets.json`. |
+| `RTNOTE_COMMUNITY_REGISTRY_URL` | unset | Optional HTTPS URL of the signed community plugin catalog. Leave it unset to show only the built-in official plugins. |
 
 For secrets, append `_FILE` to a supported variable and point it at a Docker
-secret, for example `EDGE_EVER_AUTH_PASSWORD_FILE=/run/secrets/auth_password`.
+secret, for example `RTNOTE_AUTH_PASSWORD_FILE=/run/secrets/auth_password`.
 The password/hash and S3 access credentials support this form. Do not set both
 the direct variable and its `_FILE` counterpart.
 
-`EDGE_EVER_ALLOW_UNAUTHENTICATED=true` is available for isolated development
+`RTNOTE_ALLOW_UNAUTHENTICATED=true` is available for isolated development
 only. Do not expose an unauthenticated instance to a network.
 
 ## S3-compatible attachment storage
@@ -81,13 +81,13 @@ S3, Cloudflare R2, or another S3-compatible service:
 
 ```yaml
 environment:
-  EDGE_EVER_STORAGE_BACKEND: s3
-  EDGE_EVER_S3_ENDPOINT: https://s3.example.com
-  EDGE_EVER_S3_REGION: us-east-1
-  EDGE_EVER_S3_BUCKET: edgeever
-  EDGE_EVER_S3_ACCESS_KEY_ID_FILE: /run/secrets/s3_access_key
-  EDGE_EVER_S3_SECRET_ACCESS_KEY_FILE: /run/secrets/s3_secret_key
-  EDGE_EVER_S3_FORCE_PATH_STYLE: "true"
+  RTNOTE_STORAGE_BACKEND: s3
+  RTNOTE_S3_ENDPOINT: https://s3.example.com
+  RTNOTE_S3_REGION: us-east-1
+  RTNOTE_S3_BUCKET: rtnote
+  RTNOTE_S3_ACCESS_KEY_ID_FILE: /run/secrets/s3_access_key
+  RTNOTE_S3_SECRET_ACCESS_KEY_FILE: /run/secrets/s3_secret_key
+  RTNOTE_S3_FORCE_PATH_STYLE: "true"
 ```
 
 Changing the default backend does not migrate historical attachments. Keep
@@ -105,16 +105,16 @@ administration port.
 Use RTNote's ZIP export for portable content backups. Also make a cold copy
 of the `/data` volume for complete instance recovery:
 
-1. Run `docker compose stop edgeever` and wait for the shutdown-complete log.
+1. Run `docker compose stop rtnote` and wait for the shutdown-complete log.
    RTNote checkpoints SQLite's WAL during graceful shutdown.
 2. Copy or snapshot the entire named volume, including the SQLite file,
-   `edgeever-secrets.json`, and the `resources` directory.
-3. Start the service with `docker compose start edgeever`.
+   `rtnote-secrets.json`, and the `resources` directory.
+3. Start the service with `docker compose start rtnote`.
 
-Docker persists the credential-encryption root in `/data/edgeever-secrets.json`,
+Docker persists the credential-encryption root in `/data/rtnote-secrets.json`,
 so a complete `/data` volume backup can decrypt saved speech service and object-storage
 credentials after a container rebuild. Keep any explicit
-`EDGE_EVER_CREDENTIALS_ENCRYPTION_KEY` in a separate secret backup if you
+`RTNOTE_CREDENTIALS_ENCRYPTION_KEY` in a separate secret backup if you
 manage secrets outside the volume. Cloudflare deployments still require the
 Worker authentication secret; they do not use this file. When S3 storage is
 enabled, back up the bucket separately.
@@ -151,8 +151,8 @@ restore flow. Do not copy a live D1 database file or rewrite migration history.
 ```sh
 docker build --tag rtnote:local .
 docker run --rm -p 8787:8787 \
-  -e EDGE_EVER_AUTH_PASSWORD='replace-with-a-long-random-password' \
-  -v edgeever-data:/data \
+  -e RTNOTE_AUTH_PASSWORD='replace-with-a-long-random-password' \
+  -v rtnote-data:/data \
   rtnote:local
 ```
 
@@ -164,14 +164,14 @@ images report them as unknown unless you pass the build arguments below.
 
 | Field | Source | Meaning |
 | ----- | ------ | ------- |
-| Instance build | `--build-arg EDGE_EVER_BUILD_ID` | Commit the image was built from |
-| Image built at | `--build-arg EDGE_EVER_BUILD_CREATED_AT` (ISO 8601) | When the image was built, not when it was deployed or started |
-| Image build source | `--build-arg EDGE_EVER_BUILD_TRIGGER` / `EDGE_EVER_BUILD_METHOD` | How the image was produced, for example `github_release` · `github_actions` for official release images |
-| Container image source | runtime `EDGE_EVER_CONTAINER_IMAGE` | Registry the image was pulled from; set by the official `compose.yaml` |
-| Deployment source | runtime `EDGE_EVER_DEPLOYMENT_TRIGGER` / `EDGE_EVER_DEPLOYMENT_METHOD` | How you deployed this instance; unknown unless you set it |
+| Instance build | `--build-arg RTNOTE_BUILD_ID` | Commit the image was built from |
+| Image built at | `--build-arg RTNOTE_BUILD_CREATED_AT` (ISO 8601) | When the image was built, not when it was deployed or started |
+| Image build source | `--build-arg RTNOTE_BUILD_TRIGGER` / `RTNOTE_BUILD_METHOD` | How the image was produced, for example `github_release` · `github_actions` for official release images |
+| Container image source | runtime `RTNOTE_CONTAINER_IMAGE` | Registry the image was pulled from; set by the official `compose.yaml` |
+| Deployment source | runtime `RTNOTE_DEPLOYMENT_TRIGGER` / `RTNOTE_DEPLOYMENT_METHOD` | How you deployed this instance; unknown unless you set it |
 | Instance deployment time | Cloudflare only | Docker does not report a deployment time |
 
-Triggers are `github_release`, `main_push` or `manual`. `EDGE_EVER_DEPLOYMENT_METHOD=docker`
+Triggers are `github_release`, `main_push` or `manual`. `RTNOTE_DEPLOYMENT_METHOD=docker`
 describes a container deployment, while `github_actions`, `cloudflare_workers_builds`
 and `local_cli` describe the mechanism that ran a build or deployment. RTNote
 never infers Docker or the registry on its own, because the same server also runs
@@ -182,17 +182,17 @@ For a self-built image:
 
 ```sh
 docker build \
-  --build-arg EDGE_EVER_BUILD_ID="$(git rev-parse HEAD)" \
-  --build-arg EDGE_EVER_BUILD_CREATED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-  --build-arg EDGE_EVER_BUILD_TRIGGER=manual \
-  --build-arg EDGE_EVER_BUILD_METHOD=local_cli \
+  --build-arg RTNOTE_BUILD_ID="$(git rev-parse HEAD)" \
+  --build-arg RTNOTE_BUILD_CREATED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+  --build-arg RTNOTE_BUILD_TRIGGER=manual \
+  --build-arg RTNOTE_BUILD_METHOD=local_cli \
   --tag rtnote:local .
 docker run --rm -p 8787:8787 \
-  -e EDGE_EVER_AUTH_PASSWORD='replace-with-a-long-random-password' \
-  -e EDGE_EVER_CONTAINER_IMAGE=rtnote:local \
-  -e EDGE_EVER_DEPLOYMENT_TRIGGER=manual \
-  -e EDGE_EVER_DEPLOYMENT_METHOD=docker \
-  -v edgeever-data:/data \
+  -e RTNOTE_AUTH_PASSWORD='replace-with-a-long-random-password' \
+  -e RTNOTE_CONTAINER_IMAGE=rtnote:local \
+  -e RTNOTE_DEPLOYMENT_TRIGGER=manual \
+  -e RTNOTE_DEPLOYMENT_METHOD=docker \
+  -v rtnote-data:/data \
   rtnote:local
 ```
 

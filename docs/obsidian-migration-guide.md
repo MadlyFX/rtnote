@@ -2,7 +2,7 @@
 
 
 > 💡 **Notice**: All third-party note migration guides have been merged and updated into a unified guide:
-> 👉 **[Migrate from Third-Party Notes to RTNote: The Complete Guide](note-migration-guide.en-US.md)** (covering native GUI one-click import and AI Agent / MCP migration).
+> 👉 **[Migrate from Third-Party Notes to RTNote: The Complete Guide](note-migration-guide.md)** (covering native GUI one-click import and AI Agent / MCP migration).
 
 RTNote natively supports importing your entire Obsidian knowledge base (Vault). In either the Web app or the Electron desktop client, **no manual format conversion, command-line tools, or custom scripts are needed**. You can migrate an Obsidian Vault folder or ZIP archive into RTNote seamlessly through a graphical interface.
 

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { MemoSortMode } from "@edgeever/client";
+import type { MemoSortMode } from "@rtnote/client";
 import { Modal, ScrollView, View } from "react-native";
 import { Check, CheckSquare, FileText, Folder, Image, List, MoreVertical, Share2, Sparkles, Tag, Trash2, X } from "../components/icons";
 import { Pressable, Text } from "../components/LocalizedText";

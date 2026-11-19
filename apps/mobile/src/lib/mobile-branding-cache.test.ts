@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { DEFAULT_RESOLVED_BRANDING, resolveBrandingSettings } from "@edgeever/shared/branding";
+import { DEFAULT_RESOLVED_BRANDING, resolveBrandingSettings } from "@rtnote/shared/branding";
 import {
   MOBILE_BRANDING_REFRESH_INTERVAL_MS,
   parseMobileBrandingCache,

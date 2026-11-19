@@ -89,7 +89,7 @@ export type WorkspaceExtension = {
   verified: boolean;
   repositoryUrl: string | null;
   releaseTag: string | null;
-  publisher: "edgeever" | null;
+  publisher: "rtnote" | null;
 };
 
 export type ScheduledTaskMissedRunPolicy = "run-once" | "skip";

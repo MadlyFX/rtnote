@@ -7,9 +7,9 @@ import { VOICE_MEMO_NODE_TYPE } from "./voice-memo-names";
 import { EMPTY_EXTERNAL_LINK_NODE_TYPE } from "./empty-external-link";
 import type { SupportedLocale } from "./i18n/locales";
 
-export const UNSUPPORTED_BLOCK_NODE_TYPE = "edgeeverUnsupportedBlock" as const;
-export const UNSUPPORTED_INLINE_NODE_TYPE = "edgeeverUnsupportedInline" as const;
-export const UNSUPPORTED_MARK_TYPE = "edgeeverUnsupportedMark" as const;
+export const UNSUPPORTED_BLOCK_NODE_TYPE = "rtnoteUnsupportedBlock" as const;
+export const UNSUPPORTED_INLINE_NODE_TYPE = "rtnoteUnsupportedInline" as const;
+export const UNSUPPORTED_MARK_TYPE = "rtnoteUnsupportedMark" as const;
 
 const FALLBACK_NODE_TYPES = new Set<string>([
   UNSUPPORTED_BLOCK_NODE_TYPE,
@@ -37,13 +37,13 @@ export const NATIVE_EDITOR_NODE_TYPES = new Set<string>([
   "details",
   "detailsSummary",
   "detailsContent",
-  "edgeeverImageGallery",
+  "rtnoteImageGallery",
   "table",
   "tableRow",
   "tableHeader",
   "tableCell",
-  "edgeeverMergeDivider",
-  "edgeeverVideoNote",
+  "rtnoteMergeDivider",
+  "rtnoteVideoNote",
   VOICE_MEMO_NODE_TYPE,
   EMPTY_EXTERNAL_LINK_NODE_TYPE,
   "inlineMath",
@@ -140,7 +140,7 @@ export const UnsupportedBlock = Node.create({
   },
 
   parseHTML() {
-    return [{ tag: "div[data-edgeever-unsupported-block]" }];
+    return [{ tag: "div[data-rtnote-unsupported-block]" }];
   },
 
   renderHTML({ node }) {
@@ -148,9 +148,9 @@ export const UnsupportedBlock = Node.create({
     return [
       "div",
       {
-        "data-edgeever-unsupported-block": "true",
+        "data-rtnote-unsupported-block": "true",
         "data-original-type": type,
-        class: "edgeever-unsupported-content edgeever-unsupported-content--block",
+        class: "rtnote-unsupported-content rtnote-unsupported-content--block",
         contenteditable: "false",
       },
       typeof node.attrs.displayLabel === "string" && node.attrs.displayLabel
@@ -176,7 +176,7 @@ export const UnsupportedInline = Node.create({
   },
 
   parseHTML() {
-    return [{ tag: "span[data-edgeever-unsupported-inline]" }];
+    return [{ tag: "span[data-rtnote-unsupported-inline]" }];
   },
 
   renderHTML({ node }) {
@@ -184,9 +184,9 @@ export const UnsupportedInline = Node.create({
     return [
       "span",
       {
-        "data-edgeever-unsupported-inline": "true",
+        "data-rtnote-unsupported-inline": "true",
         "data-original-type": type,
-        class: "edgeever-unsupported-content edgeever-unsupported-content--inline",
+        class: "rtnote-unsupported-content rtnote-unsupported-content--inline",
         contenteditable: "false",
       },
       typeof node.attrs.displayLabel === "string" && node.attrs.displayLabel
@@ -204,13 +204,13 @@ export const UnsupportedMark = Mark.create({
   },
 
   parseHTML() {
-    return [{ tag: "span[data-edgeever-unsupported-mark]" }];
+    return [{ tag: "span[data-rtnote-unsupported-mark]" }];
   },
 
   renderHTML() {
     return ["span", {
-      "data-edgeever-unsupported-mark": "true",
-      class: "edgeever-unsupported-mark",
+      "data-rtnote-unsupported-mark": "true",
+      class: "rtnote-unsupported-mark",
     }, 0];
   },
 });

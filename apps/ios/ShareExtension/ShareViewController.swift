@@ -5,7 +5,7 @@ import UniformTypeIdentifiers
 class ShareViewController: UIViewController {
     private let appGroupId = "group.com.madlyfx.rtnote"
     private let hostScheme = "rtnote"
-    private let payloadKey = "edgeever.share.payload"
+    private let payloadKey = "rtnote.share.payload"
     private let imageDirectoryName = "incoming-share-images"
 
     override func viewDidLoad() {

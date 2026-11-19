@@ -1,4 +1,4 @@
-import { getResourceIdFromUrl, normalizeAttachmentByteSize } from "@edgeever/shared";
+import { getResourceIdFromUrl, normalizeAttachmentByteSize } from "@rtnote/shared";
 import { useEffect, useState } from "react";
 import { fetchAttachmentByteSize } from "@/lib/attachment-byte-size";
 
@@ -41,14 +41,14 @@ export const useAttachmentByteSize = (url: string, storedByteSize: unknown) => {
       byteSizeCache.set(url, byteSize);
       setUpdated({ url, byteSize });
     };
-    const unsubscribe = window.edgeeverDesktop?.onAttachmentResourceSaved?.(resource => {
+    const unsubscribe = window.rtnoteDesktop?.onAttachmentResourceSaved?.(resource => {
       if (resourceId !== resource.id) return;
       receivedUpdate = true;
       apply(resource.byteSize);
     });
     // A note may mount after the save event, including after a restart. Read
     // acknowledged local metadata rather than refetching the remote catalog.
-    void window.edgeeverDesktop?.attachmentWritebacks?.().then(items => {
+    void window.rtnoteDesktop?.attachmentWritebacks?.().then(items => {
       if (!active || receivedUpdate) return;
       const latest = items.filter(item => item.resourceId === resourceId && item.byteSize !== null)
         .sort((left, right) => right.metadataAt - left.metadataAt)[0];

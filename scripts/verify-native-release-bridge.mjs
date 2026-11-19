@@ -42,7 +42,7 @@ if (process.platform === "darwin") {
   console.log("Installing published Windows predecessor into the isolated directory");
   const result = spawnSync(join(previous, oldExe), ["/S", `/D=${installed}`], {
     stdio: "ignore", timeout: 120_000, windowsHide: true,
-    env: { ...process.env, EDGE_EVER_DISABLE_AUTO_UPDATE: "1" },
+    env: { ...process.env, RTNOTE_DISABLE_AUTO_UPDATE: "1" },
   });
   if (result.status !== 0) throw new Error(`Old release NSIS installation failed: ${result.status}`);
   executable = join(installed, "RTNote.exe");
@@ -70,7 +70,7 @@ const children = [];
 const launch = async (update) => {
   let endpoint;
   const child = spawn(executable, ["--inspect=127.0.0.1:0", `--user-data-dir=${profile}`], {
-    env: { ...process.env, EDGE_EVER_DISABLE_AUTO_UPDATE: update ? "0" : "1" }, stdio: ["ignore", "pipe", "pipe"],
+    env: { ...process.env, RTNOTE_DISABLE_AUTO_UPDATE: update ? "0" : "1" }, stdio: ["ignore", "pipe", "pipe"],
   });
   children.push(child);
   for (const stream of [child.stdout, child.stderr]) stream.on("data", (chunk) => {

@@ -18,4 +18,4 @@ The picker works on accessible HTTP(S) pages. Browser-internal pages and extensi
 
 The selection interaction and wrapper/history algorithm are adapted from [MaoXian Web Clipper](https://github.com/mika-cn/maoxian-web-clipper/blob/e69fbf9c04bad7051d3810e1cef4d82138f812df/src/js/content/ui.js). Its MIT notice is preserved in [third-party notices](../apps/extension/THIRD_PARTY_NOTICES.md) and included in built extension packages.
 
-See the [change checklist](changes/2026-10-29-region-clip.md) for validation evidence and remaining platform checks. Build Chromium with `bun run build:extension` and load `apps/extension/dist` as an unpacked development extension; Firefox uses `bun run build:extension:firefox`. These builds do not update an installed extension or publish to a store.
+Build Chromium with `bun run build:extension` and load `apps/extension/dist` as an unpacked development extension; Firefox uses `bun run build:extension:firefox`. These builds do not update an installed extension or publish to a store.

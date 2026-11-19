@@ -5,10 +5,10 @@ import {
   type NoteProsePaletteChoice,
   type NoteProseStylePreferences,
   type ResolvedNoteProse,
-} from "@edgeever/shared";
-import { catalogCodeFontStack, isRemoteNoteImageFont } from "@edgeever/shared/font-catalog-data";
-import { LEGACY_BODY_FONTS } from "@edgeever/shared/font-defaults";
-import type { BodyFontId } from "@edgeever/shared/font-loader";
+} from "@rtnote/shared";
+import { catalogCodeFontStack, isRemoteNoteImageFont } from "@rtnote/shared/font-catalog-data";
+import { LEGACY_BODY_FONTS } from "@rtnote/shared/font-defaults";
+import type { BodyFontId } from "@rtnote/shared/font-loader";
 import type { MermaidThemeName } from "@/components/ThemeProvider";
 import { normalizeMermaidThemePreference, resolveMermaidTheme } from "@/components/ThemeProvider";
 import { sanitizeAndScopeCss } from "@/lib/css-sandbox";
@@ -61,31 +61,31 @@ const paletteRules = (palette: NoteProsePaletteChoice) => {
   const colors = NOTE_PROSE_PALETTES[palette];
   if (!colors) return "";
   return [
-    ".edgeever-print-content a:not(.edgeever-attachment-link):not([href*=\"/api/v1/resources/\"]) {",
+    ".rtnote-print-content a:not(.rtnote-attachment-link):not([href*=\"/api/v1/resources/\"]) {",
     `  color: ${colors.link};`,
     `  text-decoration-color: color-mix(in srgb, ${colors.link} 45%, transparent);`,
     "}",
-    ".edgeever-print-content strong,",
-    ".edgeever-print-content b {",
+    ".rtnote-print-content strong,",
+    ".rtnote-print-content b {",
     `  color: ${colors.accent};`,
     "}",
-    ".edgeever-print-content ul[data-type=\"taskList\"] li[data-checked] > label input {",
+    ".rtnote-print-content ul[data-type=\"taskList\"] li[data-checked] > label input {",
     `  accent-color: ${colors.accent};`,
     "}",
-    ".edgeever-print-content th {",
+    ".rtnote-print-content th {",
     `  background: ${colors.accent};`,
     "  color: #ffffff;",
     "  font-weight: 700;",
     "}",
-    ".edgeever-print-content th strong,",
-    ".edgeever-print-content th b {",
+    ".rtnote-print-content th strong,",
+    ".rtnote-print-content th b {",
     "  color: #ffffff;",
     "}",
-    ".edgeever-print-content td strong,",
-    ".edgeever-print-content td b {",
+    ".rtnote-print-content td strong,",
+    ".rtnote-print-content td b {",
     "  color: #111827;",
     "}",
-    ".edgeever-print-content tbody tr:nth-child(even) td {",
+    ".rtnote-print-content tbody tr:nth-child(even) td {",
     "  background: #f9fafb;",
     "}",
   ].join("\n");
@@ -102,36 +102,36 @@ const proseStyleRules = (
   const rules: string[] = [];
   if (proseStyle.headingStyle === "bar") {
     rules.push(
-      `.edgeever-print-content h2 { border-left: 4px solid ${accent}; padding-left: 10px; }`,
-      `.edgeever-print-content h3 { border-left: 3px solid ${accent}; padding-left: 8px; }`,
+      `.rtnote-print-content h2 { border-left: 4px solid ${accent}; padding-left: 10px; }`,
+      `.rtnote-print-content h3 { border-left: 3px solid ${accent}; padding-left: 8px; }`,
     );
   } else if (proseStyle.headingStyle === "numbered") {
     rules.push(
-      ".edgeever-print-content { counter-reset: note-prose-h2; }",
-      ".edgeever-print-content h1 { font-size: calc(var(--editor-body-font-size, 16px) * 1.75); }",
-      ".edgeever-print-content h4 { font-size: var(--editor-body-font-size, 16px); }",
-      `.edgeever-print-content h2 { font-size: calc(var(--editor-body-font-size, 16px) * 1.4); counter-increment: note-prose-h2; padding-bottom: 6px; border-bottom: 2px solid ${divider}; }`,
-      `.edgeever-print-content h2::before { content: counter(note-prose-h2, decimal-leading-zero) " · "; color: ${accent}; font-weight: 800; letter-spacing: 0.04em; }`,
-      `.edgeever-print-content h3 { display: block; font-size: calc(var(--editor-body-font-size, 16px) * 1.15); font-weight: 700; line-height: 1.4; letter-spacing: -0.01em; margin: 1.6em 0 0.6em; color: #111827; }`,
+      ".rtnote-print-content { counter-reset: note-prose-h2; }",
+      ".rtnote-print-content h1 { font-size: calc(var(--editor-body-font-size, 16px) * 1.75); }",
+      ".rtnote-print-content h4 { font-size: var(--editor-body-font-size, 16px); }",
+      `.rtnote-print-content h2 { font-size: calc(var(--editor-body-font-size, 16px) * 1.4); counter-increment: note-prose-h2; padding-bottom: 6px; border-bottom: 2px solid ${divider}; }`,
+      `.rtnote-print-content h2::before { content: counter(note-prose-h2, decimal-leading-zero) " · "; color: ${accent}; font-weight: 800; letter-spacing: 0.04em; }`,
+      `.rtnote-print-content h3 { display: block; font-size: calc(var(--editor-body-font-size, 16px) * 1.15); font-weight: 700; line-height: 1.4; letter-spacing: -0.01em; margin: 1.6em 0 0.6em; color: #111827; }`,
     );
   }
   if (proseStyle.quoteStyle === "dashed") {
     rules.push(
-      ".edgeever-print-content blockquote { background: #f9fafb; border: 1px dashed #d1d5db; border-radius: 6px; padding: 12px 16px; }",
+      ".rtnote-print-content blockquote { background: #f9fafb; border: 1px dashed #d1d5db; border-radius: 6px; padding: 12px 16px; }",
     );
   } else if (proseStyle.quoteStyle === "accent-bar") {
     rules.push(
-      `.edgeever-print-content blockquote { background: ${surface}; border: 0; border-left: 3px solid ${accent}; border-radius: 0 6px 6px 0; padding: 12px 16px; }`,
+      `.rtnote-print-content blockquote { background: ${surface}; border: 0; border-left: 3px solid ${accent}; border-radius: 0 6px 6px 0; padding: 12px 16px; }`,
     );
   } else if (proseStyle.quoteStyle === "minimal-rule") {
     rules.push(
-      ".edgeever-print-content blockquote { background: transparent; border: 0; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; border-radius: 0; padding: 12px 4px; }",
+      ".rtnote-print-content blockquote { background: transparent; border: 0; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; border-radius: 0; padding: 12px 4px; }",
     );
   }
   if (proseStyle.emphasisStyle === "marker") {
     rules.push(
-      `.edgeever-print-content u { text-decoration: none; border-bottom: 2px solid ${divider}; padding-bottom: 1px; }`,
-      ".edgeever-print-content mark { background-color: #fde68a; color: #111827; padding: 1px 4px; border-radius: 2px; }",
+      `.rtnote-print-content u { text-decoration: none; border-bottom: 2px solid ${divider}; padding-bottom: 1px; }`,
+      ".rtnote-print-content mark { background-color: #fde68a; color: #111827; padding: 1px 4px; border-radius: 2px; }",
     );
   }
   return rules.join("\n");

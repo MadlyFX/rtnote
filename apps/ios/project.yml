@@ -1,4 +1,4 @@
-name: EdgeEver
+name: RTNote
 options:
   bundleIdPrefix: com.madlyfx
   deploymentTarget:
@@ -35,22 +35,22 @@ configFiles:
   Debug: Config/Debug.xcconfig
   Release: Config/Release.xcconfig
 targets:
-  EdgeEver:
+  RTNote:
     type: application
     platform: iOS
     sources:
-      - path: EdgeEver
+      - path: RTNote
         excludes:
           - Resources/Info.plist
           - Resources/EditorBundle/assets
-      - path: EdgeEver/Resources/EditorBundle/assets
+      - path: RTNote/Resources/EditorBundle/assets
         type: folder
         buildPhase: resources
     resources:
-      - path: EdgeEver/Resources/Assets.xcassets
-      - path: EdgeEver/Resources/Localizable.xcstrings
-      - path: EdgeEver/Resources/PrivacyInfo.xcprivacy
-      - path: EdgeEver/Resources/EditorBundle
+      - path: RTNote/Resources/Assets.xcassets
+      - path: RTNote/Resources/Localizable.xcstrings
+      - path: RTNote/Resources/PrivacyInfo.xcprivacy
+      - path: RTNote/Resources/EditorBundle
         excludes:
           - assets
     dependencies:
@@ -66,9 +66,9 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.madlyfx.rtnote
-        PRODUCT_NAME: EdgeEver
-        INFOPLIST_FILE: EdgeEver/Resources/Info.plist
-        CODE_SIGN_ENTITLEMENTS: EdgeEver/Resources/EdgeEver.entitlements
+        PRODUCT_NAME: RTNote
+        INFOPLIST_FILE: RTNote/Resources/Info.plist
+        CODE_SIGN_ENTITLEMENTS: RTNote/Resources/RTNote.entitlements
         GENERATE_INFOPLIST_FILE: false
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
@@ -80,7 +80,7 @@ targets:
         DEVELOPMENT_TEAM: ""
         CODE_SIGN_STYLE: Automatic
     info:
-      path: EdgeEver/Resources/Info.plist
+      path: RTNote/Resources/Info.plist
       properties:
         CFBundleDisplayName: RTNote
         CFBundleName: RTNote
@@ -111,13 +111,13 @@ targets:
         UIBackgroundModes:
           - audio
     entitlements:
-      path: EdgeEver/Resources/EdgeEver.entitlements
+      path: RTNote/Resources/RTNote.entitlements
       properties:
         com.apple.security.application-groups:
           - group.com.madlyfx.rtnote
     scheme:
       testTargets:
-        - EdgeEverTests
+        - RTNoteTests
   ShareExtension:
     type: app-extension
     platform: iOS
@@ -142,16 +142,16 @@ targets:
       properties:
         com.apple.security.application-groups:
           - group.com.madlyfx.rtnote
-  EdgeEverTests:
+  RTNoteTests:
     type: bundle.unit-test
     platform: iOS
     sources:
-      - path: Tests/EdgeEverTests
+      - path: Tests/RTNoteTests
     dependencies:
-      - target: EdgeEver
+      - target: RTNote
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.madlyfx.rtnote.tests
         GENERATE_INFOPLIST_FILE: true
-        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/EdgeEver.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/EdgeEver"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/RTNote.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/RTNote"
         BUNDLE_LOADER: "$(TEST_HOST)"

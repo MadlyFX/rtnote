@@ -26,7 +26,7 @@
   "completePluginConfiguration": {
     "message": "先に拡張機能の設定を完了してください"
   },
-  "savedToEdgeEver": {
+  "savedToRTNote": {
     "message": "RTNote に保存しました。"
   },
   "saveFailed": {
@@ -202,7 +202,7 @@
   "emptyPageContent": {
     "message": "（このページから読み取れる本文はありませんでした）"
   },
-  "saveSelectionToEdgeEver": {
+  "saveSelectionToRTNote": {
     "message": "選択したテキストを RTNote に保存"
   },
   "selectionSaveHint": {
@@ -220,7 +220,7 @@
   "selectionNoteFallbackTitle": {
     "message": "選択した文字"
   },
-  "saveImageToEdgeEver": {
+  "saveImageToRTNote": {
     "message": "画像を RTNote に保存"
   },
   "imageSaveHint": {
@@ -279,7 +279,7 @@
   "imageSaveExpired": {
     "message": "この保存は終了しています。画像を右クリックしてやり直してください。"
   },
-  "saveTweetToEdgeEver": {
+  "saveTweetToRTNote": {
     "message": "投稿を RTNote に保存"
   },
   "tweetSaveHint": {
@@ -321,7 +321,7 @@
   "tweetTimeLabel": {
     "message": "日時"
   },
-  "saveGithubRepoToEdgeEver": {
+  "saveGithubRepoToRTNote": {
     "message": "リポジトリ情報を RTNote に保存"
   },
   "githubRepoSaveHint": {
@@ -351,7 +351,7 @@
   "githubRepoTopicsLabel": {
     "message": "トピック"
   },
-  "saveXhsToEdgeEver": {
+  "saveXhsToRTNote": {
     "message": "ノートを RTNote に保存"
   },
   "savingXhs": {
@@ -393,7 +393,7 @@
   "xhsLocationLabel": {
     "message": "場所"
   },
-  "saveZhihuToEdgeEver": {
+  "saveZhihuToRTNote": {
     "message": "回答・記事を RTNote に保存"
   },
   "zhihuQuestionLabel": {
@@ -447,7 +447,7 @@
   "zhihuSaveWindowTitle": {
     "message": "回答・記事を RTNote に保存"
   },
-  "saveRedditToEdgeEver": {
+  "saveRedditToRTNote": {
     "message": "Reddit の投稿を RTNote に保存"
   },
   "savingReddit": {
@@ -471,7 +471,7 @@
   "redditLinkLabel": {
     "message": "外部リンク"
   },
-  "saveVideoNoteToEdgeEver": {
+  "saveVideoNoteToRTNote": {
     "message": "動画ノートを RTNote に保存"
   },
   "savingVideoNote": {
@@ -528,13 +528,13 @@
   "videoNoteFallbackTitle": {
     "message": "動画ノート"
   },
-  "saveHackerNewsToEdgeEver": {
+  "saveHackerNewsToRTNote": {
     "message": "Hacker News の投稿を RTNote に保存"
   },
-  "saveV2exToEdgeEver": {
+  "saveV2exToRTNote": {
     "message": "V2EX のトピックを RTNote に保存"
   },
-  "saveXiaoyuzhouToEdgeEver": {
+  "saveXiaoyuzhouToRTNote": {
     "message": "小宇宙のエピソードを RTNote に保存"
   },
   "savingPlatformClip": {
@@ -582,19 +582,19 @@
   "platformPodcastLabel": {
     "message": "番組"
   },
-  "saveFacebookToEdgeEver": {
+  "saveFacebookToRTNote": {
     "message": "Facebook の投稿を RTNote に保存"
   },
-  "saveInstagramToEdgeEver": {
+  "saveInstagramToRTNote": {
     "message": "Instagram の投稿を RTNote に保存"
   },
-  "saveLinkedinToEdgeEver": {
+  "saveLinkedinToRTNote": {
     "message": "LinkedIn の投稿を RTNote に保存"
   },
-  "saveThreadsToEdgeEver": {
+  "saveThreadsToRTNote": {
     "message": "Threads の投稿を RTNote に保存"
   },
-  "saveBlueskyToEdgeEver": {
+  "saveBlueskyToRTNote": {
     "message": "Bluesky の投稿を RTNote に保存"
   },
   "socialSelectPost": {
@@ -621,7 +621,7 @@
   "platformXiaoyuzhou": {
     "message": "Xiaoyuzhou"
   },
-  "saveSubstackNoteToEdgeEver": {
+  "saveSubstackNoteToRTNote": {
     "message": "Substack Note を RTNote に保存"
   },
   "adaptedPlatformsTitle": {
@@ -678,10 +678,10 @@
   "clipNotifications": {
     "message": "クリップの通知"
   },
-  "saveBossToEdgeEver": {
+  "saveBossToRTNote": {
     "message": "BOSS直聘の求人をRTNoteに保存"
   },
-  "saveXueqiuToEdgeEver": {
+  "saveXueqiuToRTNote": {
     "message": "雪球の投稿をRTNoteに保存"
   },
   "platformBoss": {
@@ -699,31 +699,31 @@
   "platformWechat": {
     "message": "WeChat"
   },
-  "saveWechatToEdgeEver": {
+  "saveWechatToRTNote": {
     "message": "WeChatを RTNote に保存"
   },
   "platformJike": {
     "message": "Jike"
   },
-  "saveJikeToEdgeEver": {
+  "saveJikeToRTNote": {
     "message": "Jikeを RTNote に保存"
   },
   "platformSspai": {
     "message": "SSPAI"
   },
-  "saveSspaiToEdgeEver": {
+  "saveSspaiToRTNote": {
     "message": "SSPAIを RTNote に保存"
   },
   "platformJuejin": {
     "message": "Juejin"
   },
-  "saveJuejinToEdgeEver": {
+  "saveJuejinToRTNote": {
     "message": "Juejinを RTNote に保存"
   },
   "platformDouban": {
     "message": "Douban"
   },
-  "saveDoubanToEdgeEver": {
+  "saveDoubanToRTNote": {
     "message": "Doubanを RTNote に保存"
   },
   "platformOfficialAccountLabel": {

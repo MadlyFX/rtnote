@@ -5,7 +5,7 @@ import {
   type BrandColorScheme,
   type BrandColorToken,
   type ResolvedBranding,
-} from "@edgeever/shared/branding";
+} from "@rtnote/shared/branding";
 import {
   setMobileBrandColorMaps,
   stockMobileDarkThemeColor,
@@ -52,7 +52,7 @@ const STOCK_ACCENT_SHADES: Record<string, Shade> = {
   "#14532d": 900,
 };
 
-/** Same shape as the web accent scale in `@edgeever/shared/branding`. */
+/** Same shape as the web accent scale in `@rtnote/shared/branding`. */
 const accentScale = (accent: string, mode: BrandColorMode, darkSurface: string): Record<Shade, string> => {
   const base = hexToRgb(accent);
   if (mode === "light") {

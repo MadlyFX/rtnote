@@ -10,7 +10,7 @@ export const windowsUpdateInstallerRunning = (name) => {
 
 export const stopWindowsUpdateFixtures = () => {
   // This name belongs only to the isolated CI fixture, never to RTNote.exe.
-  spawnSync("powershell", ["-NoProfile", "-Command", "Get-Process -Name EdgeEverUpdateVerifier -ErrorAction SilentlyContinue | ForEach-Object { taskkill /PID $_.Id /T /F | Out-Null }"], {
+  spawnSync("powershell", ["-NoProfile", "-Command", "Get-Process -Name RTNoteUpdateVerifier -ErrorAction SilentlyContinue | ForEach-Object { taskkill /PID $_.Id /T /F | Out-Null }"], {
     stdio: "ignore", timeout: 30_000, windowsHide: true,
   });
 };

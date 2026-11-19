@@ -27,7 +27,7 @@ const signingIdentity = (identity) => {
 // and no hardened runtime, which ad-hoc signatures cannot carry.
 module.exports = async function signMacApp(opts) {
   await signApp(opts);
-  const appexPath = join(opts.app, "Contents", "PlugIns", "EdgeEverShare.appex");
+  const appexPath = join(opts.app, "Contents", "PlugIns", "RTNoteShare.appex");
   if (!existsSync(appexPath)) {
     throw new Error(`macOS share extension is missing from the app bundle: ${appexPath}`);
   }
@@ -36,7 +36,7 @@ module.exports = async function signMacApp(opts) {
     throw new Error("macOS share extension cannot be signed without an identity (use \"-\" for ad-hoc)");
   }
   const adHoc = identity === "-";
-  const entitlements = join(__dirname, "..", "share-extension", "EdgeEverShare.entitlements");
+  const entitlements = join(__dirname, "..", "share-extension", "RTNoteShare.entitlements");
   const shared = adHoc ? ["--force", "--sign", identity] : ["--force", "--sign", identity, "--timestamp"];
   if (opts.keychain) shared.push("--keychain", opts.keychain);
   codesign([

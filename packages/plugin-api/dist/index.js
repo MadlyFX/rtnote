@@ -475,7 +475,7 @@ var SPDX_PATTERN = /^[A-Za-z0-9][A-Za-z0-9.+-]{0,63}$/;
 var COMMIT_SHA_PATTERN = /^[0-9a-f]{40}$/;
 var API_VERSION_PATTERN = /^\d+(?:\.\d+){0,3}$/;
 var NETWORK_HOST_PATTERN = /^(?:\*\.)?[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$/i;
-var isReservedMarketplacePluginId = (id) => id === "org.edgeever" || id.startsWith("org.edgeever.");
+var isReservedMarketplacePluginId = (id) => id === "org.rtnote" || id.startsWith("org.rtnote.");
 var readOptionalToken = (value, pattern, label, normalize) => {
   if (value === undefined)
     return;
@@ -553,7 +553,7 @@ var parseMarketplaceRegistry = (value) => {
     const description = item.description;
     const author = item.author;
     const locales = normalizeExtensionLocales(item.locales, `Marketplace entry ${item.id}`);
-    if (item.publisher !== undefined && item.publisher !== "edgeever") {
+    if (item.publisher !== undefined && item.publisher !== "rtnote") {
       throw new Error(`Marketplace entry ${item.id} has an invalid publisher.`);
     }
     const category = item.category;
@@ -591,7 +591,7 @@ var parseMarketplaceRegistry = (value) => {
       description: description.trim(),
       ...locales ? { locales } : {},
       author: author.trim(),
-      ...item.publisher === "edgeever" ? { publisher: "edgeever" } : {},
+      ...item.publisher === "rtnote" ? { publisher: "rtnote" } : {},
       category: category.trim(),
       repositoryUrl: repositoryUrl.trim(),
       distribution,

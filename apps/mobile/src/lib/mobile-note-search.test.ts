@@ -20,11 +20,11 @@ describe("mobile note search", () => {
       schema.node("paragraph", null, [
         schema.text("Edge"),
         schema.text("Ever", [strong]),
-        schema.text(" edgeever"),
+        schema.text(" rtnote"),
       ]),
     ]);
 
-    expect(getMobileNoteSearchMatches(doc, "edgeever")).toEqual([
+    expect(getMobileNoteSearchMatches(doc, "rtnote")).toEqual([
       { from: 1, to: 9 },
       { from: 10, to: 18 },
     ]);
@@ -36,7 +36,7 @@ describe("mobile note search", () => {
       schema.node("paragraph", null, schema.text("ever")),
     ]);
 
-    expect(getMobileNoteSearchMatches(doc, "edgeever")).toEqual([]);
+    expect(getMobileNoteSearchMatches(doc, "rtnote")).toEqual([]);
   });
 
   test("wraps previous and next navigation", () => {

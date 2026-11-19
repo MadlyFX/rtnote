@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import type { EdgeEverPluginHost, InstalledExtension, RegisteredPluginCommand } from "@/lib/plugins/plugin-host";
+import type { RTNotePluginHost, InstalledExtension, RegisteredPluginCommand } from "@/lib/plugins/plugin-host";
 import { PluginCatalogCard } from "@/components/plugins/PluginCatalogCard";
 import { loadDisplayPluginMarketplace } from "@/lib/plugins/community-registry";
 import {
@@ -27,9 +27,9 @@ import { applyPluginUpdate, checkPluginUpdates, type PluginUpdateInfo } from "@/
 import { PluginUpdateDialog } from "@/components/plugins/PluginUpdateDialog";
 import { PluginSettingsSection } from "@/components/plugins/PluginSettingsSection";
 import { buildPluginCatalogItems, getPluginCatalogDescription, getPluginCatalogName, getPluginCatalogSourceKey } from "@/lib/plugins/plugin-catalog";
-import type { MarketplaceEntry, MarketplaceRevocation } from "@edgeever/plugin-api";
+import type { MarketplaceEntry, MarketplaceRevocation } from "@rtnote/plugin-api";
 import { getPluginDetailPage, getPluginDetailPath, hasPluginSettings, isPluginCardCommand, type PluginDetailPage } from "@/lib/plugins/plugin-navigation";
-import type { ScheduledTask } from "@edgeever/shared";
+import type { ScheduledTask } from "@rtnote/shared";
 import { api, getOrCreateClientDeviceId } from "@/lib/api";
 import { BETA_BADGE_CLASSNAME } from "@/lib/workspace-ui";
 import { ScheduledTaskRunHistoryDialog } from "@/components/execution/ScheduledTaskRunHistoryDialog";
@@ -47,7 +47,7 @@ const PLUGIN_CARD_GRID_CLASS_NAME = "grid grid-cols-1 gap-2 sm:grid-cols-2 xl:gr
 const LegacyManualScheduledTasksSection = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const deviceId = window.edgeeverDesktop?.isAvailable ? getOrCreateClientDeviceId() : null;
+  const deviceId = window.rtnoteDesktop?.isAvailable ? getOrCreateClientDeviceId() : null;
   const [message, setMessage] = useState<string | null>(null);
   const [historyTask, setHistoryTask] = useState<ScheduledTask | null>(null);
   const tasksQuery = useQuery({
@@ -166,7 +166,7 @@ const PluginDetailView = ({
   commands: RegisteredPluginCommand[];
   extension: InstalledExtension;
   marketplaceEntry?: MarketplaceEntry;
-  host: EdgeEverPluginHost;
+  host: RTNotePluginHost;
   pendingId: string | null;
   update?: PluginUpdateInfo;
   onRunCommand: (command: RegisteredPluginCommand) => void;
@@ -296,7 +296,7 @@ export const PluginManagerCard = ({
   selectedPluginId,
   requestedPage = null,
 }: {
-  host: EdgeEverPluginHost;
+  host: RTNotePluginHost;
   onClosePlugin?: () => void;
   onOpenPlugin?: (pluginId: string) => void;
   selectedPluginId?: string | null;

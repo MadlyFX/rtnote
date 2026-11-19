@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import {
   VOICE_MEMO_MAX_DURATION_OPTIONS,
   normalizeVoiceMemoMaxDuration,
-} from "@edgeever/shared/voice-memo-names";
+} from "@rtnote/shared/voice-memo-names";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useVoiceMemoMaxDuration, writeVoiceMemoMaxDuration } from "@/lib/voice-memo-preferences";
 import { SETTINGS_ITEM_DESCRIPTION_CLASSNAME, SETTINGS_ITEM_TITLE_CLASSNAME } from "./settings-ui";

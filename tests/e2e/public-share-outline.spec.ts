@@ -68,7 +68,7 @@ for (const layout of ["standalone", "site"] as const) {
     try {
       await page.setViewportSize({ width: 1440, height: 900 });
       await page.goto(article.paths[layout]);
-      const outline = page.locator(".edgeever-public-share aside");
+      const outline = page.locator(".rtnote-public-share aside");
       await outline.getByRole("link", { name: "Before last", exact: true }).click();
       const atBottom = () => page.evaluate(() => window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 4);
       await expect.poll(atBottom).toBe(true);
@@ -100,7 +100,7 @@ for (const layout of ["standalone", "site"] as const) {
     try {
       await page.setViewportSize({ width: 1440, height: 900 });
       await page.goto(article.paths[layout]);
-      const outline = page.locator(".edgeever-public-share aside");
+      const outline = page.locator(".rtnote-public-share aside");
       const leaf = outline.getByRole("link", { name: "Leaf section", exact: true });
       await expect(leaf).toBeVisible();
       await expect(leaf).toHaveAttribute("href", "#article-leaf-section-1");
@@ -163,7 +163,7 @@ for (const layout of ["standalone", "site"] as const) {
       await page.goto(article.paths[layout]);
       await expect(page.locator(".tiptap")).toHaveText("No headings remain.");
       await expect(page.getByRole("button", { name: ui.editor.outline, exact: true })).toHaveCount(0);
-      await expect(page.locator(".edgeever-public-share aside")).toHaveCount(0);
+      await expect(page.locator(".rtnote-public-share aside")).toHaveCount(0);
     } finally {
       await article.cleanup();
     }
@@ -184,7 +184,7 @@ for (const layout of ["standalone", "site"] as const) {
     try {
       await page.setViewportSize({ width: 1440, height: 900 });
       await page.goto(article.paths[layout]);
-      const outline = page.locator(".edgeever-public-share aside");
+      const outline = page.locator(".rtnote-public-share aside");
       await expect(outline.locator('[aria-current="location"]')).toHaveText("Visible section");
       await expect(page.locator(".tiptap [data-type='details'].is-open")).toHaveCount(0);
       const target = outline.getByRole("link", { name: "Hidden target", exact: true });

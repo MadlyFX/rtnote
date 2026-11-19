@@ -7,11 +7,11 @@ import { loadDisplayPluginMarketplace } from "./community-registry.ts";
 import { communityPluginSubmissionIssueUrl } from "./community-plugin-submission.ts";
 
 const bundledEntry = {
-  id: "org.edgeever.tasks",
+  id: "org.rtnote.tasks",
   name: "Tasks",
   description: "Official tasks",
   author: "RTNote",
-  publisher: "edgeever",
+  publisher: "rtnote",
   category: "Productivity",
   repositoryUrl: "https://github.com/tianma-if/edgeever-tasks",
   distribution: { type: "github", repositoryUrl: "https://github.com/tianma-if/edgeever-tasks" },
@@ -96,7 +96,7 @@ describe("signed community registry", () => {
     });
 
     expect(first.community).toBe("refreshed");
-    expect(first.entries.map((entry) => entry.id)).toEqual(["org.edgeever.tasks", "com.example.readwise"]);
+    expect(first.entries.map((entry) => entry.id)).toEqual(["org.rtnote.tasks", "com.example.readwise"]);
     expect(first.entries[1]).toMatchObject({ listing: "community", licenseSpdx: "MIT" });
     expect(first.entries[0].repositoryUrl).toBe(bundledEntry.repositoryUrl);
 
@@ -110,7 +110,7 @@ describe("signed community registry", () => {
     });
 
     expect(retained.community).toBe("retained");
-    expect(retained.entries.map((entry) => entry.id)).toEqual(["org.edgeever.tasks", "com.example.readwise"]);
+    expect(retained.entries.map((entry) => entry.id)).toEqual(["org.rtnote.tasks", "com.example.readwise"]);
   });
 
   test("drops the community catalog when the instance has not configured it", async () => {
@@ -136,7 +136,7 @@ describe("signed community registry", () => {
     });
 
     expect(disabled.community).toBe("disabled");
-    expect(disabled.entries.map((entry) => entry.id)).toEqual(["org.edgeever.tasks"]);
+    expect(disabled.entries.map((entry) => entry.id)).toEqual(["org.rtnote.tasks"]);
   });
 
   test("does not let an older signed file replace the cached catalog", async () => {
@@ -165,7 +165,7 @@ describe("signed community registry", () => {
     });
 
     expect(result.community).toBe("cached");
-    expect(result.entries.map((entry) => entry.id)).toEqual(["org.edgeever.tasks", "com.example.readwise"]);
+    expect(result.entries.map((entry) => entry.id)).toEqual(["org.rtnote.tasks", "com.example.readwise"]);
     expect((await storage.readRegistry("https://official.example"))?.updatedAt).toBe("2026-10-06T00:00:00.000Z");
   });
 
@@ -194,7 +194,7 @@ describe("signed community registry", () => {
     });
 
     expect(first.revocations.map((item) => item.id)).toEqual(["com.example.readwise"]);
-    expect(second.entries.map((entry) => entry.id)).toEqual(["org.edgeever.tasks"]);
+    expect(second.entries.map((entry) => entry.id)).toEqual(["org.rtnote.tasks"]);
     expect(second.revocations.map((item) => item.id)).toEqual(["com.example.readwise"]);
   });
 

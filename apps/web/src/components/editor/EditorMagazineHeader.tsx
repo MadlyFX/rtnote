@@ -138,7 +138,7 @@ export const EditorMagazineHeader = ({
 
   return (
     <div
-      data-edgeever-magazine-header="true"
+      data-rtnote-magazine-header="true"
       className="mb-6 select-none"
       style={{
         fontFamily: "-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif",

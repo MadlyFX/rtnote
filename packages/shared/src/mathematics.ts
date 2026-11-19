@@ -6,8 +6,8 @@ import { TextSelection, type Transaction } from "@tiptap/pm/state";
 // the KaTeX instance the math nodes render with, on every client.
 import "katex/contrib/mhchem";
 import {
-  edgeEverBlockMathMarkdownTokenizer,
-  edgeEverInlineMathMarkdownTokenizer,
+  rtNoteBlockMathMarkdownTokenizer,
+  rtNoteInlineMathMarkdownTokenizer,
   findInlineMathSpans,
   matchBlockMathText,
   matchInlineMathSuffix,
@@ -18,11 +18,11 @@ export {
   INLINE_MATH_NODE_TYPE,
 } from "./mathematics-markdown";
 
-export type EdgeEverMathematicsClickHandler = (node: ProseMirrorNode, pos: number) => void;
+export type RTNoteMathematicsClickHandler = (node: ProseMirrorNode, pos: number) => void;
 
-export type CreateEdgeEverMathematicsOptions = {
-  onInlineClick?: EdgeEverMathematicsClickHandler;
-  onBlockClick?: EdgeEverMathematicsClickHandler;
+export type CreateRTNoteMathematicsOptions = {
+  onInlineClick?: RTNoteMathematicsClickHandler;
+  onBlockClick?: RTNoteMathematicsClickHandler;
 };
 
 const textAt = (doc: ProseMirrorNode, from: number, to: number) => {
@@ -39,8 +39,8 @@ const placeCaretAfterBlock = (tr: Transaction, posAfterBlock: number) => {
   tr.setSelection(TextSelection.create(tr.doc, posAfterBlock + 1));
 };
 
-const EdgeEverInlineMath = InlineMath.extend({
-  markdownTokenizer: edgeEverInlineMathMarkdownTokenizer,
+const RTNoteInlineMath = InlineMath.extend({
+  markdownTokenizer: rtNoteInlineMathMarkdownTokenizer,
 
   // Stored notes use `$latex$`. TipTap's own rule treats `$$latex$$` as inline math.
   addInputRules() {
@@ -82,8 +82,8 @@ const EdgeEverInlineMath = InlineMath.extend({
   },
 });
 
-const EdgeEverBlockMath = BlockMath.extend({
-  markdownTokenizer: edgeEverBlockMathMarkdownTokenizer,
+const RTNoteBlockMath = BlockMath.extend({
+  markdownTokenizer: rtNoteBlockMathMarkdownTokenizer,
 
   // A display formula is a paragraph of `$$latex$$`. TipTap's own rule expects `$$$latex$$$`.
   addInputRules() {
@@ -155,7 +155,7 @@ const katexOptions = {
 };
 
 /** Fresh extension instances for each TipTap editor or Markdown manager. */
-export const createEdgeEverMathematics = (options: CreateEdgeEverMathematicsOptions = {}) => [
-  EdgeEverBlockMath.configure({ katexOptions, onClick: options.onBlockClick }),
-  EdgeEverInlineMath.configure({ katexOptions, onClick: options.onInlineClick }),
+export const createRTNoteMathematics = (options: CreateRTNoteMathematicsOptions = {}) => [
+  RTNoteBlockMath.configure({ katexOptions, onClick: options.onBlockClick }),
+  RTNoteInlineMath.configure({ katexOptions, onClick: options.onInlineClick }),
 ];

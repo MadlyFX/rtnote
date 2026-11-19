@@ -6,7 +6,7 @@ const executable = "/Applications/RTNote.app/Contents/MacOS/RTNote";
 describe("macOS share extension registration", () => {
   test("points at the PlugIns copy next to the packaged executable", () => {
     expect(macShareExtensionPath(executable)).toBe(
-      "/Applications/RTNote.app/Contents/PlugIns/EdgeEverShare.appex",
+      "/Applications/RTNote.app/Contents/PlugIns/RTNoteShare.appex",
     );
   });
 
@@ -24,7 +24,7 @@ describe("macOS share extension registration", () => {
     });
     expect(result).toEqual({ enabled: true });
     expect(calls).toEqual([
-      ["-a", "/Applications/RTNote.app/Contents/PlugIns/EdgeEverShare.appex"],
+      ["-a", "/Applications/RTNote.app/Contents/PlugIns/RTNoteShare.appex"],
       ["-e", "use", "-i", "com.madlyfx.rtnote.share"],
     ]);
   });

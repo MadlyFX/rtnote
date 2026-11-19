@@ -1,7 +1,7 @@
 import type { Editor } from "@tiptap/core";
 import { EditorState } from "@tiptap/pm/state";
 import type { ImageWidthPresetId } from "./image-display";
-import { ATTACHMENT_TEXT_PREFIX } from "./edgeever-legacy-values";
+import { ATTACHMENT_TEXT_PREFIX } from "./rtnote-legacy-values";
 import { MOBILE_EDITOR_COPY_JA } from "./mobile-editor.ja";
 import { MOBILE_EDITOR_COPY_ZH_CN } from "./mobile-editor.zh-CN";
 import { MOBILE_EDITOR_COPY_ZH_TW } from "./mobile-editor.zh-TW";
@@ -54,7 +54,7 @@ export type MobileEditorCopy = {
   actions: Record<MobileEditorToolbarActionId, string>;
   imageScale: string;
   imageSizes: Record<ImageWidthPresetId, string>;
-  /** Written before attachment links in new notes. English for every locale; see edgeever-legacy-values. */
+  /** Written before attachment links in new notes. English for every locale; see rtnote-legacy-values. */
   attachmentPrefix: string;
   close: string;
   codeBlock: {

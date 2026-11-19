@@ -1,6 +1,6 @@
 import type { Editor } from "@tiptap/react";
 import { isInTable, selectedRect } from "@tiptap/pm/tables";
-import { CELL_BORDER_NONE, normalizeCellBorder, normalizeTextColor } from "@edgeever/shared";
+import { CELL_BORDER_NONE, normalizeCellBorder, normalizeTextColor } from "@rtnote/shared";
 
 const targetsHeaderRow = (editor: Editor) => {
   // CellSelection.from/to describe the head cell, so isActive("tableHeader")

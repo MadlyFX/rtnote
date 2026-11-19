@@ -26,7 +26,7 @@
   "completePluginConfiguration": {
     "message": "Please complete the extension setup"
   },
-  "savedToEdgeEver": {
+  "savedToRTNote": {
     "message": "Saved to RTNote."
   },
   "saveFailed": {
@@ -202,7 +202,7 @@
   "emptyPageContent": {
     "message": "(No readable content was found on this page)"
   },
-  "saveSelectionToEdgeEver": {
+  "saveSelectionToRTNote": {
     "message": "Save selection to RTNote"
   },
   "selectionSaveHint": {
@@ -220,7 +220,7 @@
   "selectionNoteFallbackTitle": {
     "message": "Selection"
   },
-  "saveImageToEdgeEver": {
+  "saveImageToRTNote": {
     "message": "Save image to RTNote"
   },
   "imageSaveHint": {
@@ -279,7 +279,7 @@
   "imageSaveExpired": {
     "message": "This save has expired. Right-click the image and try again."
   },
-  "saveTweetToEdgeEver": {
+  "saveTweetToRTNote": {
     "message": "Save post to RTNote"
   },
   "tweetSaveHint": {
@@ -321,7 +321,7 @@
   "tweetTimeLabel": {
     "message": "Time"
   },
-  "saveGithubRepoToEdgeEver": {
+  "saveGithubRepoToRTNote": {
     "message": "Save repository info to RTNote"
   },
   "githubRepoSaveHint": {
@@ -351,7 +351,7 @@
   "githubRepoTopicsLabel": {
     "message": "Topics"
   },
-  "saveXhsToEdgeEver": {
+  "saveXhsToRTNote": {
     "message": "Save note to RTNote"
   },
   "savingXhs": {
@@ -393,7 +393,7 @@
   "xhsLocationLabel": {
     "message": "Location"
   },
-  "saveZhihuToEdgeEver": {
+  "saveZhihuToRTNote": {
     "message": "Save answer or article to RTNote"
   },
   "zhihuQuestionLabel": {
@@ -447,7 +447,7 @@
   "zhihuSaveWindowTitle": {
     "message": "Save answer or article to RTNote"
   },
-  "saveRedditToEdgeEver": {
+  "saveRedditToRTNote": {
     "message": "Save Reddit post to RTNote"
   },
   "savingReddit": {
@@ -471,7 +471,7 @@
   "redditLinkLabel": {
     "message": "Linked page"
   },
-  "saveVideoNoteToEdgeEver": {
+  "saveVideoNoteToRTNote": {
     "message": "Save video note to RTNote"
   },
   "savingVideoNote": {
@@ -528,13 +528,13 @@
   "videoNoteFallbackTitle": {
     "message": "Video note"
   },
-  "saveHackerNewsToEdgeEver": {
+  "saveHackerNewsToRTNote": {
     "message": "Save Hacker News post to RTNote"
   },
-  "saveV2exToEdgeEver": {
+  "saveV2exToRTNote": {
     "message": "Save V2EX topic to RTNote"
   },
-  "saveXiaoyuzhouToEdgeEver": {
+  "saveXiaoyuzhouToRTNote": {
     "message": "Save Xiaoyuzhou episode to RTNote"
   },
   "savingPlatformClip": {
@@ -582,19 +582,19 @@
   "platformPodcastLabel": {
     "message": "Podcast"
   },
-  "saveFacebookToEdgeEver": {
+  "saveFacebookToRTNote": {
     "message": "Save Facebook post to RTNote"
   },
-  "saveInstagramToEdgeEver": {
+  "saveInstagramToRTNote": {
     "message": "Save Instagram post to RTNote"
   },
-  "saveLinkedinToEdgeEver": {
+  "saveLinkedinToRTNote": {
     "message": "Save LinkedIn post to RTNote"
   },
-  "saveThreadsToEdgeEver": {
+  "saveThreadsToRTNote": {
     "message": "Save Threads post to RTNote"
   },
-  "saveBlueskyToEdgeEver": {
+  "saveBlueskyToRTNote": {
     "message": "Save Bluesky post to RTNote"
   },
   "socialSelectPost": {
@@ -621,7 +621,7 @@
   "platformXiaoyuzhou": {
     "message": "Xiaoyuzhou"
   },
-  "saveSubstackNoteToEdgeEver": {
+  "saveSubstackNoteToRTNote": {
     "message": "Save Substack Note to RTNote"
   },
   "adaptedPlatformsTitle": {
@@ -678,10 +678,10 @@
   "clipNotifications": {
     "message": "Clipping notifications"
   },
-  "saveBossToEdgeEver": {
+  "saveBossToRTNote": {
     "message": "Save BOSS Zhipin job to RTNote"
   },
-  "saveXueqiuToEdgeEver": {
+  "saveXueqiuToRTNote": {
     "message": "Save Xueqiu post to RTNote"
   },
   "platformBoss": {
@@ -699,31 +699,31 @@
   "platformWechat": {
     "message": "WeChat"
   },
-  "saveWechatToEdgeEver": {
+  "saveWechatToRTNote": {
     "message": "Save WeChat to RTNote"
   },
   "platformJike": {
     "message": "Jike"
   },
-  "saveJikeToEdgeEver": {
+  "saveJikeToRTNote": {
     "message": "Save Jike to RTNote"
   },
   "platformSspai": {
     "message": "SSPAI"
   },
-  "saveSspaiToEdgeEver": {
+  "saveSspaiToRTNote": {
     "message": "Save SSPAI to RTNote"
   },
   "platformJuejin": {
     "message": "Juejin"
   },
-  "saveJuejinToEdgeEver": {
+  "saveJuejinToRTNote": {
     "message": "Save Juejin to RTNote"
   },
   "platformDouban": {
     "message": "Douban"
   },
-  "saveDoubanToEdgeEver": {
+  "saveDoubanToRTNote": {
     "message": "Save Douban to RTNote"
   },
   "platformOfficialAccountLabel": {
