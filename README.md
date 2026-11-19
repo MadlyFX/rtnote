@@ -12,6 +12,22 @@ RTNote is an open-source notes app with a classic three-pane layout (notebooks Â
   <img src="docs/assets/screenshots/workspace.png" alt="RTNote workspace: notebooks, note list and the rich-text editor on the warm paper theme" width="900" />
 </p>
 
+## More than text notes
+
+Besides ordinary rich-text notes, RTNote has typed notes that live in the same notebooks, sync the same way and can be shared the same way.
+
+<p align="center">
+  <img src="docs/assets/screenshots/feature-tracker.png" alt="A table note used as a feature tracker, with categories, a verified checkbox, review dates and file attachments per record" width="900" />
+</p>
+
+**Table notes** are small databases: typed fields, filters and sorting, per-record attachments, CSV export and public form links for collecting responses.
+
+<p align="center">
+  <img src="docs/assets/screenshots/system-architecture.png" alt="A diagram note showing the RTNote system architecture, with clients, the shared core, agents and storage adapters" width="900" />
+</p>
+
+**Diagram notes** are an editable canvas with a shape library, grouped regions, labelled connectors, auto layout, zoom and export. Flowcharts, mind maps and architecture diagrams all use it.
+
 ## Principles
 
 - **Rich text first.** Notes are stored as rich-text documents. Markdown is an import and export format, not the source of truth.
@@ -23,15 +39,42 @@ RTNote is an open-source notes app with a classic three-pane layout (notebooks Â
 
 ## Features
 
-- Three-pane workspace with nested notebooks, tags, drag-and-drop sorting and fast full-text search
-- TipTap/ProseMirror editor with fonts, text sizes, alignment and line spacing, text colour and highlight, tables with merged and coloured cells, captioned images, image galleries, task lists, maths, code blocks and Mermaid diagrams
+**Writing**
+
+- TipTap/ProseMirror editor with fonts, text sizes, alignment and line spacing, text colour and highlight, tables with merged and coloured cells, captioned images, image galleries, task lists, maths, code blocks and Mermaid diagrams (insert from the slash menu)
 - Voice memos on web, desktop, Android and iOS: record, pause and resume into a note, play back with seeking, add a title, and transcribe with your own speech provider. Recordings are ordinary attachments, saved on the device first when offline, and transcripts are searchable
-- Offline-first sync across web (PWA), desktop, Android and iOS, with revision history
-- Public sharing of single notes or whole notebooks as static sites, with optional passwords and expiry
-- Attachments up to 1 GiB with client-side image compression
-- Import from Evernote, Notion, Obsidian, Joplin, Memos and Markdown; ZIP backup and Markdown export
+- Note outline, focus mode, a quick note switcher, and notes that open in their own window on desktop
+- Templates for starting new notes, and a welcome note that shows what the editor can do
+
+**Note types**
+
+- Table notes with typed fields, filters, sorting, per-record attachments, CSV export and public form links
+- Diagram notes: flowcharts, mind maps (with an outline editor) and architecture diagrams, with auto layout and image export
+- Infographic notes, including timelines and milestones, with a gallery of layouts
+- Poster notes with 40 templates, 12 platform presets, layers, and PNG, JPEG or WebP export (see [Poster notes](docs/poster-notes.md))
+
+**Organising and finding**
+
+- Nested notebooks with colours, tags, pinned notes, drag-and-drop sorting and fast full-text search
+- Attachments up to 1 GiB with client-side image compression, plus an assets view across all notes
+- Revision history for every note
+
+**Sync and sharing**
+
+- Offline-first sync across web (PWA), desktop, Android and iOS
+- Public sharing of single notes or whole notebooks as static sites, with search, optional passwords and expiry
+- Notebook sites with their own branding, so shared pages carry your name, logo and colours
+
+**Agents and extensions**
+
+- Remote MCP server so external agents can read and write notes, tables, diagrams and posters, with read-only or full-access tokens (see the [MCP guide](docs/mcp-guide.md))
+- Plugins and no-code themes from a built-in marketplace, GitHub repositories or manifest URLs (see the [plugin guide](docs/plugin-development.md))
 - Web clipper for Chrome, Edge and Firefox
-- Remote MCP server so external agents can read and write notes
+
+**Moving in and out**
+
+- Import from Evernote, Notion, Obsidian, Joplin, Memos and Markdown
+- ZIP backup, scheduled desktop backups and Markdown export
 
 ## Clients
 
