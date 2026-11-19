@@ -162,8 +162,10 @@ describe("demo seed catalog", () => {
     const nodeTypes = new Set();
     const markAttributes = new Set();
     const blockAttributes = new Set();
+    const codeLanguages = new Set();
     const walk = (node) => {
       nodeTypes.add(node.type);
+      if (node.type === "codeBlock") codeLanguages.add(node.attrs?.language);
       for (const mark of node.marks ?? []) {
         for (const [key, value] of Object.entries(mark.attrs ?? {})) if (value) markAttributes.add(key);
       }
@@ -181,8 +183,9 @@ describe("demo seed catalog", () => {
     for (const key of ["fontFamily", "fontSize", "color", "backgroundColor"]) {
       expect(markAttributes.has(key)).toBe(true);
     }
-    for (const attribute of ["paragraph.textAlign", "paragraph.lineHeight", "tableHeader.colspan", "tableCell.backgroundColor"]) {
+    for (const attribute of ["paragraph.textAlign", "heading.textAlign", "tableHeader.colspan", "tableCell.backgroundColor"]) {
       expect(blockAttributes.has(attribute)).toBe(true);
     }
+    expect(codeLanguages.has("mermaid")).toBe(true);
   });
 });

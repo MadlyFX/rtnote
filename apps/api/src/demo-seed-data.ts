@@ -548,38 +548,26 @@ Collect, organize, and express your thoughts in a self-hostable platform
 <figcaption>Images can carry a caption, like this one.</figcaption>
 </figure>
 
-## Make the words look right
+<div align="center">
+
+## <span style="background-color: #fbf3db">Move Beyond Markdown</span>
+
+</div>
 
 RTNote moves beyond markdown, instead storing every note as a rich-text document. This allows for advanced formatting, fonts, sizing, and color, while still retaining markdown export compatibility for those that need it.
 
-<span style="font-family: Georgia, 'Times New Roman', Times, serif; font-size: 20px">A serif for long reads.</span> <span style="font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Courier New', monospace">A monospace for code.</span> <span style="color: #337ea9">Blue</span>, <span style="color: #448361">green</span> and <span style="color: #c76b21">orange</span> for emphasis, and <span style="background-color: #fbf3db">a highlight</span> for the line that matters.
-
-<div align="center" style="line-height: 2">
-
-<span style="color: #9065b0; font-size: 20px">Centre a line, or give a paragraph room to breathe.</span>
-
-</div>
-
-<div align="right">
-
-<span style="color: #787774">Right-aligned text works too.</span>
-
-</div>
-
-## Tables that do more
-
-Select cells to merge them, or right-click a cell to colour it.
+## Tables
 
 <table>
 <tr>
-<th colspan="3" style="background-color: #e7f3f8">
+<th colspan="3" colwidth="162,0,0" style="background-color: #e7f3f8">
 
 Where RTNote runs
 
 </th>
 </tr>
 <tr>
-<td style="background-color: #fbecdd">
+<td colwidth="162" style="background-color: #fbecdd">
 
 **Cloudflare**
 
@@ -595,8 +583,8 @@ Runs on the free tier
 
 </td>
 </tr>
-<tr>
-<td style="background-color: #edf3ec">
+<tr style="height: 39px">
+<td colwidth="162" style="background-color: #edf3ec">
 
 **Docker**
 
@@ -614,7 +602,7 @@ SQLite with local or S3 storage
 </tr>
 </table>
 
-## Pictures side by side
+## Pictures and Galleries
 
 Drop several images in a row and they become a gallery:
 
@@ -629,6 +617,15 @@ Word documents and PDFs preview right inside the note:
 [Word document: rtnote-meeting-notes.docx](/api/v1/resources/res_demo_meeting_notes_docx/blob)
 
 [PDF: rtnote-product-brief.pdf](/api/v1/resources/res_demo_product_brief_pdf/blob)
+
+## Diagrams from text
+
+Type \`/mermaid\` to sketch a diagram in plain text. It redraws as you edit the source.
+
+\`\`\`mermaid
+flowchart LR
+  A[Write] --> B[Organize] --> C[Share]
+\`\`\`
 
 ## Try these next
 
