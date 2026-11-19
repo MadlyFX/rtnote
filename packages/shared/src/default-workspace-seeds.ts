@@ -139,8 +139,8 @@ export const WELCOME_MEMO_TRANSLATIONS: Record<SupportedLocale, WelcomeMemoTrans
   "en-US": {
     title: "Welcome to RTNote",
     paragraphs: [
-      "This is your first RTNote note: three panes, running on the edge, ready for AI agents.",
-      "Next, create notebooks, write notes, search your content, and merge several notes into a new long-term note.",
+      "This is your first RTNote note: a three-pane, rich-text notes workspace that you host yourself.",
+      "Next, create notebooks, write notes, record voice memos, search your content, and merge several notes into one.",
     ],
   },
   ja: WELCOME_MEMO_TRANSLATION_JA,
